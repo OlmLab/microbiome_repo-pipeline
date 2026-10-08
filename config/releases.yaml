@@ -184,6 +184,15 @@ releases:
     site_tag: site-v1.14.0
     label: "owner review 2026-10-01: interventions (study-level list of administered interventions for every catalog study from abstracts / descriptions, per-sample intervention arms from archive attributes, intervention_cohort recoded to the trial population's condition); core age = life stage (age_category), sex and exact age moved to key fields; grouped drop-down navigation with an Insights section; narrower Studies table (samples, Gbp per sample, interventions); registry table marks catalog studies; Zenodo DOI shown"
 
+  - release_id: R2026.16
+    package_version: '1.15.0'
+    previous_package_version: '1.14.0'
+    previous_release_id: R2026.15
+    notes_file: RELEASE_NOTES_R2026.16.md
+    data_tag: data-v1.15.0
+    site_tag: site-v1.15.0
+    label: "owner review 2026-10-08: sequencing depth for every sample (NCBI SRA bases for dbGaP / unmirrored runs, cross-study and infant run fallbacks; seq_gbp / n_runs on the wide table); registry explains why each study is or is not in the catalog; minimalist home with one search; nav = Home · Sample sheet · Project sheet · Contribute · Explore · About; Project-sheet filters (condition × intervention × design × cases/controls); For-LLMs page, llms.txt and a static JSON / CSV API; optional web analytics"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

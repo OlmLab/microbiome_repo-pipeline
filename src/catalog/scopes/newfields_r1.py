@@ -523,25 +523,89 @@ def det_row(sample, field, study, value, norm, conf, key, locator, quote, note="
                 src_track=SRC_TRACK, release_added=release_id, release_retired=None, package_added=pv)
 
 
-def build_gut_runs(registry_runs: pd.DataFrame, sandpiper: pd.DataFrame | None, gut_studies: set, wide: pd.DataFrame) -> pd.DataFrame:
+def build_gut_runs(registry_runs: pd.DataFrame, sandpiper: pd.DataFrame | None, gut_studies: set, wide: pd.DataFrame,
+                   infant_runs: pd.DataFrame | None = None, ncbi_bases: pd.DataFrame | None = None, est_bases: pd.DataFrame | None = None) -> pd.DataFrame:
     """gut_runs: one row per run of a catalog study (registry_runs ∩ gut studies) with sample_key from the wide table
-    (run-unit samples are keyed by the run accession; biosample-unit samples by biosample_accession / secondary_sample)."""
+    (run-unit samples are keyed by the run accession; biosample-unit samples by biosample_accession / secondary_sample).
+
+    R2026.16 (owner: every sample must have a depth): (1) a catalog sample with no run in its own study takes the registry runs of the
+    same BioSample filed under another study (run_study_accession keeps the archive's study); (2) samples still without a run take
+    their runs from the curated infant runs table; (3) runs whose ENA base_count is 0 / blank (dbGaP-protected or not yet mirrored)
+    take NCBI SRA runinfo bases (base_count_source = ncbi_sra)."""
     cols = ["run_accession", "study_accession", "sample_accession", "secondary_sample_accession", "experiment_accession", "library_name", "library_strategy",
             "library_source", "library_layout", "instrument_platform", "instrument_model", "read_count", "base_count", "first_public"]
-    r = registry_runs.loc[registry_runs.study_accession.isin(gut_studies), [c for c in cols if c in registry_runs.columns]].copy()
+    m1 = dict(zip(wide.biosample_accession, wide.sample_key))
+    sec = wide[wide.secondary_sample.notna()]
+    m2 = dict(zip(sec.secondary_sample, sec.sample_key))
+    runk = set(wide.loc[wide.sample_unit == "run", "sample_key"])
+    wstudy = dict(zip(wide.sample_key, wide.study_accession))
+
+    def keyed(df):
+        df = df.copy()
+        sk = df.sample_accession.map(m1)
+        if "secondary_sample_accession" in df.columns:
+            sk = sk.where(sk.notna(), df.secondary_sample_accession.map(m2))
+        df["sample_key"] = df.run_accession.where(df.run_accession.isin(runk), sk)
+        return df
+
+    rr = registry_runs[[c for c in cols if c in registry_runs.columns]]
+    r = keyed(rr[rr.study_accession.isin(gut_studies)])
+    r["run_study_accession"] = r["study_accession"]
+    have = set(r.sample_key.dropna())
+    # (1) same BioSample, run filed under another study
+    other = rr[~rr.study_accession.isin(gut_studies) & (rr.sample_accession.isin(m1) | rr.get("secondary_sample_accession", pd.Series(dtype=str)).isin(m2))]
+    if len(other):
+        o = keyed(other)
+        o = o[o.sample_key.notna() & ~o.sample_key.isin(have)]
+        o["run_study_accession"] = o["study_accession"]
+        o["study_accession"] = o.sample_key.map(wstudy)
+        r = pd.concat([r, o], ignore_index=True)
+        have |= set(o.sample_key)
+    # (2) curated infant runs table
+    if infant_runs is not None and len(infant_runs):
+        ir = keyed(infant_runs[[c for c in cols if c in infant_runs.columns]])
+        ir = ir[ir.sample_key.notna() & ~ir.sample_key.isin(have) & ~ir.run_accession.isin(set(r.run_accession))]
+        if len(ir):
+            ir["run_study_accession"] = ir["study_accession"]
+            ir["study_accession"] = ir.sample_key.map(wstudy)
+            r = pd.concat([r, ir], ignore_index=True)
+    r = r.drop_duplicates("run_accession", keep="first")
+    # (3) NCBI SRA bases where ENA has none
+    bc = pd.to_numeric(r.base_count, errors="coerce")
+    r["base_count_source"] = "ena"
+    if ncbi_bases is not None and len(ncbi_bases):
+        nb = ncbi_bases.drop_duplicates("run_accession", keep="last").set_index("run_accession")
+        nbb = pd.to_numeric(r.run_accession.map(nb.ncbi_bases), errors="coerce")
+        fill = (bc.fillna(0) <= 0) & (nbb.fillna(0) > 0)
+        bc = bc.where(~fill, nbb)
+        r.loc[fill, "base_count_source"] = "ncbi_sra"
+        if "read_count" in r.columns:
+            rc = pd.to_numeric(r.read_count, errors="coerce")
+            nbs = pd.to_numeric(r.run_accession.map(nb.ncbi_spots), errors="coerce")
+            r["read_count"] = rc.where(~(fill & (rc.fillna(0) <= 0)), nbs)
+    # (4) last resort: an estimate from the submitted file size (ENA has not processed the files; NCBI has no record) — flagged
+    if est_bases is not None and len(est_bases):
+        eb = pd.to_numeric(r.run_accession.map(est_bases.drop_duplicates("run_accession").set_index("run_accession").est_bases), errors="coerce")
+        fill = (bc.fillna(0) <= 0) & (eb.fillna(0) > 0)
+        bc = bc.where(~fill, eb)
+        r.loc[fill, "base_count_source"] = "estimate_submitted_bytes"
+    r["base_count"] = bc
+    r.loc[bc.fillna(0) <= 0, "base_count_source"] = "none"
     if sandpiper is not None and len(sandpiper):
         sp = sandpiper.drop_duplicates("run_accession").set_index("run_accession").sandpiper_profiled
         r["sandpiper_profiled"] = r.run_accession.map(sp).fillna(False).astype(bool)
     else:
         r["sandpiper_profiled"] = False
-    m1 = dict(zip(wide.biosample_accession, wide.sample_key))
-    sec = wide[wide.secondary_sample.notna()]
-    m2 = dict(zip(sec.secondary_sample, sec.sample_key))
-    runk = set(wide.loc[wide.sample_unit == "run", "sample_key"])
-    sk = r.sample_accession.map(m1)
-    sk = sk.where(sk.notna(), r.secondary_sample_accession.map(m2))
-    r["sample_key"] = r.run_accession.where(r.run_accession.isin(runk), sk)
     return r.reset_index(drop=True)
+
+
+def sample_depth(gut_runs: pd.DataFrame) -> pd.DataFrame:
+    """Per-sample sequencing summary: n_runs, seq_gbp (bases summed over the sample's runs / 1e9), seq_reads, seq_depth_source."""
+    g = gut_runs.dropna(subset=["sample_key"]).assign(_b=lambda d: pd.to_numeric(d.base_count, errors="coerce"), _r=lambda d: pd.to_numeric(d.read_count, errors="coerce"))
+    agg = g.groupby("sample_key").agg(n_runs=("run_accession", "size"), seq_gbp=("_b", lambda s: s.sum(min_count=1) / 1e9), seq_reads=("_r", lambda s: s.sum(min_count=1)),
+                                      seq_depth_source=("base_count_source", lambda s: ";".join(sorted(set(s) - {"none"})) or "none"))
+    agg.loc[agg.seq_gbp.fillna(0) <= 0, "seq_gbp"] = None
+    return agg
 
 
 def _sample_key_map(attrs: pd.DataFrame, wide: pd.DataFrame, gut_runs: pd.DataFrame | None) -> pd.DataFrame:

@@ -7,7 +7,7 @@ const CFG = window.REGISTRY_CFG;
 const PAGE = 50;
 // owner review 2026-10-01: the first column says whether a study is in the curated catalog; samples only (no run counts)
 const SHOW_COLS = ['in_catalog', 'study_accession', 'study_title', 'n_samples', 'body_sites', 'life_stages', 'assay', 'classification_stage'];
-const COL_LABELS = {in_catalog: 'Catalog', study_accession: 'study', study_title: 'title', n_samples: 'samples', body_sites: 'body sites', life_stages: 'life stages', classification_stage: 'classified by'};
+const COL_LABELS = {in_catalog: 'In catalog? (why not)', study_accession: 'study', study_title: 'title', n_samples: 'samples', body_sites: 'body sites', life_stages: 'life stages', classification_stage: 'classified by'};
 const SORTABLE = new Set(['study_accession', 'study_title', 'n_samples', 'assay', 'classification_stage', 'body_site_primary', 'life_stage_primary', 'first_public_min']);
 const LIST_COLS = ['body_sites', 'life_stages', 'scope_memberships', 'population_flags'];
 const EVIDENCE_COLS = [['host_evidence', 'host_human'], ['body_site_evidence', 'body_sites'], ['life_stage_evidence', 'life_stages']];
@@ -107,6 +107,27 @@ function readUrl() {
   if (p.get('sort')) { const [c, d] = p.get('sort').split(':'); if (SORTABLE.has(c)) { sortCol = c; sortDir = d === 'ASC' ? 'ASC' : 'DESC'; } }
 }
 
+
+// Why a registry study is or is not in the curated catalog (R2026.16, owner: "it should be clear WHY"). Mirrors the pack study_rule
+// (config/packs/gut.yaml): host human yes/mixed AND assay shotgun_dna/mixed AND gut_stool among the body sites, or an included infant
+// study. Returns {inCat, reasons: [{short, long}]}; the first reason is the one shown in the table.
+function catalogReasons(s) {
+  if (INCLUDED.has(s.study_accession)) return {inCat: true, reasons: []};
+  const out = [];
+  const lab = c => (CFG.assayLabels && CFG.assayLabels[c] && (CFG.assayLabels[c].label || CFG.assayLabels[c])) || c;
+  if (!['yes', 'mixed'].includes(s.host_human)) out.push(s.host_human === 'no'
+      ? {short: 'host not human', long: 'The runs are not from a human host (host_human = no).'}
+      : {short: 'human host not established', long: `The archive metadata do not establish a human host (host_human = ${s.host_human || 'unknown'}).`});
+  if (!['shotgun_dna', 'mixed'].includes(s.assay)) out.push({short: `not a shotgun metagenome (${lab(s.assay)})`,
+      long: `The sequencing is not a DNA shotgun metagenome: assay = ${s.assay} (${lab(s.assay)})${s.library_sources ? '; library source ' + s.library_sources : ''}${s.library_strategies ? ', strategy ' + s.library_strategies : ''}.`});
+  const sites = (s.body_sites || '').split(';').filter(Boolean);
+  if (!sites.includes('gut_stool')) out.push({short: sites.length && !sites.every(x => x.startsWith('unknown')) ? `no gut samples (${sites.join(', ')})` : 'body site not established as gut',
+      long: sites.length && !sites.every(x => x.startsWith('unknown')) ? `None of the samples is from the gut / stool (body sites: ${sites.join(', ')}).` : 'No sample or study text establishes a gut / stool body site.'});
+  if (s.classification_stage === 'owner_decision') out.push({short: 'owner decision', long: 'Excluded by a study-level owner decision (config/registry_overrides.yaml).'});
+  if (s.classification_stage === 'pending') out.push({short: 'classification pending', long: 'The study has not been classified yet (stage pending); it will be reconsidered next cycle.'});
+  if (!out.length) out.push({short: 'not in this release', long: 'The study meets the rule but is not in this release.'});
+  return {inCat: false, reasons: out};
+}
 function stageBadge(v) { return v ? `<span class="tag ${STAGE_CLASS[v] || ''}" title="${h(CFG.stageLabels[v] || v)}">${h(v)}</span>` : ''; }
 function accLink(acc, verdict) {
   const ena = `<a class="small" href="${CFG.enaUrl}${h(acc)}">ENA</a>`;
@@ -119,14 +140,14 @@ async function run() {
   const c = await conn.query(`SELECT COUNT(*) AS n, COALESCE(SUM(n_samples),0) AS r, COUNT(*) FILTER (WHERE study_accession IN (SELECT study_accession FROM catalog_studies)) AS nc FROM registry ${where}`);
   const c0 = c.toArray()[0].toJSON(); total = Number(c0.n);
   const maxPage = Math.max(0, Math.ceil(total / PAGE) - 1); if (page > maxPage) page = maxPage;
-  const r = await conn.query(`SELECT study_accession, study_title, n_samples, body_sites, life_stages, assay, classification_stage, in_infant_catalog FROM registry ${where} ORDER BY "${sortCol}" ${sortDir} NULLS LAST, study_accession LIMIT ${PAGE} OFFSET ${page * PAGE}`);
+  const r = await conn.query(`SELECT study_accession, study_title, n_samples, body_sites, life_stages, assay, classification_stage, in_infant_catalog, host_human, library_sources, library_strategies FROM registry ${where} ORDER BY "${sortCol}" ${sortDir} NULLS LAST, study_accession LIMIT ${PAGE} OFFSET ${page * PAGE}`);
   const rows = r.toArray().map(x => x.toJSON());
   const thead = $('result-table').querySelector('thead'), tbody = $('result-table').querySelector('tbody');
   thead.innerHTML = '<tr>' + SHOW_COLS.map(col => SORTABLE.has(col)
     ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
     : `<th>${COL_LABELS[col] || col}</th>`).join('') + '</tr>';
   tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.study_accession)}" tabindex="0" role="button" aria-label="open details for ${h(row.study_accession)}">` +
-    `<td>${INCLUDED.has(row.study_accession) ? '<span class="tag incat" title="in the curated catalog (human gut, all ages) — study page with per-sample metadata">✓ in catalog</span>' : '<span class="small muted" title="registry only: classified, not curated">registry only</span>'}</td>` +
+    `<td>${(() => { const c = catalogReasons(row); return c.inCat ? '<span class="tag incat" title="in the curated catalog (human gut, all ages) — study page with per-sample metadata">✓ in catalog</span>' : `<span class="small notcat" title="${h(c.reasons.map(x => x.long).join(' '))}">✗ ${h(c.reasons[0].short)}</span>`; })()}</td>` +
     `<td>${accLink(row.study_accession, row.in_infant_catalog)}</td><td><span class="small clip" title="${h(row.study_title)}">${h(row.study_title)}</span></td><td class="num">${fmtV(row.n_samples)}</td>` +
     `<td class="small">${h(row.body_sites)}</td><td class="small">${h(row.life_stages)}</td><td class="mono small">${h(row.assay)}</td><td>${stageBadge(row.classification_stage)}</td></tr>`).join('');
   const hv = hostValues(); const hostNote = hv.length && hv.length < HOST_ALL.length ? ` (host human: ${hv.join(', ')})` : '';
@@ -168,6 +189,8 @@ async function showDetail(acc) {
   let html = `<h2 style="margin-top:0">${h(acc)} ${stageBadge(s.classification_stage)}</h2>
   <p class="small"><a href="${CFG.enaUrl}${h(acc)}">ENA study</a>${inc ? ` · <a href="${CFG.studiesUrl}${h(acc)}.html">catalog study page</a>` : ' · registry-only study (not in the curated catalog)'}</p>
   <p>${h(s.study_title)}</p>${s.description_short ? `<p class="small">${h(s.description_short)}</p>` : ''}
+  ${(() => { const c = catalogReasons(s); return c.inCat ? `<div class="note"><b>In the curated catalog.</b> <a href="${CFG.studiesUrl}${h(acc)}.html">Study page</a> with per-sample metadata and evidence.</div>`
+     : `<div class="note"><b>Why this study is not in the catalog</b><ul style="margin:.3rem 0 .2rem 1.1rem">${c.reasons.map(x => `<li>${h(x.long)}</li>`).join('')}</ul><span class="small">Catalog rule: ${h(CFG.studyRule)}. Think this is wrong? <a href="https://github.com/${h((window.CATALOG || {}).issueRepo || '')}/issues/new?template=${encodeURIComponent((window.CATALOG || {}).issueTemplate || '')}&title=${encodeURIComponent('[' + acc + '] should be in the catalog?')}">Open a short issue</a>.</span></div>`; })()}
   <h3>Classification</h3><table class="tbl kv">
   <tr><td>Host human</td><td>${h(s.host_human)} <span class="small">signal rule ${h(s.human_signal_rule)}${s.ambiguous ? ' · ambiguous' : ''}</span></td></tr>
   <tr><td>Body sites</td><td>${h(s.body_sites)} <span class="small">(primary ${h(s.body_site_primary)}${s.body_site_primary && CFG.siteLabels[s.body_site_primary] ? ' — ' + h(CFG.siteLabels[s.body_site_primary]) : ''})</span></td></tr>

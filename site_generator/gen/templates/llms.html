@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}For LLMs & API — {{ site.title }}{% endblock %}
+{% block desc %}How to let an LLM or a script search {{ site.title }}: a copy-paste prompt, llms.txt, and static JSON / CSV endpoints by intervention, health condition and age.{% endblock %}
+{% block content %}
+<h1>For LLMs &amp; API</h1>
+<p class="lead">Ask an AI assistant to search the catalog for you. Paste the prompt below into ChatGPT, Claude, Gemini or any assistant that can open web links, then add your question at the end.</p>
+<div class="note"><b>Prompt to paste</b>
+<pre id="llm-prompt" class="prompt">{{ prompt }}…</pre>
+<button type="button" class="btn" id="copy-prompt">Copy prompt</button> <span class="small" id="copied"></span>
+<p class="small" style="margin-top:.5rem">Example questions: <i>probiotic trials where both treated and placebo samples have metagenomes</i> · <i>ulcerative colitis FMT studies</i> · <i>adult colorectal cancer cohorts with healthy controls</i> · <i>infant samples from Finland with exact ages</i>.</p></div>
+
+<h2>How the search works</h2>
+<ol>
+<li><b>Start from a slice.</b> Small files list the projects for one intervention, health condition or age group:
+<ul><li>by intervention: {% for c, u in index.endpoints.by_intervention.items() %}<a class="mono" href="{{ u }}">{{ c }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</li>
+<li>by age: {% for c, u in index.endpoints.by_age.items() %}<a class="mono" href="{{ u }}">{{ c }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</li>
+<li>by health condition: {% for c, u in index.endpoints.by_condition.items() %}<a class="mono" href="{{ u }}">{{ c }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</li></ul></li>
+<li><b>Combine.</b> Every project record has the same keys — e.g. take <span class="mono">by-intervention/probiotic.json</span> and keep projects whose <span class="mono">health_conditions</span> include <span class="mono">crohns_disease</span>: that is "Crohn's + probiotic".</li>
+<li><b>Open the samples.</b> <span class="mono">api/samples/&lt;ACCESSION&gt;.csv</span> lists every sample with its arm (<span class="mono">intervention</span>: probiotic / placebo / no_intervention …), condition, age, country and sequencing depth.</li>
+</ol>
+<p>The same filters are on the <a href="../studies/index.html">Project sheet</a> (health condition × intervention × design × "treated &amp; control arms") and the <a href="../samples/index.html">Sample sheet</a>.</p>
+
+<h2>Endpoints</h2>
+<table class="tbl small"><thead><tr><th>file</th><th>contents</th></tr></thead><tbody>
+<tr><td><a class="mono" href="../llms.txt">llms.txt</a></td><td>plain-text instructions an assistant reads first (the prompt points here)</td></tr>
+<tr><td><a class="mono" href="../api/index.json">api/index.json</a></td><td>endpoint list, meaning of every key, counts</td></tr>
+<tr><td><a class="mono" href="../api/vocabularies.json">api/vocabularies.json</a></td><td>codes and labels: health conditions, interventions, designs, age categories</td></tr>
+<tr><td><a class="mono" href="../api/projects.json">api/projects.json</a></td><td>all {{ index.counts.projects|fmt }} projects (≈ 2 MB; better for scripts)</td></tr>
+<tr><td class="mono">api/by-intervention/&lt;code&gt;.json · api/by-condition/&lt;code&gt;.json · api/by-age/&lt;category&gt;.json</td><td>the slices above</td></tr>
+<tr><td class="mono">api/samples/&lt;ACCESSION&gt;.csv</td><td>per-project sample sheet (plain CSV, key columns)</td></tr>
+<tr><td><a class="mono" href="../data/gut_sample_metadata_wide.parquet">data/gut_sample_metadata_wide.parquet</a></td><td>every sample, every field (for DuckDB / pandas / R)</td></tr>
+</tbody></table>
+<p class="small">The API is a set of static files regenerated with every release (release <span class="mono">{{ index.release }}</span>); URLs are stable. No key, no rate limit beyond GitHub Pages'. Values are evidence-linked claims — the evidence for each is on the project page.</p>
+
+<h2>Project record keys</h2>
+<table class="tbl small"><tbody>{% for k, v in index.project_keys.items() %}<tr><td class="mono">{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}</tbody></table>
+
+<h2>llms.txt</h2>
+<pre class="prompt small" style="max-height:28rem;overflow:auto">{{ llms_txt }}</pre>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('copy-prompt').addEventListener('click', async () => {
+  const t = document.getElementById('llm-prompt').textContent.replace(/…$/, '');
+  try { await navigator.clipboard.writeText(t); document.getElementById('copied').textContent = 'copied — now add your question'; }
+  catch (e) { document.getElementById('copied').textContent = 'select the text above and copy it'; }
+});
+</script>
+{% endblock %}

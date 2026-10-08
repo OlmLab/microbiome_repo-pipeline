@@ -325,6 +325,13 @@ sets `classification_stage = owner_decision`; `build_gut_scope` then re-checks t
 `study_rule` on the current registry, so an override that removes `gut_stool` retires the study's catalog rows in the same
 release (first use: PRJNA50637 ileal-pouch cohort → `other_site`). Append entries, never delete them.
 
+**Sequencing depth backfill (R2026.16).** Before `make release`, run `python scripts/fill_run_bases.py --runs build/package/gut_runs.parquet --out data/inputs/registry/run_bases_ncbi.parquet`
+(NCBI E-utilities runinfo, ≈ 10 min for 74 k runs the first time, cached afterwards) so runs with ENA base_count 0 get NCBI bases; re-run it after the release
+build when new runs were added (cross-study / infant fallbacks) and rebuild. Target: every catalog sample has `seq_gbp`.
+
+**Analytics (R2026.16).** `config/site.yaml analytics: {provider: goatcounter|ga4|plausible, id: ...}`; the base template injects the provider's script only
+when `id` is set. GoatCounter: the owner creates a site at goatcounter.com (code = subdomain) and the dashboard is at https://<code>.goatcounter.com.
+
 **Repository names (2026-09-30).** `infant-gut-catalog` → `microbiome_repo` (site, Pages), `infant-gut-catalog-data` → `microbiome_repo-data`,
 `catalog-pipeline` → `microbiome_repo-pipeline`. GitHub redirects the old names for git and web (not for Pages: the site moved to
 https://olmlab.github.io/microbiome_repo/ and `config/site.yaml` `base_url` changed with it). The local clones keep their old directory

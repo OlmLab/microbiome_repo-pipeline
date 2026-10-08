@@ -53,3 +53,11 @@ local:
   cache: "~/catalog/cache"                # harvest cache untarred; gitignored; never an artifact
   external: "~/catalog/external"          # e.g. external/sandpiper/<zenodo_version>/
   legacy_site_clone: null                 # ~/Downloads/site was moved to clones.site on 2026-09-26
+
+# Web analytics (R2026.16, owner request 2026-10-08). Off until an id is set; one provider at a time.
+#   goatcounter: create a free site at https://www.goatcounter.com/signup (code = the subdomain you pick, e.g. microbiome-repo)
+#   ga4:         a Google Analytics 4 measurement id (G-XXXXXXXXXX)
+#   plausible:   the domain registered at plausible.io (olmlab.github.io/microbiome_repo)
+analytics:
+  provider: goatcounter
+  id: ""

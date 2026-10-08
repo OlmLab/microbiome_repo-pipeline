@@ -150,9 +150,9 @@ def test_nav_order_and_about(site_new):
     nav = html[html.index('<nav class="topnav">'):html.index('</nav>')]
     # R2026.15: grouped drop-down navigation (owner review 2026-10-01)
     top = re.findall(r'(?:<a href="[^"]*" [^>]*>([^<]+)</a>|<button type="button" class="navbtn"[^>]*>([^<]+?) <span)', nav)
-    assert [a or b for a, b in top] == ['Home', 'Browse', 'Insights', 'Registry', 'Data', 'About']
+    assert [a or b for a, b in top] == ['Home', 'Sample sheet', 'Project sheet', 'Contribute', 'Explore', 'About']   # R2026.16
     items = re.findall(r'role="menuitem" href="([^"]+)"', nav)
-    for page in ('studies/index.html', 'samples/index.html', 'atlas/index.html', 'atlas/pca.html', 'downloads/index.html', 'contribute/index.html', 'about/methods.html', 'fields/index.html'):
+    for page in ('registry/index.html', 'atlas/index.html', 'atlas/pca.html', 'downloads/index.html', 'llms/index.html', 'about/methods.html', 'fields/index.html'):
         assert page in items, page
     about = _html(site_new, 'about/index.html')
     lead = htmlmod.unescape(about[about.index('<p class="lead">'):about.index('</p>', about.index('<p class="lead">'))])
@@ -190,19 +190,13 @@ def test_removed_strings(site_new):
 
 
 def test_home_tiles_search_and_bars(site_new):
+    # R2026.16 minimalist home (owner review 2026-10-08): description, one search box, example queries, links — no tiles or bars
     home = _html(site_new, 'index.html')
-    assert home.index('id="q"') < home.index('class="cards tiles"'), 'search box must sit above the tiles'
-    tiles = re.findall(r'<div class="num">([^<]+)</div>', home[home.index('class="cards tiles"'):home.index('</div>\n\n<p>')])
-    assert len(tiles) == 5
     cw = pd.read_parquet(site_new / 'data' / 'gut_sample_metadata_wide.parquet')
-    rg = pd.read_parquet(site_new / 'data' / 'registry_studies.parquet')
-    assert tiles == [f'{cw.study_accession.nunique():,}', f'{len(cw):,}', f'{int((cw.n_fields_with_value >= 1).sum()):,}', f'{int(rg.host_human.isin(["yes", "mixed"]).sum()):,}', f'{cw.country.nunique():,}']
-    assert 'age_counts' not in home and '<div class="lbl">adult samples</div>' not in home
-    # facet bars: counts equal the wide table, links carry the explorer filter
-    hc = re.findall(r'href="samples/index\.html\?health_condition=([a-z_]+)"[^>]*>.*?<span class="val">([\d,]+)</span>', home)
-    assert hc and all(int(n.replace(',', '')) == int((cw.health_condition == code).sum()) for code, n in hc)
-    co = re.findall(r'href="samples/index\.html\?country=([A-Z]{2})"[^>]*>.*?<span class="val">([\d,]+)</span>', home)
-    assert co and all(int(n.replace(',', '')) == int((cw.country == code).sum()) for code, n in co)
+    assert 'id="q"' in home and 'class="hero"' in home and 'cards tiles' not in home and 'hbars' not in home
+    assert f'{cw.study_accession.nunique():,} projects' in home and f'{len(cw):,} samples' in home
+    for href in ('samples/index.html', 'studies/index.html', 'registry/index.html', 'llms/index.html'):
+        assert f'href="{href}' in home, href
     assert 'authors/idx/' in home and 'search_index.json' in home
     idx = json.loads((site_new / 'search_index.json').read_text())
     assert {x['t'] for x in idx} >= {'study'}
@@ -221,8 +215,6 @@ def test_registry_human_count_is_yes_plus_mixed(site_new):
         m = re.search(rf'<input type="checkbox" id="f-host_{v}"( checked)?>', reg)
         assert m and bool(m.group(1)) == checked, v
     assert 'f-host_human' not in reg
-    home = _html(site_new, 'index.html')
-    assert f'<div class="num">{n_h:,}</div><div class="lbl"><b>registry human studies</b>' in home and f'of {n_all:,} ENA shotgun-metagenome studies' in home
     js = (site_new / 'static' / 'registry_explorer.js').read_text()
     assert "get('study')" in js and js.index("get('study')") < js.index('await run()') and 'scrollIntoView' in js and 'host_human IN' in js
 

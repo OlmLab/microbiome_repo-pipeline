@@ -67,7 +67,7 @@
 
 {% endblock %}
 {% block scripts %}
-<script>window.REGISTRY_CFG={parquet:'../data/registry_studies.parquet',studiesUrl:'../studies/',releaseId:'{{ site.release_id }}',enaUrl:'https://www.ebi.ac.uk/ena/browser/view/',scopeLabels:{{ scope_labels|tojson }},siteLabels:{{ site_labels|tojson }},stageLabels:{{ stage_labels|tojson }},includedStudies:{{ included_accs|tojson }}};</script>
+<script>window.REGISTRY_CFG={parquet:'../data/registry_studies.parquet',studiesUrl:'../studies/',releaseId:'{{ site.release_id }}',enaUrl:'https://www.ebi.ac.uk/ena/browser/view/',scopeLabels:{{ scope_labels|tojson }},siteLabels:{{ site_labels|tojson }},stageLabels:{{ stage_labels|tojson }},assayLabels:{{ assay_labels|tojson }},studyRule:{{ study_rule|tojson }},includedStudies:{{ included_accs|tojson }}};</script>
 <script>setTimeout(function(){ if (!window.__registryReady) { var b=document.getElementById('boot'); if (b && b.style.display !== 'none') { var C=window.REGISTRY_CFG; b.innerHTML='<b>The explorer could not start within 20 s.</b> DuckDB-WASM (pinned 1.29.0) is loaded from cdn.jsdelivr.net; the CDN may be blocked on your network or the browser blocks WebAssembly/Workers. Everything the explorer shows is also downloadable: <a href="'+C.parquet+'">registry_studies.parquet</a>.'; } } }, 20000);</script>
 <script type="module" src="../static/registry_explorer.js"></script>
 {% endblock %}

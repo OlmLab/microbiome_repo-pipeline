@@ -160,3 +160,26 @@ a.card.scard{display:block;text-decoration:none;color:var(--ink);padding:.5rem .
 @media (max-width:1100px){.clip{max-width:16rem}}
 .tag.incat{background:var(--cu-gold);color:var(--cu-black);font-weight:600;white-space:nowrap}
 .muted{color:var(--muted)}
+.notcat{color:#7a4a00;white-space:nowrap}
+
+/* R2026.16 minimalist home */
+.hero{max-width:760px;margin:9vh auto 4rem;text-align:center}
+.hero h1{font-size:2.6rem;letter-spacing:-.02em;margin:0 0 .6rem}
+.hero-lead{font-size:1.12rem;color:var(--cu-dark-gray);line-height:1.55;margin:0 auto 1.6rem;max-width:640px}
+.hero-search{position:relative;text-align:left}
+.searchbox.big{width:100%;font-size:1.15rem;padding:.85rem 1.1rem;border:2px solid var(--cu-gold);border-radius:999px;box-shadow:0 4px 18px rgba(0,0,0,.07);outline:none}
+.searchbox.big:focus{box-shadow:0 0 0 4px rgba(207,184,124,.35)}
+.hero-search #search-results{list-style:none;margin:.4rem 0 0;padding:0;text-align:left;max-height:50vh;overflow:auto}
+.hero-search #search-results li{padding:.35rem .6rem;border-bottom:1px solid var(--line)}
+.hero-try{margin:.9rem 0 1.8rem;color:var(--muted)}
+.hero-links{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem .6rem}
+.hero-links a{padding:.45rem .95rem;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--cu-black)}
+.hero-links a:hover{border-color:var(--cu-gold);background:rgba(207,184,124,.15)}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.topnav .navhead{display:block;padding:.45rem .8rem .15rem;color:var(--cu-gold);font-size:.78em;text-transform:uppercase;letter-spacing:.06em;border-top:1px solid #333;margin-top:.2rem}
+.topnav .navmenu{right:auto}
+.topnav .navdd:last-child .navmenu{left:auto;right:0}
+.pfilters{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:end;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;margin:.6rem 0 .8rem}
+.pfilters label{display:flex;flex-direction:column;font-size:.85rem;gap:.15rem}
+.pfilters label:has(input[type=checkbox]){flex-direction:row;align-items:center;gap:.3rem}
+pre.prompt{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-left:4px solid var(--cu-gold);border-radius:6px;padding:.7rem .9rem;font-size:.92rem}

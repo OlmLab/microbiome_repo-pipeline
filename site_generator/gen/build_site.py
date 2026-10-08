@@ -112,19 +112,21 @@ ORG_LEAK_RE = re.compile(r'SUB\d{6,}|@')
 # Field tiers are NOT hard-coded: config/packs/gut.yaml core_fields / key_fields / derived_fields (read_field_tiers). A study enters the
 # contribute worklist when >= CONTRIB_MIN_MISSING of the CORE fields are below the coverage threshold.
 CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 4 core fields (R2026.15: core age = life stage, sex is a key field; was 3 of 5)
-# Top navigation (owner review 2026-10-01: fewer tabs): (key, label, href, children). A group has href None and a list of
-# (key, label, href) children rendered as a drop-down; a page passes nav=<child key> and the parent group is highlighted.
-# Insights is the home of analysis pages (Atlas today; more later).
+# Top navigation (owner reviews 2026-10-01 / 2026-10-08): Home · Sample sheet · Project sheet · Contribute, then two drop-downs that hold
+# everything else. Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
+# nav=<key>; a group is highlighted when the page's key is one of its children's keys.
 NAV = [('home', 'Home', 'index.html', None),
-       ('browse', 'Browse', None, [('studies', 'Studies', 'studies/index.html'), ('samples', 'Samples', 'samples/index.html'),
-                                   ('cohorts', 'Cohorts', 'cohorts/index.html'), ('collections', 'Collections', 'collections/index.html'),
-                                   ('authors', 'Authors', 'authors/index.html')]),
-       ('insights', 'Insights', None, [('atlas', 'Atlas: taxon map', 'atlas/index.html'), ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'),
-                                       ('atlas', 'Atlas: observations', 'atlas/observations.html')]),
-       ('registry', 'Registry', 'registry/index.html', None),
-       ('data', 'Data', None, [('downloads', 'Downloads & releases', 'downloads/index.html'), ('contribute', 'Contribute metadata', 'contribute/index.html')]),
-       ('about', 'About', None, [('about', 'Overview', 'about/index.html'), ('about', 'Scope', 'about/scope.html'), ('about', 'Methods', 'about/methods.html'),
-                                 ('about', 'Fields & vocabularies', 'fields/index.html'), ('about', 'Sources & acknowledgements', 'about/sources.html')])]
+       ('samples', 'Sample sheet', 'samples/index.html', None),
+       ('studies', 'Project sheet', 'studies/index.html', None),
+       ('contribute', 'Contribute', 'contribute/index.html', None),
+       ('explore', 'Explore', None, [('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
+                                     ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html'),
+                                     ('atlas', 'Insights', None), ('atlas', 'Atlas: taxon map', 'atlas/index.html'),
+                                     ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Atlas: observations', 'atlas/observations.html')]),
+       ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
+                                 ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
+                                 ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
+                                 ('about', 'Sources & acknowledgements', 'about/sources.html')])]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
              'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html'}
@@ -230,6 +232,19 @@ def registry_summary(rgr, site_labels, stage_labels_short, assay_labels):
 def ev_rows(v, limit=6):
     lst = jl(v, default=[])
     return [dict(source=str(x.get('source', '')), quote=str(x.get('quote', ''))) for x in (lst if isinstance(lst, list) else [])[:limit] if isinstance(x, dict)]
+
+
+def _search_terms(s, iv_voc, hc_labels):
+    """Extra home-search words for a study: intervention codes + labels + detail, top health-condition codes + labels, design."""
+    w = []
+    for c in [x for x in str(s.get('interventions') or '').split(';') if x and x != 'nan']:
+        w += [c.replace('_', ' '), (iv_voc.get(c) or {}).get('label', '')]
+    if s.get('intervention_detail') and not isnull(s.get('intervention_detail')):
+        w.append(str(s['intervention_detail']))
+    for c in list((s.get('health_conditions_d') or {}).keys())[:4] + [s.get('population_condition') or '']:
+        if c and not isnull(c):
+            w += [str(c).replace('_', ' '), hc_labels.get(c, '')]
+    return ' '.join(x for x in w if x)
 
 
 def _top_key(v):
@@ -401,6 +416,13 @@ def read_vocabs(repo_root, spec):
 
 def split_list(v):
     return [] if isnull(v) or v == '' else [x for x in str(v).split(';') if x]
+
+
+def read_analytics(cfg_path):
+    """config/site.yaml analytics: {provider: goatcounter|ga4|plausible, id}; empty id = no tracking script."""
+    a = yaml.safe_load(Path(cfg_path).read_text(encoding='utf-8')).get('analytics') or {}
+    prov, ident = str(a.get('provider') or '').strip(), str(a.get('id') or '').strip()
+    return dict(provider=prov, id=ident) if prov in ('goatcounter', 'ga4', 'plausible') and ident else None
 
 
 def read_site_names(cfg_path):
@@ -669,6 +691,7 @@ def main():
 
     env = Environment(loader=FileSystemLoader(HERE / 'templates'), autoescape=select_autoescape(['html']))
     env.filters.update(fmt=f_fmt, pct=f_pct, pct1=f_pct1, num2=f_num2, numint=f_numint)
+    site['analytics'] = read_analytics(a.config)
     env.globals.update(site=site)
     written = []
 
@@ -807,7 +830,7 @@ def main():
     det_by_study = {acc: g for acc, g in cd_sorted.groupby('study_accession', sort=True)}
     cw_by_study = {acc: g for acc, g in cw_sorted.groupby('study_accession', sort=True)}
     SAMPLE_COLS = ['sample_key', 'biosample_accession', 'age_category', 'age_at_collection_days', 'age_at_collection_days__route', 'sex', 'bmi', 'country', 'health_condition',
-                   'health_condition__route', 'antibiotic_exposure', 'subject_id', 'timepoint_label', 'body_site_class']
+                   'health_condition__route', 'intervention', 'antibiotic_exposure', 'subject_id', 'timepoint_label', 'body_site_class', 'seq_gbp', 'n_runs']
 
     # ---------- cohorts (all ages): studies linked by a shared paper (own_data / curated links) or a curated cohort record ----------
     parent = {acc: acc for acc in included}
@@ -931,14 +954,48 @@ def main():
         d['first_author'] = next((x['name'] for x in authors_by_study.get(d['study_accession'], []) if x['first']), (authors_by_study.get(d['study_accession']) or [{}])[0].get('name', '') if authors_by_study.get(d['study_accession']) else '')
         return d
     studies = [study_row(r) for r in cs.to_dict('records')]
+    # Project-sheet filters (R2026.16): per-study condition codes present among samples, sample-level intervention arms, and two
+    # "cases and controls" flags — condition (≥ 3 healthy_control AND ≥ 3 samples with a disease code) and arms (≥ 3 samples in an active
+    # arm AND ≥ 3 in placebo / no_intervention)
+    NON_DISEASE = {'healthy_control', 'unknown', 'intervention_cohort'}
+    hc_by_study = cw.dropna(subset=['health_condition']).groupby(['study_accession', 'health_condition']).size()
+    arm_by_study = (cw.dropna(subset=['intervention']).assign(_c=lambda d: d.intervention.str.split(';')).explode('_c').groupby(['study_accession', '_c']).size()
+                    if 'intervention' in cw.columns else pd.Series(dtype=int))
+    def _codes(series, acc):
+        try:
+            return series.loc[acc]
+        except KeyError:
+            return pd.Series(dtype=int)
+    def study_filters(acc):
+        hcs = _codes(hc_by_study, acc); arms = _codes(arm_by_study, acc)
+        cc = int(hcs.get('healthy_control', 0) >= 3 and hcs[[c for c in hcs.index if c not in NON_DISEASE]].sum() >= 3) if len(hcs) else 0
+        ctrl = int(arms.get('placebo', 0)) + int(arms.get('no_intervention', 0))
+        act = int(arms[[c for c in arms.index if c not in ('placebo', 'no_intervention')]].sum()) if len(arms) else 0
+        return dict(hcs=sorted(hcs.index.tolist()), arms=sorted(arms.index.tolist()), ccc=cc, cca=int(ctrl >= 3 and act >= 3))
     # Studies table (owner review 2026-10-01): narrow — no depth / per-field coverage columns, samples only, Gbp per sample
-    sidx_rows = [dict(a=s['study_accession'], t=(s['study_title'] or '')[:160], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
+    sidx_rows = [dict(**study_filters(s['study_accession']), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
+                      dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
+                      a=s['study_accession'], t=(s['study_title'] or '')[:160], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
                       iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
                       src=s['curated_source'], fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
                       gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
+    sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
+    from pages import api as api_page   # R2026.16: static API + llms.txt + For-LLMs page
+    api_stats = api_page.build(render, out, dict(studies=studies, sidx_rows=sidx_rows, cw=cw, papers_by_study=papers_by_study, base_url=base_url,
+                                                 site_title=names['title'], version=version, release_id=release_id,
+                                                 hc_labels=hc_labels, iv_voc=iv_voc, age_cats=age_cats, stats=stats, citation=env.globals['site'].get('citation', '')))
+    print(f'[{time.time()-t0:.0f}s] api: {api_stats}', file=sys.stderr)
+    _ivc = {}
+    for r_ in sidx_rows:
+        for c_ in set(x for x in r_['iv'].split(';') if x) | set(x for x in r_['arms'] if x not in ('placebo', 'no_intervention')):
+            _ivc[c_] = _ivc.get(c_, 0) + 1
+    _hcs = sorted({c for r_ in sidx_rows for c in r_['hcs']} | {r_['pc'] for r_ in sidx_rows if r_['pc']})
     render('studies_index.html', 'studies/index.html', '../', nav='studies', use_datatables=True, stats=stats, n_rows=len(studies), has_seq=bool(seq_by_study),
+           hc_opts=[(c, hc_labels.get(c, '')) for c in _hcs if c not in ('unknown',)], iv_opts=[(c, (iv_voc.get(c) or {}).get('label', c), _ivc[c]) for c in iv_voc if c in _ivc],
+           design_opts=[d for d in ('randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure') if any(r_['dz'] == d for r_ in sidx_rows)],
+           age_opts=[c for c in age_cats if c != 'unknown'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies')])
     for s in studies:
         acc = s['study_accession']
@@ -1080,9 +1137,14 @@ def main():
         elif spec.get('life_stage'):
             vocab_txt = ', '.join(spec.get('values') or [])
         by_cat = {c: (float(has[cw.age_category == c].mean()) if (cw.age_category == c).any() else None) for c in age_cats}
+        if f == 'age_category' and 'age_category_basis' in cw.columns:
+            # coverage of age_category inside its own categories is 100 % by definition (owner question 2026-10-08); show instead how
+            # much of each category rests on an exact age at collection rather than a life-stage statement
+            exact = cw.age_category_basis == 'age_at_collection_days'
+            by_cat = {c: (float(exact[cw.age_category == c].mean()) if (cw.age_category == c).any() and c != 'unknown' else None) for c in age_cats}
         tier = 'core' if f in CORE_FIELDS else 'key' if f in KEY_FIELDS else 'infant' if f in infant_fields else 'other'
         fields.append(dict(name=f, label=LABELS.get(f, f), type=spec.get('type', 'derived' if spec.get('compose') or spec.get('from') else ''), infant=tier == 'infant', tier=tier,
-                           routes_allowed=spec.get('routes', ROUTES if tier != 'infant' else []), vocab=vocab_txt, caveat=FIELD_CAVEATS.get(f, spec.get('note', '')),
+                           routes_allowed=spec.get('routes', ROUTES if tier != 'infant' else []), vocab=vocab_txt, caveat=(FIELD_CAVEATS.get(f, spec.get('note', '')) + (' Per-category cells for this row: share of the category whose life stage comes from an exact age (the rest rests on a sample life-stage attribute or a cohort statement).' if f == 'age_category' else '')),
                            samples=int(has.sum()), frac=float(has.mean()), studies=int(cw.loc[has, 'study_accession'].nunique()), frac_studies=int(cw.loc[has, 'study_accession'].nunique()) / max(1, len(cs)),
                            route_segs=segs, nR=nR, by_cat=by_cat))
     TIER_ORDER = {'core': 0, 'key': 1, 'other': 2, 'infant': 3}
@@ -1240,7 +1302,7 @@ def main():
     render('registry.html', site['registry_page'], '../', nav='registry', rs=rstats, scopes=scope_rows, facets=facets, vocab=rvocab,
            parquet_size=human(reg_path.stat().st_size), n_cols=int(rg.shape[1]), audit_name=sspec['files']['audit'],
            package_version=version, runs_asset_url=f"https://github.com/{site['data_repo']}/releases/download/data-v{version}/registry_runs_v{version}.parquet",
-           scope_labels={sc['id']: sc['label'] for sc in sspec['scopes']}, site_labels=vocabs['body_site'], stage_labels=stage_labels, included_accs=included,
+           scope_labels={sc['id']: sc['label'] for sc in sspec['scopes']}, site_labels=vocabs['body_site'], stage_labels=stage_labels, included_accs=included, assay_labels=dict(vocabs['assay']), study_rule=str(pack.get('study_rule', '')),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Registry')])
     TOP_COLS = ['study_accession', 'study_title', 'n_samples', 'n_runs', 'body_sites', 'life_stages', 'assay', 'classification_stage']
     for d, m_ in scope_pages:
@@ -1329,7 +1391,8 @@ def main():
     home = dict(hc_bars=bar_rows(cw.health_condition, hc_labels), country_bars=bar_rows(cw.country, country_labels), top_studies=studies[:12], scopes=other_scopes)
     assert sum(r['n'] for r in home['hc_bars']) <= int(cw.health_condition.notna().sum()) and all(r['n'] > 0 for r in home['hc_bars'] + home['country_bars'])
     sidx = [dict(t='study', id=s['study_accession'], n=s['study_title'] or '', u=f"studies/{s['study_accession']}.html",
-                 k=f"{s['study_accession']} {s['study_title'] or ''} {s['cohort_name'] or ''} {s['first_author'] or ''}".lower()) for s in studies]
+                 k=(f"{s['study_accession']} {s['secondary_study_accession'] or ''} {s['study_title'] or ''} {s['cohort_name'] or ''} {s['first_author'] or ''} "
+                    f"{_search_terms(s, iv_voc, hc_labels)}").lower()) for s in studies]
     sidx += [dict(t='cohort', id=c['cohort_id'], n=c['cohort_name'], u=f"cohorts/{c['cohort_id']}.html", k=f"{c['cohort_id']} {c['cohort_name']} {' '.join(c['studies'])}".lower()) for c in cohorts]
     sidx += [dict(t='collection', id=c['id'], n=c['name'], u=c['u'], k=c['k']) for c in collections]
     sidx += [dict(t='scope', id=d['id'], n=d['label'], u=f"registry/scopes/{d['id']}.html", k=f"{d['id']} {d['label']} registry scope".lower()) for d in scope_rows]
@@ -1345,7 +1408,7 @@ def main():
     # tables) get a short placeholder instead of a dead menu link
     for _k, _lab, _href, _children in NAV:
         for _ck, _cl, _ch in (_children or []):
-            if not (out / _ch).exists():
+            if _ch and not (out / _ch).exists():
                 (out / _ch).parent.mkdir(parents=True, exist_ok=True)
                 _root = '../' * _ch.count('/')
                 render('placeholder.html', _ch, _root, nav=_ck, heading=_cl, text='This page is not part of this build.', crumbs=[dict(label='Home', href=_root + 'index.html'), dict(label=_cl)])

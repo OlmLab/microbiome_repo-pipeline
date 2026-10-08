@@ -7,13 +7,14 @@ const CFG = window.GUT_CFG;
 const PAGE = 50;
 // core + key fields come from config/packs/gut.yaml through GUT_CFG (item 7); detailed_location is derived from location_site/locality/region
 const FIELDS = [...(CFG.coreFields || ['age_at_collection_days', 'sex', 'country', 'health_condition', 'subject_id']), ...(CFG.keyFields || ['detailed_location', 'lifestyle', 'collection_date', 'antibiotic_exposure', 'bmi', 'timepoint_label'])];
-const SHOW = ['sample_key', 'archive', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'bmi', 'country', 'health_condition', 'antibiotic_exposure', 'subject_id', 'body_site_class'];
+// R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel
+const SHOW = ['sample_key', 'archive', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
 const LOC_PARTS = ['location_site', 'location_locality', 'location_region'];
 let COLS = new Set();   // columns present in the wide table (filled at boot); absent columns are omitted, never rendered as empty
 const archiveUrl = acc => { if (!acc) return null; const a = String(acc); if (/^[SED]RR\d+$/.test(a)) return CFG.archive.RUN + a; return (CFG.archive[a.slice(0, 4)] || CFG.archive.SAME) + a; };
 const archiveLink = (acc, label) => { const u = archiveUrl(acc); return u ? `<a class="small" href="${u}">${h(label || 'archive')}</a>` : ''; };
 const detailedLocation = s => LOC_PARTS.filter(p => COLS.has(p) && s[p] !== null && s[p] !== undefined && s[p] !== '').map(p => s[p]).join(', ');
-const SORTABLE = new Set(['sample_key', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'bmi', 'country', 'health_condition', 'n_fields_with_value']);
+const SORTABLE = new Set(['sample_key', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'bmi', 'country', 'health_condition', 'n_fields_with_value', 'seq_gbp']);
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/'/g, "''");
 const h = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -155,11 +156,11 @@ async function run() {
   const rows = r.toArray().map(x => x.toJSON());
   const thead = $('result-table').querySelector('thead'), tbody = $('result-table').querySelector('tbody');
   thead.innerHTML = '<tr>' + SHOW.map(col => SORTABLE.has(col)
-    ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
+    ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col === 'seq_gbp' ? 'depth (Gbp)' : col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
     : `<th>${col === 'archive' ? 'archive record' : col}</th>`).join('') + '</tr>';
   tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
     `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td><td>${h(row.age_category)}</td><td class="num">${fmtV(row.age_at_collection_days)} ${routeBadge(row.age_at_collection_days__route, row.age_at_collection_days__confidence)}</td>` +
-    `<td>${h(row.sex)}</td><td class="num">${fmtV(row.bmi)}</td><td>${h(row.country)}</td><td>${h(row.health_condition)} ${routeBadge(row.health_condition__route, row.health_condition__confidence)}</td><td>${h(row.antibiotic_exposure)}</td><td class="small">${h(row.subject_id)}</td><td class="small">${h(row.body_site_class)}</td></tr>`).join('');
+    `<td>${h(row.sex)}</td><td>${h(row.country)}</td><td>${h(row.health_condition)} ${routeBadge(row.health_condition__route, row.health_condition__confidence)}</td><td class="small">${h(row.intervention)}</td><td>${h(row.antibiotic_exposure)}</td><td class="small">${h(row.subject_id)}</td><td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(2)}</td></tr>`).join('');
   $('count').textContent = `${total.toLocaleString()} samples match (${Number(c0.k).toLocaleString()} studies)`;
   $('pageinfo').textContent = total ? `page ${page + 1} / ${maxPage + 1}` : '';
   $('prev').disabled = page <= 0; $('next').disabled = page >= maxPage;

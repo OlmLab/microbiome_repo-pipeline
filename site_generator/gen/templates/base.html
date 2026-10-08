@@ -15,11 +15,14 @@
 <link rel="stylesheet" href="{{ root }}static/vendor/dataTables.dataTables-2.1.8.min.css" integrity="{{ site.sri['dataTables.dataTables-2.1.8.min.css'] }}" crossorigin="anonymous">
 {% endif %}
 {% block head %}{% endblock %}
+{% if site.analytics %}{% if site.analytics.provider == 'goatcounter' %}<script data-goatcounter="https://{{ site.analytics.id }}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+{% elif site.analytics.provider == 'ga4' %}<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.analytics.id }}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ site.analytics.id }}');</script>
+{% elif site.analytics.provider == 'plausible' %}<script defer data-domain="{{ site.analytics.id }}" src="https://plausible.io/js/script.js"></script>{% endif %}{% endif %}
 </head>
 <body>
 <nav class="topnav"><div class="in">
 <a class="brand" href="{{ root }}index.html">{{ site.short_title }}</a>
-{% for key, label, href, children in site.nav %}{% if children %}{% set grp_active = nav in children|map(attribute=0)|list %}<div class="navdd{% if grp_active %} active{% endif %}"><button type="button" class="navbtn" aria-haspopup="true" aria-expanded="false">{{ label }} <span aria-hidden="true">▾</span></button><div class="navmenu" role="menu">{% for ck, cl, ch in children %}<a role="menuitem" href="{{ root }}{{ ch }}"{% if page_path == ch %} class="active"{% endif %}>{{ cl }}</a>{% endfor %}</div></div>
+{% for key, label, href, children in site.nav %}{% if children %}{% set grp_active = nav in children|map(attribute=0)|list %}<div class="navdd{% if grp_active %} active{% endif %}"><button type="button" class="navbtn" aria-haspopup="true" aria-expanded="false">{{ label }} <span aria-hidden="true">▾</span></button><div class="navmenu" role="menu">{% for ck, cl, ch in children %}{% if ch %}<a role="menuitem" href="{{ root }}{{ ch }}"{% if page_path == ch %} class="active"{% endif %}>{{ cl }}</a>{% else %}<span class="navhead">{{ cl }}</span>{% endif %}{% endfor %}</div></div>
 {% else %}<a href="{{ root }}{{ href }}" {% if nav==key %}class="active"{% endif %}>{{ label }}</a>
 {% endif %}{% endfor %}</div></nav>
 <main>

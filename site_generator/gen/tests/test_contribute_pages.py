@@ -62,7 +62,7 @@ def test_issue_url_builder():
 def test_templates_reference_contribute():
     base = (GEN / 'templates' / 'base.html').read_text()
     assert 'site.contribute_page' in base and 'Contribute' in base
-    assert 'contribute/index.html' in (GEN / 'templates' / 'index.html').read_text()   # home links to Contribute (the card block was folded into the stats row in 1.12.0)
+    # R2026.16: Contribute is a top-level nav entry (base.html NAV), the minimalist home has no card for it
     study = (GEN / 'templates' / 'study.html').read_text()
     assert '{% if help %}' in study and 'help.issue_url' in study   # 1.12.0: the help block lost its id/heading; the issue link remains
     ct = (GEN / 'templates' / 'contribute.html').read_text()

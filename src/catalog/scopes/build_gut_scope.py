@@ -154,6 +154,8 @@ def sequencing_summary(gut_runs: pd.DataFrame) -> pd.DataFrame:
                         "instrument_models_top": g.instrument_model.apply(lambda s: json.dumps(s.dropna().value_counts().head(5).to_dict())),
                         "library_layouts": g.library_layout.apply(lambda s: json.dumps(s.dropna().value_counts().to_dict())),
                         "sandpiper_profiled_share": g.sandpiper_profiled.apply(lambda s: round(float(s.astype(bool).mean()), 4) if len(s) else None)})
+    per = gut_runs.dropna(subset=["sample_key"]).assign(_gbp=pd.to_numeric(gut_runs.base_count, errors="coerce") / 1e9).groupby(["study_accession", "sample_key"])._gbp.sum(min_count=1)
+    out["gbp_per_sample_median"] = per[per > 0].groupby(level=0).median().round(3)
     return out
 
 
@@ -533,8 +535,17 @@ def build(a):
     if getattr(a, "registry_runs", None) and os.path.exists(a.registry_runs):
         from catalog.scopes.newfields_r1 import build_gut_runs
         sp = pd.read_parquet(a.registry_sandpiper) if getattr(a, "registry_sandpiper", None) and os.path.exists(a.registry_sandpiper) else None
-        gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp, gut_acc, w)
+        inf_runs_p = os.path.join(a.package, "runs.parquet")
+        nb = pd.read_parquet(a.run_bases) if getattr(a, "run_bases", None) and os.path.exists(a.run_bases) else None
+        eb_p = os.path.join(os.path.dirname(a.run_bases), "run_bases_estimated.parquet") if getattr(a, "run_bases", None) else None
+        eb = pd.read_parquet(eb_p) if eb_p and os.path.exists(eb_p) else None
+        gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp, gut_acc, w, infant_runs=pd.read_parquet(inf_runs_p) if os.path.exists(inf_runs_p) else None, ncbi_bases=nb, est_bases=eb)
         gs = gs.join(sequencing_summary(gut_runs), how="left")
+        from catalog.scopes.newfields_r1 import sample_depth
+        sd = sample_depth(gut_runs)
+        for c in sd.columns:   # per-sample depth on the wide table (R2026.16: every sample shows a depth)
+            w[c] = w.sample_key.map(sd[c])
+        w["n_runs"] = w["n_runs"].fillna(0).astype(int)
         gs["n_runs_total"] = gs.n_runs_total.fillna(0).astype(int)
     gs["n_samples_curated"] = gs.n_samples_curated.fillna(0).astype(int)
     gs["release_added"], gs["release_retired"], gs["package_added"] = rid, None, pv
@@ -588,6 +599,7 @@ def main(argv=None) -> int:
     ap.add_argument("--r1"), ap.add_argument("--r1-extra", help="additional R1 determination files (glob), e.g. the condition/antibiotic expansion"),
     ap.add_argument("--corrections", help="dq_corrections.parquet (retire / recode rows decided by the data-quality adjudication; R2026.13)"),
     ap.add_argument("--r1-newfields", help="R1 determinations of the 1.12.0 fields (collection_date, location_*, latitude/longitude, lifestyle) from catalog.scopes.newfields_r1"),
+    ap.add_argument("--run-bases", help="NCBI SRA runinfo bases for runs without an ENA base_count (scripts/fill_run_bases.py)")
     ap.add_argument("--r1-interventions", help="R1 per-sample intervention arms (gut_r1_intervention_determinations.parquet, R2026.15)")
     ap.add_argument("--interventions-study", help="glob of study-level intervention classification shards (gut_intervention_studies_shard_*.parquet, R2026.15)")
     ap.add_argument("--r1-newfields-v2", help="R1 determinations of the 1.13.0 fields (diet, smoking_status, medication, stool_consistency_bristol) from catalog.scopes.newfields_r1_v2"),
