@@ -54,8 +54,9 @@ def test_issue_url_builder():
     p = urlparse(u)
     assert p.scheme == 'https' and p.netloc == 'github.com' and p.path == '/OlmLab/microbiome_repo/issues/new'
     q = parse_qs(p.query)
-    assert q['template'] == ['catalog-contribution.yml'] and q['labels'] == ['contribution'] and q['study_accession'] == ['PRJNA294605']
-    assert q['contribution_type'] == ['id_key'] and q['release_tag'] == ['R2026.2'] and q['title'] == ['[contribution] PRJNA294605: id_key']
+    # R2026.17: one simple form (share-metadata.yml) prefilled with the accession and release
+    assert q['template'] == ['share-metadata.yml'] and q['labels'] == ['contribution'] and q['accession'] == ['PRJNA294605']
+    assert q['release_id'] == ['R2026.2'] and q['title'] == ['[metadata] PRJNA294605']
     assert 'USERNAME' not in u and 'REPOSITORY' not in u
 
 
@@ -66,9 +67,8 @@ def test_templates_reference_contribute():
     study = (GEN / 'templates' / 'study.html').read_text()
     assert '{% if help %}' in study and 'help.issue_url' in study   # 1.12.0: the help block lost its id/heading; the issue link remains
     ct = (GEN / 'templates' / 'contribute.html').read_text()
-    for t in CSPEC['contribution_types']:
-        assert t in ct or 'cs.types' in ct
-    assert 'id="q"' in ct and 'id="wl"' in ct   # 1.12.0: the worklist is a card list with one text search; licence text lives on About/Sources
+    # R2026.17: three plain steps + one 'Share metadata' button per project (contribution types live in the form's dropdown)
+    assert 'id="q"' in ct and 'Share metadata' in ct and 'r.issue_url' in ct   # 1.12.0: the worklist is a card list with one text search; licence text lives on About/Sources
     assert 'USERNAME.github.io' not in ct and 'REPOSITORY' not in ct
 
 

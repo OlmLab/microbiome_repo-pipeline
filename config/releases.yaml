@@ -192,6 +192,14 @@ releases:
     data_tag: data-v1.15.0
     site_tag: site-v1.15.0
     label: "owner review 2026-10-08: sequencing depth for every sample (NCBI SRA bases for dbGaP / unmirrored runs, cross-study and infant run fallbacks; seq_gbp / n_runs on the wide table); registry explains why each study is or is not in the catalog; minimalist home with one search; nav = Home · Sample sheet · Project sheet · Contribute · Explore · About; Project-sheet filters (condition × intervention × design × cases/controls); For-LLMs page, llms.txt and a static JSON / CSV API; optional web analytics"
+  - release_id: R2026.17
+    package_version: '1.16.0'
+    previous_package_version: '1.15.0'
+    previous_release_id: R2026.16
+    notes_file: RELEASE_NOTES_R2026.17.md
+    data_tag: data-v1.16.0
+    site_tag: site-v1.16.0
+    label: "owner review 2026-10-08 (b): 657 pending / unresolved human studies classified (9 enter the gut catalog, 5 leave); host/assay audit of 37 animal- or assembly-titled catalog studies (4 studies and 1,956 non-human / non-gut samples removed); infant-catalog samples receive BioSample R1 and abstract R4 statements for fields the infant curation did not cover; simpler Contribute page and issue form; registry table shows a plain in-catalog mark; Methods states the curation-depth gradient between tiers"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

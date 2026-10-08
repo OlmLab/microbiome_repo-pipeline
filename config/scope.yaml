@@ -137,7 +137,7 @@ field_packs:
 
 # Classification cascade of the registry (docs/EXPANSION.md §5)
 classification:
-  stages: [deterministic_prior, deterministic_rule, sonnet_x2, opus_adjudicated, pending, owner_decision]   # owner_decision = config/registry_overrides.yaml
+  stages: [deterministic_prior, deterministic_rule, sonnet_x2, opus_adjudicated, pending, owner_decision, curator_audit]   # owner_decision = config/registry_overrides.yaml
   llm_roles: {replicate: rubric, adjudicate: adjudicate}     # config/models.yaml roles — never literal model ids
   replicates: 2
   batch_size: 6
@@ -203,6 +203,7 @@ classification_stages:
 - opus_adjudicated
 - pending
 - owner_decision
+- curator_audit
 host_human_values:
 - 'yes'
 - 'no'

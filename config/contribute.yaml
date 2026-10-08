@@ -214,10 +214,10 @@ contribution_type_labels:
   verdict_evidence: Verdict evidence (is this study infant gut shotgun metagenomics?)
 issue_form:
   repo: OlmLab/microbiome_repo
-  template: catalog-contribution.yml
+  template: share-metadata.yml   # R2026.16 simple form (site_generator/gen/issue_templates/share-metadata.yml); catalog-contribution.yml stays installed for old links
   label: contribution
-  title: '[contribution] {study_accession}: {contribution_type}'
-  url_template: https://github.com/{repo}/issues/new?template={template}&labels={label}&title={title}&study_accession={study_accession}&contribution_type={contribution_type}&release_tag={release_id}
+  title: '[metadata] {study_accession}'
+  url_template: https://github.com/{repo}/issues/new?template={template}&labels={label}&title={title}&accession={study_accession}&release_id={release_id}
   field_ids:
   - study_accession
   - contribution_type
@@ -226,6 +226,14 @@ issue_form:
   - licence
   - note
   - release_tag
+  label_aliases:            # share-metadata.yml renders human labels; heading prefix -> field id (R2026.17)
+    Project accession: study_accession
+    What are you sharing: contribution_type
+    Link or file: source_url
+    Which column identifies the samples: sample_id_column
+    Anything we should know: note
+    Sharing: licence
+    Release: release_tag
   sources:
   - journal_supplement_url
   - author_correspondence

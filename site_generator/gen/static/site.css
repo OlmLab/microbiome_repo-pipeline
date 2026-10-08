@@ -196,3 +196,6 @@ body.wide main{max-width:min(1800px,100%)}
 #studies td{vertical-align:top}
 #studies td .mono.small{white-space:nowrap}
 body.wide .lead{max-width:1000px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin:1rem 0}
+.step{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--cu-gold);border-radius:8px;padding:.7rem .9rem}
+#wl-table .btn{white-space:nowrap}

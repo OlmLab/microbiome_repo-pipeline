@@ -1247,7 +1247,8 @@ def main():
                types=[dict(code=c, label=TLABEL.get(c, c), n=int(sum(1 for r in wl_rows if r['ctype'] == c))) for c in cspec['contribution_types'] if any(r['ctype'] == c for r in wl_rows)],
                repo=cspec['issue_form']['repo'], issues_list_url=f"https://github.com/{cspec['issue_form']['repo']}/issues?q=is%3Aissue+label%3A{cspec['issue_form']['label']}")
     cs_['core_fields'] = CORE_FIELDS
-    render('contribute.html', site['contribute_page'], '../', nav='contribute', rows=wl_rows, cs=cs_, stats=stats,
+    cs_['repo'] = cspec['issue_form']['repo']
+    render('contribute.html', site['contribute_page'], '../', nav='contribute', rows=wl_rows, cs=cs_, stats=stats, field_labels={'age_category': 'age', 'health_condition': 'health condition', 'subject_id': 'subject', 'country': 'country'},
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Contribute')])
     (out / 'data' / 'contribute_worklist.json').write_text(dumps([dict(rank=r['rank'], acc=r['acc'], title=r['title'], n=r['n'], missing=r['missing'], coverage=r['coverage'], type=r['ctype'], papers=r['papers'], issue_url=r['issue_url']) for r in wl_rows]), encoding='utf-8')
     assert (out / site['contribute_page']).stat().st_size < 3_000_000, 'contribute/index.html over the 3 MB budget'
@@ -1262,7 +1263,7 @@ def main():
         return dict(column=col, rows=rows_, labels=labels or {})
     stage_labels = {'deterministic_prior': 'prior carried over from an earlier triage (reason code / body-site call) or deterministic term match',
                     'deterministic_rule': 'ENA-field rule (host taxon 9606, library fields, numeric age with unit)', 'sonnet_x2': 'two replicate model classifications in agreement',
-                    'opus_adjudicated': 'replicate disagreement adjudicated by the stronger model', 'pending': 'not yet classified', 'owner_decision': 'study-level decision by the catalog owner (config/registry_overrides.yaml)'}
+                    'opus_adjudicated': 'replicate disagreement adjudicated by the stronger model', 'pending': 'not yet classified', 'curator_audit': 'study-level host/assay audit of the archive records (config/registry_overrides.yaml)', 'owner_decision': 'study-level decision by the catalog owner (config/registry_overrides.yaml)'}
     host_counts = {k: int((rg.host_human == k).sum()) for k in sspec['host_human_values']}
     n_pending = int((rg.classification_stage == 'pending').sum())
     _sp = rg['n_runs_sandpiper'].fillna(0) if 'n_runs_sandpiper' in rg.columns else pd.Series(0, index=rg.index)
@@ -1357,7 +1358,12 @@ def main():
     # ---------- methods ----------
     depth_counts = counts_sorted(cs.curated_depth.fillna('none'))
     route_field = {f: {r: int(route_by_field.get((f, r), 0)) for r in ROUTES} for f in CORE_FIELDS + KEY_FIELDS if has_col.get(f)}
-    render('methods.html', 'about/methods.html', '../', nav='about', reg=reg_methods, stats=stats, depth_counts=depth_counts, route_field=route_field, docs=doc_list, pack=pack,
+    tier_cov = []
+    if 'curated_source' in cw.columns:
+        for f in ('age_at_collection_days', 'subject_id', 'timepoint_label', 'sex', 'health_condition', 'antibiotic_exposure'):
+            if f in cw.columns:
+                tier_cov.append(dict(field=f, **{src: round(100 * float(cw.loc[cw.curated_source == src, f].notna().mean()), 1) for src in ('infant_catalog', 'gut_all_v1')}))
+    render('methods.html', 'about/methods.html', '../', nav='about', tier_cov=tier_cov, reg=reg_methods, stats=stats, depth_counts=depth_counts, route_field=route_field, docs=doc_list, pack=pack,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Methods')])
 
     # ---------- sources and acknowledgements (config/sources.yaml) ----------

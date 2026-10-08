@@ -7,7 +7,7 @@ const CFG = window.REGISTRY_CFG;
 const PAGE = 50;
 // owner review 2026-10-01: the first column says whether a study is in the curated catalog; samples only (no run counts)
 const SHOW_COLS = ['in_catalog', 'study_accession', 'study_title', 'n_samples', 'body_sites', 'life_stages', 'assay', 'classification_stage'];
-const COL_LABELS = {in_catalog: 'In catalog? (why not)', study_accession: 'study', study_title: 'title', n_samples: 'samples', body_sites: 'body sites', life_stages: 'life stages', classification_stage: 'classified by'};
+const COL_LABELS = {in_catalog: 'In catalog', study_accession: 'study', study_title: 'title', n_samples: 'samples', body_sites: 'body sites', life_stages: 'life stages', classification_stage: 'classified by'};
 const SORTABLE = new Set(['study_accession', 'study_title', 'n_samples', 'assay', 'classification_stage', 'body_site_primary', 'life_stage_primary', 'first_public_min']);
 const LIST_COLS = ['body_sites', 'life_stages', 'scope_memberships', 'population_flags'];
 const EVIDENCE_COLS = [['host_evidence', 'host_human'], ['body_site_evidence', 'body_sites'], ['life_stage_evidence', 'life_stages']];
@@ -147,7 +147,7 @@ async function run() {
     ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
     : `<th>${COL_LABELS[col] || col}</th>`).join('') + '</tr>';
   tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.study_accession)}" tabindex="0" role="button" aria-label="open details for ${h(row.study_accession)}">` +
-    `<td>${(() => { const c = catalogReasons(row); return c.inCat ? '<span class="tag incat" title="in the curated catalog (human gut, all ages) — study page with per-sample metadata">✓ in catalog</span>' : `<span class="small notcat" title="${h(c.reasons.map(x => x.long).join(' '))}">✗ ${h(c.reasons[0].short)}</span>`; })()}</td>` +
+    `<td>${(() => { const c = catalogReasons(row); return c.inCat ? '<span class="tag incat" title="in the curated catalog (human gut, all ages) — study page with per-sample metadata">✓</span>' : '<span class="small muted" title="registry only — open the row to see why">—</span>'; })()}</td>` +
     `<td>${accLink(row.study_accession, row.in_infant_catalog)}</td><td><span class="small clip" title="${h(row.study_title)}">${h(row.study_title)}</span></td><td class="num">${fmtV(row.n_samples)}</td>` +
     `<td class="small">${h(row.body_sites)}</td><td class="small">${h(row.life_stages)}</td><td class="mono small">${h(row.assay)}</td><td>${stageBadge(row.classification_stage)}</td></tr>`).join('');
   const hv = hostValues(); const hostNote = hv.length && hv.length < HOST_ALL.length ? ` (host human: ${hv.join(', ')})` : '';

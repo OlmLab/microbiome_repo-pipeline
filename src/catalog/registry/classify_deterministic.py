@@ -76,7 +76,7 @@ STRONG_SITE_SOURCES = ("study.title", "sample.title", "sample.attr.isolation_sou
                        "sample.attr.environmental_medium", "sample.attr.body_site", "sample.attr.tissue",
                        "sample.attr.environment_material")
 CONF_FLOOR = 0.8
-STAGES = ("deterministic_prior", "deterministic_rule", "sonnet_x2", "opus_adjudicated", "pending", "owner_decision")
+STAGES = ("deterministic_prior", "deterministic_rule", "sonnet_x2", "opus_adjudicated", "pending", "owner_decision", "curator_audit")
 
 # --------------------------------------------------------------------------- helpers
 

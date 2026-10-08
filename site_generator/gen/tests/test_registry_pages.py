@@ -44,7 +44,7 @@ def test_scope_spec_shape():
     for c in ('host_human', 'host_evidence', 'assay', 'access', 'body_sites', 'body_site_primary', 'body_site_evidence', 'life_stages', 'life_stage_primary',
               'life_stage_evidence', 'population_flags', 'classification_stage', 'classification_confidence', 'in_infant_catalog', 'infant_reason_code', 'scope_memberships', 'universe_slice'):
         assert c in SSPEC['registry_columns'], c
-    assert SSPEC['classification_stages'] == ['deterministic_prior', 'deterministic_rule', 'sonnet_x2', 'opus_adjudicated', 'pending', 'owner_decision']
+    assert SSPEC['classification_stages'] == ['deterministic_prior', 'deterministic_rule', 'sonnet_x2', 'opus_adjudicated', 'pending', 'owner_decision', 'curator_audit']
     assert SSPEC['host_human_values'] == ['yes', 'no', 'mixed', 'unknown'], 'yes/no must be quoted strings in scope.yaml (YAML booleans otherwise)'
     assert SSPEC['files']['studies'] == 'registry_studies.parquet' and SSPEC['release_id'] == 'R2026.4'
 

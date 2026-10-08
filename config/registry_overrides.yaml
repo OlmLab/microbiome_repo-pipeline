@@ -11,3 +11,55 @@ overrides:
     body_site_evidence:
       - {source: owner_decision, quote: "ileal-pouch aspirates and brushes after colectomy; outside the gut scope"}
     note: "102 luminal aspirates / brushes of a post-colectomy ileal pouch (PMC5111406); owner 2026-10-01 option B: the pouch is not stool or intestinal mucosa in situ; removed from gut_all by this override (study_rule needs gut_stool in body_sites)"
+
+# ---- R2026.17 catalog host/assay audit (stage curator_audit; HOST_AUDIT_REPORT.md): 37 animal-title / genome-assembly-title catalog studies
+#      checked against run + BioSample fields; 4 excluded at study level here, 29 partial exclusions in config/sample_exclusions.csv
+  - study_accession: PRJNA1082665
+    date: '2026-10-08'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: canine
+    note: all 767 samples canine (560) or feline (207) per BioSample host; no human samples deposited
+  - study_accession: PRJNA1337640
+    date: '2026-10-08'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: Mus musculus
+    note: all 16 samples mouse cecum (BioSample host Mus musculus)
+  - study_accession: PRJNA1240831
+    date: '2026-10-08'
+    stage: curator_audit
+    body_sites: other_site
+    body_site_primary: other_site
+    body_site_evidence:
+    - source: Europe PMC abstract PMID 40130436
+      quote: used mouse and human microbiomes in anaerobic cultures
+    note: both samples are in vitro anaerobic cultures of mouse and human gut microbiota (PMID 40130436), not direct gut metagenomes
+  - study_accession: PRJNA609594
+    date: '2026-10-08'
+    stage: curator_audit
+    body_sites: other_site
+    body_site_primary: other_site
+    body_site_evidence:
+    - source: BioSample sample_type
+      quote: cell culture
+    note: single sample is a Bacteroidaceae culture grown from feces (BioSample sample_type cell culture), not a direct metagenome
+  - study_accession: PRJNA1255389
+    date: '2026-10-08'
+    stage: curator_audit
+    assay: isolate_genome
+    note: BioSamples are single clinical isolates (E. coli 62, K. pneumoniae 29, Enterobacter/Citrobacter 5; pathogen package with isolate IDs); library_source GENOMIC
+  - study_accession: PRJNA1258574
+    date: '2026-10-08'
+    stage: curator_audit
+    assay: isolate_genome
+    note: BioSamples are cultured K. pneumoniae (12) and E. cloacae (1) strains with strain IDs; library_source GENOMIC
+  - study_accession: PRJNA631464
+    date: '2026-10-08'
+    stage: curator_audit
+    assay: isolate_genome
+    note: 200 Lactobacillus strains cultured from human feces (microbe package, sample_type cell culture); not community metagenomes

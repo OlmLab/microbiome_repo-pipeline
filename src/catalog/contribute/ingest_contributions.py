@@ -57,8 +57,8 @@ def load_cfg(path=CFG_PATH):
     return yaml.safe_load(Path(path).read_text(encoding='utf-8'))
 
 
-def parse_form_body(body: str, field_ids) -> dict:
-    """`### label` blocks → {field_id: value}; `_No response_` → ''."""
+def parse_form_body(body: str, field_ids, aliases=None) -> dict:
+    """`### label` blocks → {field_id: value}; `_No response_` → ''. `aliases` maps a human label prefix (share-metadata.yml) to a field id."""
     out = {}
     if not body:
         return out
@@ -66,6 +66,8 @@ def parse_form_body(body: str, field_ids) -> dict:
     for i in range(1, len(parts) - 1, 2):
         label, value = parts[i].strip(), parts[i + 1].strip()
         fid = next((f for f in field_ids if label == f or label.startswith(f + ' ') or label.startswith(f + '(')), None)
+        if fid is None and aliases:
+            fid = next((v for k, v in aliases.items() if label.startswith(k)), None)
         if fid is None:
             continue
         out[fid] = '' if value in ('_No response_', 'None', 'n/a') else value
@@ -267,10 +269,10 @@ def process_issue(issue: dict, pkg: Path, out_dir: Path, cfg: dict, downloader=d
     ing, form_ids = cfg['ingest'], cfg['issue_form']['field_ids']
     n = int(issue['number'])
     body = issue.get('body') or ''
-    form = parse_form_body(body, form_ids)
+    form = parse_form_body(body, form_ids, cfg['issue_form'].get('label_aliases'))
     acc = (form.get('study_accession') or '').strip().upper()
     if not acc:
-        m = re.search(r'\[contribution\]\s*([^:\s]+)', issue.get('title') or '')
+        m = re.search(r'\[(?:contribution|metadata)\]\s*([^:\s]+)', issue.get('title') or '')
         acc = m.group(1).upper() if m else ''
     licence_ok = bool(re.search(r'\[x\]', form.get('licence', ''), re.I))
     note = EMAIL_RE.sub('[e-mail removed]', form.get('note', ''))[:2000]

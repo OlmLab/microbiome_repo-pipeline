@@ -269,7 +269,7 @@ def apply_owner_overrides(out: pd.DataFrame, path: Path = OVERRIDES_PATH) -> pd.
         for c in ("host_evidence", "body_site_evidence", "life_stage_evidence"):
             if c in e:
                 out.loc[m, c] = json.dumps(e[c])
-        out.loc[m, "classification_stage"] = "owner_decision"
+        out.loc[m, "classification_stage"] = e.get("stage", "owner_decision")
         n += int(m.sum())
     out.attrs["owner_overrides_applied"] = n
     return out

@@ -350,7 +350,7 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
          "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration slices: S1 `library_source=METAGENOMIC` ×",
          "`WGS|WXS`; S2 misfiled `GENOMIC` on verified human-metagenome taxa; S3 `OTHER|Targeted-Capture|WGA` adjudication (per-slice completeness in",
          "`registry_universe_audit.csv`). Classification stages: `deterministic_prior` (infant-universe verdict carried over), `deterministic_rule`,",
-         "`sonnet_x2` (two rubric replicates agree), `opus_adjudicated` (replicates disagreed → adjudication), `owner_decision` (study-level owner override, config/registry_overrides.yaml), `pending`. Vocabularies: the pipeline's",
+         "`sonnet_x2` (two rubric replicates agree), `opus_adjudicated` (replicates disagreed → adjudication), `curator_audit` (study-level host/assay audit, config/registry_overrides.yaml), `owner_decision` (study-level owner override, config/registry_overrides.yaml), `pending`. Vocabularies: the pipeline's",
          "`config/vocab/{body_sites,life_stages,assay,population_flags}.yaml`; scope rules: `config/scope.yaml`. The curated infant catalog is the scope",
          "`infant_gut` inside this registry (`in_infant_catalog` mirrors `universe_studies_all.triage_verdict`). The run-level table `registry_runs.parquet`",
          "(all runs of the universe, 46 ENA fields + `found_by`) is attached to the GitHub Release of the data repository as `registry_runs_v<version>.parquet`",
@@ -418,6 +418,41 @@ def rewrite_readme_intro(pkg: str, package_version: str, intro_template: str | N
     return True
 
 
+
+INFANT_QUALIFIER = ("INFANT-CATALOG verdict (historical, 2026-09 infant screen) — NOT membership in the all-age catalog: a study can be "
+                    "`excluded` here (e.g. age_adult_only) and still be in `gut_studies`. Catalog membership = presence in `gut_studies.parquet`.")
+_INFANT_REWRITES = {
+    "| `triage_verdict` | str | include/exclude/uncertain from the triage cascade |": "| `triage_verdict` | str | include/exclude/uncertain from the infant triage cascade. " + INFANT_QUALIFIER + " |",
+    "| `catalog_status` | str | included / excluded / human_review |": "| `catalog_status` | str | included / excluded / human_review in the INFANT catalog. " + INFANT_QUALIFIER + " |",
+    "| `reason_code` | str | controlled exclusion reason (null for included) |": "| `reason_code` | str | controlled exclusion reason of the INFANT screen (null for included); age_* codes are infant-age reasons, not catalog exclusions |",
+    "| `catalog_status`, `triage_verdict`, `decision_stage`, `confidence`, `evidence` | inclusion verdict and its evidence |": "| `catalog_status`, `triage_verdict`, `decision_stage`, `confidence`, `evidence` | INFANT-catalog inclusion verdict and its evidence (historical; not all-age catalog membership — use `gut_studies.parquet`) |",
+}
+
+
+def qualify_infant_verdicts(pkg: str) -> int:
+    """R2026.17 (reviewer finding): the infant-era tables universe_studies_all / study_metadata_wide carry `catalog_status`,
+    `triage_verdict`, `reason_code` without saying they are INFANT verdicts; 2,357 of the catalog's studies read `excluded` there.
+    The columns keep their names (renaming breaks consumers of the bitemporal tables); the dictionary and README now say what they mean."""
+    n = 0
+    p = os.path.join(pkg, "DATA_DICTIONARY.md")
+    if os.path.exists(p):
+        t = open(p, encoding="utf-8").read()
+        for a, b in _INFANT_REWRITES.items():
+            if a in t:
+                n += t.count(a); t = t.replace(a, b)
+        open(p, "w", encoding="utf-8").write(t)
+    r = os.path.join(pkg, "README.md")
+    if os.path.exists(r):
+        t = open(r, encoding="utf-8").read()
+        warn = ("> **Catalog membership:** a study is in the catalog when it is in `gut_studies.parquet` (samples: `gut_sample_metadata_wide.parquet`). "
+                "The `catalog_status` / `triage_verdict` / `reason_code` columns of `universe_studies_all.parquet` and `study_metadata_wide.parquet` are the "
+                "historical INFANT-catalog screen (389 included) — do not filter the all-age catalog on them.")
+        if warn not in t:
+            i = t.find("\n## ")
+            t = (t[:i] + "\n\n" + warn + "\n" + t[i:]) if i > 0 else (t + "\n\n" + warn + "\n")
+            open(r, "w", encoding="utf-8").write(t); n += 1
+    return n
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--package", required=True)
@@ -440,6 +475,7 @@ def main(argv=None):
     update_readme(a.package, a.package_version, a.release_id, a.build_date, counts)
     intro_doc = rewrite_readme_intro(a.package, a.package_version, a.readme_intro)
     update_dictionary(a.package, a.package_version, a.release_id, cfg, counts)
+    qualify_infant_verdicts(a.package)
     worklist_doc = update_docs_worklist(a.package, a.package_version, a.release_id, counts)
     registry_doc = update_docs_registry(a.package, a.package_version, a.release_id, counts)
     json.dump(counts, open(os.path.join(a.package, "build_counts.json"), "w"), indent=1, sort_keys=True)

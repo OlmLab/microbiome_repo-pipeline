@@ -1,27 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Contribute — {{ site.title }}{% endblock %}
-{% block desc %}{{ cs.n_open|fmt }} catalog studies ({{ cs.n_samples|fmt }} samples) are missing {{ cs.min_missing }} or more of the {{ cs.core_fields|length }} core fields; a per-sample table or a paper pointer unlocks them.{% endblock %}
+{% block desc %}Help fill in missing sample metadata for {{ cs.n_open|fmt }} projects: share a table or a link in a two-minute GitHub form.{% endblock %}
 {% block content %}
-<h1>Contribute metadata</h1>
-<p class="lead">{{ cs.n_open|fmt }} catalog studies with ≥ {{ cs.min_samples }} samples ({{ cs.n_samples|fmt }} samples in total) have fewer than {{ (100 * cs.threshold)|round|int }} % coverage on at least {{ cs.min_missing }} of the {{ cs.core_fields|length }} core fields ({% for f in cs.core_fields %}<span class="mono">{{ f }}</span>{% if not loop.last %}, {% endif %}{% endfor %}; <span class="mono">core_fields</span> in <span class="mono">config/packs/gut.yaml</span>). If you know a study — as an author, a curator or a reader of its paper — the fastest unlock is a per-sample table keyed by BioSample or run accession, or a pointer to the paper whose supplement carries the values. Each button opens a prefilled GitHub Issue (form <span class="mono">catalog-contribution.yml</span>); accepted contributions enter the next release as route R2 with the Issue as evidence locator. <a href="{{ cs.issues_list_url }}">Open contributions</a>.</p>
-<div class="cards">
-{% for f in cs.fields %}<div class="card"><div class="num">{{ f.n_missing|fmt }}</div><div class="lbl">studies missing <span class="mono">{{ f.name }}</span></div></div>{% endfor %}
-{% for t in cs.types %}<div class="card"><div class="num">{{ t.n|fmt }}</div><div class="lbl">{{ t.label }}</div></div>{% endfor %}
+<h1>Contribute</h1>
+<p class="lead">{{ cs.n_open|fmt }} projects are missing basic sample information — age, country, health condition or subject. If you know where it is (you are an author, or the paper has a supplementary table), you can fill the gap in about two minutes.</p>
+
+<div class="steps">
+<div class="step"><b>1 · Find the project</b><br>Search the list below by accession, title word or author.</div>
+<div class="step"><b>2 · Click “Share metadata”</b><br>A short GitHub form opens with the project already filled in (free GitHub account needed).</div>
+<div class="step"><b>3 · Fill in four things</b><br><i>What</i> you share · a <i>link</i>, or drag the file into the box · the <i>column with sample IDs</i> · tick the CC-BY box. Submit.</div>
 </div>
-<p class="small">Ranked by samples × missing fields. Coverage per field is shown as chips (filled = above threshold). The list is also available as <a href="../data/contribute_worklist.json">contribute_worklist.json</a>.</p>
-<input id="q" class="searchbox" type="search" placeholder="Filter by accession, title word or cohort" autocomplete="off">
-<div id="wl">
-{% for r in rows %}<div class="card wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ r.cohort)|lower }}" style="margin:.5rem 0">
-<b>#{{ r.rank }}</b> <a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span>{% if r.cohort %} <span class="small">· cohort {{ r.cohort }}</span>{% endif %}<br>
-<span class="small">{{ r.n|fmt }} samples · ages {{ r.ages }} · depth {{ r.depth or 'none' }} · {{ r.papers }} linked paper{{ '' if r.papers == 1 else 's' }} · {{ r.blocker_label }}</span><br>
-{% for f, c in r.coverage.items() %}<span class="chip {% if f in r.missing %}miss{% endif %}">{{ f }} {{ (100 * c)|round|int }}%</span>{% endfor %}
-<a class="btn xs contribute" href="{{ r.issue_url }}">Contribute: {{ r.type_label }}</a>
-</div>{% endfor %}
-</div>
+<p class="small">We check every submission and add the values in the next release; each value then links back to your issue as its evidence. A good table has one row per sample and a column with run (SRR/ERR…) or BioSample (SAMN/SAMEA…) accessions, for example:</p>
+<table class="tbl small" style="max-width:520px"><thead><tr><th>Run</th><th>age_years</th><th>sex</th><th>condition</th></tr></thead><tbody><tr><td class="mono">SRR1234567</td><td>34</td><td>female</td><td>ulcerative colitis</td></tr><tr><td class="mono">SRR1234568</td><td>41</td><td>male</td><td>healthy</td></tr></tbody></table>
+<p class="small">Something else wrong on a page? Use <b>Flag an issue</b> on that study page. Submitted contributions: <a href="https://github.com/{{ cs.repo }}/issues?q=label%3Acontribution">open issues</a>.</p>
+
+<h2>Projects that need metadata</h2>
+<input id="q" class="searchbox" type="search" placeholder="Filter by accession, title or author">
+<table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr class="wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ (r.cohort or ''))|lower }}"><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span></td><td class="num">{{ r.n|fmt }}</td>
+<td>{% for f in r.missing %}<span class="tag">{{ field_labels.get(f, f) }}</span> {% endfor %}</td><td><a class="btn" href="{{ r.issue_url }}">Share metadata</a></td></tr>
+{% endfor %}</tbody></table>
 {% endblock %}
 {% block scripts %}
 <script>
-(function(){ const q=document.getElementById('q'); const cards=[...document.querySelectorAll('.wl')];
-q.addEventListener('input',()=>{ const s=q.value.trim().toLowerCase(); for(const c of cards) c.style.display=(!s||c.dataset.k.includes(s))?'':'none'; }); })();
+(function(){ const q=document.getElementById('q'); const rows=[...document.querySelectorAll('tr.wl')];
+q.addEventListener('input',()=>{ const s=q.value.trim().toLowerCase(); for(const r of rows) r.style.display=(!s||r.dataset.k.includes(s))?'':'none'; }); })();
 </script>
 {% endblock %}

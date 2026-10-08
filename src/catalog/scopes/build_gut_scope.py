@@ -403,10 +403,21 @@ def build(a):
     ], ignore_index=True).drop_duplicates("sample_key", keep="first")
     bio = bio[bio.sample_accession.isin(set(samples.loc[samples.curated_source == SRC, "sample_key"]))]
     samples["in_infant_catalog"] = samples.study_accession.isin(infant_acc)
+    # per-sample host/assay exclusions from the catalog host audit (non-human or isolate samples inside otherwise human studies)
+    sx = getattr(a, "sample_exclusions", None)
+    if sx and os.path.exists(sx):
+        sxd = pd.read_csv(sx, dtype=str)
+        drop = set(sxd.sample_key.dropna()) if "sample_key" in sxd.columns else set()
+        if "biosample_accession" in sxd.columns:
+            drop |= set(samples.loc[samples.biosample_accession.isin(set(sxd.biosample_accession.dropna())), "sample_key"])
+        n0 = len(samples)
+        samples = samples[~samples.sample_key.isin(drop)].reset_index(drop=True)
+        bio = bio[~bio.sample_accession.isin(drop)]
+        print(f"sample exclusions: {n0 - len(samples)} samples removed ({sx})")
 
     # ---- determinations
     parts = [pd.DataFrame(rows_from_registry_biosamples(bio, rid, pv), columns=DET_COLS), load_any(a.r1), load_any(a.r1_extra), load_any(getattr(a, "r1_newfields", None)),
-             load_any(getattr(a, "r1_newfields_v2", None)), load_any(getattr(a, "r1_interventions", None)), load_any(a.r2_glob), load_any(a.r3_glob), load_any(a.r4_glob)]
+             load_any(getattr(a, "r1_newfields_v2", None)), load_any(getattr(a, "r1_interventions", None)), load_any(getattr(a, "r1_infant", None)), load_any(a.r2_glob), load_any(a.r3_glob), load_any(a.r4_glob)]
     det0 = pd.read_parquet(os.path.join(a.package, "sample_determinations.parquet"))
     det0 = det0[det0.study_accession.isin(infant_acc) & det0.field_name.isin(PACK_FIELDS + INFANT_ONLY)]
     if "release_retired" in det0.columns:
@@ -436,7 +447,12 @@ def build(a):
     det_sample = det[det.scope != "study_all"]
     det_sample = det_sample[det_sample.sample_key.isin(set(samples.sample_key))]
     det_sample, conflicts = resolve(det_sample)
-    det_r4 = expand_study_all(det_sample, det_study, samples[~samples.in_infant_catalog])
+    # R2026.17 (reviewer finding: the infant tier never received the gut_all routes): cohort-wide statements now also fill infant-
+    # catalog samples, except age (the infant catalog leaves mixed-age / no-estimate samples unknown on purpose) and the infant-only
+    # fields; curated infant values always win (resolve() ranks src_track infant_catalog first, expand_study_all skips filled cells)
+    det_r4 = pd.concat([expand_study_all(det_sample, det_study, samples[~samples.in_infant_catalog]),
+                        expand_study_all(det_sample, det_study[~det_study.field_name.isin(["age_at_collection_days"] + list(INFANT_ONLY))], samples[samples.in_infant_catalog])],
+                       ignore_index=True)
     det_all = pd.concat([det_sample, det_r4], ignore_index=True)
     det_all = det_all[det_all.field_name.isin(PACK_FIELDS + INFANT_ONLY)].copy()
     inf = det_all.src_track == "infant_catalog"
@@ -600,6 +616,8 @@ def main(argv=None) -> int:
     ap.add_argument("--corrections", help="dq_corrections.parquet (retire / recode rows decided by the data-quality adjudication; R2026.13)"),
     ap.add_argument("--r1-newfields", help="R1 determinations of the 1.12.0 fields (collection_date, location_*, latitude/longitude, lifestyle) from catalog.scopes.newfields_r1"),
     ap.add_argument("--run-bases", help="NCBI SRA runinfo bases for runs without an ENA base_count (scripts/fill_run_bases.py)")
+    ap.add_argument("--r1-infant", help="R1 BioSample-attribute determinations for infant-catalog samples (gut_r1_infant_determinations.parquet, R2026.17); the infant catalog still wins per field by precedence")
+    ap.add_argument("--sample-exclusions", help="CSV of sample_key / biosample_accession removed from the catalog (host audit, R2026.17)")
     ap.add_argument("--r1-interventions", help="R1 per-sample intervention arms (gut_r1_intervention_determinations.parquet, R2026.15)")
     ap.add_argument("--interventions-study", help="glob of study-level intervention classification shards (gut_intervention_studies_shard_*.parquet, R2026.15)")
     ap.add_argument("--r1-newfields-v2", help="R1 determinations of the 1.13.0 fields (diet, smoking_status, medication, stool_consistency_bristol) from catalog.scopes.newfields_r1_v2"),

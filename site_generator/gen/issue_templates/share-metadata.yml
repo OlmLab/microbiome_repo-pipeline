@@ -1,0 +1,55 @@
+name: "Share metadata for a project"
+description: "Add missing sample metadata (age, sex, country, health condition, subject, timepoint …) for a Microbiome Repo project — about two minutes."
+title: "[metadata] "
+labels: ["contribution"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you! Three things help most: **what** you are sharing, **where** it is (a link, or drag the file into the box below), and **which column holds the sample IDs** (run accessions such as SRR…/ERR…, BioSample accessions such as SAMN…/SAMEA…, or the sample names used in the archive).
+  - type: input
+    id: accession
+    attributes:
+      label: "Project accession"
+      description: "Filled in for you when you came from the Contribute page (PRJNA…, PRJEB…, PRJDB…)."
+    validations:
+      required: true
+  - type: dropdown
+    id: what
+    attributes:
+      label: "What are you sharing?"
+      options:
+        - "A table with one row per sample (CSV, TSV or Excel)"
+        - "A link to the paper or its supplementary table"
+        - "A correction to values shown on the site"
+        - "Something else"
+    validations:
+      required: true
+  - type: textarea
+    id: link_or_file
+    attributes:
+      label: "Link or file"
+      description: "Paste a URL (DOI, journal supplement, Zenodo, GitHub …) or drag and drop the file here."
+    validations:
+      required: true
+  - type: input
+    id: sample_id_column
+    attributes:
+      label: "Which column identifies the samples? (for tables)"
+      placeholder: "e.g. column 'Run' holds SRR accessions"
+  - type: textarea
+    id: details
+    attributes:
+      label: "Anything we should know? (optional)"
+      description: "Units (age in days / months / years), what codes mean (e.g. 1 = case, 0 = control), which samples are excluded …"
+  - type: checkboxes
+    id: licence
+    attributes:
+      label: "Sharing"
+      options:
+        - label: "The values may be published under CC-BY-4.0 with a link to this issue."
+          required: true
+  - type: input
+    id: release_id
+    attributes:
+      label: "Release (filled in for you — leave as is)"

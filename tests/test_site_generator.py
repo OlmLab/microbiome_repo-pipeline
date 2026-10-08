@@ -260,7 +260,8 @@ def test_contribute_worklist_uses_pack_core_fields(site_new):
     assert set(wl[0]['missing']) <= set(CORE) and 'country' in wl[0]['missing'] and 'health_condition' in wl[0]['missing']   # R2026.15: core = age_category, country, health_condition, subject_id
     assert set(wl[0]['coverage']) == set(CORE)
     page = _html(site_new, 'contribute/index.html')
-    assert f'of the {len(CORE)} core fields' in page and all(f'<span class="mono">{f}</span>' in page for f in CORE)
+    # R2026.17: simplified page — one row per project, the missing core fields as chips, one 'Share metadata' button to the issue form
+    assert 'Share metadata' in page and 'share-metadata.yml' in page and 'PRJTEST000001' in page
     assert 'five core fields' not in page and 'antibiotic exposure.' not in page
     study = _html(site_new, 'studies/PRJTEST000001.html')
     assert f'of the {len(CORE)} core fields are below' in study

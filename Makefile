@@ -245,7 +245,7 @@ install-workflows: ## owner bootstrap (once) — copy verify/deploy-pages + the 
 	@test -d $(DATA_CLONE)/.git || { echo "data clone missing at $(DATA_CLONE)"; exit 1; }
 	mkdir -p $(SITE_CLONE)/.github/workflows $(SITE_CLONE)/.github/ISSUE_TEMPLATE $(DATA_CLONE)/.github/workflows
 	cp .github/workflows/verify.yml .github/workflows/deploy-pages.yml $(SITE_CLONE)/.github/workflows/
-	cp .github/ISSUE_TEMPLATE/catalog-finding.yml .github/ISSUE_TEMPLATE/catalog-contribution.yml site_generator/gen/issue_templates/simple-finding.yml $(SITE_CLONE)/.github/ISSUE_TEMPLATE/
+	cp .github/ISSUE_TEMPLATE/catalog-finding.yml .github/ISSUE_TEMPLATE/catalog-contribution.yml site_generator/gen/issue_templates/simple-finding.yml site_generator/gen/issue_templates/share-metadata.yml $(SITE_CLONE)/.github/ISSUE_TEMPLATE/
 	cp .github/workflows/release.yml $(DATA_CLONE)/.github/workflows/
 	@echo "now commit + push .github/ in both clones (owner; docs/RUNBOOK.md 'Owner bootstrap (once)')"
 
@@ -298,6 +298,8 @@ GUT_ATTRIBUTES   ?= $(GUT_DIR)/gut_biosample_attributes.parquet
 GUT_R1_NEWFIELDS_V2 ?= $(GUT_DIR)/gut_r1_newfields_v2_determinations.parquet
 # interventions (R2026.15): per-sample arms (R1) and the study-level classification shards (R4, abstracts)
 GUT_R1_INTERVENTIONS ?= $(GUT_DIR)/interventions/gut_r1_intervention_determinations.parquet
+GUT_R1_INFANT ?= $(GUT_DIR)/r1_infant/gut_r1_infant_determinations.parquet
+GUT_SAMPLE_EXCLUSIONS ?= config/sample_exclusions.csv
 GUT_IV_STUDY_GLOB ?= $(GUT_DIR)/interventions/gut_intervention_studies_shard_*.parquet
 # NCBI SRA bases for runs ENA reports with base_count 0 (dbGaP / not mirrored): scripts/fill_run_bases.py (R2026.16)
 RUN_BASES_NCBI ?= $(DATA)/registry/run_bases_ncbi.parquet
@@ -318,7 +320,7 @@ atlas-observations: ## recompute the Atlas observation cards (obs/*.png + obs/*.
 gut-build:       ## curated scope gut_all — gut_studies / gut_sample_metadata_wide / gut_sample_determinations / gut_runs from registry_biosamples + registry_runs + R1/R2/R3/R4 leaf outputs + the infant tables
 	mkdir -p $(GUT_OUT) $(BUILD)/gut
 	$(PY) -m catalog.scopes.build_gut_scope --studies $(GUT_STUDIES) --registry-studies $(PKG_OUT)/registry_studies.parquet --biosamples $(PKG_OUT)/registry_biosamples.parquet \
-	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
+	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --r1-infant "$(GUT_R1_INFANT)" --sample-exclusions "$(GUT_SAMPLE_EXCLUSIONS)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
 	  --registry-runs $(REGISTRY_RUNS) --registry-sandpiper $(REGISTRY_SANDPIPER) \
 	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC)
 
