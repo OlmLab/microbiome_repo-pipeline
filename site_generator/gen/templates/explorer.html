@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Samples — {{ site.title }}{% endblock %}
 {% block desc %}Filter {{ stats.n_samples|fmt }} human gut shotgun-metagenome samples of all ages by health condition, country, sex, age, antibiotic exposure{% if has_col.lifestyle %}, lifestyle, collection year and location{% endif %}; every value with its route and confidence; CSV export.{% endblock %}
+{% block bodyclass %}wide{% endblock %}
 {% block content %}
 <h1>Sample sheet <span class="small muted">({{ stats.n_samples|fmt }} samples)</span></h1>
 <p class="lead">One row per curated sample of the {{ stats.n_studies|fmt }} catalog studies. Filters run in your browser with <a href="https://duckdb.org/docs/api/wasm/overview">DuckDB-WASM</a> over <span class="mono">data/gut_sample_metadata_wide.parquet</span> ({{ parquet_size }}); nothing is sent to a server. Click a row for every field with its route and confidence; the verbatim evidence quotes are in <span class="mono">gut_sample_determinations.parquet</span> ({{ det_size }}, <a href="../downloads/index.html">Downloads</a>) and per study on the study pages.</p>

@@ -194,7 +194,7 @@ def test_home_tiles_search_and_bars(site_new):
     home = _html(site_new, 'index.html')
     cw = pd.read_parquet(site_new / 'data' / 'gut_sample_metadata_wide.parquet')
     assert 'id="q"' in home and 'class="hero"' in home and 'cards tiles' not in home and 'hbars' not in home
-    assert f'{cw.study_accession.nunique():,} projects' in home and f'{len(cw):,} samples' in home
+    assert f'{cw.study_accession.nunique():,} projects</a>' in home and f'{len(cw):,} samples</a>' in home and 'hero-credit' in home
     for href in ('samples/index.html', 'studies/index.html', 'registry/index.html', 'llms/index.html'):
         assert f'href="{href}' in home, href
     assert 'authors/idx/' in home and 'search_index.json' in home

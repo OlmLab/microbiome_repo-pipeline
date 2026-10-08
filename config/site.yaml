@@ -60,4 +60,4 @@ local:
 #   plausible:   the domain registered at plausible.io (olmlab.github.io/microbiome_repo)
 analytics:
   provider: goatcounter
-  id: ""
+  id: "microbiome-repo"

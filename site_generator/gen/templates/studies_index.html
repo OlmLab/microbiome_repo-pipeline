@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Studies — {{ site.title }}{% endblock %}
 {% block desc %}All {{ n_rows|fmt }} human gut shotgun-metagenome studies of the catalog (all ages) with sample counts, age categories, health conditions, curation depth and per-field coverage.{% endblock %}
+{% block bodyclass %}wide{% endblock %}
 {% block content %}
 <h1>Project sheet <span class="small muted">({{ n_rows|fmt }} projects)</span></h1>
 <p class="lead">Every study in the catalog — an INSDC BioProject (ENA, NCBI SRA or DDBJ) of human gut shotgun metagenomes, all ages — with its curated samples, age-category mix, most frequent health condition and the interventions the study administered (FMT, probiotic, diet …). Click an accession for the study page (evidence, coverage per field, papers, sequencing, sample table, downloads).{% if has_seq %} <span class="mono">Gbp / sample</span> is the median sequencing depth per sample (bases summed over each sample's runs, <span class="mono">gut_runs.parquet</span>).{% endif %} The table is loaded from <a href="../data/studies_index.json">studies_index.json</a>; the full study table with every column is <a href="../data/gut_studies.parquet" download>gut_studies.parquet</a>.</p>
@@ -42,7 +43,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   };
   DataTable.ext.search.push((settings, data, i, row) => settings.nTable.id !== 'studies' || ok(row));
   const tbl = new DataTable('#studies', {
-    data: rows, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
+    data: rows, scrollX: true, autoWidth: false, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
     columns: [
       {data: 'a', render: (d, t) => t === 'display' ? '<a href="' + h(d) + '.html">' + h(d) + '</a>' : d},
       {data: 't', render: (d, t) => t === 'display' ? '<span class="small clip" title="' + h(d) + '">' + h(d) + '</span>' : d},

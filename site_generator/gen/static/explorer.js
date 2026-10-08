@@ -40,7 +40,9 @@ async function init() {
       await db.registerFileBuffer(name, new Uint8Array(await resp.arrayBuffer()));
     }
     conn = await db.connect();
-    await conn.query(`CREATE VIEW s AS SELECT * FROM read_parquet('samples.parquet')`);
+    // current samples only: rows carried with release_retired set (bitemporal history, e.g. PRJNA50637 at R2026.14) are not catalog members
+    const sCols = new Set((await conn.query(`DESCRIBE SELECT * FROM read_parquet('samples.parquet')`)).toArray().map(r => r.toJSON().column_name));
+    await conn.query(`CREATE VIEW s AS SELECT * FROM read_parquet('samples.parquet')${sCols.has('release_retired') ? ' WHERE release_retired IS NULL' : ''}`);
     // R2026.15: study-level interventions (gut_studies.interventions, ';'-joined codes) join the explorer through `st`
     const stCols = new Set((await conn.query(`DESCRIBE SELECT * FROM read_parquet('studies.parquet')`)).toArray().map(r => r.toJSON().column_name));
     await conn.query(`CREATE VIEW st AS SELECT study_accession, study_title${stCols.has('interventions') ? ', interventions AS study_interventions' : ", NULL::VARCHAR AS study_interventions"} FROM read_parquet('studies.parquet')`);
