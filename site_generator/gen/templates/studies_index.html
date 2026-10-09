@@ -43,6 +43,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
     if (co && !String(r.co || '').toLowerCase().includes(co)) return false; if (mn !== '' && r.n < parseInt(mn)) return false;
     if ($('pf-cases_controls').checked && !r.ccc) return false; if ($('pf-arms').checked && !r.cca) return false;
     const so = $('pf-source').value; if (so !== '' && (r.sf || 'nnnnnnn')[parseInt(so)] !== 'u') return false;
+    const gq = prm.get('group'); if (gq && r.grp !== gq) return false;
     return true;
   };
   DataTable.ext.search.push((settings, data, i, row) => settings.nTable.id !== 'studies' || ok(row));
@@ -52,7 +53,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const tbl = new DataTable('#studies', {
     data: rows, autoWidth: false, layout: {topEnd: null}, search: {search: prm.get('q') || ''}, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
     columns: [
-      {data: 'a', render: (d, t) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' : d},
+      {data: 'a', render: (d, t, r) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' + (r.grp ? ' <a class="tag grp" href="?group=' + h(r.grp) + '" title="One of ' + r.grpn + ' BioProjects of the same study — show them together">+' + (r.grpn - 1) + '</a>' : '') : d + ' ' + (r.grp || '')},
       {data: 't', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1" title="' + h(r.tf || d) + '">' + h(d) + '</span>' : d + ' ' + (r.tf || '')},
       {data: 'n', className: 'num', render: (d, t) => t === 'display' ? Number(d).toLocaleString() : d},
       {data: 'ag', className: 'clipc', render: (d, t) => t === 'display' ? '<span class="clip1 mono" title="Age categories (samples): ' + h(d) + '">' + h((d || '').split(' ')[0].split(':')[0]) + '</span>' : d},

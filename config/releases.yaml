@@ -232,6 +232,14 @@ releases:
     data_tag: data-v1.18.1
     site_tag: site-v1.18.1
     label: "deep annotation of the samples added in R2026.20 (archive attributes, sample-name decoding, paper and supplementary tables, cohort statements, 85 new paper links, short titles for 57 projects); 3,243 never-downloaded BioSamples of catalog projects harvested (PRJEB120967/8/9 and PRJEB80390 had 0 samples) with controls, isolates, amplicon-only and non-human samples removed; audited corrections of mis-read infant ages; release check for unharvested BioSamples"
+  - release_id: R2026.22
+    package_version: '1.18.2'
+    previous_package_version: '1.18.1'
+    previous_release_id: R2026.21
+    notes_file: RELEASE_NOTES_R2026.22.md
+    data_tag: data-v1.18.2
+    site_tag: site-v1.18.2
+    label: "owner audit of empty projects: catalog projects without any catalog sample are dropped (umbrella children whose BioSamples sit under the parent, PRJEB39960 mouse recipients of human FMT, projects without harvestable runs); study groups link BioProjects that are deposits of one study (55 groups reviewed by two model replicates; project-page banner and 'show together' sheet filter)"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

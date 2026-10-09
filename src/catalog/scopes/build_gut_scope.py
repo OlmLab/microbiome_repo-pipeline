@@ -580,8 +580,45 @@ def build(a):
     g = w.groupby("study_accession")
     cov = pd.DataFrame({f"cov_{f}": g[f].apply(lambda s: round(float(s.notna().mean()), 3)) for f in PACK_FIELDS})
     cov["cov_age_category"] = g.age_category.apply(lambda s: round(float((s.fillna("unknown") != "unknown").mean()), 3))   # core age (life stage)
+    # R2026.22 (owner audit): a catalog project must have at least one catalog sample. Projects left empty after the sample
+    # filters are dropped and logged: umbrella children whose BioSamples are catalogued under the parent BioProject (e.g. the
+    # MetaHIT single-subject projects under PRJNA33049), projects whose every sample was excluded (PRJEB39960: mouse recipients
+    # of human FMT), and projects with no harvestable runs. They stay in the registry.
+    n_by_study = w.groupby("study_accession").size()
+    empty = sorted(set(studies.study_accession) - set(n_by_study.index))
+    if empty:
+        bs_home = {}
+        if getattr(a, "registry_runs", None) and os.path.exists(a.registry_runs):
+            er = pd.read_parquet(a.registry_runs, columns=["study_accession", "sample_accession"], filters=[("study_accession", "in", empty)])
+            home = w.set_index("biosample_accession").study_accession
+            home = home[~home.index.duplicated()]
+            for s_, gg in er.groupby("study_accession"):
+                parents = sorted(set(home.reindex(gg.sample_accession.dropna().unique()).dropna()))
+                if parents:
+                    bs_home[s_] = ";".join(parents)
+        empty_log = [dict(study_accession=s_, samples_catalogued_under=bs_home.get(s_)) for s_ in empty]
+        print(f"empty catalog projects dropped: {len(empty)} {empty_log[:8]}", file=sys.stderr)
+        studies = studies[~studies.study_accession.isin(empty)].copy()
+    else:
+        empty_log = []
     gs = studies.set_index("study_accession").join(cov, how="left")
     gs["n_samples_curated"] = g.size()
+    # R2026.22: study groups — one study deposited as several BioProjects (config/study_groups.csv: group_id, study_accession,
+    # basis, evidence, confidence). Members are kept as separate projects (accession-keyed); the group columns link them.
+    gs["study_group_id"], gs["study_group_basis"], gs["study_group_members"], gs["study_group_n_samples"] = None, None, None, pd.NA
+    sg_path = getattr(a, "study_groups", None) or os.path.join(cfg_dir, "study_groups.csv")
+    if os.path.exists(sg_path):
+        sgr = pd.read_csv(sg_path, dtype=str)
+        sgr = sgr[sgr.study_accession.isin(gs.index)]
+        sgr = sgr[sgr.groupby("group_id").study_accession.transform("nunique") >= 2]
+        for gid, gg in sgr.groupby("group_id"):
+            members = sorted(set(gg.study_accession))
+            gs.loc[members, "study_group_id"] = gid
+            gs.loc[members, "study_group_members"] = ";".join(members)
+            gs.loc[members, "study_group_n_samples"] = int(gs.loc[members, "n_samples_curated"].fillna(0).sum())
+            for r in gg.itertuples(index=False):
+                gs.loc[r.study_accession, "study_group_basis"] = r.basis
+        print(f"study groups: {sgr.group_id.nunique()} groups over {sgr.study_accession.nunique()} projects", file=sys.stderr)
     gs["age_categories"] = g.age_category.apply(lambda s: json.dumps(s.value_counts().to_dict()))
     gs["health_conditions"] = g.health_condition.apply(lambda s: json.dumps(s.dropna().value_counts().head(6).to_dict()))
     gs["curated_depth"] = det_all.groupby("study_accession").route.apply(lambda s: ";".join(sorted(set(s))))
@@ -647,7 +684,7 @@ def build(a):
                    by_source=w.curated_source.value_counts().to_dict(), age_category=w.age_category.value_counts().to_dict(),
                    coverage={f: round(float(w[f].notna().mean()), 4) for f in PACK_FIELDS}, routes=det_all.route.value_counts().to_dict(),
                    n_infant_scope=int(w.infant_scope.sum()), health_condition=w.health_condition.value_counts().head(12).to_dict(),
-                   vocab_dropped=vocab_dropped, n_pooled_run_units=n_split, n_runs=int(len(gut_runs)) if gut_runs is not None else None,
+                   vocab_dropped=vocab_dropped, n_pooled_run_units=n_split, empty_projects_dropped=empty_log, n_runs=int(len(gut_runs)) if gut_runs is not None else None,
                    lifestyle=w.lifestyle.value_counts().to_dict() if "lifestyle" in w.columns else {},
                    diet=w.diet.value_counts().to_dict() if "diet" in w.columns else {}, smoking_status=w.smoking_status.value_counts().to_dict() if "smoking_status" in w.columns else {},
                    medication_codes=(w.medication.dropna().str.split(";").explode().value_counts().to_dict() if "medication" in w.columns else {}),

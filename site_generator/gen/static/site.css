@@ -336,3 +336,7 @@ svg.spark rect{fill:var(--cu-gold)}svg.spark.depth rect.repo{fill:none;stroke:#7
 .splegend > span{white-space:nowrap}
 .splegend i:not(.it){display:inline-block;width:.75em;height:.75em;border:1px solid #565A5C;margin-right:.3em;vertical-align:-1px}
 .splegend i.it{font-style:italic}
+
+/* R2026.22 study groups */
+.pg-group{margin:.2rem 0 .5rem 0;padding:.35rem .6rem;border-left:3px solid #CFB87C;background:#faf7ef}
+.tag.grp{font-size:.7rem;padding:0 .3rem;text-decoration:none}

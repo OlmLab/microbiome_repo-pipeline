@@ -228,7 +228,7 @@
       "opus_adjudicated",
       "pending",
       "owner_decision",
-     "curator_audit"
+      "curator_audit"
      ]
     },
     {
@@ -1861,6 +1861,26 @@
      "name": "package_added",
      "type": "string",
      "description": "Package version"
+    },
+    {
+     "name": "study_group_id",
+     "type": "str",
+     "description": "R2026.22 study group (G_<lowest accession>): this BioProject is one of several deposits of the same study (config/study_groups.csv); null when the project stands alone"
+    },
+    {
+     "name": "study_group_basis",
+     "type": "str",
+     "description": "why the group was formed: identical_record | per_subject_deposits | split_deposit | top_up_deposit | umbrella_child | shared_own_data_paper"
+    },
+    {
+     "name": "study_group_members",
+     "type": "str",
+     "description": "';'-joined catalog BioProjects of the group"
+    },
+    {
+     "name": "study_group_n_samples",
+     "type": "int64",
+     "description": "catalog samples summed over the group"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope",

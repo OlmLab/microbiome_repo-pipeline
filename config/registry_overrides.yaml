@@ -997,3 +997,15 @@ overrides:
       quote: human gut metagenome (225)
     note: 'R2026.20 gap report: library_strategy OTHER / RANDOM / METAGENOMIC; ENA submitted FASTQ 2.3-2.8 GB per read file (ERR13194058: 78,158,338 read pairs, 11.07 Gbp) = shotgun, not amplicon; ENA base_count
       is 0 for most runs (unprocessed), which had kept the assay at other'
+
+# ---- R2026.22 owner audit of empty catalog projects
+  - study_accession: PRJEB39960
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: run scientific_name
+      quote: mouse gut metagenome (193 runs)
+    - source: BioSample attribute (host-scan evidence, config/sample_exclusions.csv)
+      quote: mouse-gut (84 BioSamples)
+    note: "owner audit 2026-10-09: all 87 BioSamples / 193 runs are mouse gut metagenomes (germ-free mice colonised with frozen human faecal microbiota); no human sample is deposited, every sample was already excluded by the host scan, leaving an empty catalog project"

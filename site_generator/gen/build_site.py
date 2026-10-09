@@ -650,6 +650,7 @@ def main():
     hcv = yaml.safe_load((repo_root / 'config' / 'vocab' / 'health_conditions.yaml').read_text(encoding='utf-8'))['codes']
     hc_labels = {k: (v.get('label', '') if isinstance(v, dict) else '') for k, v in hcv.items()}
     cs = pd.read_parquet(pkg / 'gut_studies.parquet')
+    cs_all = cs.copy()
     cw = pd.read_parquet(pkg / 'gut_sample_metadata_wide.parquet')
     cd = pd.read_parquet(pkg / 'gut_sample_determinations.parquet')
     cs = cs[cs[RR].isna()].reset_index(drop=True) if RR in cs.columns else cs
@@ -1135,7 +1136,8 @@ def main():
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
                       iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
                       src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
-                      gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None))
+                      gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None),
+                      **({'grp': s['study_group_id'], 'grpn': len(str(s['study_group_members']).split(';'))} if not isnull(s.get('study_group_id')) else {}))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
     sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
@@ -1615,6 +1617,14 @@ def main():
                 (out / _ch).parent.mkdir(parents=True, exist_ok=True)
                 _root = '../' * _ch.count('/')
                 render('placeholder.html', _ch, _root, nav=_ck, heading=_cl, text='This page is not part of this build.', crumbs=[dict(label='Home', href=_root + 'index.html'), dict(label=_cl)])
+    # R2026.22: project pages of projects that left the catalog (retired gut_studies rows) become stubs pointing to the registry
+    # record, so bookmarks and citations of e.g. studies/PRJEB39960.html keep resolving
+    retired_ = sorted(set(cs_all.loc[cs_all[RR].notna(), 'study_accession']) - set(cs.study_accession)) if RR in cs_all.columns else []
+    for acc_ in retired_:
+        if (out / 'studies' / f'{acc_}.html').exists():
+            continue
+        tgt = f'../registry/index.html?study={acc_}'
+        (out / 'studies' / f'{acc_}.html').write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="3; url={tgt}"><title>{acc_} — not in the catalog</title><p>{acc_} is no longer a catalog project (it has no catalog samples: its samples are catalogued under another BioProject, were excluded, or could not be harvested). It remains in the <a href="{tgt}">registry</a>.</p>', encoding='utf-8')
     # items 5/6: old URLs keep working as redirects to their new homes
     for old_, new_ in REDIRECTS.items():
         (out / old_).parent.mkdir(parents=True, exist_ok=True)

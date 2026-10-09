@@ -1,0 +1,145 @@
+group_id,study_accession,basis,evidence,confidence
+G_PRJNA33305,PRJNA33305,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA33307,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA33309,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA33311,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA33313,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA38231,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA38233,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJNA33305,PRJNA45929,per_subject_deposits,"""Environmental microbial DNA from 4 lean and 4 obese human subject's feces."" [description (identical across all 8 projects)]",0.85
+G_PRJDB1800,PRJDB1800,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB1876,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB1882,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2071,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2088,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2119,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2181,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2269,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2364,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2472,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2510,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2552,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJDB1800,PRJDB2695,per_subject_deposits,"""13 individual of Japanese patients with multiple sclerosis. Microbial DNA was sequenced using a 454 GS FLX titanium"" [PRJDB1800 description (identical across all 13 projects)]",0.9
+G_PRJNA526861,PRJNA526861,shared_own_data_paper,"""we investigated samples from 100 Lynch syndrome patients using 16S rRNA gene sequencing of colon biopsies"" [MED:32240601 abstract]",0.85
+G_PRJNA526861,PRJNA699934,shared_own_data_paper,"""we investigated samples from 100 Lynch syndrome patients using 16S rRNA gene sequencing of colon biopsies"" [MED:32240601 abstract]",0.85
+G_PRJEB39661,PRJEB39661,top_up_deposit,"""deposited in the EBI Short Read Archive under the study accession number PRJEB39661... and under the study accession number PRJEB62571"" [MED:41513932 full text]",0.9
+G_PRJEB39661,PRJEB62571,top_up_deposit,"""deposited in the EBI Short Read Archive under the study accession number PRJEB39661... and under the study accession number PRJEB62571"" [MED:41513932 full text]",0.9
+G_PRJNA520743,PRJNA520743,split_deposit,"""WGS sequencing of gut microbiome from patients receiving warfarin therapy"" [PRJNA520777 title]",0.85
+G_PRJNA520743,PRJNA520777,split_deposit,"""WGS sequencing of gut microbiome from patients receiving warfarin therapy"" [PRJNA520777 title]",0.85
+G_PRJEB50699,PRJEB50699,split_deposit,"""Donor samples from Lyophilised oral faecal microbiota transplantation for ulcerative colitis (LOTUS) study shotgun"" [PRJEB50699:title]",0.92
+G_PRJEB50699,PRJEB58035,split_deposit,"""Donor samples from Lyophilised oral faecal microbiota transplantation for ulcerative colitis (LOTUS) study shotgun"" [PRJEB50699:title]",0.92
+G_PRJDB14457,PRJDB14457,split_deposit,"""Gut microbiota of healthy Japanese adult"" [title (identical across PRJDB14457, PRJDB18384, PRJDB18387, PRJDB18854)]",0.6
+G_PRJDB14457,PRJDB18384,split_deposit,"""Gut microbiota of healthy Japanese adult"" [title (identical across PRJDB14457, PRJDB18384, PRJDB18387, PRJDB18854)]",0.6
+G_PRJDB14457,PRJDB18387,split_deposit,"""Gut microbiota of healthy Japanese adult"" [title (identical across PRJDB14457, PRJDB18384, PRJDB18387, PRJDB18854)]",0.6
+G_PRJDB14457,PRJDB18854,split_deposit,"""Gut microbiota of healthy Japanese adult"" [title (identical across PRJDB14457, PRJDB18384, PRJDB18387, PRJDB18854)]",0.6
+G_PRJNA1249606,PRJNA1249606,split_deposit,"""Microbiome in pediatric inflammatory bowel disease (Part 2)"" [PRJNA1249606:title]",0.9
+G_PRJNA1249606,PRJNA1249971,split_deposit,"""Microbiome in pediatric inflammatory bowel disease (Part 2)"" [PRJNA1249606:title]",0.9
+G_PRJNA413160,PRJNA413160,split_deposit,"""Metagenome data from infant stools samples"" [PRJNA413160/PRJNA413162 description]",0.7
+G_PRJNA413160,PRJNA413162,split_deposit,"""Metagenome data from infant stools samples"" [PRJNA413160/PRJNA413162 description]",0.7
+G_PRJNA813705,PRJNA813705,top_up_deposit,"""MicroAML clinical study. Study design available on ClinicalTrials.gov (NCT03881826)"" [PRJNA813705/PRJNA875377 description]",0.9
+G_PRJNA813705,PRJNA875377,top_up_deposit,"""MicroAML clinical study. Study design available on ClinicalTrials.gov (NCT03881826)"" [PRJNA813705/PRJNA875377 description]",0.9
+G_PRJNA33049,PRJNA33049,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33053,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33055,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33057,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33059,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33061,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33063,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA33049,PRJNA33113,per_subject_deposits,"""Environmental microbial DNA from several human subjects feces."" [PRJNA33049 description]",0.85
+G_PRJNA613032,PRJNA613032,split_deposit,"""Infants were randomly allocated to either treatment with penicillin + gentamicin, co-amoxiclav + gentamicin or amoxicillin + cefotaxime"" [PRJNA613032/PRJNA613054 description]",0.9
+G_PRJNA613032,PRJNA613054,split_deposit,"""Infants were randomly allocated to either treatment with penicillin + gentamicin, co-amoxiclav + gentamicin or amoxicillin + cefotaxime"" [PRJNA613032/PRJNA613054 description]",0.9
+G_PRJEB89898,PRJEB89898,split_deposit,"""diagnosed via previous liver biopsy or a combination of clinical signs and findings from laboratory tests, endoscopy, and ultrasonography"" [PRJEB89898 description / PRJEB89899 description]",0.7
+G_PRJEB89898,PRJEB89899,split_deposit,"""diagnosed via previous liver biopsy or a combination of clinical signs and findings from laboratory tests, endoscopy, and ultrasonography"" [PRJEB89898 description / PRJEB89899 description]",0.7
+G_PRJEB64515,PRJEB64515,split_deposit,"""employing both shallow and deep shotgun sequencing methods, we aimed to track the changes in microbiota composition"" [PRJEB64515/PRJEB91718 description]",0.9
+G_PRJEB64515,PRJEB91718,split_deposit,"""employing both shallow and deep shotgun sequencing methods, we aimed to track the changes in microbiota composition"" [PRJEB64515/PRJEB91718 description]",0.9
+G_PRJNA63073,PRJNA63073,per_subject_deposits,"""Subject A sample from Micro-age project"" [PRJNA63073 title]",0.9
+G_PRJNA63073,PRJNA63075,per_subject_deposits,"""Subject A sample from Micro-age project"" [PRJNA63073 title]",0.9
+G_PRJNA63073,PRJNA63077,per_subject_deposits,"""Subject A sample from Micro-age project"" [PRJNA63073 title]",0.9
+G_PRJEB12357,PRJEB12357,top_up_deposit,"""Extension to a previous dataset (PRJEB12357), described by Li et al, 2016 (PMID:27126044)"" [PRJEB46778 description]",0.95
+G_PRJEB12357,PRJEB46778,top_up_deposit,"""Extension to a previous dataset (PRJEB12357), described by Li et al, 2016 (PMID:27126044)"" [PRJEB46778 description]",0.95
+G_PRJNA834762,PRJNA834762,split_deposit,"""stool samples from children under 2 years of age, living in a low resource community in Peru"" [MED:36194603 abstract]",0.8
+G_PRJNA834762,PRJNA837236,split_deposit,"""stool samples from children under 2 years of age, living in a low resource community in Peru"" [MED:36194603 abstract]",0.8
+G_PRJEB101484,PRJEB101484,split_deposit,"""Gut Microbiota - Lymphocyte Reaction (GMLR): a practical tool to optimize fecal microbiota transplantation (FMT) donor-recipient compatibility in IBD"" [PRJEB101484/PRJEB80526 title]",0.9
+G_PRJEB101484,PRJEB80526,split_deposit,"""Gut Microbiota - Lymphocyte Reaction (GMLR): a practical tool to optimize fecal microbiota transplantation (FMT) donor-recipient compatibility in IBD"" [PRJEB101484/PRJEB80526 title]",0.9
+G_PRJNA1345173,PRJNA1345173,split_deposit,"""The raw data has been uploaded to NCBI (Accession number: PRJNA1345179, PRJNA1345176, PRJNA1345175, PRJNA1345173)"" [PMC13539226 full text]",0.95
+G_PRJNA1345173,PRJNA1345175,split_deposit,"""The raw data has been uploaded to NCBI (Accession number: PRJNA1345179, PRJNA1345176, PRJNA1345175, PRJNA1345173)"" [PMC13539226 full text]",0.95
+G_PRJNA1345173,PRJNA1345176,split_deposit,"""The raw data has been uploaded to NCBI (Accession number: PRJNA1345179, PRJNA1345176, PRJNA1345175, PRJNA1345173)"" [PMC13539226 full text]",0.95
+G_PRJNA1345173,PRJNA1345179,split_deposit,"""The raw data has been uploaded to NCBI (Accession number: PRJNA1345179, PRJNA1345176, PRJNA1345175, PRJNA1345173)"" [PMC13539226 full text]",0.95
+G_PRJNA602729,PRJNA602729,split_deposit,"""resequencing and metagenomic sequencing data: PRJNA602729, PRJNA602731, PRJNA602732, PRJNA638403, PRJNA638404 and PRJNA638405"" [MED:34079079 full text]",0.95
+G_PRJNA602729,PRJNA602731,split_deposit,"""resequencing and metagenomic sequencing data: PRJNA602729, PRJNA602731, PRJNA602732, PRJNA638403, PRJNA638404 and PRJNA638405"" [MED:34079079 full text]",0.95
+G_PRJNA602729,PRJNA602732,split_deposit,"""resequencing and metagenomic sequencing data: PRJNA602729, PRJNA602731, PRJNA602732, PRJNA638403, PRJNA638404 and PRJNA638405"" [MED:34079079 full text]",0.95
+G_PRJNA602729,PRJNA638403,split_deposit,"""resequencing and metagenomic sequencing data: PRJNA602729, PRJNA602731, PRJNA602732, PRJNA638403, PRJNA638404 and PRJNA638405"" [MED:34079079 full text]",0.95
+G_PRJNA602729,PRJNA638404,split_deposit,"""resequencing and metagenomic sequencing data: PRJNA602729, PRJNA602731, PRJNA602732, PRJNA638403, PRJNA638404 and PRJNA638405"" [MED:34079079 full text]",0.95
+G_PRJNA602729,PRJNA638405,split_deposit,"""resequencing and metagenomic sequencing data: PRJNA602729, PRJNA602731, PRJNA602732, PRJNA638403, PRJNA638404 and PRJNA638405"" [MED:34079079 full text]",0.95
+G_PRJNA1128111,PRJNA1128111,split_deposit,"""deposited in the NCBI Sequence Read Archive under the Bioproject IDs PRJNA1129514 and PRJNA1128111, respectively"" [PMC12382674 full text]",0.9
+G_PRJNA1128111,PRJNA1129514,split_deposit,"""deposited in the NCBI Sequence Read Archive under the Bioproject IDs PRJNA1129514 and PRJNA1128111, respectively"" [PMC12382674 full text]",0.9
+G_PRJEB26472,PRJEB26472,split_deposit,"""In the randomised, controlled FOCUS Study of FMT in active UC we aimed to identify bacterial taxonomic and functional determinants"" [PRJEB26472/PRJEB26473/PRJEB26474 description]",0.92
+G_PRJEB26472,PRJEB26473,split_deposit,"""In the randomised, controlled FOCUS Study of FMT in active UC we aimed to identify bacterial taxonomic and functional determinants"" [PRJEB26472/PRJEB26473/PRJEB26474 description]",0.92
+G_PRJEB26472,PRJEB26474,split_deposit,"""In the randomised, controlled FOCUS Study of FMT in active UC we aimed to identify bacterial taxonomic and functional determinants"" [PRJEB26472/PRJEB26473/PRJEB26474 description]",0.92
+G_PRJEB84376,PRJEB84376,shared_own_data_paper,"""Impact of phage enrichment on the observed infant gut phageome."" [41873970:linked_papers]",0.75
+G_PRJEB84376,PRJEB89462,shared_own_data_paper,"""Impact of phage enrichment on the observed infant gut phageome."" [41873970:linked_papers]",0.75
+G_PRJEB120967,PRJEB120967,split_deposit,"""Gut microbiome profiles associated with simple liver steatosis in MASLD"" [PRJEB120967/PRJEB120968/PRJEB120969 title]",0.85
+G_PRJEB120967,PRJEB120968,split_deposit,"""Gut microbiome profiles associated with simple liver steatosis in MASLD"" [PRJEB120967/PRJEB120968/PRJEB120969 title]",0.85
+G_PRJEB120967,PRJEB120969,split_deposit,"""Gut microbiome profiles associated with simple liver steatosis in MASLD"" [PRJEB120967/PRJEB120968/PRJEB120969 title]",0.85
+G_PRJNA275349,PRJNA275349,top_up_deposit,"""comprising 1,631 new metagenomes (2,355 total) targeting diverse body sites with multiple time points in 265 individuals"" [MED:28953883 abstract]",0.9
+G_PRJNA275349,PRJNA48479,top_up_deposit,"""comprising 1,631 new metagenomes (2,355 total) targeting diverse body sites with multiple time points in 265 individuals"" [MED:28953883 abstract]",0.9
+G_PRJNA961998,PRJNA961998,top_up_deposit,"""Intestinal microbial community of gallstone subjects"" [PRJNA999028:title]",0.75
+G_PRJNA961998,PRJNA999028,top_up_deposit,"""Intestinal microbial community of gallstone subjects"" [PRJNA999028:title]",0.75
+G_PRJNA396794,PRJNA396794,split_deposit,"""Time-series fecal samples for a cohort of premature infants in NICU"" [PRJNA396794/PRJNA417343 description]",0.65
+G_PRJNA396794,PRJNA417343,split_deposit,"""Time-series fecal samples for a cohort of premature infants in NICU"" [PRJNA396794/PRJNA417343 description]",0.65
+G_PRJNA1049662,PRJNA1049662,split_deposit,"""metagenomic shotgun sequencing of baseline colorectal cancer patient"" [PRJNA1049662/PRJNA1054290 title]",0.75
+G_PRJNA1049662,PRJNA1054290,split_deposit,"""metagenomic shotgun sequencing of baseline colorectal cancer patient"" [PRJNA1049662/PRJNA1054290 title]",0.75
+G_PRJNA1337562,PRJNA1337562,top_up_deposit,"""Effects of Probiotic and Dietary Interventions on Gut Microbiota and Weight Loss in Obese Children"" [PRJNA1337562 title]",0.8
+G_PRJNA1337562,PRJNA1344899,top_up_deposit,"""Effects of Probiotic and Dietary Interventions on Gut Microbiota and Weight Loss in Obese Children"" [PRJNA1337562 title]",0.8
+G_PRJEB90577,PRJEB90577,identical_record,"""The datasets generated and analysed during the current study are available at ENA under bioproject number PRJEB90577 and at NCBI with bioproject number PRJNA1277853"" [PMC13530132]",0.95
+G_PRJEB90577,PRJNA1277853,identical_record,"""The datasets generated and analysed during the current study are available at ENA under bioproject number PRJEB90577 and at NCBI with bioproject number PRJNA1277853"" [PMC13530132]",0.95
+G_PRJEB52774,PRJEB52774,top_up_deposit,"""The Health and Early-Life Microbiota (HELMi) is a cohort study of 1055 healthy Finnish infants"" [PRJEB52774/PRJEB70237 description]",0.85
+G_PRJEB52774,PRJEB70237,top_up_deposit,"""The Health and Early-Life Microbiota (HELMi) is a cohort study of 1055 healthy Finnish infants"" [PRJEB52774/PRJEB70237 description]",0.85
+G_PRJNA545794,PRJNA545794,split_deposit,"""We applied metagenomic sequencing to respiratory and gastrointestinal tract specimens, collected from a cohort of long-term acute care hospital"" [PRJNA545794/PRJNA546227 description]",0.85
+G_PRJNA545794,PRJNA546227,split_deposit,"""We applied metagenomic sequencing to respiratory and gastrointestinal tract specimens, collected from a cohort of long-term acute care hospital"" [PRJNA545794/PRJNA546227 description]",0.85
+G_PRJNA1025976,PRJNA1025976,per_subject_deposits,"""We have isolated phage DNA from stool sampels of healthy donor"" [PRJNA1025976/PRJNA1027629 description]",0.75
+G_PRJNA1025976,PRJNA1027629,per_subject_deposits,"""We have isolated phage DNA from stool sampels of healthy donor"" [PRJNA1025976/PRJNA1027629 description]",0.75
+G_PRJEB72433,PRJEB72433,identical_record,"""This study performed shotgun metagenomic sequencing on stool and oropharyngeal samples obtained from patients presenting with uncomplicated UTI"" [PRJEB72433/PRJNA1074135 description]",0.9
+G_PRJEB72433,PRJNA1074135,identical_record,"""This study performed shotgun metagenomic sequencing on stool and oropharyngeal samples obtained from patients presenting with uncomplicated UTI"" [PRJEB72433/PRJNA1074135 description]",0.9
+G_PRJNA1372070,PRJNA1372070,split_deposit,"""deposited in the NCBI Sequence Read Archive under accession number PRJNA1372073... and PRJNA1372070"" [PMC13147943]",0.9
+G_PRJNA1372070,PRJNA1372073,split_deposit,"""deposited in the NCBI Sequence Read Archive under accession number PRJNA1372073... and PRJNA1372070"" [PMC13147943]",0.9
+G_PRJNA1033794,PRJNA1033794,shared_own_data_paper,"""Microbial community-scale metabolic modelling predicts personalized short-chain fatty acid production profiles in the hu"" [MED:38914826 title]",0.75
+G_PRJNA1033794,PRJNA937304,shared_own_data_paper,"""Microbial community-scale metabolic modelling predicts personalized short-chain fatty acid production profiles in the hu"" [MED:38914826 title]",0.75
+G_PRJEB57952,PRJEB57952,split_deposit,"""sequences from the whole metagenomes (WMS) have also been deposited in ENA under accession no. PRJEB57953"" [PMC10744171]",0.95
+G_PRJEB57952,PRJEB57953,split_deposit,"""sequences from the whole metagenomes (WMS) have also been deposited in ENA under accession no. PRJEB57953"" [PMC10744171]",0.95
+G_PRJNA900041,PRJNA900041,split_deposit,"""ITS Bifidobacteria human Gut #2"" [PRJNA900180 title]",0.75
+G_PRJNA900041,PRJNA900180,split_deposit,"""ITS Bifidobacteria human Gut #2"" [PRJNA900180 title]",0.75
+G_PRJEB14155,PRJEB14155,split_deposit,"""accession numbers: PRJEB15179 and PRJEB14155) are obtained from the metagenomic shotgun sequencing of 391 samples"" [MED:38868565 full text (PMC10989819)]",0.85
+G_PRJEB14155,PRJEB15179,split_deposit,"""accession numbers: PRJEB15179 and PRJEB14155) are obtained from the metagenomic shotgun sequencing of 391 samples"" [MED:38868565 full text (PMC10989819)]",0.85
+G_PRJEB101960,PRJEB101960,split_deposit,"""Gut microbiome of toddlers up to 36 months of age"" [PRJEB101960:title]",0.75
+G_PRJEB101960,PRJEB102170,split_deposit,"""Gut microbiome of toddlers up to 36 months of age"" [PRJEB101960:title]",0.75
+G_PRJNA1201247,PRJNA1201247,shared_own_data_paper,"""Raw read sequences of the shotgun metagenomic sequences generated in this study were deposited at the NCBI SRA under the accession numbers PRJNA1201247 and PRJNA1275496"" [MED:40902606 full text]",0.9
+G_PRJNA1201247,PRJNA1275496,shared_own_data_paper,"""Raw read sequences of the shotgun metagenomic sequences generated in this study were deposited at the NCBI SRA under the accession numbers PRJNA1201247 and PRJNA1275496"" [MED:40902606 full text]",0.9
+G_PRJNA660443,PRJNA660443,top_up_deposit,"""Sequencing reads were deposited ... under BioProjects PRJNA862908 and PRJNA660443 (BioSamples SAMN29999523 to SAMN29999673"" [MED:37726374 full text]",0.9
+G_PRJNA660443,PRJNA862908,top_up_deposit,"""Sequencing reads were deposited ... under BioProjects PRJNA862908 and PRJNA660443 (BioSamples SAMN29999523 to SAMN29999673"" [MED:37726374 full text]",0.9
+G_PRJNA1116923,PRJNA1116923,top_up_deposit,"""Human Gut Microbiota (multitime points)"" [PRJNA1215598:description]",0.85
+G_PRJNA1116923,PRJNA1215598,top_up_deposit,"""Human Gut Microbiota (multitime points)"" [PRJNA1215598:description]",0.85
+G_PRJNA913183,PRJNA913183,split_deposit,"""deposited in the BioProject database under accession code PRJNA913183 PRJNA947193"" [MED:37258525 full text]",0.95
+G_PRJNA913183,PRJNA947193,split_deposit,"""deposited in the BioProject database under accession code PRJNA913183 PRJNA947193"" [MED:37258525 full text]",0.95
+G_PRJNA787396,PRJNA787396,split_deposit,"""Gut metagenomes of cancer patients from Iran"" [PRJNA787396 description]",0.75
+G_PRJNA787396,PRJNA787398,split_deposit,"""Gut metagenomes of cancer patients from Iran"" [PRJNA787396 description]",0.75
+G_PRJEB77202,PRJEB77202,shared_own_data_paper,"""infant fecal samples collected by the COMBINE study (Cork, Ireland)"" [PRJNA1413407 description]",0.85
+G_PRJEB77202,PRJNA1413407,shared_own_data_paper,"""infant fecal samples collected by the COMBINE study (Cork, Ireland)"" [PRJNA1413407 description]",0.85
+G_PRJNA176385,PRJNA176385,shared_own_data_paper,"""shotgun metagenomic analysis of gut microbiota samples from 96 healthy Russian adult subjects"" [MED:24036685_abstract]",0.65
+G_PRJNA176385,PRJNA243613,shared_own_data_paper,"""shotgun metagenomic analysis of gut microbiota samples from 96 healthy Russian adult subjects"" [MED:24036685_abstract]",0.65
+G_PRJEB105368,PRJEB105368,top_up_deposit,"""Anxiety associated with dietary intake and gut microbiome features in a cross-sectional cohort of sub-clinically anxious young women."" [PRJEB105368/PRJEB112777 title]",0.9
+G_PRJEB105368,PRJEB112777,top_up_deposit,"""Anxiety associated with dietary intake and gut microbiome features in a cross-sectional cohort of sub-clinically anxious young women."" [PRJEB105368/PRJEB112777 title]",0.9
+G_PRJNA1275869,PRJNA1275869,split_deposit,"""Stool samples from a cohort of children (2-5 years old) in Adama (Ethiopia)."" [PRJNA1275869/PRJNA1345963 description]",0.75
+G_PRJNA1275869,PRJNA1345963,split_deposit,"""Stool samples from a cohort of children (2-5 years old) in Adama (Ethiopia)."" [PRJNA1275869/PRJNA1345963 description]",0.75
+G_PRJNA705217,PRJNA705217,split_deposit,"""Raw data for human and mouse metagenomics are publicly available via sequence read archive (SRA) under the BioProject accession IDs PRJNA705217 and PRJNA705695 respectively"" [MED:35484230 full text (PMC9081267)]",0.9
+G_PRJNA705217,PRJNA705695,split_deposit,"""Raw data for human and mouse metagenomics are publicly available via sequence read archive (SRA) under the BioProject accession IDs PRJNA705217 and PRJNA705695 respectively"" [MED:35484230 full text (PMC9081267)]",0.9
+G_PRJNA1295133,PRJNA1295133,split_deposit,"""Gut Microbiome and Virome Dysbiosis in Pediatric Idiopathic Nephrotic Syndrome: A Multi-Kingdom Disruption of Microbial Crosstalk"" [PRJNA1295133/PRJNA1295840 title]",0.7
+G_PRJNA1295133,PRJNA1295840,split_deposit,"""Gut Microbiome and Virome Dysbiosis in Pediatric Idiopathic Nephrotic Syndrome: A Multi-Kingdom Disruption of Microbial Crosstalk"" [PRJNA1295133/PRJNA1295840 title]",0.7
+G_PRJEB56741,PRJEB56741,identical_record,"""The gut metagenome harbors metabolic and antibiotic resistance signatures of established asthma"" [PRJEB56741/PRJEB59709 title]",0.9
+G_PRJEB56741,PRJEB59709,identical_record,"""The gut metagenome harbors metabolic and antibiotic resistance signatures of established asthma"" [PRJEB56741/PRJEB59709 title]",0.9
+G_PRJNA808649,PRJNA808649,shared_own_data_paper,"""Gut microbiota and metabolic changes in children with idiopathic short stature."" [MED:39039462 (linked_papers field on both accessions, tagged own_data)]",0.6
+G_PRJNA808649,PRJNA941095,shared_own_data_paper,"""Gut microbiota and metabolic changes in children with idiopathic short stature."" [MED:39039462 (linked_papers field on both accessions, tagged own_data)]",0.6
+G_PRJEB46214,PRJEB46214,top_up_deposit,"""accession numbers: PRJEB29237, PRJEB41463, PRJEB46214, and PRJEB53954"" [MED:35967843 full text data availability statement]",0.75
+G_PRJEB46214,PRJEB53954,top_up_deposit,"""accession numbers: PRJEB29237, PRJEB41463, PRJEB46214, and PRJEB53954"" [MED:35967843 full text data availability statement]",0.75
+G_PRJDB38518,PRJDB38518,shared_own_data_paper,"""Comparison of gut viral communities between autism spectrum disorder and healthy children"" [MED:41163852 title]",0.8
+G_PRJDB38518,PRJNA1322369,shared_own_data_paper,"""Comparison of gut viral communities between autism spectrum disorder and healthy children"" [MED:41163852 title]",0.8
