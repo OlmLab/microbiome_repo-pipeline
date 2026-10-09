@@ -43,6 +43,14 @@
 </div></div>
 </section>
 
+<section class="pg-sec" id="composition">
+<div class="pg-label">Community composition</div>
+{% if panel and panel.genus %}<div class="spbar">{% for seg in panel.genus.segs %}<span class="spseg" style="width:{{ seg.w }}%;background:{{ seg.color }}" title="{{ seg.label }}: {{ seg.pct }}% mean relative abundance"></span>{% endfor %}</div>
+<div class="splegend small">{% for seg in panel.genus.segs %}<span title="{{ seg.label }}: {{ seg.pct }}%"><i style="background:{{ seg.color }}"></i>{% if seg.taxon.startswith('g__') %}<i class="it">{{ seg.label }}</i>{% else %}{{ seg.label }}{% endif %} {{ seg.pct }}%</span>{% endfor %}</div>
+<p class="small muted">Genera, mean relative abundance over {{ panel.n|fmt }} profiled gut samples of this project (<a href="https://sandpiper.qut.edu.au/">Sandpiper</a> SingleM profiles, {{ panel.taxonomy }}; low-depth and non-metagenome profiles left out).</p>
+{% else %}<p class="small muted">No Sandpiper profile for this project's samples yet.</p>{% endif %}
+</section>
+
 <section class="pg-sec">
 <div class="pg-label">Field coverage</div>
 <table class="tbl small compact covt"><thead><tr><th>field</th><th class="num">samples</th><th>coverage</th><th class="num" title="archive attributes / sample names">R1</th><th class="num" title="supplementary tables / external resources">R2</th><th class="num" title="paper full text">R3</th><th class="num" title="abstract / archive description">R4</th></tr></thead><tbody>
@@ -73,11 +81,6 @@
 {% for e in ev_rows %}<tr><td class="mono">{{ e.sample_key }}</td><td class="mono">{{ e.field_name }}</td><td>{{ e.value_normalized }}</td><td><span class="tag {{ e.route }}">{{ e.route }}</span></td><td class="num">{{ e.confidence|num2 }}</td><td class="mono">{{ e.evidence_source }}{% if e.evidence_locator and e.evidence_locator.startswith('http') %} <a href="{{ e.evidence_locator }}">source</a>{% endif %}</td><td class="quote">{{ e.evidence_quote }}</td></tr>{% endfor %}
 </tbody></table></details>{% endif %}
 {% if seq %}<details id="sequencing"><summary>Sequencing</summary><p class="small">{{ seq.n_runs|fmt }} runs{% if seq.n_samples %} over {{ seq.n_samples|fmt }} samples{% endif %} · mean {{ seq.gbp_mean|num2 }} Gbp per run (median {{ seq.gbp_median|num2 }}, total {{ seq.gbp_total|numint }} Gbp; {{ seq.n_with_bases|fmt }} runs with a base count) · layout {% for k, n in seq.layouts %}{{ k }} {{ n|fmt }}{% if not loop.last %}, {% endif %}{% endfor %} · platform {% for k, n in seq.platforms %}{{ k }} {{ n|fmt }}{% if not loop.last %}, {% endif %}{% endfor %} · models {% for k, n in seq.models %}{{ k }} ({{ n|fmt }}){% if not loop.last %}, {% endif %}{% endfor %} · {{ seq.sandpiper_share|pct }} of runs with a <a href="https://sandpiper.qut.edu.au/">Sandpiper</a> profile · first public {{ seq.first_public[0] or '—' }}{% if seq.first_public[1] and seq.first_public[1] != seq.first_public[0] %} – {{ seq.first_public[1] }}{% endif %}</p></details>{% endif %}
-{% if panel %}<details><summary>Community composition (Sandpiper, {{ panel.taxonomy }})</summary>
-<p class="small muted">Mean relative abundance over {{ panel.n|fmt }} profiled samples ({{ panel.definition }}).</p>
-{% for rank in ['phylum', 'genus'] %}{% if panel[rank] %}<div class="small"><b>{{ rank }}</b></div>
-<div class="bar" style="display:flex;height:16px;border:1px solid #565A5C;margin:.2rem 0 .4rem 0">{% for seg in panel[rank].segs %}<div title="{{ seg.label }} {{ seg.pct }}%" style="width:{{ seg.w }}%;background:{{ seg.color }};border-right:1px solid #565A5C"></div>{% endfor %}</div>
-<p class="small">{% for seg in panel[rank].segs %}<span class="mono">{{ seg.label }}</span> {{ seg.pct }}%{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}{% endfor %}</details>{% endif %}
 <details><summary>Authors ({{ study_authors|length }})</summary>{% if study_authors %}<p class="small">{% for au in study_authors %}<a href="../authors/index.html?q={{ au.name|urlencode }}">{{ au.name }}</a>{% if au.first %} <span class="tag">first</span>{% endif %}{% if au.last %} <span class="tag">last</span>{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% else %}<p class="small">No author record.</p>{% endif %}</details>
 {% if help %}<details id="contribute" open><summary>Help complete this project</summary><p class="small">{{ help.n_missing }} of the {{ n_core }} core fields are below {{ thr_pct }}% coverage: {% for f in help.missing %}<span class="mono">{{ f }}</span>{% if not loop.last %}, {% endif %}{% endfor %}. <a href="{{ help.issue_url }}">Share metadata</a></p></details>{% endif %}
 <details id="downloads" open><summary>Downloads</summary><p class="small"><a href="../data/studies/{{ s.study_accession }}.csv.gz" download>{{ s.study_accession }}.csv.gz</a> ({{ dl.csv_size }}) · <a href="../data/studies/{{ s.study_accession }}.parquet" download>parquet</a> ({{ dl.parquet_size }}) — all {{ n_total|fmt }} samples, every field with route and confidence · <a href="../data/studies/{{ s.study_accession }}_determinations.csv.gz" download>{{ s.study_accession }}_determinations.csv.gz</a> ({{ dl.det_size }}) — {{ dl.det_rows|fmt }} evidence rows</p></details>

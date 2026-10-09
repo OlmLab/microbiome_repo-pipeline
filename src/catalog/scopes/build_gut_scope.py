@@ -145,6 +145,41 @@ def validate_vocab_fields(det: pd.DataFrame, pf: dict, cfg_dir: str) -> tuple[pd
     return det[keep], dropped
 
 
+POOLED_STEM = r"([_-](L|lane)?\d{1,3}|[_-]R[12]|[_-](run|rep|re)\d*|[_-]?(shotgun|wgs|mgs|dna|metagenome|ont|nanopore|illumina|pacbio|hifi))$"
+
+
+def split_pooled_biosamples(samples: pd.DataFrame, registry_runs_path, src: str):
+    """R2026.20 (owner audit of PRJNA398187): some submitters file many biological samples under ONE BioSample — e.g. 22 stool
+    libraries UC1..UC16 / CD1..CD3 / HT1..HT3 all under SAMN11885869. Such a BioSample becomes one run-unit sample per run
+    (sample_key = run accession, sample_unit = 'run'; the BioSample accession is kept) when: >= 5 DNA runs, every run has a
+    distinct library name after stripping lane / read / platform suffixes, and the BioSample holds >= 50 % of the project's runs
+    or the project has <= 3 BioSamples. Values from the shared BioSample record are not copied to the run units (they cannot
+    be true for every library); study-wide statements still expand to them."""
+    if not registry_runs_path or not os.path.exists(registry_runs_path):
+        return samples, 0
+    ga = samples[(samples.curated_source == src) & (samples.sample_unit == "biosample")]
+    rr = pd.read_parquet(registry_runs_path, columns=["run_accession", "study_accession", "sample_accession", "library_name", "library_source", "library_strategy"],
+                         filters=[("study_accession", "in", sorted(set(ga.study_accession)))])
+    rr = rr[rr.library_source.isin(["METAGENOMIC", "GENOMIC"]) & ~rr.library_strategy.isin(["AMPLICON", "RNA-Seq"])]
+    r = rr[rr.sample_accession.isin(set(ga.biosample_accession))].copy()
+    r["stem"] = r.library_name.fillna("").astype(str).str.replace(POOLED_STEM, "", regex=True, case=False).str.lower()
+    g = r.groupby(["study_accession", "sample_accession"]).agg(nr=("run_accession", "size"), ns=("stem", "nunique"), blank=("stem", lambda x: int((x == "").sum())))
+    st = rr.groupby("study_accession").agg(st_runs=("run_accession", "size"), st_bs=("sample_accession", "nunique"))
+    g = g.join(st, on="study_accession")
+    pooled = g[(g.nr >= 5) & (g.ns == g.nr) & (g.blank == 0) & ((g.nr >= 0.5 * g.st_runs) | (g.st_bs <= 3))].reset_index()
+    if not len(pooled):
+        return samples, 0
+    keys = set(pooled.sample_accession)
+    base = samples[(samples.curated_source == src) & samples.biosample_accession.isin(keys)].drop_duplicates("biosample_accession").set_index("biosample_accession")
+    runs = r[r.sample_accession.isin(keys) & r.study_accession.isin(set(pooled.study_accession))]
+    new = base.loc[runs.sample_accession].reset_index()
+    new["sample_key"] = runs.run_accession.values
+    new["sample_unit"] = "run"
+    out = pd.concat([samples[~((samples.curated_source == src) & samples.biosample_accession.isin(keys))], new[samples.columns]], ignore_index=True)
+    print(f"pooled BioSamples split into run units: {len(keys)} BioSamples -> {len(new)} run samples ({pooled.study_accession.nunique()} projects)", file=sys.stderr)
+    return out, int(len(new))
+
+
 def sequencing_summary(gut_runs: pd.DataFrame) -> pd.DataFrame:
     """Study-level sequencing columns from gut_runs: n_runs_total, gbp_per_run_mean / median, instrument_models_top (JSON counts, top 5),
     library_layouts (JSON counts), sandpiper_profiled_share."""
@@ -390,7 +425,9 @@ def build(a):
 
     # ---- samples: registry_biosamples of the non-infant gut studies + the curated infant samples
     bio = pd.read_parquet(a.biosamples)
-    bio = bio[bio.study_accession.isin(gut_acc - infant_acc)]
+    # R2026.20: registry samples of infant-extension studies that the infant curation did not cover (e.g. maternal stool, samples
+    # deposited later) enter through the registry route; the curated infant row wins for every BioSample it covers (below)
+    bio = bio[bio.study_accession.isin(gut_acc)]
     if "release_retired" in bio.columns:
         bio = bio[bio.release_retired.isna()]
     wide0 = pd.read_parquet(os.path.join(a.package, "sample_metadata_wide.parquet"))
@@ -404,8 +441,11 @@ def build(a):
         pd.DataFrame(dict(sample_key=bio.sample_accession.values, study_accession=bio.study_accession.values, biosample_accession=bio.sample_accession.values, secondary_sample=None,
                           sample_unit="biosample", body_site_code=bio.body_site_code.values, sample_life_stage=bio.life_stage.values, curated_source=SRC)),
     ], ignore_index=True).drop_duplicates("sample_key", keep="first")
-    bio = bio[bio.sample_accession.isin(set(samples.loc[samples.curated_source == SRC, "sample_key"]))]
-    samples["in_infant_catalog"] = samples.study_accession.isin(infant_acc)
+    inf_bs = set(wide0.biosample_accession.dropna()) | set(wide0.secondary_sample.dropna())
+    samples = samples[~((samples.curated_source == SRC) & samples.biosample_accession.isin(inf_bs))].reset_index(drop=True)
+    samples, n_split = split_pooled_biosamples(samples, getattr(a, "registry_runs", None), SRC)
+    bio = bio[bio.sample_accession.isin(set(samples.loc[(samples.curated_source == SRC) & (samples.sample_unit == "biosample"), "sample_key"]))]
+    samples["in_infant_catalog"] = samples.curated_source.eq("infant_catalog")
     # per-sample host/assay exclusions from the catalog host audit (non-human or isolate samples inside otherwise human studies)
     sx = getattr(a, "sample_exclusions", None)
     if sx and os.path.exists(sx):
@@ -607,7 +647,7 @@ def build(a):
                    by_source=w.curated_source.value_counts().to_dict(), age_category=w.age_category.value_counts().to_dict(),
                    coverage={f: round(float(w[f].notna().mean()), 4) for f in PACK_FIELDS}, routes=det_all.route.value_counts().to_dict(),
                    n_infant_scope=int(w.infant_scope.sum()), health_condition=w.health_condition.value_counts().head(12).to_dict(),
-                   vocab_dropped=vocab_dropped, n_runs=int(len(gut_runs)) if gut_runs is not None else None,
+                   vocab_dropped=vocab_dropped, n_pooled_run_units=n_split, n_runs=int(len(gut_runs)) if gut_runs is not None else None,
                    lifestyle=w.lifestyle.value_counts().to_dict() if "lifestyle" in w.columns else {},
                    diet=w.diet.value_counts().to_dict() if "diet" in w.columns else {}, smoking_status=w.smoking_status.value_counts().to_dict() if "smoking_status" in w.columns else {},
                    medication_codes=(w.medication.dropna().str.split(";").explode().value_counts().to_dict() if "medication" in w.columns else {}),

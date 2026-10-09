@@ -193,3 +193,807 @@ overrides:
     stage: curator_audit
     assay: amplicon
     note: 'R2026.18 paper verification: the linked paper (data-availability statement names this BioProject) describes 16S rRNA gene sequencing; ENA runs are library_strategy OTHER with library_selection PCR, ~150k read pairs and ~37.5 Mbp per run (BGISEQ-500) — amplicon data, not shotgun'
+
+# ---- R2026.20 reclassification of human-gut shotgun studies that were classified out (gap audit + external coverage report; RECLASS_REPORT_r2026_20.md)
+  - study_accession: PRJDB2800
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id001
+    - source: runs.scientific_name
+      quote: human gut metagenome (3)
+    - source: runs.library_source
+      quote: METAGENOMIC (3)
+    body_site_evidence: *id001
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Shotgun metagenomic runs (RANDOM selection, high Mbp/run) from human gut metagenome; outbreak sapovirus study using stool-derived shotgun sequencing, meets inclusion criteria.
+  - study_accession: PRJDB8879
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id002
+    - source: runs.scientific_name
+      quote: human gut metagenome (4)
+    - source: runs.environment_material
+      quote: fecal material (4)
+    body_site_evidence: *id002
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay amplicon_misfiled /
+      sites gut_stool; All 4 runs are human gut metagenome, WGS/METAGENOMIC, fecal material, host Homo sapiens; long-read shotgun DNA metagenome study of fermented soybean effects on gut microbiota.
+  - study_accession: PRJEB38742
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id003
+    - source: runs.scientific_name
+      quote: human gut metagenome (5024)
+    - source: biosample_attributes.human_gut_environmental_package
+      quote: human-gut (1018)
+    body_site_evidence: *id003
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay shotgun_dna / sites
+      unknown_site; All runs WGS/METAGENOMIC/RANDOM, human gut metagenome, feces, ERC000011 checklist; clear human stool shotgun metagenome study on diabetes/microbiome.
+  - study_accession: PRJEB44907
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id004
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: papers[0].abstract
+      quote: patients newly diagnosed with hyperglycemia
+    body_site_evidence: *id004
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Clinical trial of human patients, stool metagenomes, METAGENOMIC/RANDOM, ~3 Gbp/run paired-end shotgun data; clearly human gut stool shotgun DNA metagenome.
+  - study_accession: PRJEB47736
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id005
+    - source: description
+      quote: Total DNA was extracted from frozen human stool
+    - source: runs.scientific_name
+      quote: human gut metagenome (16)
+    body_site_evidence: *id005
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host no / assay shotgun_dna / sites nan;
+      Human stool shotgun metagenomes from obese patients; mouse models are separate in-paper experiments, not these sequenced runs.
+  - study_accession: PRJEB50505
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id006
+    - source: study_title
+      quote: sleep quality, stress, and gut-microbiota analyzed using shotgun metagenomics
+    - source: runs.scientific_name
+      quote: human gut metagenome (134)
+    body_site_evidence: *id006
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host no / assay shotgun_dna / sites nan;
+      WGS/RANDOM/METAGENOMIC, human gut metagenome, 6.7Gbp median per run; clinical trial on human gut microbiome via shotgun metagenomics.
+  - study_accession: PRJEB58879
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id007
+    - source: runs.scientific_name
+      quote: human gut metagenome (226)
+    - source: runs.library_strategy
+      quote: WGS (226)
+    body_site_evidence: *id007
+    note: 'R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay shotgun_dna / sites
+      blood_tissue; All 226 runs are human gut metagenome, WGS/METAGENOMIC/RANDOM shotgun with high Mbp/run, strongly indicating human-derived shotgun gut metagenomes despite odd ''Blood disorder'' project
+      name. | curator '
+  - study_accession: PRJEB60692
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id008
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: papers[0].abstract
+      quote: blood and stool samples were collected
+    body_site_evidence: *id008
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All 232 runs are human gut metagenome, METAGENOMIC source, shotgun-like profile; study on athletes' gut microbiota via stool samples.
+  - study_accession: PRJEB62678
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id009
+    - source: runs.scientific_name
+      quote: human gut metagenome (1004)
+    - source: runs.environment_material
+      quote: Feces (1004)
+    body_site_evidence: *id009
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites unknown_site;
+      Human pregnancy cohort, shotgun metagenomic WGA on fecal samples, all runs human gut metagenome/feces; meets host, assay, and site criteria.
+  - study_accession: PRJEB63587
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id010
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: study_title
+      quote: severely malnourished children evaluated following acute nutritional resuscitation
+    body_site_evidence: *id010
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay unknown / sites unknown_site;
+      Clinical trial in children with malnutrition, stool metagenomes, METAGENOMIC/RANDOM library, median 2.1 Gbp/run indicates shotgun DNA sequencing of gut samples.
+  - study_accession: PRJEB74035
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id011
+    - source: runs.scientific_name
+      quote: human gut metagenome (241)
+    - source: runs.environment_material
+      quote: feces (241)
+    body_site_evidence: *id011
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All 241 runs are random shotgun metagenomic libraries from human feces, high Mbp/run, consistent with human gut shotgun metagenome study.
+  - study_accession: PRJEB75353
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id012
+    - source: runs.scientific_name
+      quote: human gut metagenome (189)
+    - source: papers[0].abstract
+      quote: gut metagenomics analyses
+    body_site_evidence: *id012
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Healthy human participants in RCT, stool metagenomes, shotgun WGS (METAGENOMIC/RANDOM, high Mbp/run), clearly gut_stool site.
+  - study_accession: PRJEB75807
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id013
+    - source: runs.scientific_name
+      quote: human gut metagenome (20)
+    - source: papers[0].abstract
+      quote: identified immunostimulatory, IgA-coated bacteria from fecal material
+    body_site_evidence: *id013
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All runs are shotgun metagenomic (METAGENOMIC/RANDOM, high Mbp) from human fecal samples per IgA-SEQ study on human gut microbiota.
+  - study_accession: PRJEB76399
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: mixed
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id014
+    - source: runs.scientific_name
+      quote: human feces metagenome (121)
+    - source: runs.isolation_source
+      quote: faeces (121)
+    body_site_evidence: *id014
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host no / assay other / sites nan; 121
+      of 210 runs are human faeces metagenomes (shotgun, random, METAGENOMIC); remainder are sewage/water, non-human, removed later by BioSample host.
+  - study_accession: PRJEB86785
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id015
+    - source: description
+      quote: who provided stool samples for metagenomic sequencing
+    - source: runs.scientific_name
+      quote: human gut metagenome (452)
+    body_site_evidence: *id015
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      UK inpatients/outpatients/volunteers provided stool for shotgun metagenomic sequencing; nearly all runs human host, METAGENOMIC/RANDOM, median 3.4Gbp/run confirms shotgun DNA, not amplicon.
+  - study_accession: PRJEB86881
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id016
+    - source: runs.scientific_name
+      quote: human gut metagenome (453)
+    - source: papers[0].abstract
+      quote: longitudinal sampling of human stool and metagenomic deep sequencing
+    body_site_evidence: *id016
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human stool/rectal swab samples from Malawian adults, deep shotgun metagenomic sequencing, metagenomic random library source confirms shotgun DNA assay.
+  - study_accession: PRJNA1064103
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id017
+    - source: runs.isolation_source
+      quote: Colonoscopic rinsates
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    body_site_evidence: *id017
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Colonoscopy rinsates from intestinal mucosa in IBD patients, human host, metagenomic shotgun (553 Mbp median/run), gut-associated sample.
+  - study_accession: PRJNA1079071
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id018
+    - source: runs.scientific_name
+      quote: human gut metagenome (3)
+    - source: runs.isolation_source
+      quote: stool (3)
+    body_site_evidence: *id018
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All runs are human gut metagenome, stool isolation source, host Homo sapiens, metagenomic/random library source consistent with shotgun DNA sequencing.
+  - study_accession: PRJNA1082417
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id019
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: study_title
+      quote: Gut Microbiome of Lactose Intolerant Individuals
+    body_site_evidence: *id019
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All 82 runs are human gut metagenome, METAGENOMIC source, host Homo sapiens, high Mbp/run indicating shotgun DNA; clear gut/stool human cohort study.
+  - study_accession: PRJNA1088910
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id020
+    - source: runs.scientific_name
+      quote: human gut metagenome (28)
+    - source: runs.library_strategy
+      quote: WGS (28)
+    body_site_evidence: *id020
+    note: 'R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay amplicon_misfiled /
+      sites gut_stool; 28 runs METAGENOMIC/RANDOM/WGS, human gut metagenome, stool isolation source, high Mbp/run confirms shotgun metagenome despite title mentioning 16S amplicon study. | curator flag: title
+      is about dual '
+  - study_accession: PRJNA1125836
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id021
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: papers[0].abstract
+      quote: whole-genome shotgun sequencing
+    body_site_evidence: *id021
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human fecal samples, metagenomic shotgun sequencing (NovaSeq, median 3.95 Gbp/run), obesity gut dysbiosis study; clearly human gut stool shotgun metagenomes.
+  - study_accession: PRJNA1145114
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: mixed
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id022
+    - source: runs.sample_titles_examples
+      quote: BBQ9407_faecal_sample_1
+    - source: runs.scientific_name
+      quote: human gut metagenome (2); bioreactor metagenome (1)
+    body_site_evidence: *id022
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host mixed / assay shotgun_dna / sites
+      unknown_site; 2 of 3 runs are human faecal shotgun metagenomes (WGS/METAGENOMIC/RANDOM); third is bioreactor, not human.
+  - study_accession: PRJNA1192252
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id023
+    - source: runs.scientific_name
+      quote: human gut metagenome (132)
+    - source: runs.sample_titles_examples
+      quote: HCG_STOOL | HIG_STOOL
+    body_site_evidence: *id023
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;oral;other_site;multi_site;
+      All runs are human-host metagenomic shotgun data (~6.8 Gbp median/run) from fecal/stool samples; study also includes mucosal/gastric specimens but stool subset qualifies.
+  - study_accession: PRJNA1277853
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: mixed
+    body_sites: gut_stool;nasal_nasopharyngeal;multi_site
+    body_site_primary: gut_stool
+    host_evidence: &id024
+    - source: description
+      quote: Peri-rectal swabs were sequenced using a shotgun metagenomic approach
+    - source: papers[0].abstract
+      quote: tracked gastrointestinal resistome and microbiota dynamics of 149 children
+    body_site_evidence: *id024
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host unknown / assay shotgun_dna / sites
+      gut_stool;nasal_nasopharyngeal; Peri-rectal (gut) swabs shotgun WGS on NextSeq meet criteria; nasopharyngeal swabs via MinION metaserotyping are separate non-shotgun subset.
+  - study_accession: PRJNA1372070
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id025
+    - source: runs.scientific_name
+      quote: human gut metagenome (197)
+    - source: runs.isolation_source
+      quote: feces (197)
+    body_site_evidence: *id025
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay unknown / sites unknown_site;
+      All 197 runs are human gut metagenome, host Homo sapiens, feces source, METAGENOMIC/RANDOM library, high Mbp/run consistent with shotgun DNA sequencing.
+  - study_accession: PRJNA1372073
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id026
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: runs.isolation_source
+      quote: feces
+    body_site_evidence: *id026
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites unknown_site;
+      All 57 runs are human gut metagenome, feces source, random METAGENOMIC WGS-like libraries; paper confirms shotgun metagenomics of HCC patient gut microbiome.
+  - study_accession: PRJNA1423207
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id027
+    - source: runs.scientific_name
+      quote: human gut metagenome (31)
+    - source: papers[0].abstract
+      quote: fecal shotgun metagenomics and untargeted liquid chromatography
+    body_site_evidence: *id027
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All 31 runs are human fecal shotgun metagenomes from infertile/fertile men; paper confirms fecal shotgun metagenomics methodology.
+  - study_accession: PRJNA256106
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id028
+    - source: runs.scientific_name
+      quote: human gut metagenome (109)
+    - source: runs.environment_material
+      quote: feces (109)
+    body_site_evidence: *id028
+    note: 'R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay amplicon_misfiled /
+      sites gut_stool; All 109 runs are human-host faecal metagenomic WGA/RANDOM shotgun libraries at high Mbp per run; despite 16S-focused study title, run metrics indicate shotgun DNA metagenomes. | curator
+      flag: descript'
+  - study_accession: PRJNA302832
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id029
+    - source: runs.library_source
+      quote: METAGENOMIC (44)
+    - source: runs.scientific_name
+      quote: human gut metagenome (44)
+    body_site_evidence: *id029
+    note: 'R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay amplicon_misfiled /
+      sites gut_stool; Despite description mentioning 16S, run metadata shows WGA/METAGENOMIC/RANDOM libraries, ~556 Mbp/run, human gut metagenome, host 9606 - shotgun DNA fecal metagenomes. | curator flag:
+      description says'
+  - study_accession: PRJNA308867
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id030
+    - source: study_title
+      quote: Healthy human gut virome
+    - source: runs.sample_titles_examples
+      quote: VLP metagenome from Human gut
+    body_site_evidence: *id030
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host no / assay other / sites nan; Human
+      gut virome from stool samples, random/METAGENOMIC library, high Mbp per run; clearly human gut shotgun DNA metagenome (virome).
+  - study_accession: PRJNA317435
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id031
+    - source: runs.scientific_name
+      quote: human gut metagenome (2)
+    - source: biosample_attributes.env_material
+      quote: stool (2)
+    body_site_evidence: *id031
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay shotgun_dna / sites
+      unknown_site; Shotgun metagenomic/metatranscriptomic WGS stool samples from human AML patient; host human, assay shotgun DNA, site gut/stool.
+  - study_accession: PRJNA336061
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id032
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    - source: papers[0].abstract
+      quote: fecal samples from 13 healthy Chinese volunteers
+    body_site_evidence: *id032
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay shotgun_dna / sites
+      unknown_site; WGS metagenomic runs from human fecal samples; high Mbp/run shotgun data; in vitro chemostat work is separate from these sequenced human stool samples.
+  - study_accession: PRJNA413199
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id033
+    - source: runs.scientific_name
+      quote: human gut metagenome (15)
+    - source: runs.isolation_source
+      quote: fecal material (15)
+    body_site_evidence: *id033
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human fecal shotgun metagenomes (host 9606, METAGENOMIC/RANDOM, ~302 Mbp/run); project_name 'Mouse gut metagenome' appears to be a labeling artifact contradicted by consistent human host metadata.
+  - study_accession: PRJNA413356
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id034
+    - source: runs.scientific_name
+      quote: human gut metagenome (10)
+    - source: runs.isolation_source
+      quote: feces (10)
+    body_site_evidence: *id034
+    note: 'R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay isolate_genome / sites
+      unknown_site; Despite study title mentioning M.tb, run-level metadata shows human gut metagenome, WGS/METAGENOMIC/RANDOM, feces, high Mbp per run. | curator flag: study title is M. tuberculosis genome
+      sequencing, b'
+  - study_accession: PRJNA427187
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool;milk;multi_site
+    body_site_primary: gut_stool
+    host_evidence: &id035
+    - source: runs.isolation_source
+      quote: feces (10); Breastmilk (10)
+    - source: runs.scientific_name
+      quote: human gut metagenome (10)
+    body_site_evidence: *id035
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;milk;
+      Human cohort (mothers/infants), WGA/METAGENOMIC/RANDOM shotgun libraries, stool samples present alongside milk; meets include criteria for gut_stool shotgun DNA metagenomes.
+  - study_accession: PRJNA504921
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id036
+    - source: runs.isolation_source
+      quote: rectal biopsy
+    - source: papers[1].abstract
+      quote: mucosal virome and their functions in health and UC
+    body_site_evidence: *id036
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      167 runs, human gut metagenome, random/metagenomic shotgun virome from rectal mucosa biopsies in UC study; clearly human gut stool/mucosa derived.
+  - study_accession: PRJNA588514
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id037
+    - source: runs.scientific_name
+      quote: human gut metagenome (930)
+    - source: runs.isolation_source
+      quote: feces isolate (930)
+    body_site_evidence: *id037
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Large fecal virome dataset, all runs human host, METAGENOMIC/RANDOM, high Mbp/run, feces isolation source confirms gut_stool.
+  - study_accession: PRJNA648796
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id038
+    - source: runs.isolation_source
+      quote: human feces
+    - source: runs.scientific_name
+      quote: human gut metagenome
+    body_site_evidence: *id038
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All 229 runs are human gut metagenome, metagenomic WGS, high Mbp/run, feces source; matches deep shotgun fecal studies in linked papers.
+  - study_accession: PRJNA648797
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id039
+    - source: study_title
+      quote: human gut metagenomics VLP reads
+    - source: runs.isolation_source
+      quote: human feces (229)
+    body_site_evidence: *id039
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human fecal VLP (virome) shotgun metagenomes, 229 runs, METAGENOMIC source, host Homo sapiens, feces isolation source; VLP shotgun sequencing counts as shotgun_dna.
+  - study_accession: PRJNA665061
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: mixed
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id040
+    - source: description
+      quote: shotgun sequencing of human stool
+    - source: runs.scientific_name
+      quote: human gut metagenome (45)
+    body_site_evidence: *id040
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay amplicon_misfiled /
+      sites gut_stool; All 45 runs are WGS/METAGENOMIC/RANDOM human gut metagenome from human feces; description notes some stool is human, some from colonized gnotobiotic animals, hence mixed host. [replicate
+      field differe
+  - study_accession: PRJNA715245
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id041
+    - source: runs.scientific_name
+      quote: human gut metagenome (281)
+    - source: runs.isolation_source
+      quote: feces (281)
+    body_site_evidence: *id041
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All 281 runs are human-host metagenomic/random shotgun sequencing of fecal samples from a gut microbiome antibiotic study; clear human gut shotgun DNA metagenome.
+  - study_accession: PRJNA730689
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id042
+    - source: runs.scientific_name
+      quote: human gut metagenome (1)
+    - source: biosample_attributes.env_medium
+      quote: stool (1)
+    body_site_evidence: *id042
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay shotgun_dna / sites
+      unknown_site; Single WGS/METAGENOMIC/RANDOM run, 1174 Mbp, human host taxid 9606, stool sample; clear human gut shotgun metagenome.
+  - study_accession: PRJNA734321
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: mixed
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id043
+    - source: scientific_name
+      quote: human gut metagenome (33)
+    - source: papers[0].abstract
+      quote: Fecal samples from GW Veterans with persistent CMI
+    body_site_evidence: *id043
+    note: 'R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host no / assay shotgun_dna / sites
+      nan; Title says ''mouse'' but run metadata shows human gut metagenome/Homo sapiens reads; paper confirms both mouse model and human Veteran fecal samples included. [replicate field differences: host_human
+      r1'
+  - study_accession: PRJNA790678
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id044
+    - source: runs.scientific_name
+      quote: human gut metagenome (32)
+    - source: runs.isolation_source
+      quote: mucosal swab (32)
+    body_site_evidence: *id044
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Shotgun metagenomic (RANDOM/METAGENOMIC) reads from human bowel mucosal swabs; high Mbp/run confirms shotgun DNA, not amplicon. Paper found is unrelated 16S SSI study.
+  - study_accession: PRJNA825696
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id045
+    - source: study_title
+      quote: ileostomy samples from CRC Patients
+    - source: runs.scientific_name
+      quote: human gut metagenome (31)
+    body_site_evidence: *id045
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human ileostomy/gut samples, metagenomic WGA library with high Mbp/run on NovaSeq, consistent with shotgun DNA metagenome from gut/stool-equivalent site.
+  - study_accession: PRJNA877820
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id046
+    - source: runs.scientific_name
+      quote: human gut metagenome (58)
+    - source: papers[0].abstract
+      quote: gut microbial functional and metabolic alterations
+    body_site_evidence: *id046
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      All runs human gut metagenome, METAGENOMIC source, ~11 Gbp/run WGS-like, paired NovaSeq; paper on fecal microbiota in T1D children confirms gut stool.
+  - study_accession: PRJNA879122
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id047
+    - source: description
+      quote: meta3C dataset, using spike-in controls, of a human stool sample
+    - source: runs.scientific_name
+      quote: human gut metagenome (2)
+    body_site_evidence: *id047
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human stool meta3C (Hi-C-like) metagenomic shotgun data, host_tax_id 9606, METAGENOMIC/RANDOM libraries; qualifies as shotgun_dna gut_stool from human host.
+  - study_accession: PRJNA881338
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: mixed
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id048
+    - source: runs.scientific_name
+      quote: human gut metagenome (14)
+    - source: papers[0].abstract
+      quote: human fecal samples, avian fecal samples, and environmental samples
+    body_site_evidence: *id048
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host mixed / assay other / sites unknown_site;
+      Study is one-health metagenomics with 14/21 runs human gut/feces, shotgun metagenomic, others animal/environmental; human gut subset qualifies for inclusion.
+  - study_accession: PRJNA898150
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id049
+    - source: runs.scientific_name
+      quote: human gut metagenome (52)
+    - source: runs.isolation_source
+      quote: stool (52)
+    body_site_evidence: *id049
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      GDM patients fecal samples, shotgun metagenomic (OTHER/METAGENOMIC, ~6.6Gbp median per run), human host confirmed, stool isolation source.
+  - study_accession: PRJNA912122
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id050
+    - source: papers[0].abstract
+      quote: shotgun metagenomic sequencing and targeted metabolomic analyses on 847 faecal samples
+    - source: runs.scientific_name
+      quote: human gut metagenome (850)
+    body_site_evidence: *id050
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Human faecal shotgun metagenomes from liver disease patients, 850 runs, METAGENOMIC/RANDOM, host Homo sapiens; clearly gut_stool, shotgun DNA, human host.
+  - study_accession: PRJNA939268
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence: &id051
+    - source: runs.scientific_name
+      quote: human gut metagenome (30)
+    - source: papers[0].abstract
+      quote: species and functional pathway annotations were analyzed by shotgun sequencing
+    body_site_evidence: *id051
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host yes / assay other / sites gut_stool;
+      Healthy human participants, stool samples, shotgun metagenomic sequencing per run metrics and paper abstract; clear gut microbiome diet study.
+  - study_accession: PRJNA944553
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: mixed
+    assay: shotgun_dna
+    body_sites: gut_stool;other_site;multi_site
+    body_site_primary: gut_stool
+    host_evidence: &id052
+    - source: runs.isolation_source
+      quote: CatFaeces (30); HumanFeces (30)
+    - source: papers[1].abstract
+      quote: core ARGs in the cat and human gut
+    body_site_evidence: *id052
+    note: R2026.20 reclassification (two-replicate reasoning-model review of run metrics, organism/host fields, titles and abstracts; RECLASS_REPORT_r2026_20.md); was host mixed / assay other / sites gut_stool;
+      Study includes both human and cat faecal shotgun metagenomes plus environmental samples; human stool subset present, so mixed host, include.
+  - study_accession: PRJEB66487
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'yes'
+    assay: shotgun_dna
+    body_sites: gut_stool
+    body_site_primary: gut_stool
+    host_evidence:
+    - source: run scientific_name
+      quote: human gut metagenome (225)
+    body_site_evidence:
+    - source: run scientific_name
+      quote: human gut metagenome (225)
+    note: 'R2026.20 gap report: library_strategy OTHER / RANDOM / METAGENOMIC; ENA submitted FASTQ 2.3-2.8 GB per read file (ERR13194058: 78,158,338 read pairs, 11.07 Gbp) = shotgun, not amplicon; ENA base_count
+      is 0 for most runs (unprocessed), which had kept the assay at other'

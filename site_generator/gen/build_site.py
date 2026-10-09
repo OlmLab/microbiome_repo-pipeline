@@ -82,7 +82,7 @@ FILE_DESC = {
     'confidence_tiers.csv': 'Infant extension: engine confidence tiers.', 'tier_field_precision.csv': 'Infant extension: precision per route × tier vs the cMD gold join.',
     'sample_unit_classification.csv': 'Infant extension: per-BioSample multi-run classification.', 'sample_unit_classification_by_study.csv': 'Infant extension: per-study sample-unit class.',
     'sandpiper_sample_summary.parquet': 'Sandpiper/SingleM per-sample summary for the infant studies (sp_* columns, QC flags, URL).',
-    'sandpiper_top_genera.parquet': 'Top-15 genera per profiled infant-study sample.', 'sandpiper_study_panels.parquet': 'Per-study mean top phyla / genera (study-page panels, infant studies).',
+    'sandpiper_top_genera.parquet': 'Top-15 genera per profiled infant-study sample.', 'sandpiper_study_panels.parquet': 'Per-study mean top phyla / genera (infant studies).', 'gut_sandpiper_study_panels.parquet': 'Per-project mean top-12 genera over profiled gut samples (project-page composition bar).',
     'sandpiper_run_qc.parquet': 'Infant-study runs: profiled or miss reason, QC fields.', 'sandpiper_study_coverage.csv': 'Per infant study: runs/samples profiled.',
     'sandpiper_study_qc_flags.csv': 'Per infant study: flag fractions.', 'sandpiper_flag_definitions.json': "Sandpiper's published QC flag definitions.", 'sandpiper_flag_table.csv': 'QC-flag vocabulary.',
     'authors.parquet': 'Infant extension: study × author × paper rows.', 'study_authors_summary.csv': 'Infant extension: first/last author and organisations per screened study.',
@@ -102,6 +102,8 @@ OFFSITE = [dict(name='registry_runs_v{v}.parquet', desc='Registry run tier: one 
            dict(name='gut_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (relabund ≥ 0.001; ≈ 200 MB in parts) — Release asset.')]
 TAXON_PALETTE = ['#CFB87C', '#565A5C', '#A88B4A', '#8C8F91', '#7A6A3C', '#3C3C3C', '#8A7A48', '#7F7060', '#6E6A5E', '#8F7418', '#6F6D62', '#6B6F73', '#7D7461', '#4A4A4A', '#75604A', '#5F6366']
 UNASSIGNED_COLOR = '#D9D9D9'
+# R2026.20 project-page genus bar: 12 distinguishable colours (CU gold first, then a colour-blind-aware qualitative set)
+SP_PALETTE = ['#CFB87C', '#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377', '#BB5566', '#004488', '#997700', '#6699CC', '#88CCAA']
 ISSUE_REPO = 'https://github.com/OlmLab/microbiome_repo/issues/new'   # default; main() replaces both from config/site.yaml github.issues
 ISSUE_TEMPLATE = 'catalog-finding.yml'
 SIMPLE_ISSUE_TEMPLATE = 'simple-finding.yml'   # site_generator/gen/issue_templates/simple-finding.yml (installed into the Issues repo)
@@ -736,7 +738,9 @@ def main():
     coh = pd.read_csv(pkg / 'cohorts.csv', dtype=str, keep_default_na=False) if (pkg / 'cohorts.csv').exists() else pd.DataFrame(columns=['cohort_id', 'cohort_name', 'study_accessions'])
 
     # Sandpiper panels where they exist (infant studies) — optional
-    panels = pd.read_parquet(pkg / 'sandpiper_study_panels.parquet') if (pkg / 'sandpiper_study_panels.parquet').exists() else pd.DataFrame()
+    # R2026.20: one genus panel for EVERY profiled catalog project (gut_sandpiper_study_panels); the infant-only panels are the fallback
+    panels = pd.read_parquet(pkg / 'gut_sandpiper_study_panels.parquet') if (pkg / 'gut_sandpiper_study_panels.parquet').exists() else (
+        pd.read_parquet(pkg / 'sandpiper_study_panels.parquet') if (pkg / 'sandpiper_study_panels.parquet').exists() else pd.DataFrame())
 
     # ---------- stats (all from tables) ----------
     n_reg_gut_candidates = int(rg.body_sites.map(lambda v: 'gut_stool' in split_list(v)).sum())
@@ -899,20 +903,20 @@ def main():
                 continue
             d = {}
             r0 = g.iloc[0]
-            for rank in ['phylum', 'genus']:
+            for rank in ['genus']:
                 gg = g[g['rank'] == rank].sort_values(['rank_order', 'taxon'], kind='mergesort')
                 segs, left, ci = [], 0.0, 0
                 for r in gg.itertuples(index=False):
                     w = 100 * float(r.mean_rel_abundance)
                     unassigned = str(r.taxon).startswith('unassigned')
-                    color = UNASSIGNED_COLOR if unassigned else TAXON_PALETTE[ci % len(TAXON_PALETTE)]
+                    color = UNASSIGNED_COLOR if unassigned else SP_PALETTE[ci % len(SP_PALETTE)]
                     if not unassigned:
                         ci += 1
-                    segs.append(dict(taxon=r.taxon, label=re.sub(r'^[a-z]__', '', r.taxon), pct=round(w, 1), left=round(left, 2), w=round(w, 2), color=color))
+                    segs.append(dict(taxon=r.taxon, label=('not assigned to a genus' if unassigned else re.sub(r'^[a-z]__', '', r.taxon)), pct=round(w, 1), left=round(left, 2), w=round(w, 2), color=color))
                     left += w
                 other = max(0.0, 100 - left)
                 if other > 0.05:
-                    segs.append(dict(taxon='other', label='other named taxa', pct=round(other, 1), left=round(left, 2), w=round(other, 2), color='#FFFFFF'))
+                    segs.append(dict(taxon='other', label='other genera', pct=round(other, 1), left=round(left, 2), w=round(other, 2), color='#FFFFFF'))
                 d[rank] = dict(segs=segs, n=int(gg.n_samples_panel.iloc[0]) if len(gg) else int(r0.n_samples_panel))
             d.update(n=int(r0.n_samples_panel), taxonomy=f"{r0.taxonomy_db} {r0.taxonomy_version}", definition=str(r0.panel_definition))
             panel_by_study[acc] = d

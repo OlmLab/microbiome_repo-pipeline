@@ -216,6 +216,14 @@ releases:
     data_tag: data-v1.17.1
     site_tag: site-v1.17.1
     label: "owner review 2026-10-09 (b): PRJEB14941 (16S amplicon) leaves the infant extension and the gut catalog; 'Expert curation' source replaced by 'Human verified' (set only by a person's check through the new Verify form); project pages show only the fields a project has, details above the sample table, fixed-axis depth histogram against all projects; persistent search in the top bar, Project sheet before Sample sheet, shorter footer, sheet columns stable on resize"
+  - release_id: R2026.20
+    package_version: '1.18.0'
+    previous_package_version: '1.17.1'
+    previous_release_id: R2026.19
+    notes_file: RELEASE_NOTES_R2026.20.md
+    data_tag: data-v1.18.0
+    site_tag: site-v1.18.0
+    label: "pooled BioSamples split into one sample per sequencing run; 53 human-gut shotgun projects that had been classified out (assay 'other', unknown site, host 'no') brought in after a two-replicate review; extra samples of infant-extension projects (e.g. maternal stool, later deposits) harvested and added; 18k BioSamples harvested, controls / non-human samples removed; Sandpiper genus composition bar on every profiled project page"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

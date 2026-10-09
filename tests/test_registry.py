@@ -214,7 +214,10 @@ def test_real_rows_host_and_infant(fixture_universe, infant_universe):
     inf = infant_universe[infant_universe.release_retired.isna()] if "release_retired" in infant_universe.columns else infant_universe
     reg = B.assemble(fixture_universe, inf, None, "R2026.4", "1.6.0")
     chk = reg.merge(inf[["study_accession", "triage_verdict", "reason_code"]], on="study_accession")
-    nonhuman = chk[chk.reason_code.isin(["host_nonhuman", "host_environmental", "host_synthetic"])]
+    # a curator audit / owner decision (config/registry_overrides.yaml) supersedes the infant triage host verdict (R2026.20:
+    # e.g. PRJEB50505, every BioSample "human gut metagenome", had been triaged host_nonhuman)
+    audited = chk.classification_stage.isin(["curator_audit", "owner_decision"])
+    nonhuman = chk[chk.reason_code.isin(["host_nonhuman", "host_environmental", "host_synthetic"]) & ~audited]
     assert len(nonhuman) >= 60 and (nonhuman.host_human == "no").all()
     assert (nonhuman.body_sites == "").all() and (nonhuman.life_stages == "").all()
     inc = chk[chk.triage_verdict == "include"]
