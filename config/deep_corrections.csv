@@ -1,0 +1,5 @@
+study_accession,field_name,reason
+PRJNA1148144,age_at_collection_days,unitless host_age is day of life (febrile infants < 60 days; paper DOL column); published read as years
+PRJNA1067625,age_at_collection_days,host_age is in months (archive description: children one month to five years); published read as years
+PRJEB123118,age_at_collection_days,"sample titles encode month of life (M4, M8, M20); published 0 / 365 d"
+PRJNA1249435,age_at_collection_days,"""12 months"" was normalised to 30 d (pair fixed too)"

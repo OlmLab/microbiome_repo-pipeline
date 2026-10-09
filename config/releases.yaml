@@ -224,6 +224,14 @@ releases:
     data_tag: data-v1.18.0
     site_tag: site-v1.18.0
     label: "pooled BioSamples split into one sample per sequencing run; 53 human-gut shotgun projects that had been classified out (assay 'other', unknown site, host 'no') brought in after a two-replicate review; extra samples of infant-extension projects (e.g. maternal stool, later deposits) harvested and added; 18k BioSamples harvested, controls / non-human samples removed; Sandpiper genus composition bar on every profiled project page"
+  - release_id: R2026.21
+    package_version: '1.18.1'
+    previous_package_version: '1.18.0'
+    previous_release_id: R2026.20
+    notes_file: RELEASE_NOTES_R2026.21.md
+    data_tag: data-v1.18.1
+    site_tag: site-v1.18.1
+    label: "deep annotation of the samples added in R2026.20 (archive attributes, sample-name decoding, paper and supplementary tables, cohort statements, 85 new paper links, short titles for 57 projects); 3,243 never-downloaded BioSamples of catalog projects harvested (PRJEB120967/8/9 and PRJEB80390 had 0 samples) with controls, isolates, amplicon-only and non-human samples removed; audited corrections of mis-read infant ages; release check for unharvested BioSamples"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

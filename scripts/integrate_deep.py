@@ -51,7 +51,14 @@ def main():
     ap.add_argument("--in-dir", required=True)
     ap.add_argument("--out-dir", default=os.path.join(REPO, "data", "inputs", "gut", "deep"))
     ap.add_argument("--wide", default=os.path.join(REPO, "build", "package", "gut_sample_metadata_wide.parquet"))
+    ap.add_argument("--corrections", help="CSV study_accession,field_name,reason: audited published errors (R2026.20, e.g. unitless infant ages read "
+                    "as years). For these (study, field) pairs a deep row that DISAGREES with an equal-route published value is kept with "
+                    "confidence 0.95, so it wins in build_gut_scope.resolve")
     a = ap.parse_args()
+    corr = set()
+    if a.corrections and os.path.exists(a.corrections):
+        cc = pd.read_csv(a.corrections, dtype=str)
+        corr = set(zip(cc.study_accession, cc.field_name))
     pack = yaml.safe_load(open(os.path.join(REPO, "config", "packs", "gut.yaml")))
     fields = set(pack["fields"].keys())
     voc = {"sex": {"female", "male"}, "antibiotic_exposure": {"yes", "no"},
@@ -70,7 +77,7 @@ def main():
         rt = w[f + "__route"] if f + "__route" in w.columns else pd.Series("R1", index=w.index)
         cur[f] = pd.DataFrame({"sample_key": w.loc[has, "sample_key"].values, "cur_value": w.loc[has, f].astype(str).values, "cur_route": rt[has].fillna("R1").values})
     RANK = {"R1": 1, "R2": 2, "R3": 3, "R4": 4}
-    qa, rej_all = {}, []
+    qa, rej_all, ncorr = {}, [], {}
     for f in sorted(glob.glob(os.path.join(a.in_dir, "deep_determinations_shard_*.parquet"))):
         d = pd.read_parquet(f).reindex(columns=DET_COLS)
         n0 = len(d)
@@ -111,7 +118,12 @@ def main():
             better = mg.cur_route.isna() | (mg.cur_route.map(RANK).fillna(9) > mg.route.map(RANK).fillna(9))
             same = mg.value_normalized.str.lower() == mg.cur_value.astype(str).str.lower()
             agree += int((~better & same).sum()); disagree += int((~better & ~same).sum())
-            keep.append(mg[better].drop(columns=["cur_value", "cur_route"]))
+            fix = pd.Series([(s_, fld) in corr for s_ in mg.study_accession], index=mg.index) & ~better & ~same & mg.cur_value.notna()
+            if fix.any():
+                mg.loc[fix, "confidence"] = 0.95
+                mg.loc[fix, "parse_note"] = mg.loc[fix, "parse_note"].fillna("").astype(str) + " | audited correction of the published value " + mg.loc[fix, "cur_value"].astype(str)
+                ncorr[fld] = ncorr.get(fld, 0) + int(fix.sum())
+            keep.append(mg[better | fix].drop(columns=["cur_value", "cur_route"]))
         d = pd.concat(keep, ignore_index=True).reindex(columns=DET_COLS) if keep else d.iloc[0:0]
         d.to_parquet(os.path.join(a.out_dir, os.path.basename(f)), index=False)
         qa[os.path.basename(f)] = dict(rows_in=int(n0), rows_kept=int(len(d)), dup_agree=agree, dup_disagree=disagree, rejected=rej.reject_reason.value_counts().to_dict())
@@ -120,7 +132,7 @@ def main():
     rj = pd.concat(rej_all, ignore_index=True) if rej_all else pd.DataFrame()
     rj.to_parquet(os.path.join(a.out_dir, "deep_rejected.parquet"), index=False)
     tot = dict(rows_in=sum(x["rows_in"] for x in qa.values()), rows_kept=sum(x["rows_kept"] for x in qa.values()),
-               rejected=rj.reject_reason.value_counts().to_dict() if len(rj) else {})
+               rejected=rj.reject_reason.value_counts().to_dict() if len(rj) else {}, corrections=ncorr)
     json.dump(dict(total=tot, shards=qa), open(os.path.join(a.out_dir, "DEEP_QA.json"), "w"), indent=1)
     print(json.dumps(tot))
 
