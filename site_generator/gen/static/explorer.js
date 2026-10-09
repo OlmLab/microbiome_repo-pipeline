@@ -1,11 +1,3 @@
-  const td = (val, f, cls) => { const s = val === null || val === undefined ? '' : String(val); const rt = f ? row_[f + '__route'] : null, cf = f ? row_[f + '__confidence'] : null;
-    return `<td class="${cls || ''}" title="${h((f || '') + (s ? ': ' + s : '') + (rt ? ' · ' + rt : '') + (cf !== null && cf !== undefined ? ' · confidence ' + fmtV(cf) : ''))}">${h(s)}</td>`; };
-  let row_ = null;
-  tbody.innerHTML = rows.map(row => { row_ = row; return `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
-    `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td>` +
-    td(row.age_category, 'age_category') + td(row.age_at_collection_days === null || row.age_at_collection_days === undefined ? '' : Math.round(Number(row.age_at_collection_days)), 'age_at_collection_days', 'num') +
-    td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'clip') + td(row.intervention, 'intervention', 'clip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
-    td(row.subject_id, 'subject_id', 'clip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(1)}</td></tr>`; }).join('');
 // Sample explorer — the catalog (human gut, all ages): DuckDB-WASM over data/gut_sample_metadata_wide.parquet (+ gut_studies.parquet
 // for titles), fully client-side, one row per sample. Same boot / failure pattern as registry_explorer.js. Values shown with their
 // route (R1 archive attribute, R2 supplementary table, R3 paper full text, R4 abstract) and confidence; the verbatim evidence quotes
@@ -169,9 +161,14 @@ async function run() {
   thead.innerHTML = '<tr>' + SHOW.map(col => SORTABLE.has(col)
     ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${HDR[col] || col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
     : `<th>${HDR[col] || col}</th>`).join('') + '</tr>';
-  tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
-    `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td><td>${h(row.age_category)}</td><td class="num">${fmtV(row.age_at_collection_days)} ${routeBadge(row.age_at_collection_days__route, row.age_at_collection_days__confidence)}</td>` +
-    `<td>${h(row.sex)}</td><td>${h(row.country)}</td><td>${h(row.health_condition)} ${routeBadge(row.health_condition__route, row.health_condition__confidence)}</td><td class="small">${h(row.intervention)}</td><td>${h(row.antibiotic_exposure)}</td><td class="small">${h(row.subject_id)}</td><td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(2)}</td></tr>`).join('');
+  const td = (val, f, cls) => { const s = val === null || val === undefined ? '' : String(val); const rt = f ? row_[f + '__route'] : null, cf = f ? row_[f + '__confidence'] : null;
+    return `<td class="${cls || ''}" title="${h((f || '') + (s ? ': ' + s : '') + (rt ? ' · ' + rt : '') + (cf !== null && cf !== undefined ? ' · confidence ' + fmtV(cf) : ''))}">${h(s)}</td>`; };
+  let row_ = null;
+  tbody.innerHTML = rows.map(row => { row_ = row; return `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
+    `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td>` +
+    td(row.age_category, 'age_category') + td(row.age_at_collection_days === null || row.age_at_collection_days === undefined ? '' : Math.round(Number(row.age_at_collection_days)), 'age_at_collection_days', 'num') +
+    td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'clip') + td(row.intervention, 'intervention', 'clip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
+    td(row.subject_id, 'subject_id', 'clip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(1)}</td></tr>`; }).join('');
   $('count').textContent = `${total.toLocaleString()} samples match (${Number(c0.k).toLocaleString()} studies)`;
   $('pageinfo').textContent = total ? `page ${page + 1} / ${maxPage + 1}` : '';
   $('prev').disabled = page <= 0; $('next').disabled = page >= maxPage;
