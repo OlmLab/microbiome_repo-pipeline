@@ -35,7 +35,8 @@ def classify_rows(det: pd.DataFrame) -> pd.Series:
     es = det.evidence_source.fillna("").astype(str)
     db = det.determined_by.fillna("").astype(str)
     route = det.route.fillna("").astype(str)
-    ext = es.str.startswith("external") | db.str.startswith("external_ingest") | db.str.startswith("r2_ext")
+    # r2_ext rows are supplementary tables of OTHER papers that tabulate this project's samples -> supplement, not an external resource
+    ext = es.str.startswith("external") | db.str.startswith("external_ingest")
     contrib = db.str.contains("contribution", case=False) | es.str.startswith("contribution")
     out = np.select([contrib, ext, route.eq("R1"), route.eq("R2"), route.eq("R3"), route.eq("R4")],
                     ["contribution", "external", "archive", "supplement", "fulltext", "abstract"], default="")

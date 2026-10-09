@@ -19,7 +19,7 @@
 (function(){
   const q = document.getElementById('q'), out = document.getElementById('search-results');
   const shards = {{ shard_letters|tojson }}; const shardCache = {};
-  let idx = null;
+  let idx = null, reg = null;
   const h = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
   async function shard(letter){ if (!shardCache[letter]) shardCache[letter] = fetch('authors/idx/' + letter + '.json').then(r => r.ok ? r.json() : {}).catch(() => ({})); return shardCache[letter]; }
@@ -37,8 +37,12 @@
     if (!idx) idx = await fetch('search_index.json').then(r => r.json());
     const hits = idx.filter(x => s.split(/\s+/).every(w => x.k.includes(w))).slice(0, 25);
     const au = await authorHits(raw);
+    if (!reg) reg = await fetch('registry_search.json').then(r => r.ok ? r.json() : []).catch(() => []);
+    const ws = s.split(/\s+/);
+    const rh = reg.filter(x => { const k = (x[0] + ' ' + x[1] + ' ' + x[2]).toLowerCase(); return ws.every(w => k.includes(w)); }).slice(0, 15)
+      .map(x => '<li><span class="tag" title="screened, not in the curated catalog: ' + h(x[3]) + '">registry</span> <a href="registry/index.html?study=' + encodeURIComponent(x[0]) + '">' + h(x[0]) + '</a> ' + h(x[2]) + ' <span class="small muted">— not in the catalog: ' + h(x[3]) + '</span></li>');
     if (q.value.trim().toLowerCase() !== s) return;
-    out.innerHTML = hits.map(x => '<li><span class="tag">' + h(x.t) + '</span> <a href="' + h(x.u) + '">' + h(x.id) + '</a> ' + h(x.n) + '</li>').join('') + au.join('')
+    out.innerHTML = hits.map(x => '<li><span class="tag">' + h(x.t) + '</span> <a href="' + h(x.u) + '">' + h(x.id) + '</a> ' + h(x.n) + '</li>').join('') + au.join('') + rh.join('')
       || '<li>No study, cohort, collection or author matches — try the <a href="registry/index.html?q=' + encodeURIComponent(raw) + '">registry explorer</a> (all screened studies).</li>';
   }
   q.addEventListener('input', () => { clearTimeout(q._t); q._t = setTimeout(run, 150); });

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}External resources — {{ site.title }}{% endblock %}
+{% block desc %}Curated human microbiome metadata resources whose per-sample annotations are incorporated into Microbiome Repo, what each one is, what we took, and which projects use them.{% endblock %}
+{% block content %}
+<div class="page-head"><h1>External resources</h1><p>Other teams have curated human microbiome metadata before us. Where their annotations join our samples through archive accessions, we include them with the source named on every value.</p></div>
+<details class="about-page"><summary>How these values are used</summary><p class="small">Values from these resources are route <span class="tag R2">R2</span> evidence rows with <span class="mono">evidence_source = external.&lt;resource&gt;</span>; the locator points to the record at the source and the quote is the source's raw value. A sample's own archive attribute and the study's own supplementary tables take precedence. Please cite the resource's reference when you use values that carry its evidence source. Maintainers who prefer different terms can <a href="https://github.com/{{ site.issue_repo }}/issues/new">open an issue</a>.</p></details>
+<p class="small">{% for r in ext %}<a href="#{{ r.resource_id }}">{{ r.name }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+{% for r in ext %}
+<section class="pg-sec" id="{{ r.resource_id }}">
+<div class="pg-label">{{ r.name }} <span class="mono muted">external.{{ r.resource_id }}</span></div>
+<p><a href="{{ r.url }}">{{ r.url }}</a>{% if r.scope %} — {{ r.scope }}{% endif %}{% if r.size %} <span class="muted">({{ r.size }})</span>{% endif %}</p>
+{% if r.offers %}<p class="small"><b>What it offers.</b> {{ r.offers }}</p>{% endif %}
+{% if r.join %}<p class="small"><b>How we join it.</b> {{ r.join }}</p>{% endif %}
+<p class="small"><b>In this release.</b> {{ r.stats.n_values|fmt }} values for {{ r.stats.n_samples|fmt }} samples in {{ r.stats.studies|length|fmt }} catalog projects.</p>
+{% if r.reference or r.licence %}<p class="small muted">{{ r.reference }}{% if r.reference and r.licence %} · {% endif %}{{ r.licence }}</p>{% endif %}
+{% if r.stats.studies %}<details class="pg-more"><summary>projects using {{ r.name }} ({{ r.stats.studies|length }})</summary><p class="small">{% for acc in r.stats.studies %}<a class="mono" href="../studies/{{ acc }}.html">{{ acc }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p></details>{% endif %}
+</section>
+{% endfor %}
+{% if others %}<p class="small muted">Also consulted, not incorporated (out of scope or no per-sample archive-linked metadata): {% for r in others %}<a href="{{ r.url }}">{{ r.name }}</a>{% if not loop.last %} · {% endif %}{% endfor %}.</p>{% endif %}
+{% endblock %}

@@ -116,8 +116,8 @@ CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 4 core fields (R20
 # everything else. Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
 # nav=<key>; a group is highlighted when the page's key is one of its children's keys.
 NAV = [('home', 'Home', 'index.html', None),
-       ('studies', 'Project sheet', 'studies/index.html', None),
-       ('samples', 'Sample sheet', 'samples/index.html', None),
+       ('studies', 'Projects', 'studies/index.html', None),
+       ('samples', 'Samples', 'samples/index.html', None),
        ('contribute', 'Contribute', 'contribute/index.html', None),
        ('explore', 'Explore', None, [('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
                                      ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html'),
@@ -126,7 +126,7 @@ NAV = [('home', 'Home', 'index.html', None),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
-                                 ('about', 'Sources & acknowledgements', 'about/sources.html')])]
+                                 ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html')])]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
              'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html'}
@@ -210,10 +210,10 @@ def depth_svg(proj, repo, median, width=260, height=40):
     for i in range(nb):
         if rm:
             hr = height * repo[i] / rm
-            out.append(f'<rect class="repo" x="{i * bw + 0.5:.1f}" y="{height - hr:.1f}" width="{bw - 1:.1f}" height="{hr:.1f}"><title>all projects, {lab(i)}: {repo[i]:,} samples</title></rect>')
+            out.append(f'<rect class="repo" x="{i * bw + 0.5:.1f}" y="{height - hr:.1f}" width="{bw - 1:.1f}" height="{hr:.1f}"><title>all projects, {lab(i)}: {repo[i]:,} samples ({100 * repo[i] / max(1, sum(repo)):.0f} %)</title></rect>')
         if proj[i]:
             hp = max(2.0, height * proj[i] / pm)
-            out.append(f'<rect x="{i * bw + bw * 0.2:.1f}" y="{height - hp:.1f}" width="{bw * 0.6:.1f}" height="{hp:.1f}"><title>this project, {lab(i)}: {proj[i]:,} samples</title></rect>')
+            out.append(f'<rect class="proj" x="{i * bw + 0.5:.1f}" y="{height - hp:.1f}" width="{bw - 1:.1f}" height="{hp:.1f}"><title>this project, {lab(i)}: {proj[i]:,} samples</title></rect>')
     import math
     if median > 0:
         i = next(k for k in range(nb) if DEPTH_EDGES[k] <= median < DEPTH_EDGES[k + 1])
@@ -1060,6 +1060,8 @@ def main():
     SRC_CHECKED = {'archive': 'records read; no usable sample values', 'abstract': 'read; no usable statement',
                    'fulltext': 'read; no usable statement or table', 'supplement': 'files read; no table could be matched to the samples',
                    'external': '', 'contribution': '', 'verified': ''}
+    _srcy = yaml.safe_load(Path(a.sources_config).read_text(encoding='utf-8')) if Path(a.sources_config).exists() else {}
+    RES_NAME = {r['resource_id']: r['name'] for r in (_srcy.get('related_efforts') or []) if r.get('resource_id')}
     def src_view(d):
         try:
             det = json.loads(d.get('src_detail') or '{}')
@@ -1080,8 +1082,9 @@ def main():
                 text = SRC_CHECKED[k]
             else:
                 text = SRC_NONE[k]
-            extra = ', '.join(x.get('pmcids') or []) if k == 'fulltext' else (', '.join(x.get('resources') or []) if k == 'external' else '')
-            out.append(dict(key=k, label=SRC_LABELS[k], short=SRC_SHORT[k], status=st, text=text, extra=extra))
+            res = [dict(id=r_ if r_ in RES_NAME else '', name=RES_NAME.get(r_, 'supplementary tables of other papers that re-analysed this project' if r_ == 'paper' else r_)) for r_ in (x.get('resources') or [])] if k == 'external' else []
+            extra = ', '.join(x.get('pmcids') or []) if k == 'fulltext' else (', '.join(r_['name'] for r_ in res) if k == 'external' else '')
+            out.append(dict(key=k, label=SRC_LABELS[k], short=SRC_SHORT[k], status=st, text=text, extra=extra, links=res))
         return out
 
     # ---------- studies ----------
@@ -1542,6 +1545,16 @@ def main():
     assert all(r.get('ingestion') in _ing for r in src['related_efforts']), 'sources.yaml: ingestion outside the vocabulary'
     order = ['used', 'candidate_high', 'candidate_medium', 'candidate_low', 'not_applicable']
     src['related_efforts'] = sorted(src['related_efforts'], key=lambda r: (order.index(r['ingestion']), r['name'].lower()))
+    # External resources page (R2026.20): one section per incorporated resource with what it is, what we took, and the projects using it
+    _ce = cd[['study_accession', 'sample_key', 'evidence_source']].copy() if 'evidence_source' in cd.columns else pd.DataFrame(columns=['study_accession', 'sample_key', 'evidence_source'])
+    _ce = _ce[_ce.evidence_source.fillna('').str.startswith('external.')]
+    _ce['res'] = _ce.evidence_source.str.replace(r'^external\.', '', regex=True).str.split(r'[.:\[]').str[0]
+    ext_stats = {}
+    for rid, gg in _ce.groupby('res'):
+        ext_stats[rid] = dict(n_values=int(len(gg)), n_samples=int(gg.sample_key.nunique()), studies=sorted(set(gg.study_accession) & inc_set))
+    ext_list = [dict(r, stats=ext_stats.get(r['resource_id'], dict(n_values=0, n_samples=0, studies=[]))) for r in src['related_efforts'] if r.get('ingestion') == 'used']
+    render('external.html', 'about/external.html', '../', nav='about', ext=ext_list, others=[r for r in src['related_efforts'] if r.get('ingestion') != 'used'],
+           crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='External resources')])
     render('sources.html', 'about/sources.html', '../', nav='about', src=src, crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Sources & acknowledgements')])
     render('about.html', 'about/index.html', '../', nav='about', stats=stats, rs=rstats, funnel=funnel, docs=doc_list, src=src, n_fields=len(fields),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About')])
@@ -1571,6 +1584,18 @@ def main():
     sidx += [dict(t='collection', id=c['id'], n=c['name'], u=c['u'], k=c['k']) for c in collections]
     sidx += [dict(t='scope', id=d['id'], n=d['label'], u=f"registry/scopes/{d['id']}.html", k=f"{d['id']} {d['label']} registry scope".lower()) for d in scope_rows]
     (out / 'search_index.json').write_text(dumps(sidx), encoding='utf-8')
+    # R2026.20: registry projects outside the catalog (human or unknown host) are searchable too, with the main reason they are out
+    def _why(r):
+        if r.host_human not in ('yes', 'mixed'):
+            return 'human host not established' if r.host_human != 'no' else 'host not human'
+        if r.assay not in ('shotgun_dna', 'mixed'):
+            return f'not a shotgun metagenome ({r.assay})'
+        if 'gut_stool' not in str(r.body_sites or '').split(';'):
+            return 'no gut samples'
+        return {'owner_decision': 'owner decision', 'curator_audit': 'curator audit', 'pending': 'classification pending'}.get(r.classification_stage, 'not in this release')
+    _rs = rg[~rg.study_accession.isin(inc_set) & (rg.host_human != 'no')]
+    reg_idx = [[r.study_accession, r.secondary_study_accession if isinstance(r.secondary_study_accession, str) else '', str(r.study_title or '')[:110], _why(r)] for r in _rs.itertuples()]
+    (out / 'registry_search.json').write_text(dumps(reg_idx), encoding='utf-8')
     render('index.html', 'index.html', '', nav='home', stats=stats, home=home, readme_version_warning=readme_version_warning, n_releases=len(releases), shard_letters=sorted(shards))
     # item 5: Collections and Atlas pages are produced by other tracks; the nav entries must never be dead links
     for sec, lab, txt in (('collections', 'Collections', 'No collections are configured in this build (config/collections.yaml).'),

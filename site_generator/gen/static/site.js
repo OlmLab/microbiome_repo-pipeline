@@ -27,3 +27,36 @@ window.catalogIssueUrl = function (fields) {
   document.addEventListener('click',()=>closeAll(null));
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll(null);});
 })();
+
+// R2026.20: instant tooltips. Native title tooltips appear late (or not at all on some browsers / touch screens), so every
+// element with a title attribute — and SVG shapes with a <title> child — shows its text immediately on hover, focus or tap.
+(function () {
+  if (window.__tipInit) return; window.__tipInit = true;
+  const tip = document.createElement('div'); tip.className = 'tip'; tip.setAttribute('role', 'tooltip'); tip.style.display = 'none';
+  const ready = () => document.body.appendChild(tip);
+  if (document.body) ready(); else document.addEventListener('DOMContentLoaded', ready);
+  let cur = null;
+  const textOf = (el) => {
+    if (el.hasAttribute('title')) { const t = el.getAttribute('title'); el.removeAttribute('title'); if (t) el.setAttribute('data-tip', t); }
+    if (el.hasAttribute('data-tip')) return el.getAttribute('data-tip');
+    const st = el.querySelector && el.querySelector(':scope > title'); return st ? st.textContent : '';
+  };
+  const find = (n) => { for (let el = n; el && el !== document.body; el = el.parentNode) {
+    if (el.nodeType !== 1) continue;
+    if (el.hasAttribute('title') || el.hasAttribute('data-tip')) return el;
+    if (el instanceof SVGElement && el.querySelector(':scope > title')) return el; } return null; };
+  function show(el) {
+    const t = textOf(el); if (!t) { hide(); return; }
+    tip.textContent = t; tip.style.display = 'block'; cur = el;
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = Math.min(Math.max(6, r.left + r.width / 2 - w / 2), window.innerWidth - w - 6), y = r.bottom + 6;
+    if (y + h > window.innerHeight - 6) y = Math.max(6, r.top - h - 6);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function hide() { tip.style.display = 'none'; cur = null; }
+  document.addEventListener('mouseover', (e) => { const el = find(e.target); if (el) { if (el !== cur) show(el); } else if (cur) hide(); });
+  document.addEventListener('focusin', (e) => { const el = find(e.target); if (el) show(el); });
+  document.addEventListener('focusout', hide);
+  document.addEventListener('touchstart', (e) => { const el = find(e.target); if (el) show(el); else hide(); }, { passive: true });
+  window.addEventListener('scroll', hide, { passive: true });
+})();
