@@ -5,7 +5,7 @@
 <h1>For LLMs &amp; API</h1>
 <p class="lead">Ask an AI assistant to search the catalog for you. Paste the prompt below into ChatGPT, Claude, Gemini or any assistant that can open web links, then add your question at the end.</p>
 <div class="note"><b>Prompt to paste</b>
-<pre id="llm-prompt" class="prompt">{{ prompt }}…</pre>
+<pre id="llm-prompt" class="prompt">{{ prompt }}</pre>
 <button type="button" class="btn" id="copy-prompt">Copy prompt</button> <span class="small" id="copied"></span>
 <p class="small" style="margin-top:.5rem">Example questions: <i>probiotic trials where both treated and placebo samples have metagenomes</i> · <i>ulcerative colitis FMT studies</i> · <i>adult colorectal cancer cohorts with healthy controls</i> · <i>infant samples from Finland with exact ages</i>.</p></div>
 
@@ -41,7 +41,7 @@
 {% block scripts %}
 <script>
 document.getElementById('copy-prompt').addEventListener('click', async () => {
-  const t = document.getElementById('llm-prompt').textContent.replace(/…$/, '');
+  const t = document.getElementById('llm-prompt').textContent;
   try { await navigator.clipboard.writeText(t); document.getElementById('copied').textContent = 'copied — now add your question'; }
   catch (e) { document.getElementById('copied').textContent = 'select the text above and copy it'; }
 });

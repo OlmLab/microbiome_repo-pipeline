@@ -166,9 +166,7 @@ def build(render, out: Path, ctx: dict):
     _dump(index, api / 'index.json')
     txt = llms_txt(index, ctx)
     (out / 'llms.txt').write_text(txt, encoding='utf-8')
-    prompt = (f"Help me find human gut metagenome datasets using Microbiome Repo. First read {base}llms.txt and follow it exactly: "
-              f"fetch the JSON/CSV files it points to (do not guess or rely on memory), filter them for my question, and answer with a table of "
-              f"BioProject accessions, sample counts, the relevant groups/arms and a link to each project page. My question: ")
+    prompt = f"Refer to {base}llms.txt for instructions on how to access the Microbiome Repo. My question: "
     render('llms.html', 'llms/index.html', '../', nav='llms', prompt=prompt, index=index, llms_txt=txt,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='For LLMs & API')])
     return dict(n_projects=len(recs), slices={k: len(v) for k, v in slices.items()})
