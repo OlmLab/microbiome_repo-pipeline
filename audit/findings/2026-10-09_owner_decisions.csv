@@ -1,0 +1,2 @@
+date,identifier,finding_type,current_state,proposed_change,evidence_quote,evidence_source,confidence,action,sample_key,field_name,new_value,route,reason_code,source,release_tag
+2026-10-09,PRJEB14941,wrong_verdict,included in the infant extension and the gut catalog as shotgun metagenomes,"exclude: all 1,118 runs are 16S amplicon data deposited as library_strategy OTHER (owner decision 2026-10-09)","library_selection PCR; median 17,207 reads per run",external_curation.owner_decision,0.9,study_verdict,,,excluded,H,assay_amplicon_misfiled,owner_2026-10-09,

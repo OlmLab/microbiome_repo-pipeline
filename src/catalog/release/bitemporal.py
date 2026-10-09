@@ -242,7 +242,7 @@ def build_determinations(pkg: str, out_dir: str, cfg: dict, rank: dict, release_
     cur_all = cur.copy()
     cur_all["retired_reason"] = pd.Series([pd.NA] * len(cur_all), dtype="string")
     cur_all["retired_change_stage"] = pd.Series([pd.NA] * len(cur_all), dtype="string")
-    ret = ret[list(cur_all.columns)].copy()
+    ret = ret.reindex(columns=list(cur_all.columns)).copy()   # columns new in this release (e.g. decision_stage from apply_findings) are null on older retired rows
     for c in ALL_EXTRA:
         ret[c] = ret[c].astype("string")
     for c in sd.columns:  # align dtypes with the current table so the union does not upcast

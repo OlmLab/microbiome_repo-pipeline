@@ -33,8 +33,11 @@ def test_flags_used_checked_none(tmp_path):
     ])
     (tmp_path / "r3").mkdir()
     pd.DataFrame({"study_accession": ["P1"], "fulltext_available": [1], "pmcid": ["PMC1"]}).to_parquet(tmp_path / "r3" / "gut_r3_study_summary_all.parquet")
-    f = study_source_flags(d, ["P1", "P2", "P3"], str(tmp_path), {"P2"})
+    vp = tmp_path / "human_verified.csv"
+    vp.write_text("study_accession,verified_by,date,issue,note\nP2,someone,2026-10-09,12,\n")
+    f = study_source_flags(d, ["P1", "P2", "P3"], str(tmp_path), {"P2"}, verified_path=str(vp))
     assert f.loc["P1", "src_archive"] == "used" and f.loc["P1", "src_fulltext"] == "checked"   # 'unknown' is not a value
     assert f.loc["P1", "src_supplement"] == "none" and f.loc["P3", "src_archive"] == "checked"
-    assert f.loc["P2", "src_expert"] == "used" and f.loc["P1", "src_expert"] == "none"
+    assert f.loc["P2", "src_verified"] == "used" and f.loc["P1", "src_verified"] == "none"   # only a person's check sets it
+    assert json.loads(f.loc["P2", "src_detail"])["verified"]["by"][0]["by"] == "someone"
     assert json.loads(f.loc["P1", "src_detail"])["fulltext"]["pmcids"] == ["PMC1"]

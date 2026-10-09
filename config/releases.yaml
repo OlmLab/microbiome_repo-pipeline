@@ -208,6 +208,14 @@ releases:
     data_tag: data-v1.17.0
     site_tag: site-v1.17.0
     label: "deep per-sample annotation of every project (all BioSample attributes, sample-name decoding, paper body and supplementary tables, newly linked papers); per-project source checkmarks; model-written short titles and descriptions; site redesign in the home-page style (project pages, Project / Sample sheets, every page header), mini globes"
+  - release_id: R2026.19
+    package_version: '1.17.1'
+    previous_package_version: '1.17.0'
+    previous_release_id: R2026.18
+    notes_file: RELEASE_NOTES_R2026.19.md
+    data_tag: data-v1.17.1
+    site_tag: site-v1.17.1
+    label: "owner review 2026-10-09 (b): PRJEB14941 (16S amplicon) leaves the infant extension and the gut catalog; 'Expert curation' source replaced by 'Human verified' (set only by a person's check through the new Verify form); project pages show only the fields a project has, details above the sample table, fixed-axis depth histogram against all projects; persistent search in the top bar, Project sheet before Sample sheet, shorter footer, sheet columns stable on resize"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

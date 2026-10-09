@@ -1,0 +1,34 @@
+name: "Verify a project's metadata"
+description: "Tell us you checked a Microbiome Repo project against its papers, supplements and archive records, and whether the metadata shown is complete."
+title: "[verified] "
+labels: ["metadata-verified"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you! A project gets the **Human verified** checkmark when a person has looked for its metadata on the web (paper, supplementary tables, archive records, data portals) and confirms that what the site shows is all that is publicly available. If you found something missing or wrong, use the **Share metadata** or **Flag an issue** links on the project page instead (or as well).
+  - type: input
+    id: accession
+    attributes:
+      label: "Project accession"
+      description: "Filled in for you (PRJNA…, PRJEB…, PRJDB…)."
+    validations:
+      required: true
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: "What I checked"
+      options:
+        - label: "I searched the web for this project's paper(s), supplementary tables and archive records."
+          required: true
+        - label: "As far as I can tell, the sample metadata shown on the project page is complete (nothing public is missing)."
+          required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: "Where did you look? (optional)"
+      description: "Links or a short note, e.g. 'paper + supplement S1, ENA BioSamples, author's GitHub'."
+  - type: input
+    id: release_id
+    attributes:
+      label: "Release (filled in for you — leave as is)"

@@ -8,7 +8,8 @@ For every catalog project, one status per evidence source, shown as checkmarks o
   supplement   supplementary tables / files of the linked paper                                       route R2 (own)
   external     external curated resources (curatedMetagenomicData, GMrepo, ...)                       route R2 (external_ingest)
   contribution metadata uploaded by a user through the Contribute form                                 any route, determined_by *contribution*
-  expert       expert-curated infant extension (studies curated before the all-age catalog)          src_track infant_catalog
+  verified     a person checked the project against the web (papers, supplements, archive) and confirmed the metadata is
+               complete — recorded in config/human_verified.csv from the 'Verify metadata' issue form
 
 status: 'used' (the source gave >= 1 value now in the determinations), 'checked' (the source exists / was read but gave no usable
 value), 'none' (not available: no linked paper, not open access, no supplement ...). Counts are distinct sample x field values that
@@ -24,10 +25,10 @@ import os
 import numpy as np
 import pandas as pd
 
-SOURCES = ("archive", "abstract", "fulltext", "supplement", "external", "contribution", "expert")
+SOURCES = ("archive", "abstract", "fulltext", "supplement", "external", "contribution", "verified")
 LABELS = {"archive": "Sequence archive", "abstract": "Abstract / description", "fulltext": "Full text",
           "supplement": "Supplementary tables", "external": "External resources", "contribution": "User contribution",
-          "expert": "Expert curation"}
+          "verified": "Human verified"}
 
 
 def classify_rows(det: pd.DataFrame) -> pd.Series:
@@ -39,6 +40,21 @@ def classify_rows(det: pd.DataFrame) -> pd.Series:
     out = np.select([contrib, ext, route.eq("R1"), route.eq("R2"), route.eq("R3"), route.eq("R4")],
                     ["contribution", "external", "archive", "supplement", "fulltext", "abstract"], default="")
     return pd.Series(out, index=det.index)
+
+
+VERIFIED_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "config", "human_verified.csv")
+
+
+def load_verified(path: str | None = None) -> dict:
+    """study_accession -> list of {by, date, issue} from config/human_verified.csv (one row per person-verification)."""
+    path = path or VERIFIED_PATH
+    if not os.path.exists(path):
+        return {}
+    v = pd.read_csv(path, dtype=str, keep_default_na=False)
+    out = {}
+    for r in v.itertuples():
+        out.setdefault(r.study_accession, []).append({"by": r.verified_by, "date": r.date, "issue": r.issue})
+    return out
 
 
 def _read_all(pattern: str) -> pd.DataFrame:
@@ -94,7 +110,7 @@ def checked_sets(gut_dir: str) -> dict:
     return chk
 
 
-def study_source_flags(det: pd.DataFrame, studies: list, gut_dir: str | None, infant_acc: set) -> pd.DataFrame:
+def study_source_flags(det: pd.DataFrame, studies: list, gut_dir: str | None, infant_acc: set, verified_path: str | None = None) -> pd.DataFrame:
     d = det[["study_accession", "sample_key", "field_name", "value_normalized", "evidence_source", "determined_by", "route", "src_track"]]
     d = d[d.value_normalized.notna() & ~d.value_normalized.astype(str).isin(["unknown", "", "nan", "None"])]
     cls = classify_rows(d)
@@ -102,7 +118,7 @@ def study_source_flags(det: pd.DataFrame, studies: list, gut_dir: str | None, in
     cnt = (d[d.src != ""].drop_duplicates(["study_accession", "sample_key", "field_name", "src"])
            .groupby(["study_accession", "src"]).size().unstack(fill_value=0))
     fields = (d[d.src != ""].groupby(["study_accession", "src"]).field_name.apply(lambda s: sorted(set(s))).unstack())
-    exp = d[d.src_track == "infant_catalog"].drop_duplicates(["study_accession", "sample_key", "field_name"]).groupby("study_accession").size()
+    verified = load_verified(verified_path)
     chk = checked_sets(gut_dir) if gut_dir and os.path.isdir(gut_dir) else {k: set() for k in SOURCES}
     ext_names = (d[d.src == "external"].evidence_source.str.replace(r"^external\.", "", regex=True).str.split(r"[.:\[]").str[0]
                  .groupby(d.loc[d.src == "external", "study_accession"]).apply(lambda s: sorted(set(s))))
@@ -111,10 +127,10 @@ def study_source_flags(det: pd.DataFrame, studies: list, gut_dir: str | None, in
         r = {"study_accession": s}
         counts = {}
         for k in SOURCES:
-            n = int(exp.get(s, 0)) if k == "expert" else int(cnt.at[s, k]) if (s in cnt.index and k in cnt.columns) else 0
+            n = (1 if s in verified else 0) if k == "verified" else int(cnt.at[s, k]) if (s in cnt.index and k in cnt.columns) else 0
             counts[k] = n
-            if k == "expert":
-                st = "used" if n > 0 else ("checked" if s in infant_acc else "none")
+            if k == "verified":
+                st = "used" if n > 0 else "none"
             elif n > 0:
                 st = "used"
             elif k == "archive" or s in chk.get(k, set()):
@@ -126,6 +142,8 @@ def study_source_flags(det: pd.DataFrame, studies: list, gut_dir: str | None, in
         detail = {k: {"n_values": counts[k], "fields": det_fields.get(k, [])} for k in SOURCES}
         if s in chk.get("_pmcids", {}):
             detail["fulltext"]["pmcids"] = sorted(chk["_pmcids"][s])
+        if s in verified:
+            detail["verified"] = {"n_values": 0, "fields": [], "by": verified[s]}
         if s in ext_names.index:
             detail["external"]["resources"] = ext_names.at[s]
         r["src_detail"] = json.dumps(detail, sort_keys=True)

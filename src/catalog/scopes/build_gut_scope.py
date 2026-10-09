@@ -376,8 +376,11 @@ def build(a):
         rr = reg[reg.study_accession.isin(studies.study_accession)]
         if "release_retired" in rr.columns:
             rr = rr[rr.release_retired.isna()]
-        ok = (rr.host_human.isin(["yes", "mixed"]) & rr.assay.isin(["shotgun_dna", "mixed"])
-              & rr.body_sites.fillna("").str.contains(r"(?:^|;)gut_stool(?:;|$)")) | (rr.in_infant_catalog == "include")
+        base = (rr.host_human.isin(["yes", "mixed"]) & rr.assay.isin(["shotgun_dna", "mixed"])
+                & rr.body_sites.fillna("").str.contains(r"(?:^|;)gut_stool(?:;|$)"))
+        # an owner / curator-audit override that fails the rule beats the infant-curation include (R2026.19: PRJEB14941 is 16S)
+        audited = rr.classification_stage.isin(["curator_audit", "owner_decision"]) if "classification_stage" in rr.columns else False
+        ok = base | ((rr.in_infant_catalog == "include") & ~audited)
         dropped = sorted(set(studies.study_accession) - set(rr.loc[ok, "study_accession"]))
         if dropped:
             print(f"study_rule: {len(dropped)} leaf-listed studies fail the pack study_rule on the current registry and are dropped: {dropped[:20]}", file=sys.stderr)

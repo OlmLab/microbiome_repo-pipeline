@@ -150,7 +150,8 @@ def test_nav_order_and_about(site_new):
     nav = html[html.index('<nav class="topnav">'):html.index('</nav>')]
     # R2026.15: grouped drop-down navigation (owner review 2026-10-01)
     top = re.findall(r'(?:<a href="[^"]*" [^>]*>([^<]+)</a>|<button type="button" class="navbtn"[^>]*>([^<]+?) <span)', nav)
-    assert [a or b for a, b in top] == ['Home', 'Sample sheet', 'Project sheet', 'Contribute', 'Explore', 'About']   # R2026.16
+    assert [a or b for a, b in top] == ['Home', 'Project sheet', 'Sample sheet', 'Contribute', 'Explore', 'About']   # R2026.19 order
+    assert 'class="navsearch"' in nav and 'name="q"' in nav   # R2026.19: persistent search in the top bar
     items = re.findall(r'role="menuitem" href="([^"]+)"', nav)
     for page in ('registry/index.html', 'atlas/index.html', 'atlas/pca.html', 'downloads/index.html', 'llms/index.html', 'about/methods.html', 'fields/index.html'):
         assert page in items, page

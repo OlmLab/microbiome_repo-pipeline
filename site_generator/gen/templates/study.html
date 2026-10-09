@@ -17,7 +17,8 @@
 <section class="pg-sec" id="sources">
 <div class="pg-label">Sources</div>
 <div class="srcrow">{% for x in s.sources %}<span class="srcitem {{ x.status }}" title="{{ x.label }}: {{ x.text }}{% if x.extra %} · {{ x.extra }}{% endif %}"><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span>{{ x.label }}{% if x.status == 'used' %} <span class="muted">{{ x.text.split(' sample values')[0] }}</span>{% endif %}</span>{% endfor %}</div>
-<details class="pg-more"><summary>what each source gave</summary><table class="tbl small compact">{% for x in s.sources %}<tr><td><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span> {{ x.label }}</td><td>{{ x.text }}{% if x.extra %} · <span class="mono">{{ x.extra }}</span>{% endif %}{% if x.key == 'contribution' and x.status != 'used' and help %} · <a href="{{ help.issue_url }}">share metadata</a>{% endif %}</td></tr>{% endfor %}</table></details>
+<p class="small muted">Checked this project's papers and archive records yourself? <a href="{{ verify_url }}">Mark it human-verified</a>.</p>
+<details class="pg-more"><summary>what each source gave</summary><table class="tbl small compact">{% for x in s.sources %}<tr><td><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span> {{ x.label }}</td><td>{{ x.text }}{% if x.extra %} · <span class="mono">{{ x.extra }}</span>{% endif %}{% if x.key == 'contribution' and x.status != 'used' and help %} · <a href="{{ help.issue_url }}">share metadata</a>{% endif %}{% if x.key == 'verified' %} · <a href="{{ verify_url }}">{% if x.status == 'used' %}add your check{% else %}I checked this project — verify it{% endif %}</a>{% endif %}</td></tr>{% endfor %}</table></details>
 </section>
 
 {% if s.interventions or (s.intervention_design and s.intervention_design not in ('none', 'unknown')) %}
@@ -38,7 +39,7 @@
 <div class="dist"><div class="dist-h">{{ title }}</div>{% for k, n in items[:6] %}<div class="distrow" title="{{ k }}{% if labels.get(k) %} — {{ labels.get(k) }}{% endif %}: {{ n|fmt }} of {{ n_total|fmt }}"><span class="dk">{{ k }}</span><span class="db"><span style="width:{{ (100 * n / (n_total or 1))|round(1) }}%"></span></span><span class="dn">{{ n|fmt }}</span></div>{% endfor %}{% if items|length > 6 %}<div class="muted small">+{{ items|length - 6 }} more</div>{% endif %}</div>
 {% endif %}{% endfor %}
 </div>
-{% if glance.timeline or glance.depth %}<div class="sparks">{% if glance.timeline %}<div><div class="dist-h">Collected {{ glance.years[0] }}{% if glance.years[1] != glance.years[0] %}–{{ glance.years[1] }}{% endif %}</div>{{ glance.timeline|safe }}</div>{% endif %}{% if glance.depth %}<div><div class="dist-h">Sequencing depth per sample</div>{{ glance.depth|safe }}</div>{% endif %}</div>{% endif %}
+{% if glance.timeline or glance.depth %}<div class="sparks">{% if glance.timeline %}<div><div class="dist-h">Collected {{ glance.years[0] }}{% if glance.years[1] != glance.years[0] %}–{{ glance.years[1] }}{% endif %}</div>{{ glance.timeline|safe }}</div>{% endif %}{% if glance.depth %}<div><div class="dist-h" title="grey: all catalog samples; gold: this project; dashed line: this project's median">Sequencing depth per sample <span class="muted">vs. all projects</span></div>{{ glance.depth|safe }}</div>{% endif %}</div>{% endif %}
 </div></div>
 </section>
 
@@ -47,14 +48,6 @@
 <table class="tbl small compact covt"><thead><tr><th>field</th><th class="num">samples</th><th>coverage</th><th class="num" title="archive attributes / sample names">R1</th><th class="num" title="supplementary tables / external resources">R2</th><th class="num" title="paper full text">R3</th><th class="num" title="abstract / archive description">R4</th></tr></thead><tbody>
 {% for c in cov %}<tr{% if c.tier == 'core' %} class="core"{% endif %}><td><a class="mono" href="../fields/index.html#{{ c.field }}" title="{{ c.label }}{% if c.tier == 'core' %} (core field){% elif c.infant %} (infant extension field){% endif %}">{{ c.field }}</a></td><td class="num">{{ c.n|fmt }}</td><td><span class="cbar"><span style="width:{{ (100 * c.frac)|round(1) }}%"></span></span> <span class="small">{{ c.frac|pct }}</span></td>{% for r in ['R1', 'R2', 'R3', 'R4'] %}<td class="num muted">{{ c.routes[r]|fmt if c.routes[r] else '' }}</td>{% endfor %}</tr>{% endfor %}
 </tbody></table>
-{% if cov_missing %}<p class="small muted">No values for this project: {{ cov_missing|join(', ') }}.</p>{% endif %}
-</section>
-
-<section class="pg-sec" id="sample-table">
-<div class="pg-label">Samples <span class="muted">({{ n_total|fmt }} · every field this project has; empty fields are the thin grey strips · hover a cell for its source)</span></div>
-<div id="st-status" class="small muted">Loading the sample table…</div>
-<noscript><p class="small">The table needs JavaScript; download <a href="../data/studies/{{ s.study_accession }}.csv.gz">{{ s.study_accession }}.csv.gz</a>.</p></noscript>
-<table id="samples" class="tbl display compact small stbl" style="width:100%"></table>
 </section>
 
 {% if papers %}
@@ -88,6 +81,13 @@
 <details><summary>Authors ({{ study_authors|length }})</summary>{% if study_authors %}<p class="small">{% for au in study_authors %}<a href="../authors/index.html?q={{ au.name|urlencode }}">{{ au.name }}</a>{% if au.first %} <span class="tag">first</span>{% endif %}{% if au.last %} <span class="tag">last</span>{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% else %}<p class="small">No author record.</p>{% endif %}</details>
 {% if help %}<details id="contribute" open><summary>Help complete this project</summary><p class="small">{{ help.n_missing }} of the {{ n_core }} core fields are below {{ thr_pct }}% coverage: {% for f in help.missing %}<span class="mono">{{ f }}</span>{% if not loop.last %}, {% endif %}{% endfor %}. <a href="{{ help.issue_url }}">Share metadata</a></p></details>{% endif %}
 <details id="downloads" open><summary>Downloads</summary><p class="small"><a href="../data/studies/{{ s.study_accession }}.csv.gz" download>{{ s.study_accession }}.csv.gz</a> ({{ dl.csv_size }}) · <a href="../data/studies/{{ s.study_accession }}.parquet" download>parquet</a> ({{ dl.parquet_size }}) — all {{ n_total|fmt }} samples, every field with route and confidence · <a href="../data/studies/{{ s.study_accession }}_determinations.csv.gz" download>{{ s.study_accession }}_determinations.csv.gz</a> ({{ dl.det_size }}) — {{ dl.det_rows|fmt }} evidence rows</p></details>
+</section>
+
+<section class="pg-sec" id="sample-table">
+<div class="pg-label">Samples <span class="muted">({{ n_total|fmt }} · every field this project has values for · hover a cell for its source)</span></div>
+<div id="st-status" class="small muted">Loading the sample table…</div>
+<noscript><p class="small">The table needs JavaScript; download <a href="../data/studies/{{ s.study_accession }}.csv.gz">{{ s.study_accession }}.csv.gz</a>.</p></noscript>
+<div class="st-wrap"><table id="samples" class="tbl display compact small stbl"></table></div>
 </section>
 </div>
 {% endblock %}

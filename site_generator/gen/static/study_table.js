@@ -1,10 +1,11 @@
 /* Project-page sample table (R2026.18): rendered in the browser from data/studies/<ACC>.csv.gz (the same file as the
    download), so every sample and every field is shown without inflating the static pages. Columns come from the page
-   (window.STUDY_TABLE.cols: fields with values first, then the empty ones as thin strips). Each cell's tooltip names the
+   (window.STUDY_TABLE.cols: only the fields this project has values for). Each cell's tooltip names the
    field, value, route and confidence. */
 (function () {
   'use strict';
   const cfg = window.STUDY_TABLE; if (!cfg) return;
+  cfg.cols = (cfg.cols || []).filter((c) => !c.empty);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const ROUTE = { R1: 'archive', R2: 'supplementary table / external', R3: 'paper full text', R4: 'abstract / description' };
   function parseCSV(text) {
@@ -55,11 +56,11 @@
         { title: 'archive', render: (d, t) => { if (t !== 'display') return d; const u = archiveUrl(d); return u ? '<a class="mono" href="' + u + '">' + esc(d) + '</a>' : esc(d); } }];
       cfg.cols.forEach((c, j) => columns.push(c.empty
         ? { title: '<span>' + esc(c.label) + '</span>', className: 'ecol', orderable: false, render: () => '' }
-        : { title: esc(c.label), className: c.num ? 'num' : 'clip', render: (d, t, row) => t === 'display' ? (d ? '<span title="' + esc(tipOf(row._row, c, d)) + '">' + esc(d) + '</span>' : '') : d }));
+        : { title: esc(c.label), className: c.num ? 'num' : 'tclip', render: (d, t, row) => t === 'display' ? (d ? '<span title="' + esc(tipOf(row._row, c, d)) + '">' + esc(d) + '</span>' : '') : d }));
       columns.push({ title: 'Gbp', className: 'num' }); columns.push({ title: 'runs', className: 'num' });
       st.textContent = '';
-      new DataTable('#samples', { data, columns, pageLength: 25, lengthMenu: [25, 100, 500, 2000], order: [], scrollX: true, autoWidth: false, deferRender: true,
-        headerCallback: (thead) => { thead.querySelectorAll('th').forEach((th, i) => { const c = cfg.cols[i - 2]; if (c) th.title = c.f + (c.empty ? ': no values for this project' : ''); }); } });
+      new DataTable('#samples', { data, columns, pageLength: 25, lengthMenu: [25, 100, 500, 2000], order: [], autoWidth: false, deferRender: true,
+        headerCallback: (thead) => { thead.querySelectorAll('th').forEach((th, i) => { const c = cfg.cols[i - 2]; if (c) th.title = c.f; }); } });
     } catch (e) {
       st.innerHTML = 'The sample table could not be loaded here (' + esc(e.message) + '). Download it below or open the <a href="../samples/index.html?q=' + encodeURIComponent(cfg.acc) + '">sample sheet</a>.';
     }

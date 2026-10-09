@@ -167,8 +167,8 @@ async function run() {
   tbody.innerHTML = rows.map(row => { row_ = row; return `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
     `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td>` +
     td(row.age_category, 'age_category') + td(row.age_at_collection_days === null || row.age_at_collection_days === undefined ? '' : Math.round(Number(row.age_at_collection_days)), 'age_at_collection_days', 'num') +
-    td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'clip') + td(row.intervention, 'intervention', 'clip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
-    td(row.subject_id, 'subject_id', 'clip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(1)}</td></tr>`; }).join('');
+    td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'tclip') + td(row.intervention, 'intervention', 'tclip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
+    td(row.subject_id, 'subject_id', 'tclip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(1)}</td></tr>`; }).join('');
   $('count').textContent = `${total.toLocaleString()} samples match (${Number(c0.k).toLocaleString()} studies)`;
   $('pageinfo').textContent = total ? `page ${page + 1} / ${maxPage + 1}` : '';
   $('prev').disabled = page <= 0; $('next').disabled = page >= maxPage;

@@ -116,8 +116,8 @@ CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 4 core fields (R20
 # everything else. Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
 # nav=<key>; a group is highlighted when the page's key is one of its children's keys.
 NAV = [('home', 'Home', 'index.html', None),
-       ('samples', 'Sample sheet', 'samples/index.html', None),
        ('studies', 'Project sheet', 'studies/index.html', None),
+       ('samples', 'Sample sheet', 'samples/index.html', None),
        ('contribute', 'Contribute', 'contribute/index.html', None),
        ('explore', 'Explore', None, [('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
                                      ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html'),
@@ -188,6 +188,46 @@ def mini_bars_svg(pairs, width=260, height=34, label_fmt=str, tip_unit='samples'
     return ''.join(out)
 
 
+DEPTH_EDGES = [0, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, float('inf')]
+DEPTH_REPO = {}
+
+
+def depth_bin_counts(gb):
+    """Counts of per-sample sequencing depth (Gbp) in the fixed repo-wide bins DEPTH_EDGES."""
+    return pd.cut(gb, DEPTH_EDGES, right=False).value_counts(sort=False).astype(int).tolist()
+
+
+def depth_svg(proj, repo, median, width=260, height=40):
+    """Fixed-axis depth histogram: the whole catalog's distribution as grey bars, this project's samples as gold bars on
+    the same bins (each scaled to its own maximum), and a tick at the project median — so one project's depth reads
+    against the repository even when it has a single sample."""
+    nb = len(DEPTH_EDGES) - 1
+    bw = width / nb
+    pm = max(proj) or 1
+    rm = max(repo) if repo else 0
+    lab = lambda i: (f"{DEPTH_EDGES[i]:g}–{DEPTH_EDGES[i + 1]:g} Gbp" if DEPTH_EDGES[i + 1] != float('inf') else f"≥ {DEPTH_EDGES[i]:g} Gbp")
+    out = [f'<svg class="spark depth" viewBox="0 0 {width} {height + 12}" width="{width}" height="{height + 12}" role="img">']
+    for i in range(nb):
+        if rm:
+            hr = height * repo[i] / rm
+            out.append(f'<rect class="repo" x="{i * bw + 0.5:.1f}" y="{height - hr:.1f}" width="{bw - 1:.1f}" height="{hr:.1f}"><title>all projects, {lab(i)}: {repo[i]:,} samples</title></rect>')
+        if proj[i]:
+            hp = max(2.0, height * proj[i] / pm)
+            out.append(f'<rect x="{i * bw + bw * 0.2:.1f}" y="{height - hp:.1f}" width="{bw * 0.6:.1f}" height="{hp:.1f}"><title>this project, {lab(i)}: {proj[i]:,} samples</title></rect>')
+    import math
+    if median > 0:
+        i = next(k for k in range(nb) if DEPTH_EDGES[k] <= median < DEPTH_EDGES[k + 1])
+        l0, l1 = DEPTH_EDGES[i], DEPTH_EDGES[i + 1]
+        f = 0.5 if (l0 == 0 or l1 == float('inf')) else (math.log10(median) - math.log10(l0)) / (math.log10(l1) - math.log10(l0))
+        x = (i + f) * bw
+        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="0" y2="{height}" class="med"><title>project median {median:.2f} Gbp per sample</title></line>')
+    for k, t in ((0, '0'), (4, '1'), (7, '30'), (nb, 'Gbp')):
+        anchor = 'start' if k == 0 else ('end' if k == nb else 'middle')
+        out.append(f'<text x="{k * bw:.1f}" y="{height + 10}" class="spark-l" text-anchor="{anchor}">{t}</text>')
+    out.append('</svg>')
+    return ''.join(out)
+
+
 def study_glance(g):
     """Globe spec + collection-year timeline + depth histogram for one project's wide rows."""
     import math
@@ -206,21 +246,15 @@ def study_glance(g):
     if yc is not None and len(yc):
         vc = yc.value_counts()
         years = [(y, int(vc.get(y, 0))) for y in range(int(yc.min()), int(yc.max()) + 1)]
-    depth = []
+    depth = ''
     if 'seq_gbp' in g.columns:
         gb = pd.to_numeric(g['seq_gbp'], errors='coerce')
         gb = gb[gb > 0]
-        if len(gb) >= 3:
-            edges = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 1e9]
-            cnt = pd.cut(gb, edges, right=False).value_counts(sort=False)
-            depth = [(f"{edges[i]:g}–{edges[i + 1]:g}" if edges[i + 1] < 1e8 else f"≥{edges[i]:g}", int(n)) for i, n in enumerate(cnt.tolist())]
-            while depth and depth[0][1] == 0:
-                depth.pop(0)
-            while depth and depth[-1][1] == 0:
-                depth.pop()
+        if len(gb):
+            depth = depth_svg(depth_bin_counts(gb), DEPTH_REPO.get('counts') or [], float(gb.median()))
     return dict(globe=dict(countries=countries, points=pts) if (countries or pts) else None,
                 timeline=mini_bars_svg(years) if len(years) >= 2 else '', years=(years[0][0], years[-1][0]) if years else None,
-                depth=mini_bars_svg(depth, label_fmt=lambda k: f"{k} Gbp") if depth else '')
+                depth=depth)
 
 def read_about(cfg_path):
     a = yaml.safe_load(Path(cfg_path).read_text(encoding='utf-8')).get('about', {}) or {}
@@ -234,6 +268,12 @@ def read_issue_cfg(cfg_path):
     iss = g.get('issues', {}) or {}
     repo = f"https://github.com/{g.get('org')}/{iss.get('repo') or g.get('repos', {}).get('site')}/issues/new"
     return repo, iss.get('template', SIMPLE_ISSUE_TEMPLATE), iss.get('label', 'finding')
+
+
+def verify_issue_url(repo, accession, release_id):
+    """Prefilled 'Verify a project's metadata' form (issue_templates/verify-metadata.yml)."""
+    q = [('template', 'verify-metadata.yml'), ('labels', 'metadata-verified'), ('title', f'[verified] {accession}'), ('accession', accession), ('release_id', release_id)]
+    return repo + '?' + '&'.join(f'{k}={quote(str(v), safe="")}' for k, v in q)
 
 
 def simple_issue_url(repo, template, label, accession, release_id, page_url, kind='study'):
@@ -880,6 +920,8 @@ def main():
     # per-study determination summaries: route × field counts, sample evidence rows
     det_by_study = {acc: g for acc, g in cd_sorted.groupby('study_accession', sort=True)}
     cw_by_study = {acc: g for acc, g in cw_sorted.groupby('study_accession', sort=True)}
+    if 'seq_gbp' in cw.columns:
+        _gb = pd.to_numeric(cw['seq_gbp'], errors='coerce'); DEPTH_REPO['counts'] = depth_bin_counts(_gb[_gb > 0])
     SAMPLE_COLS = ['sample_key', 'biosample_accession', 'age_category', 'age_at_collection_days', 'age_at_collection_days__route', 'sex', 'bmi', 'country', 'health_condition',
                    'health_condition__route', 'intervention', 'antibiotic_exposure', 'subject_id', 'timepoint_label', 'body_site_class', 'seq_gbp', 'n_runs']
 
@@ -1005,19 +1047,19 @@ def main():
     stats['has_contribute'] = True
 
     # ---------- per-project source checkmarks (R2026.18; gut_studies.src_* from catalog.scopes.study_sources) ----------
-    SRC_ORDER = ('archive', 'abstract', 'fulltext', 'supplement', 'external', 'contribution', 'expert')
+    SRC_ORDER = ('archive', 'abstract', 'fulltext', 'supplement', 'external', 'contribution', 'verified')
     SRC_LABELS = {'archive': 'Sequence archive', 'abstract': 'Abstract / description', 'fulltext': 'Full text',
                   'supplement': 'Supplementary tables', 'external': 'External resources', 'contribution': 'User contribution',
-                  'expert': 'Expert curation'}
+                  'verified': 'Human verified'}
     SRC_SHORT = {'archive': 'Archive', 'abstract': 'Abstract', 'fulltext': 'Full text', 'supplement': 'Supp.', 'external': 'External',
-                 'contribution': 'User', 'expert': 'Expert'}
+                 'contribution': 'User', 'verified': 'Verified'}
     SRC_NONE = {'archive': 'no usable values in the archive records', 'abstract': 'no abstract or project description',
                 'fulltext': 'no open-access full text linked', 'supplement': 'no supplementary tables available (or none open access)',
                 'external': 'not covered by the external resources we ingest', 'contribution': 'nothing uploaded yet',
-                'expert': 'not part of the expert-curated infant extension'}
+                'verified': 'not yet checked by a person'}
     SRC_CHECKED = {'archive': 'records read; no usable sample values', 'abstract': 'read; no usable statement',
                    'fulltext': 'read; no usable statement or table', 'supplement': 'files read; no table could be matched to the samples',
-                   'external': '', 'contribution': '', 'expert': 'curated; values superseded'}
+                   'external': '', 'contribution': '', 'verified': ''}
     def src_view(d):
         try:
             det = json.loads(d.get('src_detail') or '{}')
@@ -1028,7 +1070,10 @@ def main():
             st = d.get(f'src_{k}')
             st = st if st in ('used', 'checked', 'none') else 'none'
             x = det.get(k) or {}
-            if st == 'used':
+            if k == 'verified' and st == 'used':
+                who = x.get('by') or []
+                text = 'checked against the web and confirmed complete by ' + ', '.join(f"{w.get('by')} ({w.get('date')})" for w in who[:3])
+            elif st == 'used':
                 fl = ', '.join(f.replace('_at_collection_days', '').replace('_label', '').replace('_', ' ') for f in (x.get('fields') or [])[:8])
                 text = f"{int(x.get('n_values') or 0):,} sample values" + (f" ({fl})" if fl else '')
             elif st == 'checked':
@@ -1148,7 +1193,7 @@ def main():
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
                papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
                group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
-               samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
+               samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)

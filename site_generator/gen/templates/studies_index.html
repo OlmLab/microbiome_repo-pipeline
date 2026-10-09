@@ -12,14 +12,14 @@
 <label>Country <input id="pf-country" type="search" placeholder="e.g. China" size="10"></label>
 <label>Min samples <input id="pf-min_samples" type="number" min="0" style="width:5.5rem"></label>
 <label title="≥ 3 healthy-control samples and ≥ 3 samples with a disease code"><input type="checkbox" id="pf-cases_controls"> cases &amp; healthy controls</label>
-<label>Source <select id="pf-source"><option value="">any</option><option value="0">sequence archive used</option><option value="1">abstract used</option><option value="2">full text used</option><option value="3">supplementary tables used</option><option value="4">external resource used</option><option value="5">user contribution</option><option value="6">expert curation</option></select></label>
+<label>Source <select id="pf-source"><option value="">any</option><option value="0">sequence archive used</option><option value="1">abstract used</option><option value="2">full text used</option><option value="3">supplementary tables used</option><option value="4">external resource used</option><option value="5">user contribution</option><option value="6">human verified</option></select></label>
 <label title="≥ 3 samples in an active intervention arm and ≥ 3 in placebo / no-intervention (from archive attributes)"><input type="checkbox" id="pf-arms"> treated &amp; control arms</label>
 <button type="button" class="btn sec" id="pf-reset">reset</button> <span class="status" id="pf-count"></span>
 </form>
 <p class="small srclegend muted">Sources: <span class="srcmk u">✓</span> used · <span class="srcmk c">○</span> checked, nothing usable · <span class="srcmk n">–</span> not available. Hover a mark for details.</p>
-<table id="studies" class="tbl display compact ptbl" style="width:100%">
-<thead><tr><th>Project</th><th>Title</th><th class="num">Samples</th><th>Ages</th><th>Condition</th><th title="Interventions the study administered">Interv.</th><th>Country</th><th class="num" title="Linked papers">Papers</th><th title="First public">Year</th><th class="srch" title="Sequence archive records">Arch.</th><th class="srch" title="Paper abstract / archive description">Abs.</th><th class="srch" title="Open full text of the linked paper">Text</th><th class="srch" title="Supplementary tables of the linked paper">Supp.</th><th class="srch" title="External curated resources">Ext.</th><th class="srch" title="Metadata uploaded by a user">User</th><th class="srch" title="Expert-curated infant extension">Exp.</th>{% if has_seq %}<th class="num" title="Median Gbp per sample">Gbp</th>{% endif %}</tr></thead>
-<tbody></tbody></table>
+<div class="st-wrap"><table id="studies" class="tbl display compact ptbl" style="width:100%">
+<thead><tr><th>Project</th><th>Title</th><th class="num">Samples</th><th>Ages</th><th>Condition</th><th title="Interventions the study administered">Interv.</th><th>Country</th><th class="num" title="Linked papers">Papers</th><th title="First public">Year</th><th class="srch" title="Sequence archive records">Arch.</th><th class="srch" title="Paper abstract / archive description">Abs.</th><th class="srch" title="Open full text of the linked paper">Text</th><th class="srch" title="Supplementary tables of the linked paper">Supp.</th><th class="srch" title="External curated resources">Ext.</th><th class="srch" title="Metadata uploaded by a user">User</th><th class="srch" title="Human verified: a person checked the project against the web and confirmed the metadata is complete">Ver.</th>{% if has_seq %}<th class="num" title="Median Gbp per sample">Gbp</th>{% endif %}</tr></thead>
+<tbody></tbody></table></div>
 {% endblock %}
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
@@ -46,11 +46,11 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
     return true;
   };
   DataTable.ext.search.push((settings, data, i, row) => settings.nTable.id !== 'studies' || ok(row));
-  const SRCN = ['Sequence archive', 'Abstract / description', 'Full text', 'Supplementary tables', 'External resources', 'User contribution', 'Expert curation'];
+  const SRCN = ['Sequence archive', 'Abstract / description', 'Full text', 'Supplementary tables', 'External resources', 'User contribution', 'Human verified'];
   const srcmk = (d, i, t) => { const c = (d || 'nnnnnnn')[i]; if (t !== 'display') return c === 'u' ? 2 : c === 'c' ? 1 : 0;
     return c === 'u' ? '<span class="srcmk u" title="' + SRCN[i] + ': values used">✓</span>' : c === 'c' ? '<span class="srcmk c" title="' + SRCN[i] + ': checked, nothing usable">○</span>' : '<span class="srcmk n" title="' + SRCN[i] + ': not available">–</span>'; };
   const tbl = new DataTable('#studies', {
-    data: rows, scrollX: true, autoWidth: false, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
+    data: rows, autoWidth: false, layout: {topEnd: null}, search: {search: prm.get('q') || ''}, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
     columns: [
       {data: 'a', render: (d, t) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' : d},
       {data: 't', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1" title="' + h(r.tf || d) + '">' + h(d) + '</span>' : d + ' ' + (r.tf || '')},

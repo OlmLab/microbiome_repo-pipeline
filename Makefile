@@ -245,7 +245,7 @@ install-workflows: ## owner bootstrap (once) — copy verify/deploy-pages + the 
 	@test -d $(DATA_CLONE)/.git || { echo "data clone missing at $(DATA_CLONE)"; exit 1; }
 	mkdir -p $(SITE_CLONE)/.github/workflows $(SITE_CLONE)/.github/ISSUE_TEMPLATE $(DATA_CLONE)/.github/workflows
 	cp .github/workflows/verify.yml .github/workflows/deploy-pages.yml $(SITE_CLONE)/.github/workflows/
-	cp .github/ISSUE_TEMPLATE/catalog-finding.yml .github/ISSUE_TEMPLATE/catalog-contribution.yml site_generator/gen/issue_templates/simple-finding.yml site_generator/gen/issue_templates/share-metadata.yml $(SITE_CLONE)/.github/ISSUE_TEMPLATE/
+	cp .github/ISSUE_TEMPLATE/catalog-finding.yml .github/ISSUE_TEMPLATE/catalog-contribution.yml site_generator/gen/issue_templates/simple-finding.yml site_generator/gen/issue_templates/share-metadata.yml site_generator/gen/issue_templates/verify-metadata.yml $(SITE_CLONE)/.github/ISSUE_TEMPLATE/
 	cp .github/workflows/release.yml $(DATA_CLONE)/.github/workflows/
 	@echo "now commit + push .github/ in both clones (owner; docs/RUNBOOK.md 'Owner bootstrap (once)')"
 
