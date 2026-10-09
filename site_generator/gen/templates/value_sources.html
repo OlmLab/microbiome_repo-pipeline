@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Where the values come from — {{ site.title }}{% endblock %}
+{% block desc %}How many of the catalog's per-sample metadata values come from each evidence source: sequence archive records, supplementary tables, paper full text, abstracts and external resources.{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Where the values come from</h1><p>Every metadata value in the catalog carries its evidence: the source it was read from, a locator and the quoted text. This page counts the {{ extra.n_values|fmt }} current sample × field values of release {{ site.release_id }} by source, so you can see what each kind of source adds.</p></div>
+
+<section class="pg-sec">
+<div class="pg-label">By source</div>
+<div class="spbar" title="Share of all values by source">{% for r in rows if r.n %}<span class="spseg" style="width:{{ (100 * r.share)|round(2) }}%;background:{{ r.color }}" title="{{ r.label }}: {{ r.n|fmt }} values ({{ (100 * r.share)|round(1) }}%)"></span>{% endfor %}</div>
+<table class="tbl small compact"><thead><tr><th>source</th><th>what it is</th><th class="num">values</th><th class="num">share</th><th class="num">samples</th><th class="num">projects</th><th class="num" title="Share of this source's values that tell samples apart: within the project and field the source gives more than one distinct value (the rest state one value for all the project's samples it covers, e.g. the country or the disease of the whole cohort)">varies by sample</th><th class="num">fields</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><span class="vsdot" style="background:{{ r.color }}"></span> {{ r.label }}</td><td class="muted">{{ r.desc }}</td><td class="num">{% if r.n %}{{ r.n|fmt }}{% else %}none yet{% endif %}</td><td class="num">{{ (100 * r.share)|round(1) }}%</td><td class="num">{{ r.samples|fmt }}</td><td class="num">{{ r.projects|fmt }}</td><td class="num">{% if r.n %}{{ (100 * (1 - r.cohort_share))|round(0)|int }}%{% else %}—{% endif %}</td><td class="num">{{ r.n_fields }}</td></tr>{% endfor %}
+</tbody></table>
+<p class="small">Sources other than the archive supply at least one value for {{ extra.n_samples_nonarchive|fmt }} of the {{ extra.n_samples_total|fmt }} catalog samples ({{ (100 * extra.n_samples_nonarchive / (extra.n_samples_total or 1))|round(1) }}%) in {{ extra.n_projects_nonarchive|fmt }} of {{ extra.n_projects|fmt }} projects. Human-verified projects are listed separately (a person confirms the values; it adds no values of its own).</p>
+<details class="pg-more"><summary>How to read these numbers</summary><p class="small">Each sample has at most one current value per field. When several sources give a value, the archive record (R1) wins over supplementary tables (R2), then the paper's full text (R3), then the abstract or project description (R4). The counts therefore show what each source <i>adds</i> to the shipped table: a supplementary table that only repeats an archive value is not counted. "Varies by sample" counts values in project × field combinations where the source gives more than one distinct value; the remainder are single statements for a whole project, such as "all participants were recruited in Kenya" or "no antibiotics in the 3 months before sampling". Values of the infant extension are counted by the same routes. 'unknown' values and derived columns (age category, detailed location) are not counted.</p></details>
+</section>
+
+<section class="pg-sec">
+<div class="pg-label">By field</div>
+<p class="small muted">Bar width = share of the field's values from each source; the number is the field's values and its coverage across all catalog samples. Hover a segment for counts.</p>
+<table class="tbl small compact vsf"><thead><tr><th>field</th><th class="num">values</th><th class="num">coverage</th><th style="width:55%">sources</th></tr></thead><tbody>
+{% for f in fields %}{% if loop.first or f.tier != loop.previtem.tier %}<tr class="vsgroup"><td colspan="4"><b>{{ {'core': 'Core fields', 'key': 'Key fields', 'other': 'Other fields (incl. infant extension)'}[f.tier] }}</b></td></tr>{% endif %}
+<tr><td><a class="mono" href="../fields/index.html#{{ f.field }}">{{ f.field }}</a></td><td class="num">{{ f.total|fmt }}</td><td class="num">{{ (100 * f.cov)|round(1) }}%</td><td><div class="spbar thin">{% for g in f.segs %}<span class="spseg" style="width:{{ g.pct }}%;background:{{ g.color }}" title="{{ f.field }} — {{ g.label }}: {{ g.n|fmt }} values ({{ g.pct }}%)"></span>{% endfor %}</div></td></tr>{% endfor %}
+</tbody></table>
+<p class="small">{% for r in rows if r.n %}<span class="vsdot" style="background:{{ r.color }}"></span> {{ r.label }}{% if not loop.last %} &nbsp; {% endif %}{% endfor %}</p>
+</section>
+{% endblock %}

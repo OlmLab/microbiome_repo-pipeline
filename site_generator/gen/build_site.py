@@ -128,7 +128,7 @@ NAV = [('home', 'Home', 'index.html', None),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
-                                 ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html')])]
+                                 ('about', 'Where values come from', 'about/value_sources.html'), ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html')])]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
              'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html'}
@@ -1559,6 +1559,45 @@ def main():
     for rid, gg in _ce.groupby('res'):
         ext_stats[rid] = dict(n_values=int(len(gg)), n_samples=int(gg.sample_key.nunique()), studies=sorted(set(gg.study_accession) & inc_set))
     ext_list = [dict(r, stats=ext_stats.get(r['resource_id'], dict(n_values=0, n_samples=0, studies=[]))) for r in src['related_efforts'] if r.get('ingestion') == 'used']
+    # R2026.22 (owner request): how many catalog values each evidence source contributes — computed from the shipped current
+    # determinations (one winning row per sample x field; precedence archive R1 > supplement R2 > full text R3 > abstract R4)
+    sys.path.insert(0, str(repo_root / 'src')) if str(repo_root / 'src') not in sys.path else None
+    from catalog.scopes.study_sources import classify_rows as _classify, LABELS as _SRC_LABELS
+    _v = cd[cd.value_normalized.notna() & (cd.value_normalized.astype(str) != 'unknown')][['sample_key', 'study_accession', 'field_name', 'value_normalized', 'route', 'scope', 'determined_by', 'evidence_source', 'src_track']].copy()
+    _v['source'] = _classify(_v).values
+    _v = _v[_v.source != '']
+    VS_ORDER = ['archive', 'supplement', 'fulltext', 'abstract', 'external', 'contribution']
+    VS_COLOR = {'archive': '#565A5C', 'supplement': '#CFB87C', 'fulltext': '#4477AA', 'abstract': '#88CCEE', 'external': '#AA3377', 'contribution': '#228833'}
+    VS_DESC = {'archive': 'BioSample attributes, sample names / titles and run fields in ENA / SRA / DDBJ (route R1)',
+               'supplement': "supplementary tables and data files of the project's papers, and of other papers that tabulate its samples (route R2)",
+               'fulltext': 'methods prose and tables in the body of open-access papers (route R3)',
+               'abstract': "paper abstracts and the archive's project description (route R4)",
+               'external': 'curated external resources such as curatedMetagenomicData and GMrepo (route R2, evidence_source external.*)',
+               'contribution': 'metadata contributed by users through the Contribute form'}
+    n_vals = len(_v)
+    # sample-resolved: within a project and field, this source gives more than one distinct value (it tells samples apart);
+    # otherwise the source states one value for all the project's samples it covers (typical of abstracts and methods prose)
+    _nv = _v.groupby(['study_accession', 'field_name', 'source']).value_normalized.transform('nunique')
+    cohort = _nv <= 1
+    vs_rows = []
+    for src_ in VS_ORDER:
+        m = _v.source == src_
+        vs_rows.append(dict(source=src_, label=_SRC_LABELS.get(src_, src_), desc=VS_DESC[src_], color=VS_COLOR[src_], n=int(m.sum()), share=(m.sum() / n_vals) if n_vals else 0,
+                            samples=int(_v.loc[m, 'sample_key'].nunique()), projects=int(_v.loc[m, 'study_accession'].nunique()),
+                            cohort_share=float(cohort[m].mean()) if m.any() else 0.0, n_fields=int(_v.loc[m, 'field_name'].nunique())))
+    nonarch = _v[_v.source != 'archive']
+    vs_extra = dict(n_values=n_vals, n_samples=int(_v.sample_key.nunique()), n_samples_nonarchive=int(nonarch.sample_key.nunique()),
+                    n_samples_total=len(cw), n_projects_nonarchive=int(nonarch.study_accession.nunique()), n_projects=len(cs))
+    ftab = _v.groupby(['field_name', 'source']).size().unstack(fill_value=0)
+    vs_fields = []
+    for tier, flist in (('core', CORE_FIELDS), ('key', KEY_FIELDS), ('other', sorted(set(ftab.index) - set(CORE_FIELDS) - set(KEY_FIELDS)))):
+        for f in flist:
+            if f not in ftab.index:
+                continue
+            row = ftab.loc[f]; tot = int(row.sum())
+            segs = [dict(source=s_, label=_SRC_LABELS.get(s_, s_), color=VS_COLOR[s_], n=int(row.get(s_, 0)), pct=round(100 * row.get(s_, 0) / tot, 1)) for s_ in VS_ORDER if row.get(s_, 0) > 0]
+            vs_fields.append(dict(field=f, tier=tier, total=tot, cov=tot / len(cw) if len(cw) else 0, segs=segs))
+    render('value_sources.html', 'about/value_sources.html', '../', nav='about', rows=vs_rows, extra=vs_extra, fields=vs_fields)
     render('external.html', 'about/external.html', '../', nav='about', ext=ext_list, others=[r for r in src['related_efforts'] if r.get('ingestion') != 'used'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='External resources')])
     render('sources.html', 'about/sources.html', '../', nav='about', src=src, crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Sources & acknowledgements')])

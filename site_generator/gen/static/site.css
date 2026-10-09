@@ -340,3 +340,7 @@ svg.spark rect{fill:var(--cu-gold)}svg.spark.depth rect.repo{fill:none;stroke:#7
 /* R2026.22 study groups */
 .pg-group{margin:.2rem 0 .5rem 0;padding:.35rem .6rem;border-left:3px solid #CFB87C;background:#faf7ef}
 .tag.grp{font-size:.7rem;padding:0 .3rem;text-decoration:none}
+/* R2026.22 value-sources page */
+.vsdot{display:inline-block;width:.75em;height:.75em;border:1px solid #565A5C;vertical-align:-1px;margin-right:.2em}
+.spbar.thin{height:14px;margin:.1rem 0}
+.vsf tr.vsgroup td{background:#f5f5f3;padding-top:.5rem}
