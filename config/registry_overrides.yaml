@@ -71,6 +71,123 @@ overrides:
     - source: BioSample host / organism
       quote: mouse gut metagenome
     note: 'R2026.18 paper verification: all 34 BioSamples are organism "mouse gut metagenome", host Mus; the linked paper is a mouse oocyte study'
+  - study_accession: PRJDB19255
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "Mus musculus"
+    note: 'R2026.18 catalog-wide host scan: all 4 catalog samples have a non-human host / organism in BioSample (Mus musculus)'
+  - study_accession: PRJEB70509
+    date: '2026-10-09'
+    stage: curator_audit
+    body_sites: other_site
+    body_site_primary: other_site
+    body_site_evidence:
+    - source: BioSample organism
+      quote: bioreactor metagenome
+    note: 'R2026.18 catalog-wide host scan: the only catalog sample is a bioreactor community, not a direct gut metagenome'
+  - study_accession: PRJNA1155655
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "mouse"
+    note: 'R2026.18 catalog-wide host scan: all 74 catalog samples have a non-human host / organism in BioSample (mouse)'
+  - study_accession: PRJNA1209134
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "mouse"
+    note: 'R2026.18 catalog-wide host scan: all 62 catalog samples have a non-human host / organism in BioSample (mouse)'
+  - study_accession: PRJNA1213876
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample organism
+      quote: "Gorilla beringei beringei"
+    note: 'R2026.18 catalog-wide host scan: all 10 catalog samples have a non-human host / organism in BioSample (Gorilla beringei beringei)'
+  - study_accession: PRJNA1245131
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample organism
+      quote: "Mus musculus"
+    note: 'R2026.18 catalog-wide host scan: all 20 catalog samples have a non-human host / organism in BioSample (Mus musculus)'
+  - study_accession: PRJNA1472735
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "Mus musculus"
+    note: 'R2026.18 catalog-wide host scan: all 12 catalog samples have a non-human host / organism in BioSample (Mus musculus)'
+  - study_accession: PRJNA1514052
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "Mus musculus"
+    note: 'R2026.18 catalog-wide host scan: all 35 catalog samples have a non-human host / organism in BioSample (Mus musculus)'
+  - study_accession: PRJNA428537
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "bovine metagenome"
+    note: 'R2026.18 catalog-wide host scan: all 3 catalog samples have a non-human host / organism in BioSample (bovine metagenome)'
+  - study_accession: PRJNA450709
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "mouse"
+    note: 'R2026.18 catalog-wide host scan: all 243 catalog samples have a non-human host / organism in BioSample (mouse)'
+  - study_accession: PRJNA596121
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "Mouse"
+    note: 'R2026.18 catalog-wide host scan: all 18 catalog samples have a non-human host / organism in BioSample (Mouse)'
+  - study_accession: PRJNA769748
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host
+      quote: "mouse"
+    note: 'R2026.18 catalog-wide host scan: all 70 catalog samples have a non-human host / organism in BioSample (mouse)'
+  - study_accession: PRJEB14941
+    date: '2026-10-09'
+    stage: curator_audit
+    assay: amplicon
+    note: 'R2026.18 paper verification flagged 16S sequencing; ENA runs: library_selection PCR, Illumina MiSeq, median 17,207 reads / 2.6 Mbp per run (n=1118) — amplicon data, not shotgun'
+  - study_accession: PRJNA1190698
+    date: '2026-10-09'
+    stage: curator_audit
+    assay: amplicon
+    note: 'R2026.18 paper verification flagged 16S sequencing; ENA runs: library_selection PCR, MinION, median 24,086 reads / 37.4 Mbp per run (n=30) — amplicon data, not shotgun'
+  - study_accession: PRJNA1305438
+    date: '2026-10-09'
+    stage: curator_audit
+    assay: amplicon
+    note: 'R2026.18 paper verification flagged 16S sequencing; ENA runs: library_selection PCR, Illumina MiSeq, median 100,383 reads / 60.4 Mbp per run (n=88) — amplicon data, not shotgun'
+  - study_accession: PRJNA976196
+    date: '2026-10-09'
+    stage: curator_audit
+    assay: amplicon
+    note: 'R2026.18 paper verification flagged 16S sequencing; ENA runs: library_selection PCR, Illumina HiSeq 2000, median 69,637 reads / 21.0 Mbp per run (n=246) — amplicon data, not shotgun'
   - study_accession: PRJNA804967
     date: '2026-10-09'
     stage: curator_audit
