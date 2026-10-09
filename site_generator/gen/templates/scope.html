@@ -4,7 +4,8 @@
 {% block content %}
 <h1>Scope: from the registry to the catalog</h1>
 <p class="small"><a href="index.html">About</a> › Scope</p>
-<p class="lead">The registry lists every shotgun-metagenome INSDC BioProject reached through ENA and classifies its host; the catalog curates the human studies whose runs include the <b>human gut / stool</b>, at every age. Study rule (<span class="mono">config/packs/gut.yaml</span>): <span class="mono">{{ pack.study_rule }}</span>. Sample rule: <span class="mono">{{ pack.sample_rule }}</span>. Every sample of a catalog study is kept, with a <span class="mono">body_site_class</span> (primary = gut/stool, unknown = no site attribute, excluded/linked = another site of a gut study) so that nothing is silently dropped.</p>
+<p class="lead">The registry lists every shotgun-metagenome INSDC BioProject reached through ENA and classifies its host; the catalog curates the human studies whose runs include the <b>human gut / stool</b>, at every age.</p>
+<details class="about-page"><summary>About this page</summary><p>Study rule (<span class="mono">config/packs/gut.yaml</span>): <span class="mono">{{ pack.study_rule }}</span>. Sample rule: <span class="mono">{{ pack.sample_rule }}</span>. Every sample of a catalog study is kept, with a <span class="mono">body_site_class</span> (primary = gut/stool, unknown = no site attribute, excluded/linked = another site of a gut study) so that nothing is silently dropped.</p></details>
 <h2>Funnel</h2>
 <table class="tbl small" style="max-width:720px"><tbody>
 {% for label, n in funnel %}<tr><td>{{ label }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}

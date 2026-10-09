@@ -171,6 +171,57 @@ def field_series(df, f, derived):
     return None
 
 
+
+def mini_bars_svg(pairs, width=260, height=34, label_fmt=str, tip_unit='samples'):
+    """Tiny inline SVG bar strip (timeline / histogram) for project pages: [(label, n), ...] → SVG string with <title> tips."""
+    pairs = [(k, int(n)) for k, n in pairs if n]
+    if not pairs:
+        return ''
+    m = max(n for _, n in pairs)
+    bw = width / len(pairs)
+    out = [f'<svg class="spark" viewBox="0 0 {width} {height + 12}" width="{width}" height="{height + 12}" role="img">']
+    for i, (k, n) in enumerate(pairs):
+        h_ = max(1.5, height * n / m)
+        out.append(f'<rect x="{i * bw + 0.5:.1f}" y="{height - h_:.1f}" width="{max(1.0, bw - 1):.1f}" height="{h_:.1f}"><title>{label_fmt(k)}: {n:,} {tip_unit}</title></rect>')
+    out.append(f'<text x="0" y="{height + 10}" class="spark-l">{label_fmt(pairs[0][0])}</text>')
+    out.append(f'<text x="{width}" y="{height + 10}" class="spark-l" text-anchor="end">{label_fmt(pairs[-1][0])}</text></svg>')
+    return ''.join(out)
+
+
+def study_glance(g):
+    """Globe spec + collection-year timeline + depth histogram for one project's wide rows."""
+    import math
+    countries = {str(k): int(v) for k, v in g['country'].dropna().value_counts().items()} if 'country' in g.columns else {}
+    pts = []
+    if 'latitude' in g.columns and 'longitude' in g.columns:
+        ll = g[['latitude', 'longitude']].apply(pd.to_numeric, errors='coerce').dropna()
+        if len(ll):
+            agg = ll.assign(la=(ll.latitude * 2).round() / 2, lo=(ll.longitude * 2).round() / 2).groupby(['lo', 'la']).size().sort_values(ascending=False).head(300)
+            pts = [[float(lo), float(la), int(n)] for (lo, la), n in agg.items()]
+    years = []
+    yc = None
+    if 'collection_date' in g.columns:
+        yc = pd.to_numeric(g['collection_date'].astype(str).str[:4], errors='coerce').dropna().astype(int)
+        yc = yc[(yc >= 1980) & (yc <= 2030)]
+    if yc is not None and len(yc):
+        vc = yc.value_counts()
+        years = [(y, int(vc.get(y, 0))) for y in range(int(yc.min()), int(yc.max()) + 1)]
+    depth = []
+    if 'seq_gbp' in g.columns:
+        gb = pd.to_numeric(g['seq_gbp'], errors='coerce')
+        gb = gb[gb > 0]
+        if len(gb) >= 3:
+            edges = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 1e9]
+            cnt = pd.cut(gb, edges, right=False).value_counts(sort=False)
+            depth = [(f"{edges[i]:g}–{edges[i + 1]:g}" if edges[i + 1] < 1e8 else f"≥{edges[i]:g}", int(n)) for i, n in enumerate(cnt.tolist())]
+            while depth and depth[0][1] == 0:
+                depth.pop(0)
+            while depth and depth[-1][1] == 0:
+                depth.pop()
+    return dict(globe=dict(countries=countries, points=pts) if (countries or pts) else None,
+                timeline=mini_bars_svg(years) if len(years) >= 2 else '', years=(years[0][0], years[-1][0]) if years else None,
+                depth=mini_bars_svg(depth, label_fmt=lambda k: f"{k} Gbp") if depth else '')
+
 def read_about(cfg_path):
     a = yaml.safe_load(Path(cfg_path).read_text(encoding='utf-8')).get('about', {}) or {}
     for k in ('lab_name', 'lab_url', 'funder_name', 'funder_url'):
@@ -832,6 +883,16 @@ def main():
     SAMPLE_COLS = ['sample_key', 'biosample_accession', 'age_category', 'age_at_collection_days', 'age_at_collection_days__route', 'sex', 'bmi', 'country', 'health_condition',
                    'health_condition__route', 'intervention', 'antibiotic_exposure', 'subject_id', 'timepoint_label', 'body_site_class', 'seq_gbp', 'n_runs']
 
+    _pf = list(pack['fields'].keys()) + [f for f in DERIVED if f not in pack['fields']]
+    PAGE_FIELDS = list(dict.fromkeys(CORE_FIELDS + KEY_FIELDS + [f for f in _pf if f not in ('collection_year',)] + infant_fields))
+    SHORT_LABELS = {'age_category': 'age cat.', 'age_at_collection_days': 'age (d)', 'health_condition': 'condition', 'health_condition_detail': 'condition detail',
+                    'antibiotic_exposure': 'antibiotics', 'subject_id': 'subject', 'timepoint_label': 'timepoint', 'collection_date': 'date', 'location_region': 'region',
+                    'location_locality': 'locality', 'location_site': 'site', 'detailed_location': 'location', 'latitude': 'lat', 'longitude': 'lon',
+                    'lifestyle_detail': 'lifestyle detail', 'diet_detail': 'diet detail', 'smoking_status': 'smoking', 'medication_detail': 'medication detail',
+                    'intervention_detail': 'intervention detail', 'stool_consistency_bristol': 'Bristol', 'delivery_mode': 'delivery', 'feeding_mode': 'feeding',
+                    'preterm_status': 'preterm', 'gestational_age_weeks': 'GA (wk)', 'birth_weight_grams': 'birth wt (g)', 'maternal_antibiotics': 'maternal abx',
+                    'probiotic_exposure': 'probiotic', 'hmo_supplementation': 'HMO', 'nec_status': 'NEC'}
+
     # ---------- cohorts (all ages): studies linked by a shared paper (own_data / curated links) or a curated cohort record ----------
     parent = {acc: acc for acc in included}
 
@@ -930,7 +991,11 @@ def main():
                             papers=n_pap, ctype=ctype, type_label=TLABEL.get(ctype, ctype), blocker=blocker, blocker_label=cspec.get('blocker_labels', {}).get(blocker, blocker),
                             depth=r.curated_depth or '', ages=' '.join(f'{k}:{v}' for k, v in sorted(jl(r.age_categories).items(), key=lambda kv: -kv[1])[:3]),
                             issue_url=contribute_issue_url(cspec, r.study_accession, ctype, release_id), score=n * len(missing),
-                            cohort=cohort_name_of.get(cohort_of_study.get(r.study_accession), '')))
+                            cohort=cohort_name_of.get(cohort_of_study.get(r.study_accession), ''),
+                            # R2026.18: source access — a person can often open what we could not (paywalled / publisher-only supplements)
+                            supp=str(getattr(r, 'src_supplement', '') or 'none'), ft=str(getattr(r, 'src_fulltext', '') or 'none'),
+                            paper_url=next((('https://doi.org/' + x['doi']) if x.get('doi') else (f"https://europepmc.org/article/MED/{x['pmid']}" if x.get('pmid') else '')
+                                            for x in papers_by_study.get(r.study_accession, []) if x.get('doi') or x.get('pmid')), '')))
     wl_rows.sort(key=lambda r: (-r['score'], r['acc']))
     for i, r in enumerate(wl_rows, start=1):
         r['rank'] = i
@@ -938,6 +1003,41 @@ def main():
     stats['n_contribute'] = len(wl_rows)
     stats['n_contribute_samples'] = int(sum(r['n'] for r in wl_rows))
     stats['has_contribute'] = True
+
+    # ---------- per-project source checkmarks (R2026.18; gut_studies.src_* from catalog.scopes.study_sources) ----------
+    SRC_ORDER = ('archive', 'abstract', 'fulltext', 'supplement', 'external', 'contribution', 'expert')
+    SRC_LABELS = {'archive': 'Sequence archive', 'abstract': 'Abstract / description', 'fulltext': 'Full text',
+                  'supplement': 'Supplementary tables', 'external': 'External resources', 'contribution': 'User contribution',
+                  'expert': 'Expert curation'}
+    SRC_SHORT = {'archive': 'Archive', 'abstract': 'Abstract', 'fulltext': 'Full text', 'supplement': 'Supp.', 'external': 'External',
+                 'contribution': 'User', 'expert': 'Expert'}
+    SRC_NONE = {'archive': 'no usable values in the archive records', 'abstract': 'no abstract or project description',
+                'fulltext': 'no open-access full text linked', 'supplement': 'no supplementary tables available (or none open access)',
+                'external': 'not covered by the external resources we ingest', 'contribution': 'nothing uploaded yet',
+                'expert': 'not part of the expert-curated infant extension'}
+    SRC_CHECKED = {'archive': 'records read; no usable sample values', 'abstract': 'read; no usable statement',
+                   'fulltext': 'read; no usable statement or table', 'supplement': 'files read; no table could be matched to the samples',
+                   'external': '', 'contribution': '', 'expert': 'curated; values superseded'}
+    def src_view(d):
+        try:
+            det = json.loads(d.get('src_detail') or '{}')
+        except (TypeError, ValueError):
+            det = {}
+        out = []
+        for k in SRC_ORDER:
+            st = d.get(f'src_{k}')
+            st = st if st in ('used', 'checked', 'none') else 'none'
+            x = det.get(k) or {}
+            if st == 'used':
+                fl = ', '.join(f.replace('_at_collection_days', '').replace('_label', '').replace('_', ' ') for f in (x.get('fields') or [])[:8])
+                text = f"{int(x.get('n_values') or 0):,} sample values" + (f" ({fl})" if fl else '')
+            elif st == 'checked':
+                text = SRC_CHECKED[k]
+            else:
+                text = SRC_NONE[k]
+            extra = ', '.join(x.get('pmcids') or []) if k == 'fulltext' else (', '.join(x.get('resources') or []) if k == 'external' else '')
+            out.append(dict(key=k, label=SRC_LABELS[k], short=SRC_SHORT[k], status=st, text=text, extra=extra))
+        return out
 
     # ---------- studies ----------
     def study_row(r):
@@ -951,6 +1051,7 @@ def main():
         d['cohort_id'] = cohort_of_study.get(d['study_accession'])
         d['cohort_name'] = cohort_name_of.get(d['cohort_id'], '') if d['cohort_id'] else ''
         d['n_papers'] = len(papers_by_study.get(d['study_accession'], []))
+        d['sources'] = src_view(d)
         d['first_author'] = next((x['name'] for x in authors_by_study.get(d['study_accession'], []) if x['first']), (authors_by_study.get(d['study_accession']) or [{}])[0].get('name', '') if authors_by_study.get(d['study_accession']) else '')
         return d
     studies = [study_row(r) for r in cs.to_dict('records')]
@@ -973,11 +1074,15 @@ def main():
         act = int(arms[[c for c in arms.index if c not in ('placebo', 'no_intervention')]].sum()) if len(arms) else 0
         return dict(hcs=sorted(hcs.index.tolist()), arms=sorted(arms.index.tolist()), ccc=cc, cca=int(ctrl >= 3 and act >= 3))
     # Studies table (owner review 2026-10-01): narrow — no depth / per-field coverage columns, samples only, Gbp per sample
-    sidx_rows = [dict(**study_filters(s['study_accession']), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
+    _cc_by = (cw.dropna(subset=['country']).groupby(['study_accession', 'country']).size() if 'country' in cw.columns else pd.Series(dtype=int))
+    _cc = {}
+    for (acc_, iso_), n_ in _cc_by.items():
+        _cc.setdefault(acc_, []).append(iso_)
+    sidx_rows = [dict(**study_filters(s['study_accession']), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
-                      a=s['study_accession'], t=(s['study_title'] or '')[:160], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
+                      a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
                       iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
-                      src=s['curated_source'], fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
+                      src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
                       gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
@@ -1003,15 +1108,27 @@ def main():
         n_total = len(g)
         shown = g if n_total <= a.max_rows_html else g.head(a.show_rows_html)
         dg = det_by_study.get(acc, cd.iloc[0:0])
-        cov = []
-        for tier, flist in (('core', CORE_FIELDS), ('key', KEY_FIELDS), ('infant', [f for f in infant_fields if f in g.columns and g[f].notna().any()])):
-            for f in flist:
-                ser = field_series(g, f, DERIVED)
-                if ser is None:   # column absent from this package (item 7): omit rather than show 0
-                    continue
-                has = ser.notna()
-                rc = dg.loc[dg.field_name == f, 'route'].value_counts() if len(dg) else pd.Series(dtype=int)
-                cov.append(dict(field=f, label=LABELS.get(f, f), n=int(has.sum()), frac=float(has.mean()) if n_total else 0.0, routes={r: int(rc.get(r, 0)) for r in ROUTES}, infant=tier == 'infant', tier=tier))
+        # Field coverage (owner 2026-10-09): the core fields always, then EVERY other field this project has values for, by coverage;
+        # fields without any value are only named in one grey line
+        cov, cov_missing = [], []
+        for f in PAGE_FIELDS:
+            ser = field_series(g, f, DERIVED)
+            if ser is None:
+                continue
+            has = ser.notna() & (ser.astype(str) != 'unknown')
+            n_ = int(has.sum())
+            tier = 'core' if f in CORE_FIELDS else ('infant' if f in infant_fields else ('key' if f in KEY_FIELDS else 'more'))
+            if n_ == 0 and tier != 'core':
+                cov_missing.append(f)
+                continue
+            rc = dg.loc[dg.field_name == f, 'route'].value_counts() if len(dg) else pd.Series(dtype=int)
+            cov.append(dict(field=f, label=LABELS.get(f, f), n=n_, frac=float(has.mean()) if n_total else 0.0, routes={r: int(rc.get(r, 0)) for r in ROUTES}, infant=tier == 'infant', tier=tier))
+        cov = [c for c in cov if c['tier'] == 'core'] + sorted([c for c in cov if c['tier'] != 'core'], key=lambda c: (-c['n'], c['field']))
+        # Sample table: every field with a value (core first, then by coverage), then the empty ones as thin strips
+        have_cols = [c['field'] for c in cov if c['n'] > 0]
+        empty_cols = [c['field'] for c in cov if c['n'] == 0] + cov_missing
+        tcols = [dict(f=f, label=SHORT_LABELS.get(f, f.replace('_', ' ')), empty=False) for f in have_cols] + \
+                [dict(f=f, label=SHORT_LABELS.get(f, f.replace('_', ' ')), empty=True) for f in empty_cols]
         group_rows = dg[dg.scope == 'study_all'].drop_duplicates(['field_name', 'value_normalized']).sort_values(['route', 'field_name'], kind='mergesort') if len(dg) else dg
         group_stmts = [clean(x) for x in group_rows[['field_name', 'value_normalized', 'route', 'confidence', 'evidence_source', 'evidence_locator', 'evidence_quote']].head(40).to_dict('records')]
         ev_sample = dg[dg.scope != 'study_all'].assign(_src=lambda d: d.evidence_source.astype(str).str.split('.').str[:2].str.join('.')).drop_duplicates(['field_name', 'route', '_src']).sort_values(['field_name', 'route'], kind='mergesort').head(40) if len(dg) else dg
@@ -1025,13 +1142,13 @@ def main():
         rgr = clean(rg_by.loc[acc].to_dict()) if acc in rg_by.index else {}
         rg_evidence = [dict(kind=lab, **e) for k, lab in (('host_evidence', 'host'), ('body_site_evidence', 'body site'), ('life_stage_evidence', 'life stage')) for e in ev_rows(rgr.get(k))]
         rg_summary = registry_summary(rgr, vocabs['body_site'], vocabs['life_stage'], vocabs['assay']) if rgr else ''
-        srows = [clean(x) for x in shown[[c for c in SAMPLE_COLS if c in shown.columns]].to_dict('records')]
-        for x in srows:
-            x['archive_url'] = archive_url(x.get('biosample_accession') or x.get('sample_key'))
+        srows = []   # R2026.18: the sample table is rendered client-side from data/studies/<acc>.csv.gz (static/study_table.js)
+        for c in tcols:
+            c['num'] = c['f'] in ('age_at_collection_days', 'bmi', 'latitude', 'longitude', 'gestational_age_weeks', 'birth_weight_grams', 'stool_consistency_bristol')
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
                papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
                group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
-               samples=srows, sample_cols=SAMPLE_COLS, thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
+               samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)
@@ -1363,7 +1480,13 @@ def main():
         for f in ('age_at_collection_days', 'subject_id', 'timepoint_label', 'sex', 'health_condition', 'antibiotic_exposure'):
             if f in cw.columns:
                 tier_cov.append(dict(field=f, **{src: round(100 * float(cw.loc[cw.curated_source == src, f].notna().mean()), 1) for src in ('infant_catalog', 'gut_all_v1')}))
-    render('methods.html', 'about/methods.html', '../', nav='about', tier_cov=tier_cov, reg=reg_methods, stats=stats, depth_counts=depth_counts, route_field=route_field, docs=doc_list, pack=pack,
+    src_avail = []
+    for k in SRC_ORDER:
+        c_ = f'src_{k}'
+        if c_ in cs.columns:
+            vc = cs[c_].fillna('none').value_counts()
+            src_avail.append(dict(label=SRC_LABELS[k], used=int(vc.get('used', 0)), checked=int(vc.get('checked', 0)), none=int(vc.get('none', 0))))
+    render('methods.html', 'about/methods.html', '../', nav='about', tier_cov=tier_cov, src_avail=src_avail, reg=reg_methods, stats=stats, depth_counts=depth_counts, route_field=route_field, docs=doc_list, pack=pack,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Methods')])
 
     # ---------- sources and acknowledgements (config/sources.yaml) ----------

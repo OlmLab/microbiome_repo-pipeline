@@ -200,6 +200,14 @@ releases:
     data_tag: data-v1.16.0
     site_tag: site-v1.16.0
     label: "owner review 2026-10-08 (b): 657 pending / unresolved human studies classified (9 enter the gut catalog, 5 leave); host/assay audit of 37 animal- or assembly-titled catalog studies (4 studies and 1,956 non-human / non-gut samples removed); infant-catalog samples receive BioSample R1 and abstract R4 statements for fields the infant curation did not cover; simpler Contribute page and issue form; registry table shows a plain in-catalog mark; Methods states the curation-depth gradient between tiers"
+  - release_id: R2026.18
+    package_version: '1.17.0'
+    previous_package_version: '1.16.0'
+    previous_release_id: R2026.17
+    notes_file: RELEASE_NOTES_R2026.18.md
+    data_tag: data-v1.17.0
+    site_tag: site-v1.17.0
+    label: "deep per-sample annotation of every project (all BioSample attributes, sample-name decoding, paper body and supplementary tables, newly linked papers); per-project source checkmarks; model-written short titles and descriptions; site redesign in the home-page style (project pages, Project / Sample sheets, every page header), mini globes"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

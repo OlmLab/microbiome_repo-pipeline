@@ -4,7 +4,8 @@
 {% block content %}
 <h1>Sources and acknowledgements</h1>
 <p class="small"><a href="index.html">About</a> › Sources &amp; acknowledgements</p>
-<p class="lead">Everything on this site is derived from public archives and open literature; this page names those sources and their terms, the software and models the pipeline uses, the funding, and the other projects that curate human-microbiome metadata — with an honest assessment of what each could add to the catalog and how it would join. Last reviewed {{ src.updated }}.</p>
+<p class="lead">Everything on this site is derived from public archives and open literature; this page names those sources and their terms, the software and models the pipeline uses, the funding, and the other projects that curate human-microbiome metadata — with an honest assessment of what each could add to the catalog and how it would join.</p>
+<details class="about-page"><summary>About this page</summary><p>Last reviewed {{ src.updated }}.</p></details>
 {% for f in src.funding %}<p class="note">{{ f.text }}</p>{% endfor %}
 
 <h2 id="data">Data sources</h2>

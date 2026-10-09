@@ -3,9 +3,7 @@
 {% block desc %}All {{ n_rows|fmt }} human gut shotgun-metagenome studies of the catalog (all ages) with sample counts, age categories, health conditions, curation depth and per-field coverage.{% endblock %}
 {% block bodyclass %}wide{% endblock %}
 {% block content %}
-<h1>Project sheet <span class="small muted">({{ n_rows|fmt }} projects)</span></h1>
-<p class="lead">Every study in the catalog — an INSDC BioProject (ENA, NCBI SRA or DDBJ) of human gut shotgun metagenomes, all ages — with its curated samples, age-category mix, most frequent health condition and the interventions the study administered (FMT, probiotic, diet …). Click an accession for the study page (evidence, coverage per field, papers, sequencing, sample table, downloads).{% if has_seq %} <span class="mono">Gbp / sample</span> is the median sequencing depth per sample (bases summed over each sample's runs, <span class="mono">gut_runs.parquet</span>).{% endif %} The table is loaded from <a href="../data/studies_index.json">studies_index.json</a>; the full study table with every column is <a href="../data/gut_studies.parquet" download>gut_studies.parquet</a>.</p>
-<div class="btns"><a class="btn sec" href="../data/gut_studies.parquet" download>Download study table (parquet)</a> <a class="btn sec" href="../samples/index.html">Open the sample explorer</a></div>
+<div class="sheet-top"><div id="pglobe" class="globe-box" title="Projects per country for the current filters — drag to rotate"></div><div class="sheet-head"><h1>Project sheet</h1><p class="sheet-sub">{{ n_rows|fmt }} human gut shotgun-metagenome projects (INSDC BioProjects in ENA, NCBI SRA or DDBJ). Hover any cell for details; click an accession for its page. <a href="../data/gut_studies.parquet" download>Download (parquet)</a> · <a href="../samples/index.html">Sample sheet</a></p></div></div>
 <form class="pfilters" id="pfilters" onsubmit="return false">
 <label>Health condition <select id="pf-condition"><option value="">any</option>{% for c, l in hc_opts %}<option value="{{ c }}">{{ l or c }}</option>{% endfor %}</select></label>
 <label>Intervention <select id="pf-intervention"><option value="">any</option><option value="__any__">any intervention</option>{% for c, l, n in iv_opts %}<option value="{{ c }}">{{ l }} ({{ n }})</option>{% endfor %}<option value="__none__">none administered</option></select></label>
@@ -14,19 +12,24 @@
 <label>Country <input id="pf-country" type="search" placeholder="e.g. China" size="10"></label>
 <label>Min samples <input id="pf-min_samples" type="number" min="0" style="width:5.5rem"></label>
 <label title="≥ 3 healthy-control samples and ≥ 3 samples with a disease code"><input type="checkbox" id="pf-cases_controls"> cases &amp; healthy controls</label>
+<label>Source <select id="pf-source"><option value="">any</option><option value="0">sequence archive used</option><option value="1">abstract used</option><option value="2">full text used</option><option value="3">supplementary tables used</option><option value="4">external resource used</option><option value="5">user contribution</option><option value="6">expert curation</option></select></label>
 <label title="≥ 3 samples in an active intervention arm and ≥ 3 in placebo / no-intervention (from archive attributes)"><input type="checkbox" id="pf-arms"> treated &amp; control arms</label>
 <button type="button" class="btn sec" id="pf-reset">reset</button> <span class="status" id="pf-count"></span>
 </form>
-<table id="studies" class="tbl display compact" style="width:100%">
-<thead><tr><th>Study</th><th>Title</th><th class="num">Samples</th><th>Age categories</th><th>Top condition</th><th>Interventions</th><th>Country</th><th>First author</th><th class="num">Papers</th><th>Public</th>{% if has_seq %}<th class="num" title="median sequencing depth per sample: bases summed over the sample's runs">Gbp / sample</th>{% endif %}</tr></thead>
+<p class="small srclegend muted">Sources: <span class="srcmk u">✓</span> used · <span class="srcmk c">○</span> checked, nothing usable · <span class="srcmk n">–</span> not available. Hover a mark for details.</p>
+<table id="studies" class="tbl display compact ptbl" style="width:100%">
+<thead><tr><th>Project</th><th>Title</th><th class="num">Samples</th><th>Ages</th><th>Condition</th><th title="Interventions the study administered">Interv.</th><th>Country</th><th class="num" title="Linked papers">Papers</th><th title="First public">Year</th><th class="srch" title="Sequence archive records">Arch.</th><th class="srch" title="Paper abstract / archive description">Abs.</th><th class="srch" title="Open full text of the linked paper">Text</th><th class="srch" title="Supplementary tables of the linked paper">Supp.</th><th class="srch" title="External curated resources">Ext.</th><th class="srch" title="Metadata uploaded by a user">User</th><th class="srch" title="Expert-curated infant extension">Exp.</th>{% if has_seq %}<th class="num" title="Median Gbp per sample">Gbp</th>{% endif %}</tr></thead>
 <tbody></tbody></table>
 {% endblock %}
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<script>window.GLOBE_ROOT='../';</script><script src="../static/globe.js"></script>
 <script>
 fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const h = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const $ = id => document.getElementById(id);
-  const P = ['condition', 'intervention', 'design', 'age', 'country', 'min_samples', 'cases_controls', 'arms'];
+  const P = ['condition', 'intervention', 'design', 'age', 'country', 'min_samples', 'cases_controls', 'arms', 'source'];
   const prm = new URLSearchParams(location.search);
   for (const k of P) { const el = $('pf-' + k); const v = prm.get(k); if (el && v !== null) { if (el.type === 'checkbox') el.checked = v === '1'; else el.value = v; } }
   const ok = r => {
@@ -39,30 +42,43 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
     if (dz === '__controlled__') { if (!['randomized_controlled_trial', 'non_randomized_controlled', 'crossover'].includes(r.dz) && !r.cca) return false; } else if (dz && r.dz !== dz) return false; if (ag && !(r.ags || []).includes(ag)) return false;
     if (co && !String(r.co || '').toLowerCase().includes(co)) return false; if (mn !== '' && r.n < parseInt(mn)) return false;
     if ($('pf-cases_controls').checked && !r.ccc) return false; if ($('pf-arms').checked && !r.cca) return false;
+    const so = $('pf-source').value; if (so !== '' && (r.sf || 'nnnnnnn')[parseInt(so)] !== 'u') return false;
     return true;
   };
   DataTable.ext.search.push((settings, data, i, row) => settings.nTable.id !== 'studies' || ok(row));
+  const SRCN = ['Sequence archive', 'Abstract / description', 'Full text', 'Supplementary tables', 'External resources', 'User contribution', 'Expert curation'];
+  const srcmk = (d, i, t) => { const c = (d || 'nnnnnnn')[i]; if (t !== 'display') return c === 'u' ? 2 : c === 'c' ? 1 : 0;
+    return c === 'u' ? '<span class="srcmk u" title="' + SRCN[i] + ': values used">✓</span>' : c === 'c' ? '<span class="srcmk c" title="' + SRCN[i] + ': checked, nothing usable">○</span>' : '<span class="srcmk n" title="' + SRCN[i] + ': not available">–</span>'; };
   const tbl = new DataTable('#studies', {
     data: rows, scrollX: true, autoWidth: false, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
     columns: [
-      {data: 'a', render: (d, t) => t === 'display' ? '<a href="' + h(d) + '.html">' + h(d) + '</a>' : d},
-      {data: 't', render: (d, t) => t === 'display' ? '<span class="small clip" title="' + h(d) + '">' + h(d) + '</span>' : d},
+      {data: 'a', render: (d, t) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' : d},
+      {data: 't', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1" title="' + h(r.tf || d) + '">' + h(d) + '</span>' : d + ' ' + (r.tf || '')},
       {data: 'n', className: 'num', render: (d, t) => t === 'display' ? Number(d).toLocaleString() : d},
-      {data: 'ag', render: (d, t) => t === 'display' ? '<span class="mono small">' + h(d) + '</span>' : d},
-      {data: 'hc', render: (d, t) => t === 'display' ? '<span class="mono small">' + h(d) + '</span>' : d},
-      {data: 'iv', defaultContent: '', render: (d, t) => t === 'display' ? '<span class="mono small">' + h((d || '').replaceAll(';', ' · ')) + '</span>' : d},
+      {data: 'ag', className: 'clipc', render: (d, t) => t === 'display' ? '<span class="clip1 mono" title="Age categories (samples): ' + h(d) + '">' + h((d || '').split(' ')[0].split(':')[0]) + '</span>' : d},
+      {data: 'hc', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1 mono" title="Conditions present: ' + h((r.hcs || []).join(', ') || d) + '">' + h(d) + '</span>' : d},
+      {data: 'iv', defaultContent: '', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1 mono" title="' + h((d || '').replaceAll(';', ', ') + (r.dz ? ' · design: ' + r.dz : '')) + '">' + h((d || '').replaceAll(';', ' · ')) + '</span>' : d},
       {data: 'co', className: 'mono'},
-      {data: 'fa', render: (d, t) => t === 'display' ? '<span class="small">' + h(d) + '</span>' : d},
       {data: 'p', className: 'num'},
-      {data: 'y', className: 'mono'}{% if has_seq %},
-      {data: 'gs', className: 'num', render: (d, t) => t === 'display' ? (d === null || d === undefined ? '' : Number(d).toFixed(2)) : d}{% endif %}
+      {data: 'y', className: 'mono'},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 0, t)},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 1, t)},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 2, t)},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 3, t)},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 4, t)},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 5, t)},
+      {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 6, t)}{% if has_seq %},
+      {data: 'gs', className: 'num', render: (d, t) => t === 'display' ? (d === null || d === undefined ? '' : Number(d).toFixed(1)) : d}{% endif %}
     ]
   });
   const sync = () => { const q = new URLSearchParams(); for (const k of P) { const el = $('pf-' + k); if (!el) continue; const v = el.type === 'checkbox' ? (el.checked ? '1' : '') : el.value.trim(); if (v) q.set(k, v); }
     history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); tbl.draw();
-    $('pf-count').textContent = tbl.rows({search: 'applied'}).count().toLocaleString() + ' projects match'; };
+    $('pf-count').textContent = tbl.rows({search: 'applied'}).count().toLocaleString() + ' projects match';
+    if (window.PG) { const cnt = {}; tbl.rows({search: 'applied'}).data().each(r => { for (const c of (r.ctry || '').split(';')) if (c) cnt[c] = (cnt[c] || 0) + 1; }); window.PG.update(cnt); } };
   for (const k of P) { const el = $('pf-' + k); if (el) el.addEventListener(el.tagName === 'INPUT' && el.type !== 'checkbox' ? 'input' : 'change', sync); }
   $('pf-reset').addEventListener('click', () => { for (const k of P) { const el = $('pf-' + k); if (el.type === 'checkbox') el.checked = false; else el.value = ''; } sync(); });
+  const init = {}; rows.forEach(r => { for (const c of (r.ctry || '').split(';')) if (c) init[c] = (init[c] || 0) + 1; });
+  if (window.MiniGlobe) MiniGlobe.render($('pglobe'), {countries: init, size: 150, unit: 'projects'}).then(g => { window.PG = g; sync(); });
   sync();
 });
 </script>

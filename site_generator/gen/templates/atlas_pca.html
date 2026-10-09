@@ -5,7 +5,8 @@
 {% block content %}
 <h1>Atlas › Genus-level PCA ({{ n_points|fmt }} samples)</h1>
 {% set sub="pca" %}{% include "_atlas_nav.html" %}
-<p class="lead">Every catalog sample with a <a href="https://sandpiper.qut.edu.au/">Sandpiper</a> community profile (GTDB genus level, root coverage above the stated threshold) plotted on the first five principal components of the centred log-ratio transformed genus table. {{ n_points|fmt }} of the {{ n_samples_catalog|fmt }} catalog samples across {{ n_studies|fmt }} studies. Colour by curated metadata, hover a point for its sample and study, type a study accession to draw its samples on top, or drag a box to count a selection. Everything runs in your browser; the data files total {{ total_mb }} MB.</p>
+<p class="lead">Every catalog sample with a <a href="https://sandpiper.qut.edu.au/">Sandpiper</a> community profile (GTDB genus level, root coverage above the stated threshold) plotted on the first five principal components of the centred log-ratio transformed genus table.</p>
+<details class="about-page"><summary>About this page</summary><p>{{ n_points|fmt }} of the {{ n_samples_catalog|fmt }} catalog samples across {{ n_studies|fmt }} studies. Colour by curated metadata, hover a point for its sample and study, type a study accession to draw its samples on top, or drag a box to count a selection. Everything runs in your browser; the data files total {{ total_mb }} MB.</p></details>
 <noscript><p class="note">This page needs JavaScript. The scores are downloadable: <span class="mono">gut_sandpiper_pca_scores.parquet</span> and <span class="mono">gut_sandpiper_pca_loadings.parquet</span> (<a href="../downloads.html">Downloads</a>).</p></noscript>
 <div id="boot" class="note" role="status" aria-live="polite">Loading {{ total_mb }} MB of PCA scores and metadata codes… <span id="boot-msg"></span></div>
 <div class="pca-wrap" id="pca" style="display:none">

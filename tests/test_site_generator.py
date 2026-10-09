@@ -222,25 +222,27 @@ def test_registry_human_count_is_yes_plus_mixed(site_new):
 # ---------------------------------------------------------------- items 7, 9, 10, 11: study page
 def test_study_page_sections(site_new):
     t = _html(site_new, 'studies/PRJTEST000001.html')
-    assert 'How this study entered the registry' in t and 'Registry classification</h2>' not in t
+    # R2026.18 redesign: registry entry in a collapsed Details section; coverage = core fields always, then every field with values
+    assert 'How this project entered the registry' in t and 'Registry classification</h2>' not in t
     assert 'Classified as human' in t and 'by deterministic_rule with confidence 0.90' in t
     assert 'sample.attr.host' in t and '“Homo sapiens”' in t
     assert 'registry/index.html?study=PRJTEST000001' in t
-    # coverage table: core tier first, then key tier, both from the pack
-    cov_fields = re.findall(r'<span class="tag tier-(core|key|infant)">[^<]*</span></td><td><a class="mono" href="../fields/index.html#([a-z_]+)">', t)
-    assert [f for tier, f in cov_fields if tier == 'core'] == CORE
-    # key fields whose column the synthetic package does not carry (diet, smoking_status, medication, stool_consistency_bristol …) are omitted by design
-    assert [f for tier, f in cov_fields if tier == 'key'] == [f for f in KEY if f in ('age_at_collection_days', 'sex', 'detailed_location', 'lifestyle', 'collection_date', 'antibiotic_exposure', 'bmi', 'timepoint_label')]
-    # sequencing block from gut_runs.parquet
+    cov_rows = re.findall(r'<tr( class="core")?><td><a class="mono" href="../fields/index.html#([a-z_]+)"', t)
+    assert [f for c, f in cov_rows if c] == CORE
+    assert all(f not in CORE for c, f in cov_rows if not c) and len(cov_rows) > len(CORE)
+    # sequencing summary from gut_runs.parquet
     runs = pd.read_parquet(site_new / 'data' / 'package' / 'gut_runs.parquet')
     g = runs[runs.study_accession == 'PRJTEST000001']
     gbp = pd.to_numeric(g.base_count) / 1e9
-    assert 'id="sequencing"' in t and f'<div class="num">{len(g):,}</div>' in t and f'<div class="num">{gbp.mean():.2f}</div>' in t and f'median {gbp.median():.2f}' in t
+    assert 'id="sequencing"' in t and f'{len(g):,} runs' in t and f'mean {gbp.mean():.2f} Gbp per run' in t and f'median {gbp.median():.2f}' in t
     assert 'PAIRED' in t and 'ILLUMINA' in t and 'Illumina NovaSeq 6000' in t and f'{100 * g.sandpiper_profiled.mean():.0f}%' in t
     # sample links: explorer with the sample filter, archive record per accession type
-    assert '../samples/index.html?sample=SAMN09000000' in t and 'https://www.ncbi.nlm.nih.gov/biosample/SAMN09000000' in t
+    # R2026.18: the sample table is built in the browser from the per-project CSV (static/study_table.js builds the same links)
+    assert "csv:'../data/studies/PRJTEST000001.csv.gz'" in t and 'static/study_table.js' in t
+    js = (site_new / 'static' / 'study_table.js').read_text()
+    assert '../samples/index.html?sample=' in js and 'https://www.ncbi.nlm.nih.gov/biosample/' in js
     t2 = _html(site_new, 'studies/PRJTEST000002.html')
-    assert 'https://www.ebi.ac.uk/ena/browser/view/SAMEA8000001' in t2 and 'https://ddbj.nig.ac.jp/resource/biosample/SAMD00700000' in t2
+    assert 'https://www.ebi.ac.uk/ena/browser/view/' in js and 'https://ddbj.nig.ac.jp/resource/biosample/' in js
     assert 'Confirm correct' not in t and 'template=simple-finding.yml' in t and 'accession=PRJTEST000001' in t and 'release_id=' in t and 'page_url=' in t
     assert 'infant extension' in t2 and 'infant field' not in t2.replace('infant fields', '')
 

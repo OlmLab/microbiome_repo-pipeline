@@ -1,3 +1,11 @@
+  const td = (val, f, cls) => { const s = val === null || val === undefined ? '' : String(val); const rt = f ? row_[f + '__route'] : null, cf = f ? row_[f + '__confidence'] : null;
+    return `<td class="${cls || ''}" title="${h((f || '') + (s ? ': ' + s : '') + (rt ? ' · ' + rt : '') + (cf !== null && cf !== undefined ? ' · confidence ' + fmtV(cf) : ''))}">${h(s)}</td>`; };
+  let row_ = null;
+  tbody.innerHTML = rows.map(row => { row_ = row; return `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
+    `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td>` +
+    td(row.age_category, 'age_category') + td(row.age_at_collection_days === null || row.age_at_collection_days === undefined ? '' : Math.round(Number(row.age_at_collection_days)), 'age_at_collection_days', 'num') +
+    td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'clip') + td(row.intervention, 'intervention', 'clip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
+    td(row.subject_id, 'subject_id', 'clip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(1)}</td></tr>`; }).join('');
 // Sample explorer — the catalog (human gut, all ages): DuckDB-WASM over data/gut_sample_metadata_wide.parquet (+ gut_studies.parquet
 // for titles), fully client-side, one row per sample. Same boot / failure pattern as registry_explorer.js. Values shown with their
 // route (R1 archive attribute, R2 supplementary table, R3 paper full text, R4 abstract) and confidence; the verbatim evidence quotes
@@ -10,6 +18,7 @@ const FIELDS = [...(CFG.coreFields || ['age_at_collection_days', 'sex', 'country
 // R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel
 const SHOW = ['sample_key', 'archive', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
 const LOC_PARTS = ['location_site', 'location_locality', 'location_region'];
+const HDR = {seq_gbp: 'Gbp', archive: 'archive', age_category: 'age cat.', age_at_collection_days: 'age (d)', health_condition: 'condition', antibiotic_exposure: 'abx', subject_id: 'subject', intervention: 'interv.', study_accession: 'project', sample_key: 'sample'};
 let COLS = new Set();   // columns present in the wide table (filled at boot); absent columns are omitted, never rendered as empty
 const archiveUrl = acc => { if (!acc) return null; const a = String(acc); if (/^[SED]RR\d+$/.test(a)) return CFG.archive.RUN + a; return (CFG.archive[a.slice(0, 4)] || CFG.archive.SAME) + a; };
 const archiveLink = (acc, label) => { const u = archiveUrl(acc); return u ? `<a class="small" href="${u}">${h(label || 'archive')}</a>` : ''; };
@@ -158,8 +167,8 @@ async function run() {
   const rows = r.toArray().map(x => x.toJSON());
   const thead = $('result-table').querySelector('thead'), tbody = $('result-table').querySelector('tbody');
   thead.innerHTML = '<tr>' + SHOW.map(col => SORTABLE.has(col)
-    ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col === 'seq_gbp' ? 'depth (Gbp)' : col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
-    : `<th>${col === 'archive' ? 'archive record' : col}</th>`).join('') + '</tr>';
+    ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${HDR[col] || col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
+    : `<th>${HDR[col] || col}</th>`).join('') + '</tr>';
   tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
     `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td><td>${h(row.age_category)}</td><td class="num">${fmtV(row.age_at_collection_days)} ${routeBadge(row.age_at_collection_days__route, row.age_at_collection_days__confidence)}</td>` +
     `<td>${h(row.sex)}</td><td>${h(row.country)}</td><td>${h(row.health_condition)} ${routeBadge(row.health_condition__route, row.health_condition__confidence)}</td><td class="small">${h(row.intervention)}</td><td>${h(row.antibiotic_exposure)}</td><td class="small">${h(row.subject_id)}</td><td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(2)}</td></tr>`).join('');
@@ -235,3 +244,11 @@ for (const el of document.querySelectorAll('.filters input')) el.addEventListene
 for (const el of document.querySelectorAll('.filters select, .filters input[type=checkbox]')) el.addEventListener('change', () => { page = 0; run(); });
 
 init();
+
+// R2026.18: home-style search box + filters toggle
+(function () {
+  const tq = document.getElementById('top-q'), fq = document.getElementById('f-q'), tg = document.getElementById('toggle-filters'), ex = document.getElementById('exp');
+  if (tq && fq) { let t = null; tq.value = fq.value || new URLSearchParams(location.search).get('q') || '';
+    tq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { fq.value = tq.value; const b = document.getElementById('apply'); if (b) b.click(); }, 300); }); }
+  if (tg && ex) tg.addEventListener('click', () => { const off = ex.classList.toggle('nofilters'); tg.setAttribute('aria-expanded', off ? 'false' : 'true'); tg.textContent = off ? 'Filters' : 'Hide filters'; });
+})();

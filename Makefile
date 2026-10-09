@@ -300,6 +300,7 @@ GUT_R1_NEWFIELDS_V2 ?= $(GUT_DIR)/gut_r1_newfields_v2_determinations.parquet
 GUT_R1_INTERVENTIONS ?= $(GUT_DIR)/interventions/gut_r1_intervention_determinations.parquet
 GUT_R1_INFANT ?= $(GUT_DIR)/r1_infant/gut_r1_infant_determinations.parquet
 GUT_SAMPLE_EXCLUSIONS ?= config/sample_exclusions.csv
+GUT_DEEP_GLOB ?= $(GUT_DIR)/deep/deep_determinations_shard_*.parquet
 GUT_IV_STUDY_GLOB ?= $(GUT_DIR)/interventions/gut_intervention_studies_shard_*.parquet
 # NCBI SRA bases for runs ENA reports with base_count 0 (dbGaP / not mirrored): scripts/fill_run_bases.py (R2026.16)
 RUN_BASES_NCBI ?= $(DATA)/registry/run_bases_ncbi.parquet
@@ -320,7 +321,7 @@ atlas-observations: ## recompute the Atlas observation cards (obs/*.png + obs/*.
 gut-build:       ## curated scope gut_all — gut_studies / gut_sample_metadata_wide / gut_sample_determinations / gut_runs from registry_biosamples + registry_runs + R1/R2/R3/R4 leaf outputs + the infant tables
 	mkdir -p $(GUT_OUT) $(BUILD)/gut
 	$(PY) -m catalog.scopes.build_gut_scope --studies $(GUT_STUDIES) --registry-studies $(PKG_OUT)/registry_studies.parquet --biosamples $(PKG_OUT)/registry_biosamples.parquet \
-	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --r1-infant "$(GUT_R1_INFANT)" --sample-exclusions "$(GUT_SAMPLE_EXCLUSIONS)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
+	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --r1-infant "$(GUT_R1_INFANT)" --sample-exclusions "$(GUT_SAMPLE_EXCLUSIONS)" --deep-glob "$(GUT_DEEP_GLOB)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
 	  --registry-runs $(REGISTRY_RUNS) --registry-sandpiper $(REGISTRY_SANDPIPER) \
 	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC)
 

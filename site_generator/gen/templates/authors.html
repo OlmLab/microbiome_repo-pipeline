@@ -3,7 +3,8 @@
 {% block desc %}Search {{ n_index|fmt }} author names linked to the catalog studies (human gut shotgun metagenomes, all ages) through their papers.{% endblock %}
 {% block content %}
 <h1>Authors</h1>
-<p class="lead">Search {{ n_index|fmt }} author names ({{ stats.n_author_rows|fmt }} study × author rows over {{ stats.n_studies_with_author|fmt }} of the {{ stats.n_studies|fmt }} catalog studies). Each hit lists the catalog studies the author is linked to through a paper (Europe PMC author lists of the linked papers; for the infant-extension studies also the curated links). Each study appears as a preview card: accession, title, samples, country / top condition, year.</p>
+<p class="lead">Search {{ n_index|fmt }} author names ({{ stats.n_author_rows|fmt }} study × author rows over {{ stats.n_studies_with_author|fmt }} of the {{ stats.n_studies|fmt }} catalog studies).</p>
+<details class="about-page"><summary>About this page</summary><p>Each hit lists the catalog studies the author is linked to through a paper (Europe PMC author lists of the linked papers; for the infant-extension studies also the curated links). Each study appears as a preview card: accession, title, samples, country / top condition, year.</p></details>
 <p class="note"><b>Caveats:</b> names are string-matched from Europe PMC author strings — the same person can appear under several initial variants (e.g. "Aagaard K" and "Aagaard KM") and no disambiguation was attempted; studies without a linked paper have no authors; consortium names are kept as group authors. A paper linked with relation <span class="mono">unsure</span> may re-analyse rather than produce the data.</p>
 <input id="q" class="searchbox" type="search" placeholder="Surname (and initials), e.g. Segata N, Knight R, Olm" autocomplete="off">
 <div id="status" class="small"></div>

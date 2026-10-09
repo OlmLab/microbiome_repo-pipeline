@@ -18,7 +18,8 @@
 {% block content %}
 <h1>Observations</h1>
 {% set sub="obs" %}{% include "_atlas_nav.html" %}
-<p class="lead">{{ cards | length }} patterns in the catalog's Sandpiper profiles ({{ meta.taxonomy }}), each with a figure, the underlying CSV, the exact definition and a confounder note. Every comparison is <b>study-aware</b>: besides the pooled numbers we report the fraction of studies (≥ 20 samples in both groups) whose direction agrees and the median of per-study effects, because study explains more variance than any biological factor (see the variance card). Cards labelled <span class="tag exploratory">exploratory</span> are single-pass findings that have not been checked against the literature.</p>
+<p class="lead">{{ cards | length }} patterns in the catalog's Sandpiper profiles ({{ meta.taxonomy }}), each with a figure, the underlying CSV, the exact definition and a confounder note.</p>
+<details class="about-page"><summary>About this page</summary><p>Every comparison is <b>study-aware</b>: besides the pooled numbers we report the fraction of studies (≥ 20 samples in both groups) whose direction agrees and the median of per-study effects, because study explains more variance than any biological factor (see the variance card). Cards labelled <span class="tag exploratory">exploratory</span> are single-pass findings that have not been checked against the literature.</p></details>
 <div class="note">Sample set: {{ meta.n_samples | numint }} samples in {{ meta.n_studies | numint }} studies ({{ meta.sample_filter }}). Presence threshold: relative abundance ≥ {{ '%.0e' % meta.presence_threshold }}. HDI table: {{ meta.hdi_source }}. Full tables: one CSV per card (linked under each figure); card metadata: <a href="../data/atlas/observations.json">observations.json</a>.</div>
 {% if cards %}
 <ol class="toc">{% for c in cards %}<li><a href="#{{ c.id }}">{{ c.title }}</a></li>{% endfor %}</ol>

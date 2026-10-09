@@ -3,7 +3,8 @@
 {% block desc %}{{ n }} curated collections of catalog studies and samples — benchmark cohorts, populations, lifestyles, diseases, study designs and age bands — each opening in the sample explorer with its filters pre-entered.{% endblock %}
 {% block content %}
 <h1>Collections ({{ n }})</h1>
-<p class="lead">A collection is a named, curated set of catalog studies or samples with its filters pre-entered: the reference cohorts everyone re-analyses, landmark populations, disease reference sets, dense longitudinal designs, age bands. Every count below is computed at build time on the released sample table, so it equals what the <a href="../samples/index.html">sample explorer</a> shows when you open the collection. Membership rules live in <span class="mono">config/collections.yaml</span>; to propose a collection or a correction, <a href="../docs/COLLECTIONS.html">open a pull request</a>.</p>
+<p class="lead">A collection is a named, curated set of catalog studies or samples with its filters pre-entered: the reference cohorts everyone re-analyses, landmark populations, disease reference sets, dense longitudinal designs, age bands.</p>
+<details class="about-page"><summary>About this page</summary><p>Every count below is computed at build time on the released sample table, so it equals what the <a href="../samples/index.html">sample explorer</a> shows when you open the collection. Membership rules live in <span class="mono">config/collections.yaml</span>; to propose a collection or a correction, <a href="../docs/COLLECTIONS.html">open a pull request</a>.</p></details>
 {% for label, ds in groups %}
 <h2 id="kind-{{ ds[0].kind }}">{{ label }} <span class="small">({{ ds|length }})</span></h2>
 <div class="cards">

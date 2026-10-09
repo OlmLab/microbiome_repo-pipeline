@@ -2,7 +2,8 @@
 {% block title %}Changes by release — {{ site.title }}{% endblock %}
 {% block content %}
 <h1>Changes by release</h1>
-<p class="lead">What each release added to the current fact tables (<span class="mono">release_added</span> on catalog values, catalog studies and registry studies). Releases before the registry and catalog tiers show no rows here; their notes are on the <a href="../downloads/index.html#releases">Downloads &amp; releases</a> page.</p>
+<p class="lead">What each release added to the current fact tables (<span class="mono">release_added</span> on catalog values, catalog studies and registry studies).</p>
+<details class="about-page"><summary>About this page</summary><p>Releases before the registry and catalog tiers show no rows here; their notes are on the <a href="../downloads/index.html#releases">Downloads &amp; releases</a> page.</p></details>
 <table class="tbl small"><thead><tr><th>release</th><th>date</th><th>package</th><th class="num">values added</th><th class="num">samples</th><th class="num">catalog studies added</th><th class="num">registry studies added</th></tr></thead><tbody>
 {% for c in changes %}<tr{% if c.current %} class="final"{% endif %}><td><a class="mono" href="{{ c.href }}">{{ c.release_id }}</a></td><td>{{ c.release_date }}</td><td class="mono">{{ c.package_version }}</td><td class="num">{{ c.n_added|fmt }}</td><td class="num">{{ c.n_samples_added|fmt }}</td><td class="num">{{ c.n_studies_added|fmt }}</td><td class="num">{{ c.n_registry_added|fmt }}</td></tr>{% endfor %}
 </tbody></table>

@@ -15,15 +15,19 @@
 <p class="small">Something else wrong on a page? Use <b>Flag an issue</b> on that study page. Submitted contributions: <a href="https://github.com/{{ cs.repo }}/issues?q=label%3Acontribution">open issues</a>.</p>
 
 <h2>Projects that need metadata</h2>
-<input id="q" class="searchbox" type="search" placeholder="Filter by accession, title or author">
+<div class="wl-filters"><input id="q" class="searchbox" type="search" placeholder="Filter by accession, title or author">
+<label title="A paper is linked, but its supplementary tables were not open to us (paywalled, publisher site only, or download failed) — the best odds for a quick contribution"><input type="checkbox" id="f-supp"> supplementary tables not accessible to us <span class="muted">({{ rows|selectattr('papers')|rejectattr('supp', 'equalto', 'used')|rejectattr('supp', 'equalto', 'checked')|list|length|fmt }})</span></label>
+<label title="A paper is linked but no open full text was available"><input type="checkbox" id="f-ft"> no open full text <span class="muted">({{ rows|selectattr('papers')|selectattr('ft', 'equalto', 'none')|list|length|fmt }})</span></label></div>
 <table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th></th></tr></thead><tbody>
-{% for r in rows %}<tr class="wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ (r.cohort or ''))|lower }}"><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span></td><td class="num">{{ r.n|fmt }}</td>
-<td>{% for f in r.missing %}<span class="tag">{{ field_labels.get(f, f) }}</span> {% endfor %}</td><td><a class="btn" href="{{ r.issue_url }}">Share metadata</a></td></tr>
+{% for r in rows %}<tr class="wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ (r.cohort or ''))|lower }}" data-supp="{{ 1 if (r.papers and r.supp not in ('used', 'checked')) else 0 }}" data-ft="{{ 1 if (r.papers and r.ft == 'none') else 0 }}"><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span></td><td class="num">{{ r.n|fmt }}</td>
+<td>{% for f in r.missing %}<span class="tag">{{ field_labels.get(f, f) }}</span> {% endfor %}{% if r.papers and r.supp not in ('used', 'checked') %}<span class="tag warnchip" title="We could not open this paper's supplementary tables">supp. not accessible</span> {% endif %}{% if r.paper_url %}<a class="small" href="{{ r.paper_url }}">paper</a>{% endif %}</td><td><a class="btn" href="{{ r.issue_url }}">Share metadata</a></td></tr>
 {% endfor %}</tbody></table>
 {% endblock %}
 {% block scripts %}
 <script>
 (function(){ const q=document.getElementById('q'); const rows=[...document.querySelectorAll('tr.wl')];
-q.addEventListener('input',()=>{ const s=q.value.trim().toLowerCase(); for(const r of rows) r.style.display=(!s||r.dataset.k.includes(s))?'':'none'; }); })();
+const fs=document.getElementById('f-supp'), ff=document.getElementById('f-ft');
+const run=()=>{ const s=q.value.trim().toLowerCase(); for(const r of rows) r.style.display=((!s||r.dataset.k.includes(s)) && (!fs.checked||r.dataset.supp==='1') && (!ff.checked||r.dataset.ft==='1'))?'':'none'; };
+for (const el of [q,fs,ff]) el.addEventListener(el===q?'input':'change',run); })();
 </script>
 {% endblock %}

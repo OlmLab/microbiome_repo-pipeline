@@ -417,7 +417,7 @@ def build(a):
 
     # ---- determinations
     parts = [pd.DataFrame(rows_from_registry_biosamples(bio, rid, pv), columns=DET_COLS), load_any(a.r1), load_any(a.r1_extra), load_any(getattr(a, "r1_newfields", None)),
-             load_any(getattr(a, "r1_newfields_v2", None)), load_any(getattr(a, "r1_interventions", None)), load_any(getattr(a, "r1_infant", None)), load_any(a.r2_glob), load_any(a.r3_glob), load_any(a.r4_glob)]
+             load_any(getattr(a, "r1_newfields_v2", None)), load_any(getattr(a, "r1_interventions", None)), load_any(getattr(a, "r1_infant", None)), load_any(getattr(a, "deep_glob", None)), load_any(a.r2_glob), load_any(a.r3_glob), load_any(a.r4_glob)]
     det0 = pd.read_parquet(os.path.join(a.package, "sample_determinations.parquet"))
     det0 = det0[det0.study_accession.isin(infant_acc) & det0.field_name.isin(PACK_FIELDS + INFANT_ONLY)]
     if "release_retired" in det0.columns:
@@ -564,6 +564,14 @@ def build(a):
         w["n_runs"] = w["n_runs"].fillna(0).astype(int)
         gs["n_runs_total"] = gs.n_runs_total.fillna(0).astype(int)
     gs["n_samples_curated"] = gs.n_samples_curated.fillna(0).astype(int)
+    # per-project source checkmarks (R2026.18): archive / abstract / full text / supplement / external / contribution / expert
+    from catalog.scopes.study_sources import study_source_flags
+    gs = gs.join(study_source_flags(det_all, list(gs.index), os.path.dirname(os.path.abspath(a.studies)), infant_acc), how="left")
+    # model-written short titles / descriptions (R2026.18; data/inputs/gut/short_descriptions.parquet, labelled as machine-written on the site)
+    sd_p = os.path.join(os.path.dirname(os.path.abspath(a.studies)), "short_descriptions.parquet")
+    if os.path.exists(sd_p):
+        sd = pd.read_parquet(sd_p).drop_duplicates("study_accession").set_index("study_accession")
+        gs = gs.join(sd[[c for c in ("short_title", "short_description", "short_description_model", "short_description_sources") if c in sd.columns]], how="left")
     gs["release_added"], gs["release_retired"], gs["package_added"] = rid, None, pv
     gs = gs.reset_index()
 
@@ -616,6 +624,7 @@ def main(argv=None) -> int:
     ap.add_argument("--corrections", help="dq_corrections.parquet (retire / recode rows decided by the data-quality adjudication; R2026.13)"),
     ap.add_argument("--r1-newfields", help="R1 determinations of the 1.12.0 fields (collection_date, location_*, latitude/longitude, lifestyle) from catalog.scopes.newfields_r1"),
     ap.add_argument("--run-bases", help="NCBI SRA runinfo bases for runs without an ENA base_count (scripts/fill_run_bases.py)")
+    ap.add_argument("--deep-glob", help="deep per-sample annotation rows (R1 names/attributes, R2 supplements, R3 body tables; data/inputs/gut/deep/deep_determinations_shard_*.parquet, R2026.18)")
     ap.add_argument("--r1-infant", help="R1 BioSample-attribute determinations for infant-catalog samples (gut_r1_infant_determinations.parquet, R2026.17); the infant catalog still wins per field by precedence")
     ap.add_argument("--sample-exclusions", help="CSV of sample_key / biosample_accession removed from the catalog (host audit, R2026.17)")
     ap.add_argument("--r1-interventions", help="R1 per-sample intervention arms (gut_r1_intervention_determinations.parquet, R2026.15)")

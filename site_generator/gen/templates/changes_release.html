@@ -2,7 +2,8 @@
 {% block title %}What changed in {{ c.release_id }} — {{ site.title }}{% endblock %}
 {% block content %}
 <h1>What changed in {{ c.release_id }} <span class="small">(package {{ c.package_version }}, {{ c.release_date }})</span></h1>
-{% if c.nothing %}<p class="lead">No catalog value, catalog study or registry study carries <span class="mono">release_added = {{ c.release_id }}</span> — this release changed documents, machinery or tables outside the current fact tables. See the <a href="../downloads/index.html#rel-{{ c.release_id }}">release notes</a>.</p>{% else %}
+{% if c.nothing %}<p class="lead">No catalog value, catalog study or registry study carries <span class="mono">release_added = {{ c.release_id }}</span> — this release changed documents, machinery or tables outside the current fact tables.</p>
+<details class="about-page"><summary>About this page</summary><p>See the <a href="../downloads/index.html#rel-{{ c.release_id }}">release notes</a>.</p></details>{% else %}
 <div class="cards">
 <div class="card"><div class="num">{{ c.n_added|fmt }}</div><div class="lbl">sample × field values added ({{ c.n_samples_added|fmt }} samples, {{ c.n_studies_changed|fmt }} studies)</div></div>
 <div class="card"><div class="num">{{ c.n_studies_added|fmt }}</div><div class="lbl">catalog studies added</div></div>

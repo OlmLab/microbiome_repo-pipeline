@@ -2,7 +2,8 @@
 {% block title %}Downloads & releases — {{ site.title }}{% endblock %}
 {% block content %}
 <h1>Downloads &amp; releases</h1>
-<p class="lead">Data package <b>{{ site.version }}</b> (release {{ site.release_id }}, built {{ site.build_date }}). Start with <span class="mono">gut_studies.parquet</span> (one row per catalog study) and <span class="mono">gut_sample_metadata_wide.parquet</span> (one row per sample); the evidence behind every value is in <span class="mono">gut_sample_determinations.parquet</span>; the registry of all human shotgun metagenomes is <span class="mono">registry_studies.parquet</span>. Column definitions: <a href="../docs/DATA_DICTIONARY.html">data dictionary</a>.</p>
+<p class="lead">Data package <b>{{ site.version }}</b> (release {{ site.release_id }}, built {{ site.build_date }}).</p>
+<details class="about-page"><summary>About this page</summary><p>Start with <span class="mono">gut_studies.parquet</span> (one row per catalog study) and <span class="mono">gut_sample_metadata_wide.parquet</span> (one row per sample); the evidence behind every value is in <span class="mono">gut_sample_determinations.parquet</span>; the registry of all human shotgun metagenomes is <span class="mono">registry_studies.parquet</span>. Column definitions: <a href="../docs/DATA_DICTIONARY.html">data dictionary</a>.</p></details>
 {% if zip_name %}<div class="btns"><a class="btn" href="{{ zip_href }}">Whole package: {{ zip_name }} ({{ zip_size }})</a> {% if site.data_release_url %}<a class="btn sec" href="{{ site.data_release_url }}">GitHub Release {{ site.release_tag }}</a>{% endif %}</div>{% endif %}
 {% for gid, glabel in groups %}
 <h2>{{ glabel }}</h2>

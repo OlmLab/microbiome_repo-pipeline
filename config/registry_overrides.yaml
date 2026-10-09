@@ -63,3 +63,16 @@ overrides:
     stage: curator_audit
     assay: isolate_genome
     note: 200 Lactobacillus strains cultured from human feces (microbe package, sample_type cell culture); not community metagenomes
+  - study_accession: PRJNA1433968
+    date: '2026-10-09'
+    stage: curator_audit
+    host_human: 'no'
+    host_evidence:
+    - source: BioSample host / organism
+      quote: mouse gut metagenome
+    note: 'R2026.18 paper verification: all 34 BioSamples are organism "mouse gut metagenome", host Mus; the linked paper is a mouse oocyte study'
+  - study_accession: PRJNA804967
+    date: '2026-10-09'
+    stage: curator_audit
+    assay: amplicon
+    note: 'R2026.18 paper verification: the linked paper (data-availability statement names this BioProject) describes 16S rRNA gene sequencing; ENA runs are library_strategy OTHER with library_selection PCR, ~150k read pairs and ~37.5 Mbp per run (BGISEQ-500) — amplicon data, not shotgun'
