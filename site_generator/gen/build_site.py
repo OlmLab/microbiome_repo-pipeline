@@ -238,7 +238,7 @@ def timeline_svg(people, width=640, row_h=11):
         ds = sorted(p['days'])
         out.append(f'<line x1="{sx(ds[0]):.1f}" x2="{sx(ds[-1]):.1f}" y1="{y:.1f}" y2="{y:.1f}" stroke="{col}" stroke-opacity="0.45" stroke-width="1.5"/>')
         for d in ds:
-            out.append(f'<circle cx="{sx(d):.1f}" cy="{y:.1f}" r="2.6" fill="{col}"><title>{html_escape(str(p["label"]))}{(" (" + p["role"] + ")") if p.get("role") else ""}: day {float(d):.0f}</title></circle>')
+            out.append(f'<circle cx="{sx(d):.1f}" cy="{y:.1f}" r="2.6" fill="{col}"><title>{html_escape(str(p["label"]))}{(" (" + str(p["role"]) + ")") if isinstance(p.get("role"), str) and p.get("role") else ""}: day {float(d):.0f}</title></circle>')
     yb = top + row_h * len(people) + 4
     for k in range(5):
         d = xmax * k / 4
@@ -1014,6 +1014,8 @@ def main():
                 ds_ = pd.to_numeric(y_.days_since_first_sample, errors='coerce').dropna().tolist()
                 if len(ds_) >= 2:
                     fam_, role_ = fam_of.get(pk_, (None, None))
+                    fam_ = fam_ if isinstance(fam_, str) and fam_ else None
+                    role_ = role_ if isinstance(role_, str) and role_ else None
                     people.append(dict(label=(y_.subject_id.dropna().astype(str).iloc[0] if y_.subject_id.notna().any() else pk_), days=ds_, family=fam_, role=role_, n=len(ds_)))
             people.sort(key=lambda p_: (str(p_['family'] or 'zzzz' + p_['label']), -p_['n']))
             if len(people) > 36:
@@ -1737,6 +1739,7 @@ def main():
                    ('Medication', ['medication', 'medication_detail'], 'host'), ('Intervention / arm', ['intervention', 'intervention_detail'], 'host'),
                    ('Diet', ['diet', 'diet_detail'], 'host'), ('Lifestyle', ['lifestyle', 'lifestyle_detail'], 'host'), ('Smoking', ['smoking_status'], 'host'),
                    ('Stool consistency', ['stool_consistency_bristol'], 'host'), ('Timepoint', ['timepoint_label'], 'design'),
+                   ('Family membership', ['family_role', 'family_id'], 'design'), ('Shared setting', ['shared_setting_type', 'shared_setting_id'], 'design'),
                    ('Prematurity', ['preterm_status', 'gestational_age_weeks'], 'infant'), ('Birth weight', ['birth_weight_grams'], 'infant'),
                    ('Delivery mode', ['delivery_mode'], 'infant'), ('Feeding', ['feeding_mode', 'hmo_supplementation'], 'infant'),
                    ('Probiotics', ['probiotic_exposure'], 'infant'), ('Maternal antibiotics', ['maternal_antibiotics'], 'infant'), ('NEC', ['nec_status'], 'infant'),

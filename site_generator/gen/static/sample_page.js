@@ -43,6 +43,8 @@
   function fmtVal(f, v) {
     if (f === 'age_at_collection_days' && v !== '' && !isNaN(+v)) { const d = +v; return Math.round(d) + ' days' + (d >= 730 ? ' (' + (d / 365.25).toFixed(1) + ' y)' : d >= 60 ? ' (' + (d / 30.44).toFixed(1) + ' mo)' : ''); }
     if (f === 'bmi' && v !== '' && !isNaN(+v)) return (+v).toFixed(1);
+    if (f === 'subject_n_samples' && v !== '' && !isNaN(+v)) return String(Math.round(+v));
+    if (f === 'days_since_first_sample' && v !== '' && !isNaN(+v)) return Math.round(+v) + ' days';
     return v;
   }
   async function main() {
