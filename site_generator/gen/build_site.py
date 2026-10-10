@@ -1782,7 +1782,7 @@ def main():
             segs = [dict(source=s_, label=_SRC_LABELS.get(s_, s_), color=VS_COLOR[s_], n=int(row.get(s_, 0)), pct=round(100 * row.get(s_, 0) / tot, 1)) for s_ in VS_ORDER if row.get(s_, 0) > 0]
             vs_fields.append(dict(field=c, cols=fl, tier=tier, total=tot, n_samples=int(nsamp.get(c, 0)), cov=int(nsamp.get(c, 0)) / len(cw) if len(cw) else 0, segs=segs))
     _col = lambda c_: cs[c_] if c_ in cs.columns else pd.Series([None] * len(cs), index=cs.index)
-    _gen = int(((cd.field_name == 'subject_id') & (cd.determined_by.astype(str) == 'gut_subject_unique_v1')).sum())
+    _gen = int(((cd.field_name == 'subject_id') & cd.determined_by.astype(str).isin(['gut_subject_unique_v1', 'gut_subject_single_v1', 'gut_subject_single_case_v1'])).sum())
     dz_stats = dict(n_long=int(_col('longitudinal_status').eq('longitudinal').sum()), n_rep_unres=int(_col('longitudinal_status').eq('repeated_unresolved').sum()),
                     n_cross=int(_col('longitudinal_status').eq('cross_sectional').sum()), n_people_rep=int(pd.to_numeric(_col('n_subjects_repeated'), errors='coerce').fillna(0).sum()),
                     n_samples_rep=int(pd.to_numeric(_col('n_samples_repeated'), errors='coerce').fillna(0).sum()),

@@ -39,6 +39,9 @@ TP_RE = [
     (re.compile(r"(\d+(?:\.\d+)?)\s*[-_ ]?\s*(?:years?|yrs?|y)(?:$|[^a-z])", re.I), "y"),
 ]
 ZERO_RE = re.compile(r"^\s*(baseline|birth|at birth|delivery|meconium|day of birth|t0|v0|visit 0)\s*$", re.I)
+# relatedness_designs vocabulary: study-design terms; shared-setting types map onto them (R2026.23)
+DESIGN_ALIAS = {"household": "households", "village_or_community": "community", "ethnic_group_or_tribe": "tribe", "daycare_or_school": "daycare_school",
+                "sports_team": "team", "military_unit": "military", "family": "families"}
 PARENT_ROLES = {"mother", "father", "parent", "partner", "grandparent"}
 CHILD_ROLES = {"child", "twin", "sibling"}
 
@@ -93,22 +96,22 @@ def sample_longitudinal(w: pd.DataFrame, generated_keys: set) -> pd.DataFrame:
     age = pd.to_numeric(w.get("age_at_collection_days"), errors="coerce")
     dts = w.get("collection_date").map(_full_date) if "collection_date" in w else pd.Series(None, index=w.index)
     tps = w.get("timepoint_label").map(parse_timepoint_days) if "timepoint_label" in w else pd.Series(None, index=w.index)
-    for k, idx in key[multi].groupby(key[multi]).groups.items():
-        idx = list(idx)
-        a = age.loc[idx]
-        if a.notna().all() and a.nunique() >= 2:
-            w.loc[idx, "days_since_first_sample"] = (a - a.min()).round(1).values
-            w.loc[idx, "time_axis"] = "age"
-            continue
-        d = dts.loc[idx]
-        if d.notna().all() and d.nunique() >= 2:
-            w.loc[idx, "days_since_first_sample"] = [(x - d.min()).days for x in d]
-            w.loc[idx, "time_axis"] = "date"
-            continue
-        t = pd.to_numeric(tps.loc[idx], errors="coerce")
-        if t.notna().all() and t.nunique() >= 2:
-            w.loc[idx, "days_since_first_sample"] = (t - t.min()).round(1).values
-            w.loc[idx, "time_axis"] = "timepoint"
+    # per subject (vectorised, R2026.23): first axis whose values are complete and vary within the subject — age, then full
+    # collection date, then a parsed timepoint label
+    km = key[multi]
+    days = pd.Series(np.nan, index=km.index)
+    axis = pd.Series(None, index=km.index, dtype=object)
+    dd = pd.to_datetime(pd.Series(dts, index=w.index).loc[km.index], errors="coerce")
+    cands = [("age", age.loc[km.index].astype(float)),
+             ("date", (dd - pd.Timestamp("1900-01-01")).dt.days.astype(float)),
+             ("timepoint", pd.to_numeric(pd.Series(tps, index=w.index).loc[km.index], errors="coerce").astype(float))]
+    for name, v in cands:
+        g = v.groupby(km)
+        ok = v.notna().groupby(km).transform("all") & (g.transform("nunique") >= 2) & axis.isna()
+        days[ok] = (v[ok] - g.transform("min")[ok]).round(1)
+        axis[ok] = name
+    w.loc[km.index, "days_since_first_sample"] = days.values
+    w.loc[km.index, "time_axis"] = axis.values
     fam = w.get("family_id").astype("string") if "family_id" in w else pd.Series(pd.NA, index=w.index, dtype="string")
     role = w.get("family_role").astype("string") if "family_role" in w else pd.Series(pd.NA, index=w.index, dtype="string")
     pk = sub.copy()
@@ -217,6 +220,7 @@ def relatedness(w: pd.DataFrame, design: pd.DataFrame | None = None, relations: 
         kinds |= set(sett.group_type)
         if len(rr):
             kinds |= {"fmt_donor_recipient"} if rr.relation.eq("donor_of").any() else set()
+        kinds = {DESIGN_ALIAS.get(k.strip(), k.strip()) for k in kinds if k.strip()}
         rows.append(dict(study_accession=acc, n_families=int(len(fam)), n_related_people=int(fam.n_people.sum()) if len(fam) else 0, n_mother_child_families=mc, n_twin_sets=tw,
                          n_shared_settings=int(len(sett)), family_motifs=json.dumps(fam.motif.value_counts().to_dict()) if len(fam) else None,
                          shared_setting_types=";".join(sorted(set(sett.group_type))) or None, relatedness_designs=";".join(sorted(kinds)) or None,

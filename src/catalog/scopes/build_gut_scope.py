@@ -19,6 +19,7 @@ import json
 import os
 import sys
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -30,6 +31,8 @@ DET_COLS = ["sample_key", "field_name", "study_accession", "field_value", "value
 PACK_FIELDS: list = []  # filled after pack_fields() is defined (see _default_pack_fields)
 INFANT_ONLY = ["delivery_mode", "feeding_mode", "preterm_status", "gestational_age_weeks", "birth_weight_grams", "maternal_antibiotics", "probiotic_exposure", "hmo_supplementation", "nec_status"]
 ROUTE_RANK = {"R1": 1, "R2": 2, "R3": 3, "R4": 4}
+# rules that mint a subject_id (see docs/DEEP_ANNOTATION_BRIEF.md SUBJECT RULE); unique_v1 = one sample per subject
+GENERATED_SUBJECT_RULES = {"gut_subject_unique_v1", "gut_subject_single_v1", "gut_subject_single_case_v1"}
 SRC = "gut_all_v1"
 STAGE_TO_CAT = {"neonate": "neonate", "infant": "infant", "child": "child", "adolescent": "adolescent", "adult": "adult", "elderly": "elderly"}
 
@@ -298,13 +301,31 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
     c["old_value"] = c.old_value.fillna("").astype(str)
     dv = det.value_normalized.astype("string").fillna("").astype(str)
     drop = pd.Series(False, index=det.index)
-    for r in c.itertuples(index=False):
-        m = (det.field_name == r.field_name) & (det.study_accession == r.study_accession)
-        if r.sample_key:
-            m &= det.sample_key.astype(str) == r.sample_key
-        if r.old_value:
-            m &= dv == r.old_value
-        drop |= m
+    # per-sample rows without an old_value: one vectorised key match (R2026.23: thousands of subject_id fixes)
+    fast = (c.sample_key != "") & (c.old_value == "")
+    if fast.any():
+        keys = set(zip(c.loc[fast, "study_accession"], c.loc[fast, "field_name"], c.loc[fast, "sample_key"]))
+        flds = set(c.loc[fast, "field_name"])
+        cand = det.field_name.isin(flds)
+        dk = pd.Series(list(zip(det.study_accession[cand], det.field_name[cand], det.sample_key[cand].astype(str))), index=det.index[cand])
+        drop.loc[dk.index[dk.map(lambda t: t in keys).astype(bool).values]] = True
+    slow = c[~fast]
+    if len(slow):
+        # remaining rows (whole-study or value-specific): only look at the det rows of the same (study, field)
+        sub = det[det.field_name.isin(set(slow.field_name)) & det.study_accession.isin(set(slow.study_accession))]
+        grp = sub.groupby([sub.study_accession.astype(str), sub.field_name.astype(str)]).indices
+        sk = sub.sample_key.astype(str).values
+        sv = dv.loc[sub.index].values
+        for r in slow.itertuples(index=False):
+            ix = grp.get((str(r.study_accession), str(r.field_name)))
+            if ix is None:
+                continue
+            m = np.ones(len(ix), dtype=bool)
+            if r.sample_key:
+                m &= sk[ix] == r.sample_key
+            if r.old_value:
+                m &= sv[ix] == r.old_value
+            drop.loc[sub.index[ix[m]]] = True
     n_dropped = int(drop.sum())
     out = det[~drop]
     rec = c[(c.action == "recode") & c.new_value.notna() & (c.new_value.astype(str) != "")]
@@ -479,7 +500,10 @@ def build(a):
     # routes allowed per field (config/packs/gut.yaml fields.<f>.routes); infant-catalog rows are exempt (their own rules applied)
     allowed = {f: set(v.get("routes", ["R1", "R2", "R3", "R4"])) for f, v in pack["fields"].items()}
     ok_route = [(r in allowed.get(f, {"R1", "R2", "R3", "R4"})) or (t == "infant_catalog") for f, r, t in zip(det.field_name, det.route, det.src_track)]
-    det = det[pd.Series(ok_route, index=det.index)]
+    # generated subject ids (R2026.23): the per-sample id is minted by rule from a design statement in the text (one sample per
+    # subject, or a single-subject case study), so their evidence route is R3/R4 although the field is otherwise R1/R2-only
+    gen_subj = (det.field_name == "subject_id") & det.determined_by.astype(str).isin(GENERATED_SUBJECT_RULES)
+    det = det[pd.Series(ok_route, index=det.index) | gen_subj]
     # data-quality corrections (dq_corrections.parquet from the adjudication leaf; R2026.13): action retire = drop the matching rows
     # (sample_key or whole study × field × old_value), recode = drop them and add a row with the new value and the adjudication evidence
     iv_study = load_intervention_studies(getattr(a, "interventions_study", None))
@@ -719,6 +743,9 @@ def build(a):
 
 
 def main(argv=None) -> int:
+    if os.environ.get("CATALOG_TRACE_EVERY"):   # debugging aid: periodic stack dumps of a slow build
+        import faulthandler
+        faulthandler.dump_traceback_later(int(os.environ["CATALOG_TRACE_EVERY"]), repeat=True, file=open(os.environ.get("CATALOG_TRACE_FILE", "/tmp/gut_trace.txt"), "w"))
     ap = argparse.ArgumentParser()
     ap.add_argument("--studies", required=True, help="gut study list (registry columns + in_infant_catalog)")
     ap.add_argument("--registry-studies"), ap.add_argument("--biosamples", required=True), ap.add_argument("--package", required=True, help="previous package dir (infant curated tables)")

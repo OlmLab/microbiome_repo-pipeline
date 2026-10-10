@@ -1716,6 +1716,26 @@
      "name": "package_added",
      "type": "string",
      "description": "Package version"
+    },
+    {
+     "name": "subject_n_samples",
+     "type": "int",
+     "description": "gut samples of this sample's person in the project (1 for generated ids)"
+    },
+    {
+     "name": "days_since_first_sample",
+     "type": "float",
+     "description": "days since the person's first sample (age, else full collection date, else parsed timepoint)"
+    },
+    {
+     "name": "time_axis",
+     "type": "string",
+     "description": "age | date | timepoint"
+    },
+    {
+     "name": "person_key",
+     "type": "string",
+     "description": "person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key>"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope"
@@ -1881,6 +1901,126 @@
      "name": "study_group_n_samples",
      "type": "int64",
      "description": "catalog samples summed over the group"
+    },
+    {
+     "name": "n_subjects",
+     "type": "int",
+     "description": "distinct people with a gut sample: real subject ids + generated one-sample-per-subject ids (R2026.23)"
+    },
+    {
+     "name": "n_subjects_repeated",
+     "type": "int",
+     "description": "people with >= 2 gut samples"
+    },
+    {
+     "name": "n_samples_repeated",
+     "type": "int",
+     "description": "gut samples belonging to those people"
+    },
+    {
+     "name": "samples_per_subject_median",
+     "type": "float",
+     "description": "median samples per repeatedly sampled person"
+    },
+    {
+     "name": "samples_per_subject_max",
+     "type": "int",
+     "description": "maximum samples per person"
+    },
+    {
+     "name": "followup_days_median",
+     "type": "float",
+     "description": "median per-person span (days) between first and last sample, from days_since_first_sample"
+    },
+    {
+     "name": "followup_days_max",
+     "type": "float",
+     "description": "maximum per-person span (days)"
+    },
+    {
+     "name": "interval_days_median",
+     "type": "float",
+     "description": "median gap (days) between consecutive samples of a person"
+    },
+    {
+     "name": "time_axis",
+     "type": "string",
+     "description": "axis the spans are measured on: age | date | timepoint"
+    },
+    {
+     "name": "longitudinal_status",
+     "type": "string",
+     "description": "longitudinal (>= 2 people sampled repeatedly, or 1 + stated design) | repeated_unresolved (design states repeated sampling, ids not resolvable) | cross_sectional | unknown"
+    },
+    {
+     "name": "n_families",
+     "type": "int",
+     "description": "families with >= 2 catalogued people (gut_relatedness)"
+    },
+    {
+     "name": "n_related_people",
+     "type": "int",
+     "description": "people in those families"
+    },
+    {
+     "name": "n_mother_child_families",
+     "type": "int",
+     "description": "families with a parent and a child/twin"
+    },
+    {
+     "name": "n_twin_sets",
+     "type": "int",
+     "description": "twin families + twin relations"
+    },
+    {
+     "name": "n_shared_settings",
+     "type": "int",
+     "description": "shared settings (household, village, daycare, ward, ...) with >= 2 people"
+    },
+    {
+     "name": "family_motifs",
+     "type": "string",
+     "description": "JSON {motif: n_families}, motif e.g. \"mother + father + child\""
+    },
+    {
+     "name": "shared_setting_types",
+     "type": "string",
+     "description": "';'-joined setting types"
+    },
+    {
+     "name": "relatedness_designs",
+     "type": "string",
+     "description": "';'-joined relatedness designs (mother_infant, father_child, parent_child, twins, siblings, partners, families, households, community, tribe, daycare_school, care_home, hospital_ward, workplace, military, team, fmt_donor_recipient)"
+    },
+    {
+     "name": "relatedness_summary",
+     "type": "string",
+     "description": "one-sentence summary of the related / co-located people (study-design pass, R2026.23)"
+    },
+    {
+     "name": "longitudinal_design",
+     "type": "string",
+     "description": "stated design: yes | no | unclear (study-design pass)"
+    },
+    {
+     "name": "sampling_schedule",
+     "type": "string",
+     "description": "stated sampling schedule"
+    },
+    {
+     "name": "planned_offsets_days",
+     "type": "string",
+     "description": "';'-joined planned sampling offsets in days"
+    },
+    {
+     "name": "time_origin",
+     "type": "string",
+     "description": "origin of the schedule (birth, enrolment, intervention start, ...)"
+    },
+    {
+     "name": "followup_days_stated",
+     "type": "float",
+     "description": "follow-up length stated by the authors (days)"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope",
@@ -2492,6 +2632,125 @@
      "name": "zenodo_record",
      "type": "int64",
      "description": "Zenodo record of the bulk snapshot (20419175)"
+    }
+   ]
+  },
+  "gut_relatedness.parquet": {
+   "key": [
+    "study_accession",
+    "group_kind",
+    "group_type",
+    "group_id"
+   ],
+   "one_row_per": "family or shared setting with >= 2 catalogued people — added R2026.23 / 1.19.0",
+   "bitemporal": "none: derived from gut_sample_metadata_wide each release (catalog.scopes.longitudinal.relatedness)",
+   "columns": [
+    {
+     "name": "study_accession",
+     "type": "str",
+     "description": "catalog project"
+    },
+    {
+     "name": "group_kind",
+     "type": "str",
+     "description": "family | shared_setting"
+    },
+    {
+     "name": "group_type",
+     "type": "str",
+     "description": "family, or the shared setting type"
+    },
+    {
+     "name": "group_id",
+     "type": "str",
+     "description": "family_id / shared_setting_id as given in the source"
+    },
+    {
+     "name": "n_people",
+     "type": "int64",
+     "description": "distinct people (person_key)"
+    },
+    {
+     "name": "n_samples",
+     "type": "int64",
+     "description": "catalog samples"
+    },
+    {
+     "name": "roles",
+     "type": "str",
+     "description": "JSON {family_role: n_people}"
+    },
+    {
+     "name": "motif",
+     "type": "str",
+     "description": "family motif, e.g. mother + child×2"
+    },
+    {
+     "name": "people",
+     "type": "str",
+     "description": "';'-joined person keys"
+    },
+    {
+     "name": "sample_keys",
+     "type": "str",
+     "description": "';'-joined sample keys"
+    }
+   ]
+  },
+  "gut_relations.parquet": {
+   "key": [
+    "study_accession",
+    "subject_a",
+    "subject_b",
+    "relation"
+   ],
+   "one_row_per": "explicit pairwise relation stated by the authors — added R2026.23 / 1.19.0",
+   "bitemporal": "none: input table data/inputs/gut/design/relations_shard_*.parquet, rebuilt each release",
+   "columns": [
+    {
+     "name": "study_accession",
+     "type": "str",
+     "description": "catalog project"
+    },
+    {
+     "name": "subject_a",
+     "type": "str",
+     "description": "person (subject id or label)"
+    },
+    {
+     "name": "subject_b",
+     "type": "str",
+     "description": "related person"
+    },
+    {
+     "name": "relation",
+     "type": "str",
+     "description": "donor_of | twin_of | twin_mz_of | twin_dz_of | partner_of | roommate_of | mother_of | father_of | sibling_of | household_member_of | ..."
+    },
+    {
+     "name": "evidence_source",
+     "type": "str",
+     "description": "where the relation is stated"
+    },
+    {
+     "name": "evidence_quote",
+     "type": "str",
+     "description": "verbatim quote"
+    },
+    {
+     "name": "confidence",
+     "type": "float64",
+     "description": "0-1"
+    },
+    {
+     "name": "sample_key_a",
+     "type": "str",
+     "description": "a sample of subject_a when known"
+    },
+    {
+     "name": "notes",
+     "type": "str",
+     "description": "free text"
     }
    ]
   }

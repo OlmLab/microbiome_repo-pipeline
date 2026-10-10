@@ -240,6 +240,14 @@ releases:
     data_tag: data-v1.18.2
     site_tag: site-v1.18.2
     label: "owner audit of empty projects: catalog projects without any catalog sample are dropped (umbrella children whose BioSamples sit under the parent, PRJEB39960 mouse recipients of human FMT, projects without harvestable runs); study groups link BioProjects that are deposits of one study (55 groups reviewed by two model replicates; project-page banner and 'show together' sheet filter)"
+  - release_id: R2026.23
+    package_version: '1.19.0'
+    previous_package_version: '1.18.2'
+    previous_release_id: R2026.22
+    notes_file: RELEASE_NOTES_R2026.23.md
+    data_tag: data-v1.19.0
+    site_tag: site-v1.19.0
+    label: "subject ids and study design: catalog-wide subject_id pass (recovered ids + generated ids for one-sample-per-subject designs; 3,575 samples under merged ids re-identified), longitudinal columns per sample and project, family / shared-setting relatedness fields with a relatedness table, minimal sample pages, fact-level 'Where values come from'"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
