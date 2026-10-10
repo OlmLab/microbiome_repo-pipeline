@@ -199,7 +199,7 @@ async function showDetail(key) {
   const rows = r.toArray(); if (!rows.length) { body.innerHTML = `<p>No sample <b>${h(key)}</b>.</p>`; return; }
   const s = rows[0].toJSON();
   const p = new URLSearchParams(location.search); p.set('sample', key); history.replaceState(null, '', location.pathname + '?' + p.toString() + location.hash);
-  let html = `<h2 style="margin-top:0">${h(key)}</h2><p>${studyLink(s)} · ${h(s.study_title)}</p>
+  let html = `<h2 style="margin-top:0">${h(key)}</h2><p>${studyLink(s)} · ${h(s.study_title)} · <a href="sample.html?id=${encodeURIComponent(key)}">sample page</a></p>
   <p class="small">${archiveLink(s.biosample_accession || key, 'archive record ' + (s.biosample_accession || key))}${/^[SED]RR\d+$/.test(key) ? '' : ' · <a href="' + CFG.enaSampleUrl + h(s.biosample_accession || key) + '">ENA</a>'} · unit ${h(s.sample_unit)} · body site ${h(s.body_site_code)} (${h(s.body_site_class)}) · source ${h(s.curated_source)}${s.infant_scope ? ' · infant extension' : ''}</p>
   <h3>Age category</h3><p><b>${h(s.age_category)}</b> <span class="small">(basis: ${h(s.age_category_basis)})</span></p>
   <h3>Fields</h3><table class="tbl kv">`;

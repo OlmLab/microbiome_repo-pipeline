@@ -344,3 +344,14 @@ svg.spark rect{fill:var(--cu-gold)}svg.spark.depth rect.repo{fill:none;stroke:#7
 .vsdot{display:inline-block;width:.75em;height:.75em;border:1px solid #565A5C;vertical-align:-1px;margin-right:.2em}
 .spbar.thin{height:14px;margin:.1rem 0}
 .vsf tr.vsgroup td{background:#f5f5f3;padding-top:.5rem}
+
+/* R2026.23 sampling design + relatedness */
+.dz-badges{margin:.1rem 0 .4rem 0}
+.dzb{display:inline-block;font-size:.74rem;padding:.08rem .45rem;border-radius:999px;margin:0 .3rem .2rem 0;border:1px solid #ccc}
+.dzb.lg{background:#e8f0fa;border-color:#4477AA;color:#234}
+.dzb.lg2{background:#f4f4f4;border-color:#999}
+.dzb.rel{background:#faf3e3;border-color:#CFB87C;color:#5a4a1a}
+.tline-box{max-width:900px}
+.motifs{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin:.3rem 0}
+.motif-item{text-align:center}
+.tag.lgt{background:#e8f0fa;color:#234}.tag.rdt{background:#faf3e3;color:#5a4a1a}

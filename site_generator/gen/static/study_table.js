@@ -52,7 +52,7 @@
       const tipOf = (row, c, v) => { if (!v) return c.label; const rt = get(row, c.f + '__route'), cf = get(row, c.f + '__confidence');
         return c.label + ': ' + v + (rt ? ' · ' + rt + ' (' + (ROUTE[rt] || '') + ')' : '') + (cf ? ' · confidence ' + (+cf).toFixed(2) : ''); };
       const columns = [
-        { title: 'sample', render: (d, t) => t === 'display' ? '<a class="mono" href="../samples/index.html?sample=' + encodeURIComponent(d) + '">' + esc(d) + '</a>' : d },
+        { title: 'sample', render: (d, t) => t === 'display' ? '<a class="mono" href="../samples/sample.html?id=' + encodeURIComponent(d) + '">' + esc(d) + '</a>' : d },
         { title: 'archive', render: (d, t) => { if (t !== 'display') return d; const u = archiveUrl(d); return u ? '<a class="mono" href="' + u + '">' + esc(d) + '</a>' : esc(d); } }];
       cfg.cols.forEach((c, j) => columns.push(c.empty
         ? { title: '<span>' + esc(c.label) + '</span>', className: 'ecol', orderable: false, render: () => '' }

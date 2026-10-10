@@ -576,6 +576,20 @@ def build(a):
     w["release_added"], w["release_retired"], w["package_added"] = rid, None, pv
     w = w.reset_index()
 
+    # R2026.23: repeated sampling and relatedness (catalog.scopes.longitudinal) — per-sample timing / person columns, per-project
+    # summaries, and the relatedness / relations tables. Study-level design records come from the annotation shards.
+    from catalog.scopes.longitudinal import sample_longitudinal, study_longitudinal, relatedness
+    gut_dir_ = os.path.dirname(os.path.abspath(a.studies))
+    _rd = lambda pat: (pd.concat([pd.read_parquet(f_) for f_ in sorted(glob.glob(pat))], ignore_index=True) if glob.glob(pat) else pd.DataFrame(columns=["study_accession"]))
+    design = _rd(os.path.join(gut_dir_, "design", "study_design_shard_*.parquet"))
+    relations = _rd(os.path.join(gut_dir_, "design", "relations_shard_*.parquet"))
+    if len(design):
+        design = design.drop_duplicates("study_accession", keep="last")
+    gen_keys = set(det_all.loc[(det_all.field_name == "subject_id") & (det_all.determined_by.astype(str) == "gut_subject_unique_v1"), "sample_key"])
+    w = sample_longitudinal(w, gen_keys)
+    long_study = study_longitudinal(w, gen_keys, design if len(design) else None)
+    rel_groups, rel_study = relatedness(w, design if len(design) else None, relations if len(relations) else None)
+
     # ---- studies
     g = w.groupby("study_accession")
     cov = pd.DataFrame({f"cov_{f}": g[f].apply(lambda s: round(float(s.notna().mean()), 3)) for f in PACK_FIELDS})
@@ -603,6 +617,12 @@ def build(a):
         empty_log = []
     gs = studies.set_index("study_accession").join(cov, how="left")
     gs["n_samples_curated"] = g.size()
+    gs = gs.join(long_study, how="left").join(rel_study, how="left")
+    for c_ in ["n_families", "n_related_people", "n_mother_child_families", "n_twin_sets", "n_shared_settings"]:
+        gs[c_] = gs[c_].fillna(0).astype(int)
+    if len(design):
+        dcols = [c_ for c_ in ["longitudinal_design", "sampling_schedule", "planned_offsets_days", "time_origin", "followup_days_stated"] if c_ in design.columns]
+        gs = gs.join(design.set_index("study_accession")[dcols], how="left")
     # R2026.22: study groups — one study deposited as several BioProjects (config/study_groups.csv: group_id, study_accession,
     # basis, evidence, confidence). Members are kept as separate projects (accession-keyed); the group columns link them.
     gs["study_group_id"], gs["study_group_basis"], gs["study_group_members"], gs["study_group_n_samples"] = None, None, None, pd.NA
@@ -679,6 +699,8 @@ def build(a):
     det_all.to_parquet(os.path.join(a.out, pack["tables"]["determinations"]), index=False)
     w.to_parquet(os.path.join(a.out, pack["tables"]["samples_wide"]), index=False)
     gs.to_parquet(os.path.join(a.out, pack["tables"]["studies"]), index=False)
+    rel_groups[rel_groups.study_accession.isin(set(gs.study_accession))].to_parquet(os.path.join(a.out, "gut_relatedness.parquet"), index=False)
+    (relations[relations.study_accession.isin(set(gs.study_accession))] if len(relations) else pd.DataFrame(columns=["study_accession", "subject_a", "subject_b", "relation", "evidence_source", "evidence_quote", "confidence"])).to_parquet(os.path.join(a.out, "gut_relations.parquet"), index=False)
     conflicts.to_parquet(os.path.join(a.out, "gut_sample_determinations_conflicts.parquet"), index=False)
     summary = dict(n_studies=int(len(gs)), n_samples=int(len(w)), n_determinations=int(len(det_all)), n_conflicts=int(len(conflicts)), corrections=n_corr,
                    by_source=w.curated_source.value_counts().to_dict(), age_category=w.age_category.value_counts().to_dict(),

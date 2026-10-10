@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block bodyclass %}wide{% endblock %}
+{% block title %}Sample — {{ site.title }}{% endblock %}
+{% block desc %}One catalog sample: every metadata value with its source and quoted evidence, other samples of the same person and of related people.{% endblock %}
+{% block content %}
+<div class="pg">
+<header class="pg-head" id="sp-head"><h1 class="pg-title">Sample</h1></header>
+<p id="sp-status" class="small muted">Loading…</p>
+<section class="pg-sec"><div class="pg-label">Metadata</div><div id="sp-fields"></div></section>
+<section class="pg-sec"><div id="sp-related"></div></section>
+<form class="small" action="sample.html" method="get"><label>Another sample, BioSample or run accession <input name="id" class="searchbox" placeholder="e.g. {{ example }}"></label> <button class="btn sec" type="submit">Open</button></form>
+</div>
+{% endblock %}
+{% block scripts %}<script>window.SAMPLE_PAGE = {root: '{{ root }}', example: '{{ example }}', siteTitle: {{ site.title|tojson }}, labels: {{ labels_json|safe }}};</script>
+<script src="{{ root }}static/sample_page.js" defer></script>{% endblock %}

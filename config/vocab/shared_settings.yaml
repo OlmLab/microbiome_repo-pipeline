@@ -1,0 +1,18 @@
+schema_version: 1
+vocabulary: shared_setting_type
+note: |
+  A setting the sampled person shares with other sampled people of the project, as stated by the source (shared_setting_id =
+  the source's own name / code of the unit, e.g. household 'H12', village 'Mbomo', daycare 'D3'). Only units below the project
+  level count: a whole-study cohort or a city of recruitment is not a shared setting. R2026.23 (owner request).
+codes:
+  household: {label: Household, match_terms: [household, home, house, family home, cohabiting]}
+  village_or_community: {label: Village / community, match_terms: [village, community, settlement, camp, colony]}
+  ethnic_group_or_tribe: {label: Ethnic group / tribe, match_terms: [tribe, tribal, ethnic group, clan]}
+  daycare_or_school: {label: Daycare / school, match_terms: [daycare, day care, nursery, kindergarten, preschool, school, classroom]}
+  care_home: {label: Nursing / care home, match_terms: [nursing home, care home, long-term care, residential care]}
+  hospital_ward: {label: Hospital ward / NICU, match_terms: [ward, NICU, neonatal unit, intensive care unit, room]}
+  military_unit: {label: Military unit, match_terms: [military, barracks, unit, platoon]}
+  sports_team: {label: Sports team, match_terms: [team, squad, club]}
+  workplace: {label: Workplace / expedition, match_terms: [workplace, station, crew, expedition]}
+  institution_other: {label: Other institution, match_terms: [prison, monastery, dormitory, orphanage]}
+  unknown: {label: Unknown, match_terms: []}

@@ -199,6 +199,82 @@ def depth_bin_counts(gb):
     return pd.cut(gb, DEPTH_EDGES, right=False).value_counts(sort=False).astype(int).tolist()
 
 
+def html_escape(x):
+    return str(x).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+
+
+ROLE_COLOR = {'mother': '#CFB87C', 'father': '#228833', 'parent': '#88AA55', 'partner': '#88AA55', 'grandparent': '#997700', 'child': '#4477AA', 'twin': '#AA3377',
+              'sibling': '#66CCEE', 'other_relative': '#8C8F91', 'household_member': '#BBBBBB'}
+ROLE_ABBR = {'mother': 'M', 'father': 'F', 'parent': 'P', 'partner': 'Pt', 'grandparent': 'G', 'child': 'C', 'twin': 'T', 'sibling': 'S', 'other_relative': 'R', 'household_member': 'H', 'unknown': '?'}
+
+
+def _days_label(d):
+    d = float(d)
+    if d >= 730:
+        return f"{d / 365.25:.1f} y"
+    if d >= 60:
+        return f"{d / 30.4375:.0f} mo"
+    return f"{d:.0f} d"
+
+
+def timeline_svg(people, width=640, row_h=11):
+    """R2026.23 swimlane: one row per person (list of dicts {label, role, days: [..]}), dots at days since the person's first
+    sample; rows of one family are adjacent; dot colour = family role."""
+    if not people:
+        return ''
+    xmax = max(max(p['days']) for p in people) or 1.0
+    left, right, top = 92, 12, 6
+    h = top + row_h * len(people) + 22
+    sx = lambda d: left + (width - left - right) * (float(d) / xmax)
+    out = [f'<svg class="tline" viewBox="0 0 {width} {h}" width="100%" role="img" aria-label="Sampling timeline of {len(people)} people">']
+    prev_fam = None
+    for i, p in enumerate(people):
+        y = top + row_h * i + row_h / 2
+        if p.get('family') and p['family'] != prev_fam and i:
+            out.append(f'<line x1="2" x2="{width - 2}" y1="{y - row_h / 2:.1f}" y2="{y - row_h / 2:.1f}" stroke="#e5e5e5" stroke-width="0.6"/>')
+        prev_fam = p.get('family')
+        col = ROLE_COLOR.get(p.get('role') or '', '#565A5C')
+        out.append(f'<text x="{left - 6}" y="{y + 3:.1f}" text-anchor="end" font-size="8" fill="#565A5C">{html_escape(str(p["label"])[:16])}</text>')
+        ds = sorted(p['days'])
+        out.append(f'<line x1="{sx(ds[0]):.1f}" x2="{sx(ds[-1]):.1f}" y1="{y:.1f}" y2="{y:.1f}" stroke="{col}" stroke-opacity="0.45" stroke-width="1.5"/>')
+        for d in ds:
+            out.append(f'<circle cx="{sx(d):.1f}" cy="{y:.1f}" r="2.6" fill="{col}"><title>{html_escape(str(p["label"]))}{(" (" + p["role"] + ")") if p.get("role") else ""}: day {float(d):.0f}</title></circle>')
+    yb = top + row_h * len(people) + 4
+    for k in range(5):
+        d = xmax * k / 4
+        out.append(f'<text x="{sx(d):.1f}" y="{yb + 10}" text-anchor="middle" font-size="8" fill="#565A5C">{_days_label(d)}</text>')
+    out.append('</svg>')
+    return ''.join(out)
+
+
+def motif_svg(motif, width=None):
+    """Family structure glyph: parents on top, children below, lines parent -> child (partners joined)."""
+    parts = [x.strip() for x in str(motif).split('+') if x.strip()]
+    roles = []
+    for p_ in parts:
+        r_, _, n_ = p_.partition('×')
+        roles += [r_] * (int(n_) if n_.isdigit() else 1)
+    top = [r for r in roles if r in ('mother', 'father', 'parent', 'partner', 'grandparent')]
+    bot = [r for r in roles if r not in top]
+    n = max(len(top), len(bot), 1)
+    W = width or (24 * n + 8)
+    pos = lambda k, m, y: (W / 2 + (k - (m - 1) / 2) * 22, y)
+    out = [f'<svg class="motif" viewBox="0 0 {W} 44" width="{W}" height="44" role="img" aria-label="{html_escape(motif)}">']
+    tp = [pos(k, len(top), 11) for k in range(len(top))]
+    bp = [pos(k, len(bot), 33) for k in range(len(bot))]
+    for (x1, y1) in tp:
+        for (x2, y2) in bp:
+            out.append(f'<line x1="{x1:.1f}" y1="{y1 + 6}" x2="{x2:.1f}" y2="{y2 - 6}" stroke="#999" stroke-width="0.8"/>')
+    if len(tp) >= 2:
+        out.append(f'<line x1="{tp[0][0]:.1f}" y1="11" x2="{tp[-1][0]:.1f}" y2="11" stroke="#999" stroke-width="0.8"/>')
+    if not tp and len(bp) >= 2:
+        out.append(f'<line x1="{bp[0][0]:.1f}" y1="33" x2="{bp[-1][0]:.1f}" y2="33" stroke="#999" stroke-width="0.8" stroke-dasharray="2 2"/>')
+    for r, (x, y) in list(zip(top, tp)) + list(zip(bot, bp)):
+        out.append(f'<circle cx="{x:.1f}" cy="{y}" r="7" fill="{ROLE_COLOR.get(r, "#8C8F91")}"><title>{r}</title></circle><text x="{x:.1f}" y="{y + 3}" font-size="8" text-anchor="middle" fill="#fff">{ROLE_ABBR.get(r, "?")}</text>')
+    out.append('</svg>')
+    return ''.join(out)
+
+
 def depth_svg(proj, repo, median, width=260, height=40):
     """Fixed-axis depth histogram: the whole catalog's distribution as grey bars, this project's samples as gold bars on
     the same bins (each scaled to its own maximum), and a tick at the project median — so one project's depth reads
@@ -897,6 +973,56 @@ def main():
             seen.add(r.author_display)
             lst.append(dict(name=r.author_display, key=r.author_key, first=bool(r.is_first), last=bool(r.is_last)))
         authors_by_study[acc] = lst
+    # R2026.23 sampling design + relatedness per project (gut_studies longitudinal / relatedness columns, gut_relatedness table,
+    # per-sample days_since_first_sample / family columns of the wide table)
+    relg = pd.read_parquet(pkg / 'gut_relatedness.parquet') if (pkg / 'gut_relatedness.parquet').exists() else pd.DataFrame(columns=['study_accession'])
+    design_by_study = {}
+    _tl_cols = [c_ for c_ in ['study_accession', 'sample_key', 'subject_id', 'person_key', 'days_since_first_sample', 'family_id', 'family_role', 'subject_n_samples'] if c_ in cw.columns]
+    _tl = cw[_tl_cols] if 'days_since_first_sample' in cw.columns else pd.DataFrame(columns=['study_accession'])
+    _tl_by = {k_: v_ for k_, v_ in _tl[pd.to_numeric(_tl.get('subject_n_samples'), errors='coerce').fillna(0) >= 2].groupby('study_accession')} if len(_tl) else {}
+    _fam_by = {k_: v_ for k_, v_ in cw[cw.family_id.notna()][['study_accession', 'sample_key', 'person_key', 'family_id', 'family_role', 'subject_id']].groupby('study_accession')} if 'family_id' in cw.columns and 'person_key' in cw.columns else {}
+    _relg_by = {k_: v_ for k_, v_ in relg.groupby('study_accession')} if len(relg) else {}
+    for r_ in cs.itertuples(index=False):
+        acc_ = r_.study_accession
+        ls_ = getattr(r_, 'longitudinal_status', None)
+        rd_ = getattr(r_, 'relatedness_designs', None)
+        if (ls_ not in ('longitudinal', 'repeated_unresolved')) and (rd_ is None or (isinstance(rd_, float) and math.isnan(rd_)) or not rd_):
+            continue
+        d_ = dict(status=ls_, rel=[x for x in str(rd_ or '').split(';') if x], n_sub=getattr(r_, 'n_subjects', None), n_rep=getattr(r_, 'n_subjects_repeated', None),
+                  n_srep=getattr(r_, 'n_samples_repeated', None), spsm=getattr(r_, 'samples_per_subject_median', None), spsx=getattr(r_, 'samples_per_subject_max', None),
+                  fum=getattr(r_, 'followup_days_median', None), fux=getattr(r_, 'followup_days_max', None), ivm=getattr(r_, 'interval_days_median', None), axis=getattr(r_, 'time_axis', None),
+                  schedule=getattr(r_, 'sampling_schedule', None), origin=getattr(r_, 'time_origin', None), fu_stated=getattr(r_, 'followup_days_stated', None),
+                  n_fam=int(getattr(r_, 'n_families', 0) or 0), n_relp=int(getattr(r_, 'n_related_people', 0) or 0), n_mc=int(getattr(r_, 'n_mother_child_families', 0) or 0),
+                  n_tw=int(getattr(r_, 'n_twin_sets', 0) or 0), n_set=int(getattr(r_, 'n_shared_settings', 0) or 0), summary=getattr(r_, 'relatedness_summary', None))
+        for k_ in list(d_):
+            if isinstance(d_[k_], float) and math.isnan(d_[k_]):
+                d_[k_] = None
+        d_['fmt'] = {k_: (_days_label(d_[k_]) if d_[k_] is not None else None) for k_ in ('fum', 'fux', 'ivm', 'fu_stated')}
+        mot = json.loads(getattr(r_, 'family_motifs', None)) if isinstance(getattr(r_, 'family_motifs', None), str) else {}
+        d_['motifs'] = [dict(motif=m_, n=int(n_), svg=motif_svg(m_)) for m_, n_ in sorted(mot.items(), key=lambda kv: -kv[1])[:8]]
+        g_ = _relg_by.get(acc_)
+        d_['settings'] = [] if g_ is None else [dict(type=x.group_type, id=x.group_id, n=int(x.n_people)) for x in g_[g_.group_kind == 'shared_setting'].sort_values('n_people', ascending=False).head(20).itertuples()]
+        d_['families'] = [] if g_ is None else [dict(id=x.group_id, motif=x.motif, n=int(x.n_people), samples=str(x.sample_keys).split(';')[:12]) for x in g_[g_.group_kind == 'family'].sort_values('n_samples', ascending=False).head(25).itertuples()]
+        tl_ = _tl_by.get(acc_)
+        people = []
+        if tl_ is not None:
+            fam_of = {}
+            if acc_ in _fam_by:
+                fb = _fam_by[acc_]
+                fam_of = dict(zip(fb.person_key, zip(fb.family_id, fb.family_role)))
+            for pk_, y_ in tl_.groupby('person_key'):
+                ds_ = pd.to_numeric(y_.days_since_first_sample, errors='coerce').dropna().tolist()
+                if len(ds_) >= 2:
+                    fam_, role_ = fam_of.get(pk_, (None, None))
+                    people.append(dict(label=(y_.subject_id.dropna().astype(str).iloc[0] if y_.subject_id.notna().any() else pk_), days=ds_, family=fam_, role=role_, n=len(ds_)))
+            people.sort(key=lambda p_: (str(p_['family'] or 'zzzz' + p_['label']), -p_['n']))
+            if len(people) > 36:
+                fams_ = [p_ for p_ in people if p_['family']]
+                people = (fams_[:36] if len(fams_) >= 12 else sorted(people, key=lambda p_: -p_['n'])[:36])
+                people.sort(key=lambda p_: (str(p_['family'] or 'zzzz' + p_['label']), -p_['n']))
+        d_['timeline'] = timeline_svg(people) if people else ''
+        d_['n_timeline'] = len(people)
+        design_by_study[acc_] = d_
     panel_by_study = {}
     if len(panels):
         for acc, g in panels.groupby('study_accession'):
@@ -1137,7 +1263,9 @@ def main():
                       iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
                       src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
                       gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None),
-                      **({'grp': s['study_group_id'], 'grpn': len(str(s['study_group_members']).split(';'))} if not isnull(s.get('study_group_id')) else {}))
+                      **({'grp': s['study_group_id'], 'grpn': len(str(s['study_group_members']).split(';'))} if not isnull(s.get('study_group_id')) else {}),
+                      **({'lg': 1} if s.get('longitudinal_status') in ('longitudinal', 'repeated_unresolved') else {}),
+                      **({'rd': str(s['relatedness_designs'])} if not isnull(s.get('relatedness_designs')) and s.get('relatedness_designs') else {}))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
     sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
@@ -1201,7 +1329,7 @@ def main():
             c['num'] = c['f'] in ('age_at_collection_days', 'bmi', 'latitude', 'longitude', 'gestational_age_weeks', 'birth_weight_grams', 'stool_consistency_bristol')
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
                papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
-               group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
+               group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
                samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
@@ -1243,6 +1371,32 @@ def main():
     if 'intervention' in cw.columns and cw.intervention.notna().any():
         present = set(c for v in cw.intervention.dropna() for c in str(v).split(';') if c)
         iv_sample_codes = [(c, (iv_voc.get(c) or {}).get('label', c)) for c in iv_voc if c in present]
+    # R2026.23 single-sample page: one static page + accession -> project lookup shards (keyed by the accession's last two
+    # digits, ~100 small JSON files); the page reads the project's existing slice and evidence files in the browser
+    lk_studies = cs[['study_accession', 'study_title']].copy()
+    if 'short_title' in cs.columns:
+        lk_studies['study_title'] = cs.short_title.where(cs.short_title.notna() & (cs.short_title.astype(str) != ''), cs.study_title)
+    s_ix = {a_: i_ for i_, a_ in enumerate(lk_studies.study_accession)}
+    def _shard(x):
+        m = re.search(r'(\d)(\d)\D*$', x) or re.search(r'(\d)\D*$', x)
+        return 'xx' if not m else (m.group(1) + m.group(2) if m.lastindex == 2 else '0' + m.group(1))
+    lk = {}
+    for col in ('sample_key', 'biosample_accession', 'secondary_sample'):
+        if col in cw.columns:
+            for k_, st_ in zip(cw[col].astype('string'), cw.study_accession):
+                if k_ is not pd.NA and k_ and str(k_) != 'nan':
+                    lk.setdefault(_shard(str(k_)), {}).setdefault(str(k_).upper(), str(s_ix[st_]))
+    if runs_path.exists():
+        gr_ = pd.read_parquet(runs_path, columns=['run_accession', 'sample_key', 'study_accession'])
+        gr_ = gr_[gr_.sample_key.isin(set(cw.sample_key)) & gr_.study_accession.isin(s_ix)]
+        for ra_, sk_, st_ in zip(gr_.run_accession, gr_.sample_key, gr_.study_accession):
+            lk.setdefault(_shard(str(ra_)), {}).setdefault(str(ra_).upper(), f'{s_ix[st_]}|{sk_}')
+    (out / 'data' / 'lookup').mkdir(parents=True, exist_ok=True)
+    for sh_, d_ in lk.items():
+        (out / 'data' / 'lookup' / f'{sh_}.json').write_text(json.dumps(d_, separators=(',', ':')), encoding='utf-8')
+    (out / 'data' / 'lookup' / 'studies.json').write_text(json.dumps([[a_, str(t_ or '')[:140]] for a_, t_ in zip(lk_studies.study_accession, lk_studies.study_title)], separators=(',', ':')), encoding='utf-8')
+    render('sample.html', 'samples/sample.html', '../', nav='samples', example=str(cw.sample_key.iloc[0]) if len(cw) else '', labels_json=json.dumps({k_: v_ for k_, v_ in LABELS.items()}),
+           crumbs=[dict(label='Home', href='../index.html'), dict(label='Samples', href='index.html'), dict(label='Sample')])
     render('explorer.html', 'samples/index.html', '../', nav='samples', stats=stats, age_cats=[c for c in age_cats if (cw.age_category == c).any()], iv_codes=iv_codes, iv_sample_codes=iv_sample_codes,
            hc_codes=list(hc_rows.index), countries=sorted(cw.country.dropna().unique().tolist()), n_cols=int(cw.shape[1]), has_col=has_col, ls_codes=ls_codes,
            year_min=(years[0] if years else None), year_max=(years[-1] if years else None), n_fields_max=len(CORE_FIELDS) + len(KEY_FIELDS),
@@ -1574,30 +1728,69 @@ def main():
                'abstract': "paper abstracts and the archive's project description (route R4)",
                'external': 'curated external resources such as curatedMetagenomicData and GMrepo (route R2, evidence_source external.*)',
                'contribution': 'metadata contributed by users through the Contribute form'}
-    n_vals = len(_v)
-    # sample-resolved: within a project and field, this source gives more than one distinct value (it tells samples apart);
-    # otherwise the source states one value for all the project's samples it covers (typical of abstracts and methods prose)
-    _nv = _v.groupby(['study_accession', 'field_name', 'source']).value_normalized.transform('nunique')
+    # Count FACTS, not columns (owner review 2026-10-10): related columns form one concept (country + region + locality + site +
+    # latitude + longitude = one location; a code + its detail text = one value), identifiers are not metadata (subject_id is
+    # reported apart), and a concept counts once per sample and source (a sample whose country comes from the archive and whose
+    # recruitment site comes from the paper counts one location fact for each source).
+    VS_CONCEPTS = [('Age', ['age_at_collection_days'], 'host'), ('Sex', ['sex'], 'host'), ('BMI', ['bmi'], 'host'),
+                   ('Health condition', ['health_condition', 'health_condition_detail'], 'host'), ('Antibiotics', ['antibiotic_exposure'], 'host'),
+                   ('Medication', ['medication', 'medication_detail'], 'host'), ('Intervention / arm', ['intervention', 'intervention_detail'], 'host'),
+                   ('Diet', ['diet', 'diet_detail'], 'host'), ('Lifestyle', ['lifestyle', 'lifestyle_detail'], 'host'), ('Smoking', ['smoking_status'], 'host'),
+                   ('Stool consistency', ['stool_consistency_bristol'], 'host'), ('Timepoint', ['timepoint_label'], 'design'),
+                   ('Prematurity', ['preterm_status', 'gestational_age_weeks'], 'infant'), ('Birth weight', ['birth_weight_grams'], 'infant'),
+                   ('Delivery mode', ['delivery_mode'], 'infant'), ('Feeding', ['feeding_mode', 'hmo_supplementation'], 'infant'),
+                   ('Probiotics', ['probiotic_exposure'], 'infant'), ('Maternal antibiotics', ['maternal_antibiotics'], 'infant'), ('NEC', ['nec_status'], 'infant'),
+                   ('Location', ['country', 'location_region', 'location_locality', 'location_site', 'latitude', 'longitude'], 'submission'),
+                   ('Collection date', ['collection_date'], 'submission')]
+    VS_IDENT = ['subject_id']
+    f2c = {f: c for c, fl, _ in VS_CONCEPTS for f in fl}
+    c_kind = {c: k for c, _, k in VS_CONCEPTS}
+    _v['concept'] = _v.field_name.map(f2c)
+    n_ident = _v[_v.field_name.isin(VS_IDENT)].groupby('source').size().to_dict()
+    unmapped = sorted(set(_v.field_name) - set(f2c) - set(VS_IDENT))
+    assert not unmapped, f'value_sources: fields without a concept {unmapped}'
+    _f = _v[_v.concept.notna()]
+    # one fact per (sample, concept, source); 'varies by sample' uses the concept's first column present for that fact
+    _f = _f.assign(_ord=_f.field_name.map({f: k for _, fl, _ in VS_CONCEPTS for k, f in enumerate(fl)})).sort_values('_ord', kind='mergesort')
+    facts = _f.drop_duplicates(['sample_key', 'concept', 'source'])[['sample_key', 'study_accession', 'concept', 'source', 'value_normalized', 'field_name']]
+    facts['kind'] = facts.concept.map(c_kind)
+    n_vals = len(facts)
+    _nv = facts.groupby(['study_accession', 'concept', 'source']).value_normalized.transform('nunique')
     cohort = _nv <= 1
+    sub = facts.kind == 'submission'
+    n_vals_ns = int((~sub).sum())
     vs_rows = []
     for src_ in VS_ORDER:
-        m = _v.source == src_
+        m = facts.source == src_
+        mns = m & ~sub
         vs_rows.append(dict(source=src_, label=_SRC_LABELS.get(src_, src_), desc=VS_DESC[src_], color=VS_COLOR[src_], n=int(m.sum()), share=(m.sum() / n_vals) if n_vals else 0,
-                            samples=int(_v.loc[m, 'sample_key'].nunique()), projects=int(_v.loc[m, 'study_accession'].nunique()),
-                            cohort_share=float(cohort[m].mean()) if m.any() else 0.0, n_fields=int(_v.loc[m, 'field_name'].nunique())))
-    nonarch = _v[_v.source != 'archive']
-    vs_extra = dict(n_values=n_vals, n_samples=int(_v.sample_key.nunique()), n_samples_nonarchive=int(nonarch.sample_key.nunique()),
-                    n_samples_total=len(cw), n_projects_nonarchive=int(nonarch.study_accession.nunique()), n_projects=len(cs))
-    ftab = _v.groupby(['field_name', 'source']).size().unstack(fill_value=0)
+                            n_ns=int(mns.sum()), share_ns=(mns.sum() / n_vals_ns) if n_vals_ns else 0,
+                            samples=int(facts.loc[m, 'sample_key'].nunique()), projects=int(facts.loc[m, 'study_accession'].nunique()),
+                            cohort_share=float(cohort[m].mean()) if m.any() else 0.0, n_fields=int(facts.loc[m, 'concept'].nunique()), n_ident=int(n_ident.get(src_, 0))))
+    nonarch = facts[(facts.source != 'archive') & ~sub]
+    vs_extra = dict(n_values=n_vals, n_values_ns=n_vals_ns, n_rows=len(_v), n_samples=int(facts.sample_key.nunique()), n_samples_nonarchive=int(nonarch.sample_key.nunique()),
+                    n_samples_total=len(cw), n_projects_nonarchive=int(nonarch.study_accession.nunique()), n_projects=len(cs), n_ident=int(sum(n_ident.values())),
+                    n_concepts=len(VS_CONCEPTS))
+    ftab = facts.groupby(['concept', 'source']).size().unstack(fill_value=0)
+    nsamp = facts.groupby('concept').sample_key.nunique()
     vs_fields = []
-    for tier, flist in (('core', CORE_FIELDS), ('key', KEY_FIELDS), ('other', sorted(set(ftab.index) - set(CORE_FIELDS) - set(KEY_FIELDS)))):
-        for f in flist:
-            if f not in ftab.index:
+    for tier in ('host', 'design', 'infant', 'submission'):
+        for c, fl, k in VS_CONCEPTS:
+            if k != tier or c not in ftab.index:
                 continue
-            row = ftab.loc[f]; tot = int(row.sum())
+            row = ftab.loc[c]; tot = int(row.sum())
             segs = [dict(source=s_, label=_SRC_LABELS.get(s_, s_), color=VS_COLOR[s_], n=int(row.get(s_, 0)), pct=round(100 * row.get(s_, 0) / tot, 1)) for s_ in VS_ORDER if row.get(s_, 0) > 0]
-            vs_fields.append(dict(field=f, tier=tier, total=tot, cov=tot / len(cw) if len(cw) else 0, segs=segs))
-    render('value_sources.html', 'about/value_sources.html', '../', nav='about', rows=vs_rows, extra=vs_extra, fields=vs_fields)
+            vs_fields.append(dict(field=c, cols=fl, tier=tier, total=tot, n_samples=int(nsamp.get(c, 0)), cov=int(nsamp.get(c, 0)) / len(cw) if len(cw) else 0, segs=segs))
+    _col = lambda c_: cs[c_] if c_ in cs.columns else pd.Series([None] * len(cs), index=cs.index)
+    _gen = int(((cd.field_name == 'subject_id') & (cd.determined_by.astype(str) == 'gut_subject_unique_v1')).sum())
+    dz_stats = dict(n_long=int(_col('longitudinal_status').eq('longitudinal').sum()), n_rep_unres=int(_col('longitudinal_status').eq('repeated_unresolved').sum()),
+                    n_cross=int(_col('longitudinal_status').eq('cross_sectional').sum()), n_people_rep=int(pd.to_numeric(_col('n_subjects_repeated'), errors='coerce').fillna(0).sum()),
+                    n_samples_rep=int(pd.to_numeric(_col('n_samples_repeated'), errors='coerce').fillna(0).sum()),
+                    n_rel=int(_col('relatedness_designs').notna().sum()), n_fam=int(pd.to_numeric(_col('n_families'), errors='coerce').fillna(0).sum()),
+                    n_mc=int(pd.to_numeric(_col('n_mother_child_families'), errors='coerce').fillna(0).sum()), n_set=int(pd.to_numeric(_col('n_shared_settings'), errors='coerce').fillna(0).sum()),
+                    n_subj_gen=_gen, n_subj_real=int(cw.subject_id.notna().sum()) - _gen if 'subject_id' in cw.columns else 0,
+                    axes=_col('time_axis').value_counts().to_dict(), rel_kinds=pd.Series([k_ for v_ in _col('relatedness_designs').dropna() for k_ in str(v_).split(';') if k_]).value_counts().to_dict())
+    render('value_sources.html', 'about/value_sources.html', '../', nav='about', rows=vs_rows, extra=vs_extra, fields=vs_fields, dz=dz_stats)
     render('external.html', 'about/external.html', '../', nav='about', ext=ext_list, others=[r for r in src['related_efforts'] if r.get('ingestion') != 'used'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='External resources')])
     render('sources.html', 'about/sources.html', '../', nav='about', src=src, crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Sources & acknowledgements')])

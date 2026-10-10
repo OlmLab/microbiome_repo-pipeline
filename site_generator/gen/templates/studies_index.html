@@ -12,6 +12,7 @@
 <label>Country <input id="pf-country" type="search" placeholder="e.g. China" size="10"></label>
 <label>Min samples <input id="pf-min_samples" type="number" min="0" style="width:5.5rem"></label>
 <label title="≥ 3 healthy-control samples and ≥ 3 samples with a disease code"><input type="checkbox" id="pf-cases_controls"> cases &amp; healthy controls</label>
+<label title="Longitudinal projects (the same people sampled repeatedly) and projects with related or co-located people (transmission data)">Sampling <select id="pf-sampling"><option value="">any</option><option value="lg">longitudinal</option><option value="rel">related people (any)</option><option value="mother_infant">mother–infant</option><option value="parent_child">parent–child (any)</option><option value="twins">twins</option><option value="siblings">siblings</option><option value="households">households</option><option value="community">villages / communities / tribes</option><option value="institution">daycare / school / care home / ward / unit</option><option value="fmt_donor_recipient">FMT donor → recipient</option></select></label>
 <label>Source <select id="pf-source"><option value="">any</option><option value="0">sequence archive used</option><option value="1">abstract used</option><option value="2">full text used</option><option value="3">supplementary tables used</option><option value="4">external resource used</option><option value="5">user contribution</option><option value="6">human verified</option></select></label>
 <label title="≥ 3 samples in an active intervention arm and ≥ 3 in placebo / no-intervention (from archive attributes)"><input type="checkbox" id="pf-arms"> treated &amp; control arms</label>
 <button type="button" class="btn sec" id="pf-reset">reset</button> <span class="status" id="pf-count"></span>
@@ -29,7 +30,7 @@
 fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const h = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const $ = id => document.getElementById(id);
-  const P = ['condition', 'intervention', 'design', 'age', 'country', 'min_samples', 'cases_controls', 'arms', 'source'];
+  const P = ['condition', 'intervention', 'design', 'age', 'country', 'min_samples', 'cases_controls', 'arms', 'source', 'sampling'];
   const prm = new URLSearchParams(location.search);
   for (const k of P) { const el = $('pf-' + k); const v = prm.get(k); if (el && v !== null) { if (el.type === 'checkbox') el.checked = v === '1'; else el.value = v; } }
   const ok = r => {
@@ -44,6 +45,12 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
     if ($('pf-cases_controls').checked && !r.ccc) return false; if ($('pf-arms').checked && !r.cca) return false;
     const so = $('pf-source').value; if (so !== '' && (r.sf || 'nnnnnnn')[parseInt(so)] !== 'u') return false;
     const gq = prm.get('group'); if (gq && r.grp !== gq) return false;
+    const sm = $('pf-sampling').value, rd = (r.rd || '');
+    if (sm === 'lg' && !r.lg) return false; if (sm === 'rel' && !rd) return false;
+    if (sm === 'parent_child' && !/mother_infant|father_child|parent_child/.test(rd)) return false;
+    if (sm === 'households' && !/household/.test(rd)) return false; if (sm === 'community' && !/communit|village|tribe/.test(rd)) return false;
+    if (sm === 'institution' && !/daycare|school|care_home|hospital_ward|military|team|workplace|institution/.test(rd)) return false;
+    if (['mother_infant', 'twins', 'siblings', 'fmt_donor_recipient'].includes(sm) && !rd.split(';').includes(sm)) return false;
     return true;
   };
   DataTable.ext.search.push((settings, data, i, row) => settings.nTable.id !== 'studies' || ok(row));
@@ -53,7 +60,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const tbl = new DataTable('#studies', {
     data: rows, autoWidth: false, layout: {topEnd: null}, search: {search: prm.get('q') || ''}, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
     columns: [
-      {data: 'a', render: (d, t, r) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' + (r.grp ? ' <a class="tag grp" href="?group=' + h(r.grp) + '" title="One of ' + r.grpn + ' BioProjects of the same study — show them together">+' + (r.grpn - 1) + '</a>' : '') : d + ' ' + (r.grp || '')},
+      {data: 'a', render: (d, t, r) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' + (r.grp ? ' <a class="tag grp" href="?group=' + h(r.grp) + '" title="One of ' + r.grpn + ' BioProjects of the same study — show them together">+' + (r.grpn - 1) + '</a>' : '') + (r.lg ? ' <span class="tag lgt" title="Longitudinal: the same people sampled more than once">L</span>' : '') + (r.rd ? ' <span class="tag rdt" title="Related or co-located people: ' + h(r.rd.replaceAll(';', ', ').replaceAll('_', ' ')) + '">R</span>' : '') : d + ' ' + (r.grp || '')},
       {data: 't', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1" title="' + h(r.tf || d) + '">' + h(d) + '</span>' : d + ' ' + (r.tf || '')},
       {data: 'n', className: 'num', render: (d, t) => t === 'display' ? Number(d).toLocaleString() : d},
       {data: 'ag', className: 'clipc', render: (d, t) => t === 'display' ? '<span class="clip1 mono" title="Age categories (samples): ' + h(d) + '">' + h((d || '').split(' ')[0].split(':')[0]) + '</span>' : d},

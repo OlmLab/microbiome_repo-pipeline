@@ -241,7 +241,7 @@ def test_study_page_sections(site_new):
     # R2026.18: the sample table is built in the browser from the per-project CSV (static/study_table.js builds the same links)
     assert "csv:'../data/studies/PRJTEST000001.csv.gz'" in t and 'static/study_table.js' in t
     js = (site_new / 'static' / 'study_table.js').read_text()
-    assert '../samples/index.html?sample=' in js and 'https://www.ncbi.nlm.nih.gov/biosample/' in js
+    assert '../samples/sample.html?id=' in js and 'https://www.ncbi.nlm.nih.gov/biosample/' in js
     t2 = _html(site_new, 'studies/PRJTEST000002.html')
     assert 'https://www.ebi.ac.uk/ena/browser/view/' in js and 'https://ddbj.nig.ac.jp/resource/biosample/' in js
     assert 'Confirm correct' not in t and 'template=simple-finding.yml' in t and 'accession=PRJTEST000001' in t and 'release_id=' in t and 'page_url=' in t

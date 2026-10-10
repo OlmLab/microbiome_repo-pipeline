@@ -1,0 +1,20 @@
+schema_version: 1
+vocabulary: family_role
+note: |
+  The sampled person's role within their family / household (family_id). Set only from a source statement (archive attribute,
+  sample-name token whose meaning the source states, supplementary table, paper text). Roles are relative to the family unit:
+  mother and father of the family's child(ren); twin = a child whose co-twin is in the same family; sibling = a child in a
+  family without sampled parents, or any sibling when parents are absent; partner = adult partner / spouse without children
+  in the data. R2026.23 (owner request: relatedness / transmission).
+codes:
+  mother: {label: Mother, match_terms: [mother, mom, mum, maternal, "M"]}
+  father: {label: Father, match_terms: [father, dad, paternal, "F"]}
+  parent: {label: Parent (unspecified), match_terms: [parent, caregiver]}
+  child: {label: Child / infant, match_terms: [child, infant, baby, son, daughter, offspring, newborn, proband child]}
+  twin: {label: Twin, match_terms: [twin, co-twin, monozygotic, dizygotic, MZ, DZ]}
+  sibling: {label: Sibling, match_terms: [sibling, sister, brother]}
+  partner: {label: Partner / spouse, match_terms: [partner, spouse, husband, wife, couple]}
+  grandparent: {label: Grandparent, match_terms: [grandmother, grandfather, grandparent]}
+  other_relative: {label: Other relative, match_terms: [aunt, uncle, cousin, relative]}
+  household_member: {label: Unrelated household member, match_terms: [household member, cohabitant, housemate, roommate]}
+  unknown: {label: Unknown, match_terms: []}

@@ -63,7 +63,8 @@ def main():
     fields = set(pack["fields"].keys())
     voc = {"sex": {"female", "male"}, "antibiotic_exposure": {"yes", "no"},
            "health_condition": vocab_codes("health_conditions.yaml"), "lifestyle": vocab_codes("lifestyle.yaml"),
-           "diet": vocab_codes("diet.yaml"), "smoking_status": vocab_codes("smoking.yaml")}
+           "diet": vocab_codes("diet.yaml"), "smoking_status": vocab_codes("smoking.yaml"),
+           "family_role": vocab_codes("family_roles.yaml"), "shared_setting_type": vocab_codes("shared_settings.yaml")}
     med, iv = vocab_codes("medication.yaml"), (vocab_codes("interventions.yaml") or set()) | {"placebo", "no_intervention"}
     os.makedirs(a.out_dir, exist_ok=True)
     import pyarrow.parquet as pq

@@ -45,6 +45,11 @@ fields:                    # field_name → vocabulary / type; routes R1 (archiv
   intervention: {type: vocab_list, vocab: config/vocab/interventions.yaml, routes: [R1, R2, R3, R4], detail_field: intervention_detail, note: "what this sample's subject had received IN THE STUDY at or before sampling (';'-joined sorted codes; placebo / no_intervention for control arms and pre-intervention baselines). Per-sample from archive attributes (R1); the study-level list of administered interventions is gut_studies.interventions (R4, abstracts) and is not copied onto samples — controls of an FMT trial are not FMT samples."}
   intervention_detail: {type: text, max_len: 160, routes: [R1, R2, R3, R4]}
   stool_consistency_bristol: {type: int, range: [1, 7], routes: [R1, R2], note: "Bristol stool form scale 1–7 as stated; textual forms (hard / normal / loose / watery) are mapped 2 / 4 / 6 / 7 with confidence 0.7"}
+  # added 2026-10-10 (owner request: relatedness / transmission data) — release R2026.23 / package 1.19.0
+  family_id: {type: text, max_len: 80, routes: [R1, R2, R3], note: "the source's own family / household / dyad / twin-pair identifier; samples of related people share it (within the project); never a cohort or study id"}
+  family_role: {type: vocab, vocab: config/vocab/family_roles.yaml, routes: [R1, R2, R3], note: "role of the sampled person in that family: mother | father | parent | child | twin | sibling | partner | grandparent | other_relative | household_member"}
+  shared_setting_type: {type: vocab, vocab: config/vocab/shared_settings.yaml, routes: [R1, R2, R3, R4], detail_field: shared_setting_id, note: "a unit below the project shared with other sampled people: household, village / community, tribe, daycare / school, care home, ward, military unit, team, workplace"}
+  shared_setting_id: {type: text, max_len: 120, routes: [R1, R2, R3, R4], note: "the source's name / code of that unit (e.g. 'H12', 'Mbomo', 'daycare D3')"}
 # Field tiers for the site and the contribute worklist (owner decision 2026-09-29): five CORE fields, then the KEY fields.
 # owner review 2026-10-01: age is core at the level of LIFE STAGE (age_category — an exact age is not required as long as the source
 # establishes e.g. that the subjects are adults); the exact age moves to key fields together with sex.
