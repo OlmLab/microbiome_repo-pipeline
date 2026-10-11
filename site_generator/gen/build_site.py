@@ -997,6 +997,7 @@ def main():
         for k_ in list(d_):
             if isinstance(d_[k_], float) and math.isnan(d_[k_]):
                 d_[k_] = None
+        d_ = {k_: (None if (not isinstance(v_, (list, dict, str)) and v_ is not None and pd.isna(v_)) else v_) for k_, v_ in d_.items()}   # pd.NA / NaN -> None
         d_['fmt'] = {k_: (_days_label(d_[k_]) if d_[k_] is not None else None) for k_ in ('fum', 'fux', 'ivm', 'fu_stated')}
         mot = json.loads(getattr(r_, 'family_motifs', None)) if isinstance(getattr(r_, 'family_motifs', None), str) else {}
         d_['motifs'] = [dict(motif=m_, n=int(n_), svg=motif_svg(m_)) for m_, n_ in sorted(mot.items(), key=lambda kv: -kv[1])[:8]]
