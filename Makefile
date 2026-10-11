@@ -201,6 +201,7 @@ release:         ## stage 5 (R2026.n) — unpack → findings → assemble → b
 	@if [ -f "$(REGISTRY_UNIVERSE)" ] && [ -f "$(REGISTRY_ATTRIBUTES)" ] && [ -f "$(REGISTRY_NORM)" ]; then $(MAKE) registry-biosamples REGISTRY_OUT=$(PKG_OUT); else echo "no registry sample tier inputs (REGISTRY_ATTRIBUTES / REGISTRY_NORM) — registry_biosamples not built"; fi
 	@if [ -f "$(GUT_STUDIES)" ] && [ -f "$(PKG_OUT)/registry_biosamples.parquet" ]; then $(MAKE) gut-build GUT_OUT=$(PKG_OUT); else echo "no gut scope inputs ($(GUT_STUDIES)) — gut_* tables not built"; fi
 	@if [ -f "$(PKG_OUT)/gut_sample_metadata_wide.parquet" ]; then $(PY) scripts/check_unharvested.py --wide $(PKG_OUT)/gut_sample_metadata_wide.parquet --studies $(PKG_OUT)/gut_studies.parquet --runs $(REGISTRY_RUNS) --attributes $(REGISTRY_ATTRIBUTES) --exclusions config/sample_exclusions.csv --out $(BUILD)/gut/unharvested_biosamples.csv; fi
+	@if [ -f "$(PKG_OUT)/gut_studies.parquet" ]; then $(PY) scripts/check_pass_coverage.py --gut-dir $(GUT_DIR) --studies $(PKG_OUT)/gut_studies.parquet --out $(PKG_OUT)/gut_pass_coverage.csv --max $(PASS_COVERAGE_MAX); fi
 	@if [ -f "$(REGISTRY_UNIVERSE)" ] && [ -n "$(wildcard $(REGISTRY_EXTRA))" ]; then $(PY) -m catalog.registry.add_registry_tables --package $(PKG_OUT) --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC) $(wildcard $(REGISTRY_EXTRA)); else echo "no extra registry tables ($(REGISTRY_EXTRA))"; fi
 	@if [ -d "$(GUT_SANDPIPER_DIR)" ]; then cp $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_scores.parquet $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_loadings.parquet $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_variance.csv $(GUT_SANDPIPER_DIR)/gut_sandpiper_study_coverage.csv $(PKG_OUT)/ && cp $(GUT_SANDPIPER_DIR)/GUT_SANDPIPER_REPORT.md $(PKG_OUT)/ && $(PY) scripts/gut_sandpiper_panels.py --genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet --summary $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet --wide $(PKG_OUT)/gut_sample_metadata_wide.parquet --out $(PKG_OUT)/gut_sandpiper_study_panels.parquet; else echo "no gut Sandpiper tables ($(GUT_SANDPIPER_DIR))"; fi
 	$(MAKE) package-docs
@@ -308,6 +309,8 @@ RUN_BASES_NCBI ?= $(DATA)/registry/run_bases_ncbi.parquet
 # attribute rows whose keys match diet / smoking / medication / stool / alcohol / activity patterns (artifact gut_biosample_attributes_newfields_v2) — input of gut-newfields-r1-v2
 GUT_ATTRIBUTES_V2   ?= $(GUT_DIR)/gut_biosample_attributes_newfields_v2.parquet
 GUT_OUT      ?= $(BUILD)/gut
+# release check: project-passes never attempted that are allowed (0 = every applicable pass must have run; exceptions in config/pass_coverage_exceptions.csv)
+PASS_COVERAGE_MAX ?= 0
 # whole-catalog Sandpiper tables (leaf outputs; filter_gut.py + build_gut_tables.py regenerate them from the bulk snapshot)
 GUT_SANDPIPER_DIR ?= $(GUT_DIR)/sandpiper
 # precomputed Atlas payload (taxa.json, matrix_*.bin, observations.json, obs/) — pages/atlas.py precompute + scripts/atlas_observations.py

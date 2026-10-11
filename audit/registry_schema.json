@@ -2753,6 +2753,65 @@
      "description": "free text"
     }
    ]
+  },
+  "gut_pass_coverage.csv": {
+   "key": [
+    "study_accession"
+   ],
+   "one_row_per": "catalog project: status of every annotation pass — added R2026.25 / 1.20.0 (release check scripts/check_pass_coverage.py)",
+   "bitemporal": "none: recomputed each release from the pass logs in data/inputs/gut",
+   "columns": [
+    {
+     "name": "study_accession",
+     "type": "string",
+     "description": "catalog project"
+    },
+    {
+     "name": "has_pmcid",
+     "type": "bool",
+     "description": "project has an uncontested linked paper with a PMCID (full-text / supplementary passes apply)"
+    },
+    {
+     "name": "fulltext",
+     "type": "string",
+     "description": "full-text cohort statements (R3 + R3b): done | attempted_failed (no text retrievable) | not_applicable | missing | exempt: <reason>"
+    },
+    {
+     "name": "abstract",
+     "type": "string",
+     "description": "abstract / ENA-description statements (R4 + R4b)"
+    },
+    {
+     "name": "interventions",
+     "type": "string",
+     "description": "study-level intervention classification"
+    },
+    {
+     "name": "deep",
+     "type": "string",
+     "description": "per-sample deep annotation (archive attributes, sample names, paper tables)"
+    },
+    {
+     "name": "supplementary",
+     "type": "string",
+     "description": "supplementary / body-table search (R2)"
+    },
+    {
+     "name": "subject",
+     "type": "string",
+     "description": "subject_id pass (applies when subject_id coverage < 95 %)"
+    },
+    {
+     "name": "design",
+     "type": "string",
+     "description": "relatedness + longitudinal study-design pass"
+    },
+    {
+     "name": "n_missing",
+     "type": "int",
+     "description": "passes that apply but were never attempted"
+    }
+   ]
   }
  }
 }

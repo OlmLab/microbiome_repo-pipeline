@@ -425,6 +425,11 @@ def build(a):
     PACK_FIELDS, INFANT_ONLY = pf["fields"], pf["infant_only"]
     rid, pv = a.release_id, a.package_version
     studies = pd.read_parquet(a.studies)
+    # ENA project descriptions for projects added after the study list was first built (R2026.25; fetched from the ENA browser)
+    _dp = os.path.join(os.path.dirname(os.path.abspath(a.studies)), "gut_study_descriptions_ena.parquet")
+    if os.path.exists(_dp) and "description" in studies.columns:
+        _d = pd.read_parquet(_dp).drop_duplicates("study_accession").set_index("study_accession").description
+        studies["description"] = studies.description.where(studies.description.notna() & (studies.description.astype(str) != ""), studies.study_accession.map(_d))
     reg = pd.read_parquet(a.registry_studies) if a.registry_studies else studies
     # the leaf-built study list is re-checked against the CURRENT registry build with the pack's study_rule, so a registry
     # owner override (config/registry_overrides.yaml, e.g. PRJNA50637 → other_site at R2026.14) removes a study from the scope
