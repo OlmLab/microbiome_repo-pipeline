@@ -248,6 +248,14 @@ releases:
     data_tag: data-v1.19.0
     site_tag: site-v1.19.0
     label: "subject ids and study design: catalog-wide subject_id pass (recovered ids + generated ids for one-sample-per-subject designs; 3,575 samples under merged ids re-identified), longitudinal columns per sample and project, family / shared-setting relatedness fields with a relatedness table, minimal sample pages, fact-level 'Where values come from'"
+  - release_id: R2026.24
+    package_version: '1.19.1'
+    previous_package_version: '1.19.0'
+    previous_release_id: R2026.23
+    notes_file: RELEASE_NOTES_R2026.24.md
+    data_tag: data-v1.19.1
+    site_tag: site-v1.19.1
+    label: "external annotation of the 706 projects whose R2026.23 subject / relatedness batches were stopped by the content filter (owner-run, verified on ingest): subject ids for 46 projects, household and arm-code subject ids split (PRJEB108450, PRJNA1086951), family / setting fields for 8 projects, 500 study-design rows, 107 relations"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
