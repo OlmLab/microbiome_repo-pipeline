@@ -355,3 +355,6 @@ svg.spark rect{fill:var(--cu-gold)}svg.spark.depth rect.repo{fill:none;stroke:#7
 .motifs{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin:.3rem 0}
 .motif-item{text-align:center}
 .tag.lgt{background:#e8f0fa;color:#234}.tag.rdt{background:#faf3e3;color:#5a4a1a}
+.tag.unres{background:transparent;border:1px dashed currentColor;opacity:.8}
+.dzb.ok{background:#eaf5ea;border-color:#5a9a5a;color:#234a23}
+.dzb.unres{background:#fff;border-style:dashed;border-color:#999;color:#555}

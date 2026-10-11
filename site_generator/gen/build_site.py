@@ -730,6 +730,14 @@ def main():
     cw = pd.read_parquet(pkg / 'gut_sample_metadata_wide.parquet')
     cd = pd.read_parquet(pkg / 'gut_sample_determinations.parquet')
     cs = cs[cs[RR].isna()].reset_index(drop=True) if RR in cs.columns else cs
+    if 'longitudinal_resolved' not in cs.columns and 'longitudinal_status' in cs.columns:   # packages built before R2026.25
+        _rl = pd.read_parquet(pkg / 'gut_relations.parquet') if (pkg / 'gut_relations.parquet').exists() else pd.DataFrame(columns=['study_accession'])
+        cs['n_relations'] = cs.study_accession.map(_rl.groupby('study_accession').size()).fillna(0).astype(int)
+        _lg = cs.longitudinal_status.isin(['longitudinal', 'repeated_unresolved'])
+        cs['longitudinal_resolved'] = (_lg & pd.to_numeric(cs.get('followup_days_median'), errors='coerce').notna()).where(_lg, None)
+        _rr = (pd.to_numeric(cs.get('n_families'), errors='coerce').fillna(0) > 0) | (pd.to_numeric(cs.get('n_shared_settings'), errors='coerce').fillna(0) > 0) | (cs.n_relations > 0)
+        _hr = cs.relatedness_designs.notna() & ~cs.relatedness_designs.astype(str).isin(['', 'nan', 'None']) if 'relatedness_designs' in cs.columns else _rr
+        cs['relatedness_resolved'] = _rr.where(_hr | _rr, None)
     cw = cw[cw[RR].isna()].reset_index(drop=True) if RR in cw.columns else cw
     cd = cd[cd[RR].isna()].reset_index(drop=True) if RR in cd.columns else cd
     assert cs.study_accession.is_unique and cw.sample_key.is_unique, 'catalog tables: one row per study / per sample'
@@ -986,9 +994,11 @@ def main():
         acc_ = r_.study_accession
         ls_ = getattr(r_, 'longitudinal_status', None)
         rd_ = getattr(r_, 'relatedness_designs', None)
-        if (ls_ not in ('longitudinal', 'repeated_unresolved')) and (rd_ is None or (isinstance(rd_, float) and math.isnan(rd_)) or not rd_):
+        if (ls_ not in ('longitudinal', 'repeated_unresolved')) and (isnull(rd_) or str(rd_) in ('', 'nan', 'None')) and not (int(getattr(r_, 'n_families', 0) or 0) or int(getattr(r_, 'n_shared_settings', 0) or 0) or int(getattr(r_, 'n_relations', 0) or 0)):
             continue
-        d_ = dict(status=ls_, rel=[x for x in str(rd_ or '').split(';') if x], n_sub=getattr(r_, 'n_subjects', None), n_rep=getattr(r_, 'n_subjects_repeated', None),
+        d_ = dict(status=ls_, rel=([] if isnull(rd_) else [x for x in str(rd_).split(';') if x and x not in ('nan', 'None', 'none')]),
+                  lg_res=(None if isnull(getattr(r_, 'longitudinal_resolved', None)) else bool(getattr(r_, 'longitudinal_resolved'))),
+                  rel_res=(None if isnull(getattr(r_, 'relatedness_resolved', None)) else bool(getattr(r_, 'relatedness_resolved'))), n_rel=int(getattr(r_, 'n_relations', 0) or 0), n_sub=getattr(r_, 'n_subjects', None), n_rep=getattr(r_, 'n_subjects_repeated', None),
                   n_srep=getattr(r_, 'n_samples_repeated', None), spsm=getattr(r_, 'samples_per_subject_median', None), spsx=getattr(r_, 'samples_per_subject_max', None),
                   fum=getattr(r_, 'followup_days_median', None), fux=getattr(r_, 'followup_days_max', None), ivm=getattr(r_, 'interval_days_median', None), axis=getattr(r_, 'time_axis', None),
                   schedule=getattr(r_, 'sampling_schedule', None), origin=getattr(r_, 'time_origin', None), fu_stated=getattr(r_, 'followup_days_stated', None),
@@ -1267,8 +1277,9 @@ def main():
                       src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
                       gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None),
                       **({'grp': s['study_group_id'], 'grpn': len(str(s['study_group_members']).split(';'))} if not isnull(s.get('study_group_id')) else {}),
-                      **({'lg': 1} if s.get('longitudinal_status') in ('longitudinal', 'repeated_unresolved') else {}),
-                      **({'rd': str(s['relatedness_designs'])} if not isnull(s.get('relatedness_designs')) and s.get('relatedness_designs') else {}))
+                      **({'lg': (2 if (not isnull(s.get('longitudinal_resolved')) and bool(s.get('longitudinal_resolved'))) else 1)} if s.get('longitudinal_status') in ('longitudinal', 'repeated_unresolved') else {}),
+                      **({'rd': str(s['relatedness_designs'])} if not isnull(s.get('relatedness_designs')) and str(s.get('relatedness_designs')) not in ('', 'nan', 'None') else ({'rd': 'families'} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {})),
+                      **({'rr': 1} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {}))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
     sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None

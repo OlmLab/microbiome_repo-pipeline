@@ -2021,6 +2021,21 @@
      "name": "followup_days_stated",
      "type": "float",
      "description": "follow-up length stated by the authors (days)"
+    },
+    {
+     "name": "n_relations",
+     "type": "int",
+     "description": "explicit pairwise relations stated for the project (gut_relations)"
+    },
+    {
+     "name": "longitudinal_resolved",
+     "type": "bool",
+     "description": "longitudinal project whose repeatedly sampled people have samples on a time axis (per-person timeline drawable); null when not longitudinal"
+    },
+    {
+     "name": "relatedness_resolved",
+     "type": "bool",
+     "description": "related / co-located people linked to samples (families or shared settings with >= 2 people, or relations); null when no relatedness is described"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope",

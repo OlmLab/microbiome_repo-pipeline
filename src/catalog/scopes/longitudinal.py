@@ -27,8 +27,9 @@ import numpy as np
 import pandas as pd
 
 GUT = ("primary", "unknown")
-UNIT = {"d": 1.0, "w": 7.0, "m": 30.4375, "y": 365.25}
+UNIT = {"h": 1 / 24, "d": 1.0, "w": 7.0, "m": 30.4375, "y": 365.25}
 TP_RE = [
+    (re.compile(r"^(\d+(?:\.\d+)?)\s*[-_ ]?\s*(?:h|hr|hrs|hours?)$", re.I), "h"),
     (re.compile(r"(?:^|[^a-z])(?:day|days|d)\s*[-_ ]?\s*(\d+(?:\.\d+)?)(?![\d.])", re.I), "d"),
     (re.compile(r"(\d+(?:\.\d+)?)\s*[-_ ]?\s*(?:days?|d)(?:$|[^a-z])", re.I), "d"),
     (re.compile(r"(?:^|[^a-z])(?:week|weeks|wk|wks|w)\s*[-_ ]?\s*(\d+(?:\.\d+)?)(?![\d.])", re.I), "w"),
@@ -60,6 +61,16 @@ def parse_timepoint_days(label) -> float | None:
         if m:
             hits.append(float(m.group(1)) * UNIT[u])
     return hits[0] if len(set(round(h, 3) for h in hits)) == 1 else None
+
+
+def _month_date(v):
+    """YYYY-MM or YYYY-MM-DD -> the first of that month (month precision; R2026.25)."""
+    if v is None or (isinstance(v, float) and np.isnan(v)):
+        return None
+    m = re.match(r"(\d{4})-(\d{2})(?:-\d{2})?$", str(v))
+    if not m or not (1 <= int(m.group(2)) <= 12):
+        return None
+    return pd.Timestamp(int(m.group(1)), int(m.group(2)), 1)
 
 
 def _full_date(v):
@@ -105,6 +116,9 @@ def sample_longitudinal(w: pd.DataFrame, generated_keys: set) -> pd.DataFrame:
     cands = [("age", age.loc[km.index].astype(float)),
              ("date", (dd - pd.Timestamp("1900-01-01")).dt.days.astype(float)),
              ("timepoint", pd.to_numeric(pd.Series(tps, index=w.index).loc[km.index], errors="coerce").astype(float))]
+    if "collection_date" in w:
+        mm = w.collection_date.loc[km.index].map(_month_date)
+        cands.append(("date_month", (pd.to_datetime(mm, errors="coerce") - pd.Timestamp("1900-01-01")).dt.days.astype(float)))
     for name, v in cands:
         g = v.groupby(km)
         ok = v.notna().groupby(km).transform("all") & (g.transform("nunique") >= 2) & axis.isna()

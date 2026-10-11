@@ -647,6 +647,18 @@ def build(a):
     gs = studies.set_index("study_accession").join(cov, how="left")
     gs["n_samples_curated"] = g.size()
     gs = gs.join(long_study, how="left").join(rel_study, how="left")
+    # resolved flags (R2026.25 owner request): a longitudinal project is RESOLVED when the time between a person's samples is
+    # known (a per-person timeline can be drawn); relatedness is RESOLVED when related / co-located people are linked to samples
+    # (families or shared settings with >= 2 people, or explicit pairwise relations) so the relationship graph can be drawn
+    _nrel = relations.groupby("study_accession").size() if len(relations) else pd.Series(dtype=int)
+    gs["n_relations"] = _nrel.reindex(gs.index).fillna(0).astype(int)
+    gs["longitudinal_resolved"] = (gs.longitudinal_status.isin(["longitudinal", "repeated_unresolved"])) & pd.to_numeric(gs.followup_days_median, errors="coerce").notna()
+    _has_rel = gs.relatedness_designs.notna() & (gs.relatedness_designs.astype(str) != "")
+    gs["relatedness_resolved"] = ((pd.to_numeric(gs.n_families, errors="coerce").fillna(0) > 0) | (pd.to_numeric(gs.n_shared_settings, errors="coerce").fillna(0) > 0) | (gs.n_relations > 0))
+    gs["longitudinal_resolved"] = gs.longitudinal_resolved.astype("boolean")
+    gs.loc[~gs.longitudinal_status.isin(["longitudinal", "repeated_unresolved"]), "longitudinal_resolved"] = pd.NA
+    gs["relatedness_resolved"] = gs.relatedness_resolved.astype("boolean")
+    gs.loc[~_has_rel & ~gs.relatedness_resolved.fillna(False), "relatedness_resolved"] = pd.NA
     for c_ in ["n_families", "n_related_people", "n_mother_child_families", "n_twin_sets", "n_shared_settings"]:
         gs[c_] = gs[c_].fillna(0).astype(int)
     if len(design):
