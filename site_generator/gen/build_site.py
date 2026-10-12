@@ -17,6 +17,7 @@ Deterministic (A2): build date = VERSION.json build_date (never wall clock); eve
 mtime=0; all iteration is over sorted keys; JSON is dumped with sort_keys. Two builds from the same package are
 byte-identical (tests/test_build_determinism.py).
 """
+import posixpath
 import argparse, gzip, hashlib, io, json, math, os, re, shutil, sys, time
 from pathlib import Path
 from urllib.parse import quote
@@ -1645,7 +1646,7 @@ def main():
                       **({'lg': (2 if (not isnull(s.get('longitudinal_resolved')) and bool(s.get('longitudinal_resolved'))) else 1)} if s.get('longitudinal_status') in ('longitudinal', 'repeated_unresolved') else {}),
                       **({'rd': str(s['relatedness_designs'])} if not isnull(s.get('relatedness_designs')) and str(s.get('relatedness_designs')) not in ('', 'nan', 'None') else ({'rd': 'families'} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {})),
                       **({'rr': 1} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {}),
-                      **({'iv': (2 if iv_by_study[s['study_accession']]['resolved'] else 1)} if s['study_accession'] in iv_by_study else {}),
+                      **({'ivr': (2 if iv_by_study[s['study_accession']]['resolved'] else 1)} if s['study_accession'] in iv_by_study else {}),
                       **({'cx': int(s.get('n_contradicted_samples')), 'cxs': str(s.get('contradiction_summary') or '')[:400]} if (not isnull(s.get('n_contradicted_samples')) and int(s.get('n_contradicted_samples') or 0) > 0) else {}))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
@@ -2249,7 +2250,7 @@ def main():
     # items 5/6: old URLs keep working as redirects to their new homes
     for old_, new_ in REDIRECTS.items():
         (out / old_).parent.mkdir(parents=True, exist_ok=True)
-        (out / old_).write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={new_}"><link rel="canonical" href="{base_url}{new_.replace("../", "")}"><title>moved</title><p>This page moved to <a href="{new_}">{new_}</a>.</p>', encoding='utf-8')
+        (out / old_).write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={new_}"><link rel="canonical" href="{base_url}{posixpath.normpath(posixpath.join(posixpath.dirname(old_), new_))}"><title>moved</title><p>This page moved to <a href="{new_}">{new_}</a>.</p>', encoding='utf-8')
     urls = ''.join(f'<url><loc>{base_url}{p}</loc></url>' for p in sorted(written))
     (out / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + '</urlset>', encoding='utf-8')
     (out / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {base_url}sitemap.xml\n', encoding='utf-8')
