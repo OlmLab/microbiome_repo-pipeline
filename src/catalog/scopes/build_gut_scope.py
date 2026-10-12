@@ -148,7 +148,9 @@ def validate_vocab_fields(det: pd.DataFrame, pf: dict, cfg_dir: str) -> tuple[pd
     return det[keep], dropped
 
 
-POOLED_STEM = r"([_-](L|lane)?\d{1,3}|[_-]R[12]|[_-](run|rep|re)\d*|[_-]?(shotgun|wgs|mgs|dna|metagenome|ont|nanopore|illumina|pacbio|hifi))$"
+# R2026.25: a bare trailing number is a lane only when it is 1-8 (optionally zero-padded); "-669" in G15-003-669 is a library id
+POOLED_STEM = r"([_-](L|lane)\d{1,3}|[_-]00?[1-8]|[_-]R[12]|[_-](run|rep|re)\d*|[_-]?(shotgun|wgs|mgs|dna|metagenome|ont|nanopore|illumina|pacbio|hifi))$"
+RUN_UNIT_ALIAS: dict = {}   # run accession -> unit sample_key for library units with several runs (filled by split_pooled_biosamples)
 
 
 def split_pooled_biosamples(samples: pd.DataFrame, registry_runs_path, src: str):
@@ -169,17 +171,22 @@ def split_pooled_biosamples(samples: pd.DataFrame, registry_runs_path, src: str)
     g = r.groupby(["study_accession", "sample_accession"]).agg(nr=("run_accession", "size"), ns=("stem", "nunique"), blank=("stem", lambda x: int((x == "").sum())))
     st = rr.groupby("study_accession").agg(st_runs=("run_accession", "size"), st_bs=("sample_accession", "nunique"))
     g = g.join(st, on="study_accession")
-    pooled = g[(g.nr >= 5) & (g.ns == g.nr) & (g.blank == 0) & ((g.nr >= 0.5 * g.st_runs) | (g.st_bs <= 3))].reset_index()
+    # R2026.25: one unit per LIBRARY (distinct library-name stem); a library sequenced in several runs stays one sample
+    pooled = g[(g.ns >= 5) & (g.blank == 0) & (g.ns >= 0.5 * g.nr) & ((g.nr >= 0.5 * g.st_runs) | (g.st_bs <= 3))].reset_index()
     if not len(pooled):
         return samples, 0
     keys = set(pooled.sample_accession)
     base = samples[(samples.curated_source == src) & samples.biosample_accession.isin(keys)].drop_duplicates("biosample_accession").set_index("biosample_accession")
-    runs = r[r.sample_accession.isin(keys) & r.study_accession.isin(set(pooled.study_accession))]
-    new = base.loc[runs.sample_accession].reset_index()
-    new["sample_key"] = runs.run_accession.values
+    runs = r[r.sample_accession.isin(keys) & r.study_accession.isin(set(pooled.study_accession))].sort_values("run_accession")
+    unit = runs.groupby(["sample_accession", "stem"]).run_accession.transform("first")
+    RUN_UNIT_ALIAS.clear()
+    RUN_UNIT_ALIAS.update({ra: uk for ra, uk in zip(runs.run_accession, unit) if ra != uk})
+    u = runs.assign(_unit=unit.values).drop_duplicates("_unit")
+    new = base.loc[u.sample_accession].reset_index()
+    new["sample_key"] = u._unit.values
     new["sample_unit"] = "run"
     out = pd.concat([samples[~((samples.curated_source == src) & samples.biosample_accession.isin(keys))], new[samples.columns]], ignore_index=True)
-    print(f"pooled BioSamples split into run units: {len(keys)} BioSamples -> {len(new)} run samples ({pooled.study_accession.nunique()} projects)", file=sys.stderr)
+    print(f"pooled BioSamples split into library units: {len(keys)} BioSamples -> {len(new)} units from {len(runs)} runs ({pooled.study_accession.nunique()} projects)", file=sys.stderr)
     return out, int(len(new))
 
 
@@ -519,12 +526,23 @@ def build(a):
     det_sample = det[det.scope != "study_all"]
     det_sample = det_sample[det_sample.sample_key.isin(set(samples.sample_key))]
     det_sample, conflicts = resolve(det_sample)
+    # R2026.25 self-contradictory metadata: incompatible sample-level values (two sources, or one person's samples) are withheld
+    from catalog.scopes.contradictions import find_contradictions, study_summary as contra_summary
+    _cx = getattr(a, "contradiction_extra", None)
+    _extra = pd.read_parquet(_cx) if _cx and os.path.exists(_cx) else None
+    contra = find_contradictions(det_sample, conflicts, _extra, tuple(GENERATED_SUBJECT_RULES))
+    _ck = set(zip(contra.sample_key, contra.field_name))
+    if _ck:
+        _m = pd.Series([(s_, f_) in _ck for s_, f_ in zip(det_sample.sample_key, det_sample.field_name)], index=det_sample.index)
+        det_sample = det_sample[~_m]
     # R2026.17 (reviewer finding: the infant tier never received the gut_all routes): cohort-wide statements now also fill infant-
     # catalog samples, except age (the infant catalog leaves mixed-age / no-estimate samples unknown on purpose) and the infant-only
     # fields; curated infant values always win (resolve() ranks src_track infant_catalog first, expand_study_all skips filled cells)
     det_r4 = pd.concat([expand_study_all(det_sample, det_study, samples[~samples.in_infant_catalog]),
                         expand_study_all(det_sample, det_study[~det_study.field_name.isin(["age_at_collection_days"] + list(INFANT_ONLY))], samples[samples.in_infant_catalog])],
                        ignore_index=True)
+    if _ck and len(det_r4):   # a cohort-wide statement must not refill a withheld cell
+        det_r4 = det_r4[~pd.Series([(s_, f_) in _ck for s_, f_ in zip(det_r4.sample_key, det_r4.field_name)], index=det_r4.index)]
     det_all = pd.concat([det_sample, det_r4], ignore_index=True)
     det_all = det_all[det_all.field_name.isin(PACK_FIELDS + INFANT_ONLY)].copy()
     inf = det_all.src_track == "infant_catalog"
@@ -615,7 +633,13 @@ def build(a):
     if len(design):
         design = design.drop_duplicates("study_accession", keep="last")
     gen_keys = set(det_all.loc[(det_all.field_name == "subject_id") & (det_all.determined_by.astype(str) == "gut_subject_unique_v1"), "sample_key"])
-    w = sample_longitudinal(w, gen_keys)
+    _sched = dict(zip(design.study_accession, design.sampling_schedule)) if len(design) and "sampling_schedule" in design.columns else {}
+    _tsp = getattr(a, "timing_samples", None)
+    _mo = None
+    if _tsp and os.path.exists(_tsp):
+        _ts = pd.read_parquet(_tsp)
+        _mo = _ts.drop_duplicates("sample_key").set_index("sample_key").offset_days
+    w = sample_longitudinal(w, gen_keys, _sched, _mo)
     long_study = study_longitudinal(w, gen_keys, design if len(design) else None)
     rel_groups, rel_study = relatedness(w, design if len(design) else None, relations if len(relations) else None)
 
@@ -647,6 +671,9 @@ def build(a):
     gs = studies.set_index("study_accession").join(cov, how="left")
     gs["n_samples_curated"] = g.size()
     gs = gs.join(long_study, how="left").join(rel_study, how="left")
+    _cs = contra_summary(contra).set_index("study_accession")
+    gs = gs.join(_cs, how="left")
+    gs["n_contradicted_samples"] = pd.to_numeric(gs.n_contradicted_samples, errors="coerce").fillna(0).astype(int)
     # resolved flags (R2026.25 owner request): a longitudinal project is RESOLVED when the time between a person's samples is
     # known (a per-person timeline can be drawn); relatedness is RESOLVED when related / co-located people are linked to samples
     # (families or shared settings with >= 2 people, or explicit pairwise relations) so the relationship graph can be drawn
@@ -696,7 +723,7 @@ def build(a):
         nb = pd.read_parquet(a.run_bases) if getattr(a, "run_bases", None) and os.path.exists(a.run_bases) else None
         eb_p = os.path.join(os.path.dirname(a.run_bases), "run_bases_estimated.parquet") if getattr(a, "run_bases", None) else None
         eb = pd.read_parquet(eb_p) if eb_p and os.path.exists(eb_p) else None
-        gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp, gut_acc, w, infant_runs=pd.read_parquet(inf_runs_p) if os.path.exists(inf_runs_p) else None, ncbi_bases=nb, est_bases=eb)
+        gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp, gut_acc, w, infant_runs=pd.read_parquet(inf_runs_p) if os.path.exists(inf_runs_p) else None, ncbi_bases=nb, est_bases=eb, run_alias=RUN_UNIT_ALIAS)
         gs = gs.join(sequencing_summary(gut_runs), how="left")
         from catalog.scopes.newfields_r1 import sample_depth
         sd = sample_depth(gut_runs)
@@ -743,7 +770,8 @@ def build(a):
     rel_groups[rel_groups.study_accession.isin(set(gs.study_accession))].to_parquet(os.path.join(a.out, "gut_relatedness.parquet"), index=False)
     (relations[relations.study_accession.isin(set(gs.study_accession))] if len(relations) else pd.DataFrame(columns=["study_accession", "subject_a", "subject_b", "relation", "evidence_source", "evidence_quote", "confidence"])).to_parquet(os.path.join(a.out, "gut_relations.parquet"), index=False)
     conflicts.to_parquet(os.path.join(a.out, "gut_sample_determinations_conflicts.parquet"), index=False)
-    summary = dict(n_studies=int(len(gs)), n_samples=int(len(w)), n_determinations=int(len(det_all)), n_conflicts=int(len(conflicts)), corrections=n_corr,
+    contra.to_parquet(os.path.join(a.out, "gut_metadata_contradictions.parquet"), index=False)
+    summary = dict(n_studies=int(len(gs)), n_samples=int(len(w)), n_determinations=int(len(det_all)), n_conflicts=int(len(conflicts)), n_contradicted=int(len(contra)), n_contradicted_samples=int(contra.sample_key.nunique()) if len(contra) else 0, corrections=n_corr,
                    by_source=w.curated_source.value_counts().to_dict(), age_category=w.age_category.value_counts().to_dict(),
                    coverage={f: round(float(w[f].notna().mean()), 4) for f in PACK_FIELDS}, routes=det_all.route.value_counts().to_dict(),
                    n_infant_scope=int(w.infant_scope.sum()), health_condition=w.health_condition.value_counts().head(12).to_dict(),
@@ -767,6 +795,8 @@ def main(argv=None) -> int:
     ap.add_argument("--studies", required=True, help="gut study list (registry columns + in_infant_catalog)")
     ap.add_argument("--registry-studies"), ap.add_argument("--biosamples", required=True), ap.add_argument("--package", required=True, help="previous package dir (infant curated tables)")
     ap.add_argument("--r1"), ap.add_argument("--r1-extra", help="additional R1 determination files (glob), e.g. the condition/antibiotic expansion"),
+    ap.add_argument("--timing-samples", default=None, help="per-sample day offsets from the visit-code timing pass (R2026.25)")
+    ap.add_argument("--contradiction-extra", default=None, help="sample-level rows that disagreed with a published value but were not ingested (R2026.25)")
     ap.add_argument("--corrections", help="dq_corrections.parquet (retire / recode rows decided by the data-quality adjudication; R2026.13)"),
     ap.add_argument("--r1-newfields", help="R1 determinations of the 1.12.0 fields (collection_date, location_*, latitude/longitude, lifestyle) from catalog.scopes.newfields_r1"),
     ap.add_argument("--run-bases", help="NCBI SRA runinfo bases for runs without an ENA base_count (scripts/fill_run_bases.py)")

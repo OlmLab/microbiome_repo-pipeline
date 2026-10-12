@@ -39,7 +39,7 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
 {% set sub="map" %}{% include "_atlas_nav.html" %}
 <p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's gut metagenomes.</p>
 <details class="about-page"><summary>About this page</summary><p>Data: Sandpiper 2.0.0 community profiles ({{ meta.taxonomy }}) for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> studies and <b>{{ meta.n_countries }}</b> countries; the whole atlas payload is {{ payload_mb }} MB and loads once per rank.
-See also the <a href="observations.html">{{ n_obs }} data-driven observations</a> built on the same tables.</p></details>
+See also the <a href="figures.html">resource-paper figures</a>.</p></details>
 
 <div class="atlas">
 <div class="side">
@@ -72,7 +72,7 @@ See also the <a href="observations.html">{{ n_obs }} data-driven observations</a
 <ul>
 <li><b>Study is the master confounder.</b> Most studies sample one country and one life stage with one protocol; a country's colour is the mixture of its few studies (click a country to see them). Compare countries only when the study list looks comparable, and prefer the per-study dossiers.</li>
 <li><b>Repeated measures.</b> Longitudinal cohorts contribute many samples per subject; n samples overstates the number of people.</li>
-<li><b>Depth.</b> Detection at ≥ 1e-4 depends on sequencing depth; shallow studies under-detect rare taxa (see the depth card on the observations page).</li>
+<li><b>Depth.</b> Detection at ≥ 1e-4 depends on sequencing depth; shallow studies under-detect rare taxa.</li>
 <li><b>Which runs are profiled.</b> Sandpiper profiles Illumina runs ≥ 100 Mbp public before its snapshot; runs failing its QC (non-metagenome, synthetic, RNA, predicted non-gut, root coverage &lt; 2) and samples whose body site is not primary gut were excluded ({{ meta.sample_filter }}).</li>
 <li><b>Taxonomy.</b> {{ meta.taxonomy }}: names follow GTDB, so <i>Prevotella copri</i> is <i>Prevotella</i>, <i>Bacteroides vulgatus</i> is <i>Phocaeicola vulgatus</i>, and suffixed genera (Blautia_A) are GTDB placeholders.</li>
 <li><b>Hong Kong and Singapore</b> are drawn as dots (the 110 m base map merges them into larger polygons). Country is missing for {{ ((meta.n_samples - meta.n_samples_with_country) / meta.n_samples * 100) | round(1) }} % of samples.</li>

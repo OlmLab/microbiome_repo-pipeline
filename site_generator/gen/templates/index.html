@@ -9,12 +9,23 @@
 <ul id="search-results"></ul>
 </div>
 <p class="hero-try small">Try: <a href="studies/index.html?intervention=fmt&amp;condition=ulcerative_colitis" title="Projects of ulcerative colitis patients that received faecal microbiota transplantation">ulcerative colitis × FMT trials</a> · <a href="studies/index.html?intervention=probiotic&amp;design=__controlled__" title="Probiotic intervention projects with a control arm (randomised, non-randomised or crossover)">controlled probiotic trials</a> · <a href="samples/index.html?age_category=infant" title="Samples from infants (29 days to 3 years)">infant samples</a> · <a href="studies/index.html?condition=colorectal_cancer" title="Projects that include colorectal cancer patients">colorectal cancer projects</a> · <a href="studies/index.html?sampling=mother_infant" title="Projects that sampled mothers and their infants — data on mother-to-infant transmission">mother–infant transmission</a> · <a href="studies/index.html?sampling=lg" title="Projects that sampled the same people repeatedly over time">longitudinal projects</a></p>
+<div class="home-globe-wrap"><div id="home-globe" class="home-globe" role="img" aria-label="Globe of catalog projects per country — drag to spin, click a country to open its projects"></div><p class="home-globe-cap small muted">Drag to spin · click a country to see its projects</p></div>
 <nav class="hero-links" aria-label="main sections"><a href="studies/index.html" title="Projects: the {{ stats.n_studies|fmt }} BioProjects (public sequencing projects in ENA / SRA / DDBJ) in the catalog, one row per project with its papers, sample counts and metadata coverage — filter by condition, intervention, age or country">Projects</a><a href="samples/index.html" title="Samples: the {{ stats.n_samples|fmt }} human gut metagenome samples, one row per sample with every metadata value (age, sex, condition, country, …) and the evidence each value came from — filter and download">Samples</a><a href="atlas/index.html" title="Atlas: what the microbes look like across the catalog — a taxon map, a PCA of Sandpiper community profiles and summary observations">Atlas</a><a href="about/value_sources.html" title="Sources: how many metadata values come from each kind of evidence — sequence archive records, supplementary tables, paper full text, abstracts and external resources — overall and per field">Sources</a><a href="llms/index.html" title="For LLMs &amp; API: how to use the catalog from a language model or a script (llms.txt, machine-readable data files)">For LLMs &amp; API</a><a href="about/index.html" title="About: what the Microbiome Repo is, its scope and methods, field definitions, downloads and releases">About</a></nav>
 <p class="hero-credit">Built by the <a href="{{ site.about.lab_url }}" title="The Olm Lab at the University of Colorado Boulder, which builds and maintains the Microbiome Repo">Olm Lab</a> (University of Colorado Boulder), funded by the <a href="{{ site.about.funder_url }}" title="The program that funds this work">Anthropic AI for Science program</a>.</p>
 </section>
 {% if readme_version_warning %}<p class="note">{{ readme_version_warning }}</p>{% endif %}
 {% endblock %}
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous" defer></script>
+<script>window.GLOBE_ROOT='./';</script><script src="static/globe.js" defer></script>
+<script>
+window.addEventListener('load', () => {
+  const el = document.getElementById('home-globe'); if (!el || !window.MiniGlobe || !window.d3) return;
+  fetch('data/home_globe.json').then(r => r.json()).then(cnt => window.MiniGlobe.render(el, {countries: cnt, unit: 'projects', size: 300, spin: true,
+    onClick: (iso) => { location.href = 'studies/index.html?country=' + encodeURIComponent(iso); }})).catch(() => { el.style.display = 'none'; });
+});
+</script>
 <script>
 (function(){
   const q = document.getElementById('q'), out = document.getElementById('search-results');

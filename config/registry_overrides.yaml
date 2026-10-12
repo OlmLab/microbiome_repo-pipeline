@@ -1009,3 +1009,672 @@ overrides:
     - source: BioSample attribute (host-scan evidence, config/sample_exclusions.csv)
       quote: mouse-gut (84 BioSamples)
     note: "owner audit 2026-10-09: all 87 BioSamples / 193 runs are mouse gut metagenomes (germ-free mice colonised with frozen human faecal microbiota); no human sample is deposited, every sample was already excluded by the host scan, leaving an empty catalog project"
+
+# ---- R2026.25 shallow-run scope screen (owner 2026-10-12: "yeah do it- exclude those"): catalog projects with median run < 50 Mbp read twice
+#      independently (title, ENA description, abstract, run statistics); both readings amplicon / targeted-or-enriched / not reads -> out of the shotgun scope.
+#      Review table: shallow_projects_scope_review.csv (artifact bafa77e2-1c83-489a-802d-7938d988e4d3).
+  - study_accession: PRJNA763692
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "802 closed and 5,927 high-quality metagenome-assembled genomes"}
+    note: "R2026.25 shallow-run screen: both readings 'not_reads'; median 7 reads / 3.1 Mbp per run, strategy {\"WGS\": 1859}, selection {\"RANDOM\": 1859}; quote: 802 closed and 5,927 high-quality metagenome-assembled genomes"
+  - study_accession: PRJEB77729
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "Using metagenomic data, we could show that specific strains could be tracked"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 89,284 reads / 26.0 Mbp per run, strategy {\"WGS\": 1787}, selection {\"PCR\": 1680, \"RANDOM\": 107}; quote: Using metagenomic data, we could show that specific strains could be tracked"
+  - study_accession: PRJNA900041
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "ITS Bifidobacteria human Gut"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 71,414 reads / 24.0 Mbp per run, strategy {\"WGS\": 830}, selection {\"unspecified\": 830}; quote: ITS Bifidobacteria human Gut"
+  - study_accession: PRJNA900180
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "ITS Bifidobacteria human Gut #2"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 79,239 reads / 25.7 Mbp per run, strategy {\"WGS\": 830}, selection {\"unspecified\": 830}; quote: ITS Bifidobacteria human Gut #2"
+  - study_accession: PRJNA1464060
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "gut microbiota composition (16S rRNA sequencing)"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 36,827 reads / 20.3 Mbp per run, strategy {\"WGS\": 488}, selection {\"RANDOM\": 488}; quote: gut microbiota composition (16S rRNA sequencing)"
+  - study_accession: PRJEB27325
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "analyzed using taxonomic, metagenomic and metaproteomic approaches"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 57,976 reads / 16.7 Mbp per run, strategy {\"OTHER\": 402}, selection {\"other\": 402}; quote: analyzed using taxonomic, metagenomic and metaproteomic approaches"
+  - study_accession: PRJEB50286
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "16S metagenomic data from stool samples of severe acute malnutrition"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 199,458 reads / 48.1 Mbp per run, strategy {\"WGS\": 396}, selection {\"RANDOM PCR\": 396}; quote: 16S metagenomic data from stool samples of severe acute malnutrition"
+  - study_accession: PRJEB37883
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "samples were subjected to amplicon-based microbiome analyses"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 137,530 reads / 41.0 Mbp per run, strategy {\"WGS\": 753}, selection {\"PCR\": 733, \"RANDOM\": 20}; quote: samples were subjected to amplicon-based microbiome analyses"
+  - study_accession: PRJNA782810
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "species-level infant gut bacterial biodiversity through a meta-analysis"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 53,446 reads / 24.4 Mbp per run, strategy {\"OTHER\": 264}, selection {\"RANDOM\": 264}; quote: species-level infant gut bacterial biodiversity through a meta-analysis"
+  - study_accession: PRJNA644763
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "Targeted loci"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 43,848 reads / 26.4 Mbp per run, strategy {\"WGS\": 246}, selection {\"PCR\": 246}; quote: Targeted loci"
+  - study_accession: PRJEB9818
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "virus-like particles (VLPs) recovered from fecal samples"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 33,636 reads / 17.9 Mbp per run, strategy {\"WGS\": 331}, selection {\"MDA\": 331}; quote: virus-like particles (VLPs) recovered from fecal samples"
+  - study_accession: PRJNA1320978
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "Stool microbiota were identified by 16S sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 64,622 reads / 37.1 Mbp per run, strategy {\"WGS\": 240}, selection {\"PCR\": 240}; quote: Stool microbiota were identified by 16S sequencing"
+  - study_accession: PRJEB6358
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "interactions between human gut microbes and Vibrio cholerae"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 442,903 reads / 19.3 Mbp per run, strategy {\"OTHER\": 330, \"WGS\": 55}, selection {\"size fractionation\": 385}; quote: interactions between human gut microbes and Vibrio cholerae"
+  - study_accession: PRJNA746322
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "amplify the V4 region of the 16S rRNA gene"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 98,391 reads / 49.2 Mbp per run, strategy {\"OTHER\": 198}, selection {\"PCR\": 198}; quote: amplify the V4 region of the 16S rRNA gene"
+  - study_accession: PRJNA802048
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "performing 16S rRNA sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 70,745 reads / 35.4 Mbp per run, strategy {\"WGS\": 187}, selection {\"PCR\": 187}; quote: performing 16S rRNA sequencing"
+  - study_accession: PRJNA1053898
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "shifts of gut microbiota and metabolites in CA patients"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 71,570 reads / 29.7 Mbp per run, strategy {\"WGA\": 148}, selection {\"unspecified\": 148}; quote: shifts of gut microbiota and metabolites in CA patients"
+  - study_accession: PRJEB71847
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "microbial profiles were analysed by 16S rRNA gene sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 198,338 reads / 44.1 Mbp per run, strategy {\"WGS\": 147}, selection {\"RANDOM\": 147}; quote: microbial profiles were analysed by 16S rRNA gene sequencing"
+  - study_accession: PRJNA767648
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "we performed 16S rRNA gene sequencing and compared gut microbiome composition"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 64,380 reads / 38.7 Mbp per run, strategy {\"WGA\": 88, \"WGS\": 50}, selection {\"PCR\": 138}; quote: we performed 16S rRNA gene sequencing and compared gut microbiome composition"
+  - study_accession: PRJNA973721
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "library_selection: PCR"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 80,022 reads / 39.5 Mbp per run, strategy {\"WXS\": 120}, selection {\"PCR\": 120}; quote: library_selection: PCR"
+  - study_accession: PRJEB43505
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "fecal microbiota (16S rRNA gene sequencing)"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 168,536 reads / 45.5 Mbp per run, strategy {\"WGS\": 111}, selection {\"PCR\": 111}; quote: fecal microbiota (16S rRNA gene sequencing)"
+  - study_accession: PRJNA1320699
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "16S sequencing of infant stool Metagenome"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 87,682 reads / 44.0 Mbp per run, strategy {\"WGS\": 90}, selection {\"PCR\": 90}; quote: 16S sequencing of infant stool Metagenome"
+  - study_accession: PRJNA800832
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "16S rRNA amplicon sequencing analysis of the lung bacteria and gut bacteria"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 49,554 reads / 21.9 Mbp per run, strategy {\"WGS\": 86}, selection {\"RANDOM\": 86}; quote: 16S rRNA amplicon sequencing analysis of the lung bacteria and gut bacteria"
+  - study_accession: PRJEB15633
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "library_selection: PCR"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 16,065 reads / 4.0 Mbp per run, strategy {\"OTHER\": 85}, selection {\"PCR\": 85}; quote: library_selection: PCR"
+  - study_accession: PRJEB7166
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "metagenomic analysis of the bacterial 16S rRNA gene and DNA and RNA virome through 454 pyrosequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 18,066 reads / 12.3 Mbp per run, strategy {\"WGA\": 76, \"WGS\": 4}, selection {\"size fractionation\": 80}; quote: metagenomic analysis of the bacterial 16S rRNA gene and DNA and RNA virome through 454 pyrosequencing"
+  - study_accession: PRJNA1000620
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "using the 16S rRNA method and shotgun metagenomic analysis"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 79,729 reads / 39.4 Mbp per run, strategy {\"OTHER\": 78}, selection {\"other\": 78}; quote: using the 16S rRNA method and shotgun metagenomic analysis"
+  - study_accession: PRJNA991320
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "microbiome composition"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 7,686 reads / 3.9 Mbp per run, strategy {\"WGS\": 74}, selection {\"PCR\": 74}; quote: microbiome composition"
+  - study_accession: PRJEB49241
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "composition of gut microbiota"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 163,244 reads / 44.2 Mbp per run, strategy {\"WGS\": 73}, selection {\"PCR\": 73}; quote: composition of gut microbiota"
+  - study_accession: PRJNA974554
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "human feces 16s rDNA"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 86,081 reads / 43.0 Mbp per run, strategy {\"WGS\": 72}, selection {\"unspecified\": 72}; quote: human feces 16s rDNA"
+  - study_accession: PRJNA789994
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "Human feces 16S rRNA gene sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 25,808 reads / 15.2 Mbp per run, strategy {\"WGS\": 70}, selection {\"RANDOM\": 70}; quote: Human feces 16S rRNA gene sequencing"
+  - study_accession: PRJDB11861
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "gut microbiome involved in various health condition through metabolites"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 30,429 reads / 17.3 Mbp per run, strategy {\"WGA\": 57}, selection {\"PCR\": 57}; quote: gut microbiome involved in various health condition through metabolites"
+  - study_accession: PRJNA894152
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "16S rRNA amplicon sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 2,494 reads / 6.1 Mbp per run, strategy {\"WGS\": 80}, selection {\"RANDOM\": 80}; quote: 16S rRNA amplicon sequencing"
+  - study_accession: PRJNA284162
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "Viral Microbiome and Bacterial Microbiome of Infant twins"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 101,477 reads / 22.9 Mbp per run, strategy {\"WGS\": 143}, selection {\"RANDOM\": 143}; quote: Viral Microbiome and Bacterial Microbiome of Infant twins"
+  - study_accession: PRJNA489590
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "gut microbiota profile among HIV-infected individuals"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 3,922 reads / 1.0 Mbp per run, strategy {\"OTHER\": 46}, selection {\"PCR\": 46}; quote: gut microbiota profile among HIV-infected individuals"
+  - study_accession: PRJNA941891
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "16S amplicon data for pediatric ASD patients receiving probiotic intervention"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 51,225 reads / 25.6 Mbp per run, strategy {\"WGS\": 41}, selection {\"PCR\": 41}; quote: 16S amplicon data for pediatric ASD patients receiving probiotic intervention"
+  - study_accession: PRJNA494033
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "We performed pyrosequencing of the gut microbiota on 40 individuals"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 41,809 reads / 20.8 Mbp per run, strategy {\"WGS\": 40}, selection {\"RANDOM\": 40}; quote: We performed pyrosequencing of the gut microbiota on 40 individuals"
+  - study_accession: PRJNA675106
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "microbiome composition as assessed via 16S rRNA sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 45,024 reads / 13.1 Mbp per run, strategy {\"WGS\": 34}, selection {\"RT-PCR\": 34}; quote: microbiome composition as assessed via 16S rRNA sequencing"
+  - study_accession: PRJNA981428
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "community structure and function analysis of the gut microbiota"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 83,480 reads / 41.7 Mbp per run, strategy {\"OTHER\": 34}, selection {\"PCR\": 34}; quote: community structure and function analysis of the gut microbiota"
+  - study_accession: PRJNA293986
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "identification of the pathogens associated with diarrhea in stool specimens"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 19,021 reads / 10.8 Mbp per run, strategy {\"WGS\": 29}, selection {\"PCR\": 29}; quote: identification of the pathogens associated with diarrhea in stool specimens"
+  - study_accession: PRJNA612780
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "fecal microbiota of human (n=13) and poultry (n=13) were examined using NGS"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 35,754 reads / 9.2 Mbp per run, strategy {\"WGS\": 26}, selection {\"RANDOM\": 26}; quote: fecal microbiota of human (n=13) and poultry (n=13) were examined using NGS"
+  - study_accession: PRJEB35991
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "characterized 24 fecal samples from 12 patients with acute hepatitis E"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 83,662 reads / 34.8 Mbp per run, strategy {\"WGS\": 24}, selection {\"RANDOM\": 24}; quote: characterized 24 fecal samples from 12 patients with acute hepatitis E"
+  - study_accession: PRJNA809331
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "detecting the composition of gut microbiota"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 91,584 reads / 40.3 Mbp per run, strategy {\"WGS\": 20}, selection {\"RANDOM PCR\": 20}; quote: detecting the composition of gut microbiota"
+  - study_accession: PRJEB3206
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "viral and microbial metagenomes associated with the Crohn's disease"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 28,292 reads / 32.4 Mbp per run, strategy {\"WGS\": 19}, selection {\"RANDOM PCR\": 18, \"PCR\": 1}; quote: viral and microbial metagenomes associated with the Crohn's disease"
+  - study_accession: PRJNA322324
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "identify viruses that cause disease outbreaks, as well as obtain their complete genomic information"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 97,531 reads / 13.6 Mbp per run, strategy {\"WGS\": 15}, selection {\"RANDOM\": 15}; quote: identify viruses that cause disease outbreaks, as well as obtain their complete genomic information"
+  - study_accession: PRJNA608796
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "long 16S amplicon library approximate 1500bp"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 7,681 reads / 12.7 Mbp per run, strategy {\"WGS\": 15}, selection {\"PCR\": 15}; quote: long 16S amplicon library approximate 1500bp"
+  - study_accession: PRJNA587350
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "viral metagenomic sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 162,019 reads / 38.2 Mbp per run, strategy {\"WGS\": 15}, selection {\"RANDOM PCR\": 15}; quote: viral metagenomic sequencing"
+  - study_accession: PRJNA540073
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "Targeted Capture of Antibiotic Resistance Determinants"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 84,400 reads / 42.4 Mbp per run, strategy {\"Targeted-Capture\": 38, \"WGS\": 12}, selection {\"Hybrid Selection\": 38, \"RANDOM\": 12}; quote: Targeted Capture of Antibiotic Resistance Determinants"
+  - study_accession: PRJNA1013917
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "targeted metagenomics to observe the bacterial composition"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 95,634 reads / 47.9 Mbp per run, strategy {\"WGS\": 9}, selection {\"PCR\": 9}; quote: targeted metagenomics to observe the bacterial composition"
+  - study_accession: SRP000287
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "unbiased high-throughput sequencing approach"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 25,310 reads / 6.0 Mbp per run, strategy {\"WGS\": 8}, selection {\"RANDOM\": 8}; quote: unbiased high-throughput sequencing approach"
+  - study_accession: PRJEB75433
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "Metagenomic NGS identified a new strain of human circovirus (HCirV-1)"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 69 reads / 0.0 Mbp per run, strategy {\"WGS\": 4}, selection {\"unspecified\": 4}; quote: Metagenomic NGS identified a new strain of human circovirus (HCirV-1)"
+  - study_accession: PRJNA526942
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "uncultured crAssphages isolated from South African maternal and infant fecal samples"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 74,738 reads / 22.4 Mbp per run, strategy {\"WGS\": 4}, selection {\"RANDOM\": 3, \"MDA\": 1}; quote: uncultured crAssphages isolated from South African maternal and infant fecal samples"
+  - study_accession: PRJNA1135322
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "Viral DNA from each sample was used for library construction, with whole genome amplification"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 35,826 reads / 13.2 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}; quote: Viral DNA from each sample was used for library construction, with whole genome amplification"
+  - study_accession: PRJNA1215685
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "16s rRNA sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 70,530 reads / 42.5 Mbp per run, strategy {\"WGS\": 2}, selection {\"RANDOM\": 2}; quote: 16s rRNA sequencing"
+  - study_accession: PRJEB7899
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "Sequencing and analysis of the total plasmid DNA"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 33,828 reads / 17.9 Mbp per run, strategy {\"WGS\": 1}, selection {\"RANDOM\": 1}; quote: Sequencing and analysis of the total plasmid DNA"
+  - study_accession: PRJNA751712
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "combination of amplicon and shotgun metagenomic sequencing"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 29,200 reads / 17.6 Mbp per run, strategy {\"WXS\": 94}, selection {\"PCR\": 94}; quote: combination of amplicon and shotgun metagenomic sequencing"
+  - study_accession: PRJNA510571
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 2 reads / 0.0 Mbp per run, strategy {\"WGS\": 1340, \"WGA\": 18, \"OTHER\": 16}, selection {\"RANDOM\": 895, \"other\": 320, \"size fractionation\": "}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 2 reads / 0.0 Mbp per run, strategy {\"WGS\": 1340, \"WGA\": 18, \"OTHER\": 16}, selection {\"RANDOM\": 895, \"other\": 320, \"size fractionation\": 82}; evidence = run statistics only"
+  - study_accession: PRJEB10914
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 12,776 reads / 1.9 Mbp per run, strategy {\"OTHER\": 1016}, selection {\"unspecified\": 1016}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 12,776 reads / 1.9 Mbp per run, strategy {\"OTHER\": 1016}, selection {\"unspecified\": 1016}; evidence = run statistics only"
+  - study_accession: PRJNA1274040
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 65,089 reads / 27.4 Mbp per run, strategy {\"OTHER\": 1000}, selection {\"PCR\": 1000}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 65,089 reads / 27.4 Mbp per run, strategy {\"OTHER\": 1000}, selection {\"PCR\": 1000}; evidence = run statistics only"
+  - study_accession: PRJNA46337
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 18 reads / 2.1 Mbp per run, strategy {\"WGS\": 1153}, selection {\"unspecified\": 1153}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 18 reads / 2.1 Mbp per run, strategy {\"WGS\": 1153}, selection {\"unspecified\": 1153}; evidence = run statistics only"
+  - study_accession: PRJEB14801
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 33,395 reads / 3.3 Mbp per run, strategy {\"OTHER\": 767}, selection {\"PCR\": 767}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 33,395 reads / 3.3 Mbp per run, strategy {\"OTHER\": 767}, selection {\"PCR\": 767}; evidence = run statistics only"
+  - study_accession: PRJNA675704
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 47,805 reads / 21.4 Mbp per run, strategy {\"WGS\": 585}, selection {\"RANDOM\": 585}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 47,805 reads / 21.4 Mbp per run, strategy {\"WGS\": 585}, selection {\"RANDOM\": 585}; evidence = run statistics only"
+  - study_accession: PRJNA748447
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 47,378 reads / 21.5 Mbp per run, strategy {\"WGS\": 448}, selection {\"RANDOM\": 448}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 47,378 reads / 21.5 Mbp per run, strategy {\"WGS\": 448}, selection {\"RANDOM\": 448}; evidence = run statistics only"
+  - study_accession: PRJEB13680
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 62,798 reads / 10.9 Mbp per run, strategy {\"OTHER\": 284}, selection {\"PCR\": 284}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 62,798 reads / 10.9 Mbp per run, strategy {\"OTHER\": 284}, selection {\"PCR\": 284}; evidence = run statistics only"
+  - study_accession: PRJNA576323
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 73,708 reads / 44.4 Mbp per run, strategy {\"WGS\": 210}, selection {\"PCR\": 210}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 73,708 reads / 44.4 Mbp per run, strategy {\"WGS\": 210}, selection {\"PCR\": 210}; evidence = run statistics only"
+  - study_accession: PRJNA1171148
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 62,255 reads / 37.5 Mbp per run, strategy {\"WGS\": 165}, selection {\"PCR\": 165}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 62,255 reads / 37.5 Mbp per run, strategy {\"WGS\": 165}, selection {\"PCR\": 165}; evidence = run statistics only"
+  - study_accession: PRJNA1024544
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 66,378 reads / 33.2 Mbp per run, strategy {\"WGS\": 150}, selection {\"PCR\": 150}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 66,378 reads / 33.2 Mbp per run, strategy {\"WGS\": 150}, selection {\"PCR\": 150}; evidence = run statistics only"
+  - study_accession: PRJNA574542
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 42,616 reads / 25.2 Mbp per run, strategy {\"WGS\": 137}, selection {\"PCR\": 137}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 42,616 reads / 25.2 Mbp per run, strategy {\"WGS\": 137}, selection {\"PCR\": 137}; evidence = run statistics only"
+  - study_accession: PRJNA828345
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 32,693 reads / 17.4 Mbp per run, strategy {\"WGS\": 134}, selection {\"PCR\": 134}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 32,693 reads / 17.4 Mbp per run, strategy {\"WGS\": 134}, selection {\"PCR\": 134}; evidence = run statistics only"
+  - study_accession: PRJNA1401517
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 103,929 reads / 46.5 Mbp per run, strategy {\"OTHER\": 103}, selection {\"PCR\": 103}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 103,929 reads / 46.5 Mbp per run, strategy {\"OTHER\": 103}, selection {\"PCR\": 103}; evidence = run statistics only"
+  - study_accession: PRJEB18693
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 24,645 reads / 10.3 Mbp per run, strategy {\"WGA\": 97}, selection {\"PCR\": 97}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 24,645 reads / 10.3 Mbp per run, strategy {\"WGA\": 97}, selection {\"PCR\": 97}; evidence = run statistics only"
+  - study_accession: PRJNA574517
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 50,558 reads / 21.2 Mbp per run, strategy {\"WGS\": 86}, selection {\"PCR\": 86}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 50,558 reads / 21.2 Mbp per run, strategy {\"WGS\": 86}, selection {\"PCR\": 86}; evidence = run statistics only"
+  - study_accession: PRJNA1512048
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 0 reads / 48.2 Mbp per run, strategy {\"OTHER\": 58}, selection {\"PCR\": 58}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 0 reads / 48.2 Mbp per run, strategy {\"OTHER\": 58}, selection {\"PCR\": 58}; evidence = run statistics only"
+  - study_accession: PRJNA810955
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 46,772 reads / 14.1 Mbp per run, strategy {\"WGS\": 58}, selection {\"PCR\": 58}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 46,772 reads / 14.1 Mbp per run, strategy {\"WGS\": 58}, selection {\"PCR\": 58}; evidence = run statistics only"
+  - study_accession: PRJNA900686
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 42,376 reads / 25.1 Mbp per run, strategy {\"WGS\": 114}, selection {\"PCR\": 114}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 42,376 reads / 25.1 Mbp per run, strategy {\"WGS\": 114}, selection {\"PCR\": 114}; evidence = run statistics only"
+  - study_accession: PRJNA544346
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 70,752 reads / 29.8 Mbp per run, strategy {\"WXS\": 112}, selection {\"PCR\": 112}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 70,752 reads / 29.8 Mbp per run, strategy {\"WXS\": 112}, selection {\"PCR\": 112}; evidence = run statistics only"
+  - study_accession: PRJNA299440
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 14,620 reads / 0.4 Mbp per run, strategy {\"WGS\": 56}, selection {\"PCR\": 56}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 14,620 reads / 0.4 Mbp per run, strategy {\"WGS\": 56}, selection {\"PCR\": 56}; evidence = run statistics only"
+  - study_accession: PRJNA909453
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 53,064 reads / 22.1 Mbp per run, strategy {\"WGS\": 50}, selection {\"RANDOM\": 50}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 53,064 reads / 22.1 Mbp per run, strategy {\"WGS\": 50}, selection {\"RANDOM\": 50}; evidence = run statistics only"
+  - study_accession: PRJNA396275
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 55,948 reads / 17.1 Mbp per run, strategy {\"WGS\": 49}, selection {\"PCR\": 49}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 55,948 reads / 17.1 Mbp per run, strategy {\"WGS\": 49}, selection {\"PCR\": 49}; evidence = run statistics only"
+  - study_accession: PRJNA692605
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 39,907 reads / 24.0 Mbp per run, strategy {\"WXS\": 47}, selection {\"PCR\": 47}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 39,907 reads / 24.0 Mbp per run, strategy {\"WXS\": 47}, selection {\"PCR\": 47}; evidence = run statistics only"
+  - study_accession: PRJNA863139
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 77,352 reads / 37.6 Mbp per run, strategy {\"WGS\": 47}, selection {\"size fractionation\": 47}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 77,352 reads / 37.6 Mbp per run, strategy {\"WGS\": 47}, selection {\"size fractionation\": 47}; evidence = run statistics only"
+  - study_accession: PRJNA1484585
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 13,621 reads / 20.3 Mbp per run, strategy {\"WGS\": 45}, selection {\"RANDOM\": 45}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 13,621 reads / 20.3 Mbp per run, strategy {\"WGS\": 45}, selection {\"RANDOM\": 45}; evidence = run statistics only"
+  - study_accession: PRJNA659140
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 132,984 reads / 38.8 Mbp per run, strategy {\"WGS\": 44}, selection {\"PCR\": 44}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 132,984 reads / 38.8 Mbp per run, strategy {\"WGS\": 44}, selection {\"PCR\": 44}; evidence = run statistics only"
+  - study_accession: PRJNA390051
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 68,692 reads / 41.2 Mbp per run, strategy {\"WGS\": 42}, selection {\"RANDOM\": 42}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 68,692 reads / 41.2 Mbp per run, strategy {\"WGS\": 42}, selection {\"RANDOM\": 42}; evidence = run statistics only"
+  - study_accession: PRJEB14969
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 161,383 reads / 48.5 Mbp per run, strategy {\"OTHER\": 37}, selection {\"PCR\": 37}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 161,383 reads / 48.5 Mbp per run, strategy {\"OTHER\": 37}, selection {\"PCR\": 37}; evidence = run statistics only"
+  - study_accession: PRJNA634503
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 44,192 reads / 26.6 Mbp per run, strategy {\"WXS\": 36}, selection {\"PCR\": 36}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 44,192 reads / 26.6 Mbp per run, strategy {\"WXS\": 36}, selection {\"PCR\": 36}; evidence = run statistics only"
+  - study_accession: PRJNA1312266
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 58,292 reads / 15.6 Mbp per run, strategy {\"WGS\": 33}, selection {\"PCR\": 33}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 58,292 reads / 15.6 Mbp per run, strategy {\"WGS\": 33}, selection {\"PCR\": 33}; evidence = run statistics only"
+  - study_accession: PRJNA592843
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 95,604 reads / 46.6 Mbp per run, strategy {\"WGS\": 32}, selection {\"PCR\": 32}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 95,604 reads / 46.6 Mbp per run, strategy {\"WGS\": 32}, selection {\"PCR\": 32}; evidence = run statistics only"
+  - study_accession: PRJNA864754
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 20,746 reads / 8.9 Mbp per run, strategy {\"WGS\": 32}, selection {\"RANDOM\": 32}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 20,746 reads / 8.9 Mbp per run, strategy {\"WGS\": 32}, selection {\"RANDOM\": 32}; evidence = run statistics only"
+  - study_accession: PRJNA831350
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 115,860 reads / 48.7 Mbp per run, strategy {\"WGS\": 30}, selection {\"size fractionation\": 30}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 115,860 reads / 48.7 Mbp per run, strategy {\"WGS\": 30}, selection {\"size fractionation\": 30}; evidence = run statistics only"
+  - study_accession: PRJNA506262
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 32,280 reads / 13.7 Mbp per run, strategy {\"OTHER\": 29}, selection {\"PCR\": 29}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 32,280 reads / 13.7 Mbp per run, strategy {\"OTHER\": 29}, selection {\"PCR\": 29}; evidence = run statistics only"
+  - study_accession: PRJNA324581
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: other
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 295,532 reads / 40.6 Mbp per run, strategy {\"WGS\": 27, \"OTHER\": 27}, selection {\"RANDOM\": 27, \"Hybrid Selection\": 27}"}
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 295,532 reads / 40.6 Mbp per run, strategy {\"WGS\": 27, \"OTHER\": 27}, selection {\"RANDOM\": 27, \"Hybrid Selection\": 27}; evidence = run statistics only"
+  - study_accession: PRJNA1089239
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 62,974 reads / 37.9 Mbp per run, strategy {\"WGS\": 22}, selection {\"PCR\": 22}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 62,974 reads / 37.9 Mbp per run, strategy {\"WGS\": 22}, selection {\"PCR\": 22}; evidence = run statistics only"
+  - study_accession: PRJDB11604
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 36,606 reads / 10.8 Mbp per run, strategy {\"WGA\": 8}, selection {\"PCR\": 8}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 36,606 reads / 10.8 Mbp per run, strategy {\"WGA\": 8}, selection {\"PCR\": 8}; evidence = run statistics only"
+  - study_accession: PRJNA292042
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 0 reads / 18.3 Mbp per run, strategy {\"WGS\": 6}, selection {\"PCR\": 6}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 0 reads / 18.3 Mbp per run, strategy {\"WGS\": 6}, selection {\"PCR\": 6}; evidence = run statistics only"
+  - study_accession: PRJNA312041
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 33,488 reads / 16.3 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 33,488 reads / 16.3 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}; evidence = run statistics only"
+  - study_accession: PRJNA747151
+    date: '2026-10-12'
+    stage: owner_decision
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: owner_decision, quote: "run statistics: median 74,333 reads / 31.5 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}"}
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 74,333 reads / 31.5 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}; evidence = run statistics only"

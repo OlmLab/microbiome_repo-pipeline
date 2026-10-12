@@ -85,7 +85,10 @@ def built(tmp_path_factory):
     def render(tpl, path, root, nav=None, crumbs=None, **ctx):
         (out / path).parent.mkdir(parents=True, exist_ok=True)
         (out / path).write_text(env.get_template(tpl).render(root=root, nav=nav, crumbs=crumbs, page_path=path, **ctx), encoding='utf-8'); written.append(path)
-    pages = atlas.build(env, render, dict(atlas_data_dir=data_dir, stats={}, gut_studies=studies), out)
+    figs = tmp / 'figs'; figs.mkdir()
+    (figs / 'figure1.png').write_bytes(b'\x89PNG\r\n\x1a\n'); (figs / 'figure1_web.png').write_bytes(b'\x89PNG\r\n\x1a\n')
+    (figs / 'figures.json').write_text(json.dumps(dict(figures=[dict(n=1, title='A test figure.', caption='(a) panel a.', file='figure1.png')])))
+    pages = atlas.build(env, render, dict(atlas_data_dir=data_dir, stats={}, gut_studies=studies, figures_dir=str(figs)), out)
     return dict(out=out, meta=meta, pages=pages, written=written, summary=summary, wide=wide, genus_long=genus_long)
 
 
@@ -143,15 +146,14 @@ def test_binary_matrix_roundtrip(built):
 
 def test_pages_render(built):
     out = built['out']
-    assert built['pages'] == ['atlas/index.html', 'atlas/observations.html'] == built['written']
+    assert built['pages'] == ['atlas/index.html', 'atlas/figures.html'] == built['written']
     a = (out / 'atlas' / 'index.html').read_text()
     assert 'id="map"' in a and 'static/atlas.js' in a and 'd3@7.9.0' in a and 'topojson-client@3.1.0' in a and 'integrity="sha384-' in a
     assert 'About this view' in a and 'master confounder' in a and 'Repeated measures' in a and '100 Mbp' in a
     assert '289' in a and 'class="active"' in a and 'atlas/index.html' in a  # nav link present + active
-    o = (out / 'atlas' / 'observations.html').read_text()
-    assert o.count('<section class="obs"') == 2 and 'a test card' in o and 'exploratory' in o
-    assert '../data/atlas/obs/a_test_card.png' in o and '../data/atlas/obs/a_test_card.csv' in o
-    assert (out / 'data' / 'atlas' / 'obs' / 'a_test_card.png').exists()
+    f = (out / 'atlas' / 'figures.html').read_text()   # R2026.25: Observations replaced by the manuscript Figures page
+    assert 'Figure 1. A test figure.' in f and 'figures/figure1_web.png' in f and 'href="figures/figure1.png"' in f
+    assert (out / 'atlas' / 'figures' / 'figure1.png').exists()
     assert (GEN / 'static' / 'vendor' / 'countries-110m.json').exists() and 'countries-110m.json' in json.loads((GEN / 'static' / 'vendor' / 'SRI.json').read_text())
 
 
@@ -165,8 +167,8 @@ def test_build_without_observations(tmp_path):
     out = tmp_path / 'site'; out.mkdir()
     def render(tpl, path, root, **ctx):
         (out / path).parent.mkdir(parents=True, exist_ok=True); (out / path).write_text(env.get_template(tpl).render(root=root, page_path=path, **ctx))
-    atlas.build(env, render, dict(atlas_data_dir=data_dir), out)
-    assert 'No observation cards' in (out / 'atlas' / 'observations.html').read_text()
+    pages = atlas.build(env, render, dict(atlas_data_dir=data_dir), out)
+    assert pages == ['atlas/index.html'] and not (out / 'atlas' / 'observations.html').exists()   # no figures dir: map page only
 
 
 def test_official_hdi_table():

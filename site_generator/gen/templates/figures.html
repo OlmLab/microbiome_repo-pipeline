@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Figures — {{ site.title }}{% endblock %}
+{% block desc %}The six figures of the Microbiome Repo resource paper, with captions.{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Figures</h1>{% include "_atlas_nav.html" %}<p>The figures of the Microbiome Repo resource manuscript (in preparation), built from the catalog's own tables. Click a figure for the full-resolution image.</p></div>
+{% for f in figures %}<figure class="msfig" id="figure-{{ f.n }}">
+<a href="figures/{{ f.file }}" title="Figure {{ f.n }} — full resolution"><img src="figures/{{ f.web }}" alt="Figure {{ f.n }}. {{ f.title }}" loading="lazy" width="1400"></a>
+<figcaption><b>Figure {{ f.n }}. {{ f.title }}</b> {{ f.caption }}</figcaption>
+</figure>
+{% endfor %}
+<p class="small muted">Figures reflect the release they were built from (stated in each caption); numbers on the rest of the site follow the current release.</p>
+{% endblock %}

@@ -243,6 +243,19 @@ def build(env, render, ctx, out_dir):
     payload_mb = round(taxa_meta.get('payload_bytes_total', 0) / 1e6, 1)
     render('atlas.html', 'atlas/index.html', '../', nav='atlas', meta=taxa_meta, payload_mb=payload_mb, n_obs=len(obs['cards']), stats=ctx.get('stats', {}),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Atlas')])
-    render('observations.html', 'atlas/observations.html', '../', nav='atlas', meta=taxa_meta, obs_meta=obs.get('meta', {}), cards=obs['cards'], stats=ctx.get('stats', {}),
-           crumbs=[dict(label='Home', href='../index.html'), dict(label='Atlas', href='index.html'), dict(label='Observations')])
-    return ['atlas/index.html', 'atlas/observations.html']
+    # R2026.25: the Observations page is replaced by the manuscript Figures page (owner request); old URL redirects (build_site.REDIRECTS)
+    figs_src = Path(ctx.get('figures_dir') or '')
+    if figs_src.is_dir() and (figs_src / 'figures.json').exists():
+        fj = json.loads((figs_src / 'figures.json').read_text())
+        (out_dir / 'atlas' / 'figures').mkdir(parents=True, exist_ok=True)
+        figs = []
+        for f in fj['figures']:
+            web = f['file'].replace('.png', '_web.png')
+            for fn in (f['file'], web):
+                if (figs_src / fn).exists():
+                    shutil.copy(figs_src / fn, out_dir / 'atlas' / 'figures' / fn)
+            figs.append(dict(f, web=web if (figs_src / web).exists() else f['file']))
+        render('figures.html', 'atlas/figures.html', '../', nav='atlas', sub='figs', figures=figs, stats=ctx.get('stats', {}),
+               crumbs=[dict(label='Home', href='../index.html'), dict(label='Atlas', href='index.html'), dict(label='Figures')])
+        return ['atlas/index.html', 'atlas/figures.html']
+    return ['atlas/index.html']

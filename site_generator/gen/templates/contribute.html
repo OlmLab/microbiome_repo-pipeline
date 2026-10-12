@@ -5,23 +5,26 @@
 <h1>Contribute</h1>
 <p class="lead">{{ cs.n_open|fmt }} projects are missing basic sample information — age, country, health condition or subject. If you know where it is (you are an author, or the paper has a supplementary table), you can fill the gap in about two minutes.</p>
 
-<div class="steps">
-<div class="step"><b>1 · Find the project</b><br>Search the list below by accession, title word or author.</div>
-<div class="step"><b>2 · Click “Share metadata”</b><br>A short GitHub form opens with the project already filled in (free GitHub account needed).</div>
-<div class="step"><b>3 · Fill in four things</b><br><i>What</i> you share · a <i>link</i>, or drag the file into the box · the <i>column with sample IDs</i> · tick the CC-BY box. Submit.</div>
-</div>
+<ol class="steps">
+<li class="step"><span class="step-n">1</span><div><b>Find the project</b><p>Search the list below by accession, title word or author.</p></div></li>
+<li class="step"><span class="step-n">2</span><div><b>Click “Share metadata”</b><p>A short GitHub form opens with the project already filled in (free GitHub account).</p></div></li>
+<li class="step"><span class="step-n">3</span><div><b>Fill in the form</b><ul class="step-list"><li>what you are sharing</li><li>a link — or drag the file in</li><li>which column holds the sample IDs</li><li>tick the CC-BY box, then submit</li></ul></div></li>
+</ol>
 <p class="small">We check every submission and add the values in the next release; each value then links back to your issue as its evidence. A good table has one row per sample and a column with run (SRR/ERR…) or BioSample (SAMN/SAMEA…) accessions, for example:</p>
 <table class="tbl small" style="max-width:520px"><thead><tr><th>Run</th><th>age_years</th><th>sex</th><th>condition</th></tr></thead><tbody><tr><td class="mono">SRR1234567</td><td>34</td><td>female</td><td>ulcerative colitis</td></tr><tr><td class="mono">SRR1234568</td><td>41</td><td>male</td><td>healthy</td></tr></tbody></table>
 <p class="small">Something else wrong on a page? Use <b>Flag an issue</b> on that study page. Submitted contributions: <a href="https://github.com/{{ cs.repo }}/issues?q=label%3Acontribution">open issues</a>.</p>
 
 <h2>Projects that need metadata</h2>
 <div class="wl-filters"><input id="q" class="searchbox" type="search" placeholder="Filter by accession, title or author">
-<label title="A paper is linked, but its supplementary tables were not open to us (paywalled, publisher site only, or download failed) — the best odds for a quick contribution"><input type="checkbox" id="f-supp"> supplementary tables not accessible to us <span class="muted">({{ rows|selectattr('papers')|rejectattr('supp', 'equalto', 'used')|rejectattr('supp', 'equalto', 'checked')|list|length|fmt }})</span></label>
+<label title="A paper is linked, but its supplementary tables were not open to us (paywalled, publisher site only, or download failed) — the best odds for a quick contribution"><input type="checkbox" id="f-supp"> <span class="dot-warn">●</span> supplementary tables not accessible <span class="muted">({{ rows|selectattr('papers')|rejectattr('supp', 'equalto', 'used')|rejectattr('supp', 'equalto', 'checked')|list|length|fmt }})</span></label>
 <label title="A paper is linked but no open full text was available"><input type="checkbox" id="f-ft"> no open full text <span class="muted">({{ rows|selectattr('papers')|selectattr('ft', 'equalto', 'none')|list|length|fmt }})</span></label></div>
-<table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th></th></tr></thead><tbody>
+<table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th>Paper</th><th></th></tr></thead><tbody>
 {% for r in rows %}<tr class="wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ (r.cohort or ''))|lower }}" data-supp="{{ 1 if (r.papers and r.supp not in ('used', 'checked')) else 0 }}" data-ft="{{ 1 if (r.papers and r.ft == 'none') else 0 }}"><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span></td><td class="num">{{ r.n|fmt }}</td>
-<td>{% for f in r.missing %}<span class="tag">{{ field_labels.get(f, f) }}</span> {% endfor %}{% if r.papers and r.supp not in ('used', 'checked') %}<span class="tag warnchip" title="We could not open this paper's supplementary tables">supp. not accessible</span> {% endif %}{% if r.paper_url %}<a class="small" href="{{ r.paper_url }}">paper</a>{% endif %}</td><td><a class="btn" href="{{ r.issue_url }}">Share metadata</a></td></tr>
+<td class="wl-miss">{% for f in r.missing %}{{ field_labels.get(f, f) }}{% if not loop.last %}<span class="sep"> · </span>{% endif %}{% endfor %}</td>
+<td class="wl-paper">{% if r.paper_url %}<a href="{{ r.paper_url }}" title="Linked paper{% if r.n_papers and r.n_papers > 1 %} (first of {{ r.n_papers }}){% endif %}">{{ r.paper_label or 'paper' }}</a>{% if r.papers and r.supp not in ('used', 'checked') %} <span class="dot-warn" title="We could not open this paper's supplementary tables — a good one to share">●</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>
+<td><a class="btn btn-sm" href="{{ r.issue_url }}">Share metadata</a></td></tr>
 {% endfor %}</tbody></table>
+<p class="small muted"><span class="dot-warn">●</span> supplementary tables not accessible to us — these are the quickest wins.</p>
 {% endblock %}
 {% block scripts %}
 <script>

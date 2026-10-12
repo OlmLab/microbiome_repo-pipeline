@@ -358,3 +358,41 @@ svg.spark rect{fill:var(--cu-gold)}svg.spark.depth rect.repo{fill:none;stroke:#7
 .tag.unres{background:transparent;border:1px dashed currentColor;opacity:.8}
 .dzb.ok{background:#eaf5ea;border-color:#5a9a5a;color:#234a23}
 .dzb.unres{background:#fff;border-style:dashed;border-color:#999;color:#555}
+
+/* contribute page (R2026.25) */
+ol.steps{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.8rem;margin:1rem 0}
+ol.steps .step{display:flex;gap:.7rem;align-items:flex-start;padding:.8rem 1rem}
+ol.steps .step p{margin:.2rem 0 0;font-size:.88rem;color:#444}
+.step-n{flex:none;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--cu-gold);color:var(--cu-black);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem}
+.step-list{margin:.25rem 0 0;padding-left:1.05rem;font-size:.88rem;color:#444;line-height:1.45}
+#wl-table td{vertical-align:middle}
+#wl-table td.wl-miss{font-size:.82rem;color:#555;white-space:nowrap}
+#wl-table td.wl-miss .sep{color:#bbb}
+#wl-table td.wl-paper{font-size:.82rem;white-space:nowrap}
+.dot-warn{color:#c8892a;font-size:.7rem;vertical-align:middle}
+.btn.btn-sm{padding:.22rem .7rem;font-size:.8rem}
+.wl-filters label{flex-direction:row;align-items:center;gap:.35rem}
+
+/* home globe (R2026.25) */
+.home-globe-wrap{margin:.4rem auto 1.6rem;display:flex;flex-direction:column;align-items:center}
+.home-globe{width:300px;height:300px;position:relative}
+.home-globe .globe{width:300px;height:300px}
+.home-globe-cap{margin:.3rem 0 0;font-size:.78rem}
+@media (max-width:520px){.home-globe,.home-globe .globe{width:240px;height:240px}}
+
+
+.dzb.unres,.dzb.lg.unres,.dzb.rel.unres{background:transparent;border-style:dashed}
+.tag.lgt.unres,.tag.unres{border-style:dotted;border-width:1.5px}
+
+/* relationship networks (R2026.25) */
+.relnet{display:flex;flex-wrap:wrap;gap:.5rem .7rem;align-items:flex-end;margin:.6rem 0 .3rem}
+.relnet-c{margin:0;padding:.25rem .35rem;border:1px solid var(--line);border-radius:8px;background:#fff}
+.relnet-c svg{display:block}
+.relnet-cap{margin-top:.2rem}
+.relnet-k{white-space:nowrap;margin-right:.55rem}.relnet-k i{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.25rem;vertical-align:-1px}
+
+/* self-contradictory metadata badge (R2026.25) */
+.tag.cxt{background:#c0392b;color:#fff;border-color:#c0392b;font-weight:700;padding:0 .38em;border-radius:3px}
+.tag.ivt{background:#efe4c4;border-color:#a88b4a;color:#5a4a1a}
+.dzb.iv{background:#faf3e3;border-color:#a88b4a;color:#5a4a1a}
+.iv-box{margin:.4rem 0 .2rem}.iv-box svg{max-width:100%;height:auto}

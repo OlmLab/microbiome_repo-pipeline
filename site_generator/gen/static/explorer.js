@@ -168,7 +168,7 @@ async function run() {
     `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td>` +
     td(row.age_category, 'age_category') + td(row.age_at_collection_days === null || row.age_at_collection_days === undefined ? '' : Math.round(Number(row.age_at_collection_days)), 'age_at_collection_days', 'num') +
     td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'tclip') + td(row.intervention, 'intervention', 'tclip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
-    td(row.subject_id, 'subject_id', 'tclip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : Number(row.seq_gbp).toFixed(1)}</td></tr>`; }).join('');
+    td(row.subject_id, 'subject_id', 'tclip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : ((g_) => g_ >= 1 ? g_.toFixed(1) : g_ >= 0.01 ? g_.toFixed(3) : g_ > 0 ? g_.toPrecision(2) : '0')(Number(row.seq_gbp))}</td></tr>`; }).join('');
   $('count').textContent = `${total.toLocaleString()} samples match (${Number(c0.k).toLocaleString()} studies)`;
   $('pageinfo').textContent = total ? `page ${page + 1} / ${maxPage + 1}` : '';
   $('prev').disabled = page <= 0; $('next').disabled = page >= maxPage;

@@ -524,7 +524,7 @@ def det_row(sample, field, study, value, norm, conf, key, locator, quote, note="
 
 
 def build_gut_runs(registry_runs: pd.DataFrame, sandpiper: pd.DataFrame | None, gut_studies: set, wide: pd.DataFrame,
-                   infant_runs: pd.DataFrame | None = None, ncbi_bases: pd.DataFrame | None = None, est_bases: pd.DataFrame | None = None) -> pd.DataFrame:
+                   infant_runs: pd.DataFrame | None = None, ncbi_bases: pd.DataFrame | None = None, est_bases: pd.DataFrame | None = None, run_alias: dict | None = None) -> pd.DataFrame:
     """gut_runs: one row per run of a catalog study (registry_runs ∩ gut studies) with sample_key from the wide table
     (run-unit samples are keyed by the run accession; biosample-unit samples by biosample_accession / secondary_sample).
 
@@ -545,7 +545,8 @@ def build_gut_runs(registry_runs: pd.DataFrame, sandpiper: pd.DataFrame | None, 
         sk = df.sample_accession.map(m1)
         if "secondary_sample_accession" in df.columns:
             sk = sk.where(sk.notna(), df.secondary_sample_accession.map(m2))
-        df["sample_key"] = df.run_accession.where(df.run_accession.isin(runk), sk)
+        ra = df.run_accession.map(run_alias or {}).fillna(df.run_accession)   # R2026.25: further runs of a library unit
+        df["sample_key"] = ra.where(ra.isin(runk), sk)
         return df
 
     rr = registry_runs[[c for c in cols if c in registry_runs.columns]]

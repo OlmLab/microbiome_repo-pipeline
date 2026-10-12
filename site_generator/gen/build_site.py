@@ -124,14 +124,14 @@ NAV = [('home', 'Home', 'index.html', None),
        ('explore', 'Explore', None, [('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
                                      ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html'),
                                      ('atlas', 'Insights', None), ('atlas', 'Atlas: taxon map', 'atlas/index.html'),
-                                     ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Atlas: observations', 'atlas/observations.html')]),
+                                     ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Figures (resource paper)', 'atlas/figures.html')]),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
                                  ('about', 'Where values come from', 'about/value_sources.html'), ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html')])]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
-             'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html'}
+             'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'figures.html'}
 ARCHIVE_URLS = {'SAMN': 'https://www.ncbi.nlm.nih.gov/biosample/', 'SAMD': 'https://ddbj.nig.ac.jp/resource/biosample/', 'SAME': 'https://www.ebi.ac.uk/ena/browser/view/',
                 'RUN': 'https://www.ebi.ac.uk/ena/browser/view/'}
 
@@ -273,6 +273,312 @@ def motif_svg(motif, width=None):
         out.append(f'<circle cx="{x:.1f}" cy="{y}" r="7" fill="{ROLE_COLOR.get(r, "#8C8F91")}"><title>{r}</title></circle><text x="{x:.1f}" y="{y + 3}" font-size="8" text-anchor="middle" fill="#fff">{ROLE_ABBR.get(r, "?")}</text>')
     out.append('</svg>')
     return ''.join(out)
+
+
+# ---- R2026.25 relationship networks: every family, shared setting and explicit pairwise relation drawn as a small graph
+REL_EDGE = {'donor_of': ('donor', 'recipient', True, '#A88B4A', ''), 'mother_of': ('mother', 'child', True, '#999999', ''), 'father_of': ('father', 'child', True, '#999999', ''),
+            'parent_of': ('parent', 'child', True, '#999999', ''), 'twin_of': ('twin', 'twin', False, '#AA3377', ''), 'twin_mz_of': ('twin', 'twin', False, '#AA3377', 'MZ'),
+            'twin_dz_of': ('twin', 'twin', False, '#AA3377', 'DZ'), 'sibling_of': ('sibling', 'sibling', False, '#66CCEE', ''), 'partner_of': ('partner', 'partner', False, '#88AA55', ''),
+            'roommate_of': ('household_member', 'household_member', False, '#BBBBBB', ''), 'household_member_of': ('household_member', 'household_member', False, '#BBBBBB', '')}
+NET_ROLE_COLOR = dict(ROLE_COLOR, donor='#A88B4A', recipient='#6C8EBF', member='#B9B2A0')
+NET_ROLE_ABBR = dict(ROLE_ABBR, donor='D', recipient='R', member='')
+_PARENT_ROLES = ('mother', 'father', 'parent', 'grandparent', 'donor')
+
+
+def relnet_svg(cl, uid):
+    """One cluster as an SVG graph. cl = dict(nodes=[{id, label, role, n}], edges=[(a, b, kind)], hub=None | {label, more}).
+    Layout: directed edges (donor -> recipient, parent -> child) run top -> bottom; undirected links (twins, partners,
+    siblings, roommates) join nodes in a row; a hub (shared setting, or a family without known roles) sits on top with spokes."""
+    nodes = {n['id']: n for n in cl['nodes']}
+    edges = [e for e in cl['edges'] if e[0] in nodes and e[1] in nodes]
+    lvl = {k: 0 for k in nodes}
+    directed = [(a, b) for a, b, k in edges if REL_EDGE.get(k, ('', '', False))[2]]
+    for _ in range(3):
+        for a, b in directed:
+            lvl[b] = max(lvl[b], min(2, lvl[a] + 1))
+    if not directed and not cl.get('hub'):
+        for k, n in nodes.items():
+            lvl[k] = 0 if n['role'] in _PARENT_ROLES or n['role'] == 'partner' and any(m['role'] == 'child' for m in nodes.values()) else 1
+        if len(set(lvl.values())) == 1:
+            lvl = {k: 0 for k in nodes}
+    if cl.get('hub'):
+        lvl = {k: 1 + i // 10 for i, k in enumerate(nodes)}
+    rows0 = {}
+    for k in nodes:
+        rows0.setdefault(lvl[k], []).append(k)
+    rows = {}
+    for l_ in sorted(rows0):   # wrap long rows (a donor with 40 recipients) at 12 nodes
+        r_ = sorted(rows0[l_], key=lambda k: (nodes[k]['role'] not in _PARENT_ROLES, str(nodes[k]['label'])))
+        for j in range(0, len(r_), 12):
+            rows[l_ * 100 + j // 12] = r_[j:j + 12]
+    ncol = max(len(v) for v in rows.values()) + (1 if cl.get('hub', {}) and cl['hub'].get('more') else 0)
+    dx, dy = 32, 36
+    W = max(64, ncol * dx + 16)
+    levels = sorted(rows)
+    top = 14 if cl.get('hub') else (10 if directed else 0)
+    H = top + len(levels) * dy + 8
+    pos = {}
+    for li, l_ in enumerate(levels):
+        r_ = rows[l_]
+        for i, k in enumerate(r_):
+            pos[k] = (W / 2 + (i - (len(r_) - 1) / 2) * dx, top + 12 + li * dy)
+    out = [f'<svg class="relnet-g" viewBox="0 0 {W:.0f} {H:.0f}" width="{W:.0f}" height="{H:.0f}" role="img" aria-label="{html_escape(cl.get("title", ""))}">',
+           f'<defs><marker id="ra{uid}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L8,4L0,8z" fill="#A88B4A"/></marker>'
+           f'<marker id="rg{uid}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L8,4L0,8z" fill="#999"/></marker></defs>']
+    if cl.get('title'):
+        out.append(f'<title>{html_escape(cl["title"])}</title>')
+    if cl.get('hub'):
+        hx, hy = W / 2, 9
+        for k in nodes:
+            x, y = pos[k]
+            out.append(f'<line x1="{hx:.1f}" y1="{hy + 4}" x2="{x:.1f}" y2="{y - 7}" stroke="#cfc8b6" stroke-width="0.8"/>')
+        out.append(f'<rect x="{hx - 5:.1f}" y="{hy - 5}" width="10" height="10" rx="2" fill="#8C8F91"><title>{html_escape(cl["hub"]["label"])}</title></rect>')
+    fam_lines = cl.get('family_lines')
+    if fam_lines:
+        par = [k for k in nodes if lvl[k] == 0 and nodes[k]['role'] in _PARENT_ROLES + ('partner',)]
+        kid = [k for k in nodes if lvl[k] == 1]
+        for a in par:
+            for b in kid:
+                (x1, y1), (x2, y2) = pos[a], pos[b]
+                out.append(f'<line x1="{x1:.1f}" y1="{y1 + 7}" x2="{x2:.1f}" y2="{y2 - 7}" stroke="#aaa" stroke-width="0.8"/>')
+        if len(par) >= 2:
+            out.append(f'<line x1="{pos[par[0]][0]:.1f}" y1="{pos[par[0]][1]}" x2="{pos[par[-1]][0]:.1f}" y2="{pos[par[-1]][1]}" stroke="#aaa" stroke-width="0.8"/>')
+        if not par and len(kid) >= 2:
+            out.append(f'<line x1="{pos[kid[0]][0]:.1f}" y1="{pos[kid[0]][1]}" x2="{pos[kid[-1]][0]:.1f}" y2="{pos[kid[-1]][1]}" stroke="#bbb" stroke-width="0.8" stroke-dasharray="2 2"/>')
+        if not par and not kid or (len(set(lvl.values())) == 1 and len(nodes) >= 2 and not par):
+            pass
+    for a, b, k in edges:
+        ra, rb, dr, col, lab = REL_EDGE.get(k, ('', '', False, '#999', ''))
+        (x1, y1), (x2, y2) = pos[a], pos[b]
+        if dr:
+            import math as _m
+            _dense = len(directed) > 16
+            L = _m.hypot(x2 - x1, y2 - y1) or 1
+            ux, uy = (x2 - x1) / L, (y2 - y1) / L
+            out.append(f'<line x1="{x1 + ux * 8:.1f}" y1="{y1 + uy * 8:.1f}" x2="{x2 - ux * 8:.1f}" y2="{y2 - uy * 8:.1f}" stroke="{col}" stroke-width="{0.7 if _dense else 1.2}"{' stroke-opacity="0.45"' if _dense else ''} marker-end="url(#{"ra" if k == "donor_of" else "rg"}{uid})"><title>{html_escape(nodes[a]["label"])} {k.replace("_of", "").replace("_", " ")} of {html_escape(nodes[b]["label"])}</title></line>')
+        else:
+            dash = ' stroke-dasharray="3 2"' if k in ('roommate_of', 'household_member_of') else ''
+            if abs(y1 - y2) < 1 and abs(x1 - x2) > dx * 1.5:
+                mx, my = (x1 + x2) / 2, y1 - 14
+                out.append(f'<path d="M{x1:.1f},{y1 - 7} Q{mx:.1f},{my} {x2:.1f},{y2 - 7}" fill="none" stroke="{col}" stroke-width="1.2"{dash}/>')
+            else:
+                out.append(f'<line x1="{x1:.1f}" y1="{y1}" x2="{x2:.1f}" y2="{y2}" stroke="{col}" stroke-width="1.2"{dash}/>')
+            if lab:
+                out.append(f'<text x="{(x1 + x2) / 2:.1f}" y="{min(y1, y2) - 9:.1f}" font-size="7" text-anchor="middle" fill="#AA3377">{lab}</text>')
+    import os as _os
+    _labs = [str(n['label']) for n in nodes.values()]
+    _cp = _os.path.commonprefix(_labs) if len(_labs) >= 2 else ''
+    _cut = len(_cp) if len(_cp) >= 3 and all(len(l_) > len(_cp) for l_ in _labs) else 0
+    _hide = sum(1 for l_ in _labs if len(l_) - _cut > 9) > len(_labs) / 2   # mostly long accessions: tooltips only
+    for k, n in nodes.items():
+        x, y = pos[k]
+        r_ = n['role'] or 'unknown'
+        lbl = str(n['label']); short = lbl[_cut:].lstrip('-_. ') or lbl
+        lbl_s = '' if _hide else (short if len(short) <= 6 else short[:5] + '…')
+        ly = y - 11 if (directed and lvl[k] == 0) else y + 16
+        out.append(f'<g><title>{html_escape(lbl)} — {r_.replace("_", " ")}{(" · " + str(n["n"]) + " sample" + ("s" if n["n"] != 1 else "")) if n.get("n") else " · not sequenced"}</title>'
+                   f'<circle cx="{x:.1f}" cy="{y}" r="7" fill="{NET_ROLE_COLOR.get(r_, "#8C8F91")}"{"" if n.get("n") else " fill-opacity=\"0.35\""}/>'
+                   f'<text x="{x:.1f}" y="{y + 3}" font-size="8" text-anchor="middle" fill="#fff">{NET_ROLE_ABBR.get(r_, "")}</text>'
+                   + (f'<text x="{x:.1f}" y="{ly}" font-size="7.5" text-anchor="middle" fill="#666">{html_escape(lbl_s)}</text>' if lbl_s else '') + '</g>')
+    if _cut and not _hide:
+        out.append(f'<text x="3" y="{H + 7:.0f}" font-size="7" fill="#aaa">{html_escape(_cp.rstrip("-_. ")[:24])}…</text>')
+        out[0] = out[0].replace(f'viewBox="0 0 {W:.0f} {H:.0f}"', f'viewBox="0 0 {W:.0f} {H + 10:.0f}"').replace(f'height="{H:.0f}"', f'height="{H + 10:.0f}"')
+    if cl.get('hub') and cl['hub'].get('more'):
+        r_ = rows[levels[-1]]
+        x = W / 2 + (len(r_) - (len(r_) - 1) / 2) * dx
+        out.append(f'<text x="{x:.1f}" y="{pos[r_[-1]][1] + 3}" font-size="8" text-anchor="middle" fill="#888">+{cl["hub"]["more"]}</text>')
+    out.append('</svg>')
+    return ''.join(out)
+
+
+def relnet_clusters(acc, rel_rows, fam_rows, set_groups, n_by_subject, n_by_person, label_by_person, cap=24):
+    """Builds the clusters shown on a project page. Explicit relations (gut_relations) first, as connected components;
+    then families (one example per family structure, round-robin, so a 900-family cohort still shows its variety);
+    then the largest shared settings. Returns (clusters, totals)."""
+    clusters, seen = [], set()
+    if rel_rows is not None and len(rel_rows):
+        par = {}
+        def f(x):
+            while par.setdefault(x, x) != x:
+                par[x] = par[par[x]]; x = par[x]
+            return x
+        for r in rel_rows.itertuples(index=False):
+            a, b = str(r.subject_a), str(r.subject_b)
+            par[f(a)] = f(b)
+        comp = {}
+        for x in list(par):
+            comp.setdefault(f(x), set()).add(x)
+        roles = {}
+        for r in rel_rows.itertuples(index=False):
+            ra, rb = REL_EDGE.get(str(r.relation), ('member', 'member', False, '', ''))[:2]
+            for who, rr_ in ((str(r.subject_a), ra), (str(r.subject_b), rb)):
+                if roles.get(who) in (None, 'member', 'household_member') or rr_ in _PARENT_ROLES:
+                    roles[who] = rr_
+        comps = sorted(comp.values(), key=lambda m: (-len(m), sorted(m)[0]))
+        n_rel_all = len(comps)
+        for members in comps[:cap]:
+            if len(members) > 48:
+                hubs = sorted(members, key=lambda m: -sum(1 for r in rel_rows.itertuples(index=False) if str(r.subject_a) == m or str(r.subject_b) == m))
+                members = set(hubs[:48])
+            e = [(str(r.subject_a), str(r.subject_b), str(r.relation)) for r in rel_rows.itertuples(index=False) if str(r.subject_a) in members and str(r.subject_b) in members]
+            kinds = sorted({k.replace('_of', '').replace('_', ' ') for _, _, k in e})
+            nodes_ = [dict(id=m, label=m, role=roles.get(m, 'member'), n=n_by_subject.get(m, 0)) for m in sorted(members)]
+            undirected = not any(REL_EDGE.get(k, ('', '', False))[2] for _, _, k in e)
+            if undirected and len(members) > 4:   # e.g. a dormitory of roommates: one hub, not a hairball
+                show = nodes_[:20]
+                clusters.append(dict(kind='relation', title=f"{' / '.join(kinds)} group · {len(members)} people", nodes=show, edges=[],
+                                     hub=dict(label=f"{' / '.join(kinds)} group", more=max(0, len(nodes_) - len(show)))))
+            else:
+                clusters.append(dict(kind='relation', title=f"{' / '.join(kinds)}: {', '.join(sorted(members))}"[:300], nodes=nodes_, edges=e))
+            seen |= members
+        for members in comps[cap:]:
+            seen |= members
+    n_rel_comp = len(clusters)
+    n_rel_total = n_rel_all if rel_rows is not None and len(rel_rows) else 0
+    n_fam = 0
+    if fam_rows is not None and len(fam_rows):
+        fams = []
+        for fid, x in fam_rows.groupby('family_id', sort=True):
+            p = x.drop_duplicates('person_key')
+            if len(p) < 2:
+                continue
+            labels = [label_by_person.get(k, k) for k in p.person_key]
+            if set(map(str, labels)) <= seen:
+                continue
+            n_fam += 1
+            roles = [str(r) if isinstance(r, str) and r else 'unknown' for r in p.family_role]
+            fams.append((fid, list(p.person_key), labels, roles))
+        by_motif = {}
+        for fm in fams:
+            by_motif.setdefault(' + '.join(sorted(fm[3])), []).append(fm)
+        order = sorted(by_motif, key=lambda m: -len(by_motif[m]))
+        picked, i = [], 0
+        while len(picked) < max(0, cap - len(clusters)) and any(i < len(by_motif[m]) for m in order):
+            for m in order:
+                if i < len(by_motif[m]) and len(picked) < cap - len(clusters):
+                    picked.append(by_motif[m][i])
+            i += 1
+        for fid, pks, labels, roles in picked:
+            known = any(r not in ('unknown', 'household_member') for r in roles)
+            nodes = [dict(id=pk, label=lb, role=r, n=n_by_person.get(pk, 0)) for pk, lb, r in zip(pks, labels, roles)]
+            if known:
+                clusters.append(dict(kind='family', title=f'family {fid}', nodes=nodes, edges=[], family_lines=True))
+            else:
+                clusters.append(dict(kind='family', title=f'family {fid}', nodes=[dict(n_, role=('household_member' if n_['role'] == 'household_member' else 'member')) for n_ in nodes], edges=[], hub=dict(label=f'family {fid}')))
+    n_set = 0
+    if set_groups is not None and len(set_groups):
+        sg = set_groups.sort_values('n_people', ascending=False)
+        n_set = len(sg)
+        for x in sg.head(max(0, min(8, cap + 8 - len(clusters)))).itertuples(index=False):
+            pks = [k for k in str(x.people).split(';') if k]
+            show = pks[:20]
+            clusters.append(dict(kind='setting', title=f'{str(x.group_type).replace("_", " ")} {x.group_id} · {int(x.n_people)} people',
+                                 nodes=[dict(id=k, label=label_by_person.get(k, k), role='member', n=n_by_person.get(k, 0)) for k in show], edges=[],
+                                 hub=dict(label=f'{str(x.group_type).replace("_", " ")} {x.group_id}', more=max(0, int(x.n_people) - len(show)))))
+    return clusters, dict(n_rel_comp=n_rel_comp, n_rel_total=n_rel_total, n_fam=n_fam, n_set=n_set)
+
+
+# ---- R2026.25 intervention arms: "I" marker (resolved = per-sample arms known) + a design-specific diagram on the project page
+IV_CONTROL = {'placebo', 'no_intervention', 'standard_of_care', 'control', 'sham'}
+IV_SHORT = {'no_intervention': 'no intervention', 'standard_of_care': 'standard care', 'dietary_supplement': 'supplement', 'diet_intervention': 'diet', 'prebiotic_or_fibre': 'prebiotic / fibre',
+            'drug_therapy': 'drug', 'other_intervention': 'other', 'fmt': 'FMT'}
+IV_DESIGNS = ('randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure')
+
+
+def iv_arms(x, design, labels):
+    """x: catalog samples of one project (columns intervention, subject_id, days_since_first_sample?). Returns dict or None."""
+    n = len(x)
+    if not n:
+        return None
+    a = x.intervention.astype('string')
+    cov = float(a.notna().mean())
+    arms = []
+    for v, g in x[a.notna()].groupby(a[a.notna()]):
+        ppl = g.subject_id.dropna().astype(str).nunique() if 'subject_id' in g else 0
+        codes = [c for c in str(v).split(';') if c]
+        arms.append(dict(code=str(v), label=' + '.join(IV_SHORT.get(c, c.replace('_', ' ')) for c in codes), long=' + '.join(labels.get(c, c) for c in codes), control=all(c in IV_CONTROL for c in codes),
+                         n_samples=int(len(g)), n_people=int(ppl) if ppl else None))
+    arms.sort(key=lambda r: (r['control'], -r['n_samples']))
+    multi = 0
+    seq = {}
+    if 'subject_id' in x.columns:
+        xs = x[a.notna() & x.subject_id.notna()]
+        k = xs.groupby('subject_id').intervention.nunique()
+        multi = int((k >= 2).sum())
+        if multi and 'days_since_first_sample' in xs.columns:
+            for s_, g in xs[xs.subject_id.isin(k[k >= 2].index)].groupby('subject_id'):
+                g = g.dropna(subset=['days_since_first_sample']).sort_values('days_since_first_sample')
+                if len(g):
+                    order = tuple(dict.fromkeys(g.intervention.astype(str)))
+                    seq[order] = seq.get(order, 0) + 1
+    need = 1 if design == 'single_arm_before_after' else 2
+    resolved = cov >= 0.8 and len(arms) >= need
+    return dict(cov=round(cov, 3), arms=arms[:8], n_arms=len(arms), resolved=resolved, multi=multi,
+                seqs=[dict(order=[' + '.join(IV_SHORT.get(k, k.replace('_', ' ')) for k in c.split(';')) for c in o], n=v) for o, v in sorted(seq.items(), key=lambda kv: -kv[1])[:4]])
+
+
+def iv_svg(iv, design, n_people_total=None):
+    """Design-specific arm diagram (static SVG). Parallel designs fork from the cohort into arms (width ~ people);
+    crossover shows the observed arm sequences; single-arm shows pre -> on intervention; observational shows exposed vs not."""
+    arms = iv['arms']
+    if not arms:
+        return ''
+    W = 460
+    gold, grey, ink = '#CFB87C', '#B9B9B9', '#555'
+    sz = lambda r: (r['n_people'] or r['n_samples'])
+    mx = max(sz(r) for r in arms) or 1
+    out = []
+    def bar(x, y, w, r, h=16):
+        col = grey if r['control'] else gold
+        unit = f"{r['n_people']:,} people · {r['n_samples']:,} samples" if r['n_people'] else f"{r['n_samples']:,} samples"
+        return (f'<rect x="{x:.1f}" y="{y}" width="{max(4, w):.1f}" height="{h}" rx="4" fill="{col}"><title>{html_escape(r.get("long") or r["label"])}: {unit}</title></rect>'
+                f'<text x="{x + max(4, w) + 6:.1f}" y="{y + 12}" font-size="10.5" fill="{ink}">{html_escape(r["label"][:24])} <tspan fill="#999">{unit}</tspan></text>')
+    if design in ('randomized_controlled_trial', 'non_randomized_controlled', 'observational_with_procedure') or (design == 'crossover' and not iv['seqs']):
+        H = 18 + 24 * len(arms)
+        cy = H / 2
+        tot = n_people_total or sum(sz(r) for r in arms)
+        out.append(f'<circle cx="16" cy="{cy:.1f}" r="11" fill="#fff" stroke="{ink}" stroke-width="1.2"/><text x="16" y="{cy + 3.5:.1f}" font-size="9" text-anchor="middle" fill="{ink}">'
+                   f'{"R" if design == "randomized_controlled_trial" else ("E" if design == "observational_with_procedure" else "N")}</text>')
+        for i, r in enumerate(arms):
+            y = 10 + 24 * i
+            out.append(f'<path d="M27,{cy:.1f} C60,{cy:.1f} 60,{y + 8} 92,{y + 8}" fill="none" stroke="#ccc" stroke-width="1.2"/>')
+            out.append(bar(94, y, 120 * sz(r) / mx, r))
+        cap = {'randomized_controlled_trial': 'randomised to parallel arms', 'non_randomized_controlled': 'non-randomised arms', 'observational_with_procedure': 'exposed vs. not exposed (observational)', 'crossover': 'crossover (arm order not resolved)'}[design]
+    elif design == 'crossover':
+        seqs = iv['seqs']
+        H = 14 + 30 * len(seqs)
+        for i, s_ in enumerate(seqs):
+            y = 10 + 30 * i
+            x = 8
+            for j, lab in enumerate(s_['order'][:3]):
+                c = grey if any(k in lab.lower() for k in ('placebo', 'no intervention', 'control', 'standard care')) else gold
+                out.append(f'<rect x="{x}" y="{y}" width="92" height="18" rx="4" fill="{c}"/><text x="{x + 46}" y="{y + 12.5}" font-size="9.5" text-anchor="middle" fill="#333">{html_escape(lab[:16])}</text>')
+                x += 92
+                if j < len(s_['order'][:3]) - 1:
+                    out.append(f'<path d="M{x + 3},{y + 9} l14,0" stroke="{ink}" stroke-width="1" marker-end="url(#ivarr)"/><text x="{x + 10}" y="{y - 1}" font-size="7.5" text-anchor="middle" fill="#999">washout</text>')
+                    x += 22
+            out.append(f'<text x="{x + 8}" y="{y + 12.5}" font-size="10.5" fill="{ink}">{s_["n"]:,} people</text>')
+        cap = 'crossover: arm sequences observed per person'
+    else:   # single_arm_before_after
+        pre = [r for r in arms if r['control']]
+        act = [r for r in arms if not r['control']]
+        H = 46
+        x = 8
+        segs = [dict(r, label='before · ' + r['label']) for r in pre] + act
+        for j, r in enumerate(segs[:4]):
+            c = grey if r['control'] else gold
+            lab = r['label'][:22]
+            out.append(f'<rect x="{x}" y="10" width="120" height="20" rx="5" fill="{c}"><title>{html_escape(r["label"])}</title></rect><text x="{x + 60}" y="23.5" font-size="9.5" text-anchor="middle" fill="#333">{html_escape(lab)}</text>'
+                       f'<text x="{x + 60}" y="42" font-size="9" text-anchor="middle" fill="#888">{r["n_samples"]:,} samples</text>')
+            x += 120
+            if j < len(segs[:4]) - 1:
+                out.append(f'<path d="M{x + 3},20 l16,0" stroke="{ink}" stroke-width="1.2" marker-end="url(#ivarr)"/>')
+                x += 24
+        cap = 'single arm: samples before and on the intervention' if pre else 'single arm: samples on the intervention (no pre-intervention samples labelled)'
+    svg = (f'<svg class="iv-svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="{html_escape(cap)}">'
+           '<defs><marker id="ivarr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L8,4L0,8z" fill="#555"/></marker></defs>'
+           + ''.join(out) + '</svg>')
+    return svg + f'<div class="small muted">{html_escape(cap)}</div>'
 
 
 def depth_svg(proj, repo, median, width=260, height=40):
@@ -870,7 +1176,15 @@ def main():
                 has_registry=True, registry_page='registry/index.html', data_repo=read_github_repo(a.config, 'data'))
 
     env = Environment(loader=FileSystemLoader(HERE / 'templates'), autoescape=select_autoescape(['html']))
-    env.filters.update(fmt=f_fmt, pct=f_pct, pct1=f_pct1, num2=f_num2, numint=f_numint)
+    def f_gbp(v):   # R2026.25: shallow runs are shown in Mbp instead of rounding to 0.00 Gbp
+        try:
+            x = float(v)
+        except (TypeError, ValueError):
+            return '—'
+        if x != x:
+            return '—'
+        return f'{x:,.2f} Gbp' if x >= 0.1 else (f'{x * 1000:,.1f} Mbp' if x > 0 else '0')
+    env.filters.update(fmt=f_fmt, pct=f_pct, pct1=f_pct1, num2=f_num2, numint=f_numint, gbp=f_gbp)
     site['analytics'] = read_analytics(a.config)
     env.globals.update(site=site)
     written = []
@@ -985,11 +1299,43 @@ def main():
     # per-sample days_since_first_sample / family columns of the wide table)
     relg = pd.read_parquet(pkg / 'gut_relatedness.parquet') if (pkg / 'gut_relatedness.parquet').exists() else pd.DataFrame(columns=['study_accession'])
     design_by_study = {}
+    _cxp = pkg / 'gut_metadata_contradictions.parquet'
+    _cx_all = pd.read_parquet(_cxp) if _cxp.exists() else pd.DataFrame(columns=['study_accession'])
+    contra_by_study = {}
+    iv_by_study = {}
+    _ivl = {c: (v or {}).get('label', c) for c, v in iv_voc.items()}
+    if 'intervention' in cw.columns and 'intervention_design' in cs.columns:
+        _ivs = cs[cs.intervention_design.isin(IV_DESIGNS)].set_index('study_accession')
+        _ivcols = [c_ for c_ in ['study_accession', 'intervention', 'subject_id', 'days_since_first_sample'] if c_ in cw.columns]
+        for acc_, x_ in cw[cw.study_accession.isin(set(_ivs.index))][_ivcols].groupby('study_accession'):
+            dz_ = _ivs.loc[acc_, 'intervention_design']
+            r_ = iv_arms(x_, dz_, _ivl)
+            if r_ is None:
+                continue
+            ns_ = _ivs.loc[acc_, 'n_subjects'] if 'n_subjects' in _ivs.columns else None
+            r_['svg'] = iv_svg(r_, dz_, None if isnull(ns_) else int(ns_)) if r_['resolved'] else ''
+            r_['design'] = dz_
+            iv_by_study[acc_] = r_
+    if len(_cx_all):
+        from catalog.scopes.contradictions import source_label as _slab, study_summary as _csum
+        _csm = _csum(_cx_all).set_index('study_accession').contradiction_summary.to_dict()
+        for acc_, g_ in _cx_all.groupby('study_accession'):
+            g_ = g_.sort_values(['field_name', 'kind', 'sample_key'])
+            contra_by_study[acc_] = dict(n=int(g_.sample_key.nunique()), n_rows=int(len(g_)), summary=_csm.get(acc_, ''), rows=[dict(
+                sample=r_.sample_key, field=str(r_.field_name).replace('_at_collection_days', '').replace('_', ' '),
+                a=None if isnull(r_.value_a) else str(r_.value_a), sa=_slab(r_.source_a) if not isnull(r_.source_a) else '',
+                b=None if isnull(r_.value_b) else str(r_.value_b), sb=_slab(r_.source_b) if not isnull(r_.source_b) else '',
+                handling=r_.handling, note=None if isnull(r_.note) else str(r_.note)) for r_ in g_.head(40).itertuples()])
     _tl_cols = [c_ for c_ in ['study_accession', 'sample_key', 'subject_id', 'person_key', 'days_since_first_sample', 'family_id', 'family_role', 'subject_n_samples'] if c_ in cw.columns]
     _tl = cw[_tl_cols] if 'days_since_first_sample' in cw.columns else pd.DataFrame(columns=['study_accession'])
     _tl_by = {k_: v_ for k_, v_ in _tl[pd.to_numeric(_tl.get('subject_n_samples'), errors='coerce').fillna(0) >= 2].groupby('study_accession')} if len(_tl) else {}
     _fam_by = {k_: v_ for k_, v_ in cw[cw.family_id.notna()][['study_accession', 'sample_key', 'person_key', 'family_id', 'family_role', 'subject_id']].groupby('study_accession')} if 'family_id' in cw.columns and 'person_key' in cw.columns else {}
     _relg_by = {k_: v_ for k_, v_ in relg.groupby('study_accession')} if len(relg) else {}
+    _rlx = pd.read_parquet(pkg / 'gut_relations.parquet') if (pkg / 'gut_relations.parquet').exists() else pd.DataFrame(columns=['study_accession', 'subject_a', 'subject_b', 'relation'])
+    _rlx_by = {k_: v_ for k_, v_ in _rlx.groupby('study_accession')} if len(_rlx) else {}
+    _pc = cw[[c_ for c_ in ['study_accession', 'person_key', 'subject_id', 'sample_key', 'biosample_accession'] if c_ in cw.columns]]
+    _net_studies = set(_rlx_by) | set(_fam_by) | set(_relg_by)
+    _pc_by = {k_: v_ for k_, v_ in _pc[_pc.study_accession.isin(_net_studies)].groupby('study_accession')} if 'person_key' in _pc.columns else {}
     for r_ in cs.itertuples(index=False):
         acc_ = r_.study_accession
         ls_ = getattr(r_, 'longitudinal_status', None)
@@ -1014,6 +1360,23 @@ def main():
         g_ = _relg_by.get(acc_)
         d_['settings'] = [] if g_ is None else [dict(type=x.group_type, id=x.group_id, n=int(x.n_people)) for x in g_[g_.group_kind == 'shared_setting'].sort_values('n_people', ascending=False).head(20).itertuples()]
         d_['families'] = [] if g_ is None else [dict(id=x.group_id, motif=x.motif, n=int(x.n_people), samples=str(x.sample_keys).split(';')[:12]) for x in g_[g_.group_kind == 'family'].sort_values('n_samples', ascending=False).head(25).itertuples()]
+        _pcs = _pc_by.get(acc_)
+        if _pcs is not None and (acc_ in _rlx_by or acc_ in _fam_by or (g_ is not None and len(g_))):
+            _nbs = _pcs.subject_id.dropna().astype(str).value_counts().to_dict() if 'subject_id' in _pcs.columns else {}
+            _nbp = _pcs.person_key.dropna().astype(str).value_counts().to_dict()
+            for c_ in ('sample_key', 'biosample_accession'):
+                if c_ in _pcs.columns:
+                    for k_ in _pcs[c_].dropna().astype(str):
+                        _nbs.setdefault(k_, 1)
+            _lbp = dict(zip(_pcs.person_key.astype(str), _pcs.subject_id.astype(str))) if 'subject_id' in _pcs.columns else {}
+            _lbp = {k_: (v_ if v_ not in ('<NA>', 'nan', 'None') else k_) for k_, v_ in _lbp.items()}
+            _cl, _tot = relnet_clusters(acc_, _rlx_by.get(acc_), _fam_by.get(acc_), None if g_ is None else g_[g_.group_kind == 'shared_setting'], _nbs, _nbp, _lbp)
+            d_['net'] = [dict(kind=c_['kind'], title=c_['title'], svg=relnet_svg(c_, f'{i_}')) for i_, c_ in enumerate(_cl)]
+            d_['net_tot'] = _tot
+            d_['net_roles'] = sorted({n_['role'] for c_ in _cl for n_ in c_['nodes']} - {'unknown'}, key=lambda r_: list(NET_ROLE_COLOR).index(r_) if r_ in NET_ROLE_COLOR else 99)
+            d_['net_roles'] = [dict(role=r_, color=NET_ROLE_COLOR.get(r_, '#8C8F91'), abbr=NET_ROLE_ABBR.get(r_, '')) for r_ in d_['net_roles']]
+        else:
+            d_['net'], d_['net_tot'], d_['net_roles'] = [], {}, []
         tl_ = _tl_by.get(acc_)
         people = []
         if tl_ is not None:
@@ -1181,7 +1544,9 @@ def main():
                             # R2026.18: source access — a person can often open what we could not (paywalled / publisher-only supplements)
                             supp=str(getattr(r, 'src_supplement', '') or 'none'), ft=str(getattr(r, 'src_fulltext', '') or 'none'),
                             paper_url=next((('https://doi.org/' + x['doi']) if x.get('doi') else (f"https://europepmc.org/article/MED/{x['pmid']}" if x.get('pmid') else '')
-                                            for x in papers_by_study.get(r.study_accession, []) if x.get('doi') or x.get('pmid')), '')))
+                                            for x in papers_by_study.get(r.study_accession, []) if x.get('doi') or x.get('pmid')), ''),
+                            paper_label=next(((f"PMID {x['pmid']}" if x.get('pmid') else 'DOI') for x in papers_by_study.get(r.study_accession, []) if x.get('doi') or x.get('pmid')), ''),
+                            n_papers=len(papers_by_study.get(r.study_accession, []))))
     wl_rows.sort(key=lambda r: (-r['score'], r['acc']))
     for i, r in enumerate(wl_rows, start=1):
         r['rank'] = i
@@ -1279,9 +1644,18 @@ def main():
                       **({'grp': s['study_group_id'], 'grpn': len(str(s['study_group_members']).split(';'))} if not isnull(s.get('study_group_id')) else {}),
                       **({'lg': (2 if (not isnull(s.get('longitudinal_resolved')) and bool(s.get('longitudinal_resolved'))) else 1)} if s.get('longitudinal_status') in ('longitudinal', 'repeated_unresolved') else {}),
                       **({'rd': str(s['relatedness_designs'])} if not isnull(s.get('relatedness_designs')) and str(s.get('relatedness_designs')) not in ('', 'nan', 'None') else ({'rd': 'families'} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {})),
-                      **({'rr': 1} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {}))
+                      **({'rr': 1} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {}),
+                      **({'iv': (2 if iv_by_study[s['study_accession']]['resolved'] else 1)} if s['study_accession'] in iv_by_study else {}),
+                      **({'cx': int(s.get('n_contradicted_samples')), 'cxs': str(s.get('contradiction_summary') or '')[:400]} if (not isnull(s.get('n_contradicted_samples')) and int(s.get('n_contradicted_samples') or 0) > 0) else {}))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')
+    # home-page globe (R2026.25): projects per country (ISO-2), click -> Project sheet filtered to that country
+    _hg = {}
+    for r_ in sidx_rows:
+        for c_ in (r_.get('ctry') or '').split(';'):
+            if c_:
+                _hg[c_] = _hg.get(c_, 0) + 1
+    (out / 'data' / 'home_globe.json').write_text(json.dumps(_hg, sort_keys=True), encoding='utf-8')
     sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
     from pages import api as api_page   # R2026.16: static API + llms.txt + For-LLMs page
     api_stats = api_page.build(render, out, dict(studies=studies, sidx_rows=sidx_rows, cw=cw, papers_by_study=papers_by_study, base_url=base_url,
@@ -1343,7 +1717,7 @@ def main():
             c['num'] = c['f'] in ('age_at_collection_days', 'bmi', 'latitude', 'longitude', 'gestational_age_weeks', 'birth_weight_grams', 'stool_consistency_bristol')
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
                papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
-               group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
+               group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), contra=contra_by_study.get(acc), ivarms=iv_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
                samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
@@ -1425,7 +1799,7 @@ def main():
     from pages import atlas as _atlas
     atlas_dir = Path(a.atlas_data) if a.atlas_data else None
     if atlas_dir and (atlas_dir / 'taxa.json').exists():   # precomputed taxon-map payload + observation cards (data/inputs/gut/atlas; make atlas-precompute)
-        _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs), out)
+        _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs, figures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'figures')), out)
         print(f'[{time.time()-t0:.0f}s] atlas/index + observations from {atlas_dir}', file=sys.stderr)
     if (pkg / 'gut_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)

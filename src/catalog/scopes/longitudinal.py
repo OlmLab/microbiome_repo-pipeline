@@ -85,13 +85,38 @@ def _full_date(v):
     return None
 
 
+SCHED_UNIT = {"hour": 1 / 24, "day": 1.0, "week": 7.0, "month": 30.4375, "year": 365.25}
+SCHED_REJECT = re.compile(r"not stated|not given|unknown|unclear|coded|suffix|ordinal|index|visit code|sequence number", re.I)
+BARE_NUM = re.compile(r"^-?\d+(?:\.\d+)?$")
+
+
+def schedule_unit(schedule, labels) -> str | None:
+    """R2026.25: unit for bare-number timepoint labels (archive 'tp' = -10, 1, 3, 14 …) taken from the project's stated
+    sampling schedule. Accepted only when the schedule names exactly one time unit, does not call the labels codes /
+    ordinals, and at least 60 % (and >= 2) of the distinct label values appear as numbers in the schedule text."""
+    if not isinstance(schedule, str) or not schedule.strip() or SCHED_REJECT.search(schedule):
+        return None
+    s = schedule.lower()
+    units = {u for u in SCHED_UNIT if re.search(rf"\b{u}s?\b", s)}
+    if len(units) != 1:
+        return None
+    nums = {float(n) for n in re.findall(r"-?\d+(?:\.\d+)?", s)}
+    lab = {float(l) for l in labels if BARE_NUM.match(str(l).strip())}
+    shared = lab & nums
+    if len(lab) >= 2 and len(shared) >= 2 and len(shared) / len(lab) >= 0.6:
+        return units.pop()
+    return None
+
+
 def _real_subject(w: pd.DataFrame, generated_keys: set) -> pd.Series:
     sub = w.subject_id.astype("string")
     return sub.where(sub.notna() & (sub != "") & ~w.sample_key.isin(generated_keys))
 
 
-def sample_longitudinal(w: pd.DataFrame, generated_keys: set) -> pd.DataFrame:
-    """Adds subject_n_samples, days_since_first_sample, time_axis, person_key to the wide table (a copy)."""
+def sample_longitudinal(w: pd.DataFrame, generated_keys: set, schedules: dict | None = None, mapped_offsets: pd.Series | None = None) -> pd.DataFrame:
+    """Adds subject_n_samples, days_since_first_sample, time_axis, person_key to the wide table (a copy).
+    schedules: study_accession -> stated sampling schedule, used to give bare-number timepoint labels a unit.
+    mapped_offsets: sample_key -> days from the visit-code timing pass (R2026.25; each code mapped to a stated schedule offset)."""
     w = w.copy()
     gut = w.body_site_class.isin(GUT)
     sub = _real_subject(w, generated_keys)
@@ -116,6 +141,21 @@ def sample_longitudinal(w: pd.DataFrame, generated_keys: set) -> pd.DataFrame:
     cands = [("age", age.loc[km.index].astype(float)),
              ("date", (dd - pd.Timestamp("1900-01-01")).dt.days.astype(float)),
              ("timepoint", pd.to_numeric(pd.Series(tps, index=w.index).loc[km.index], errors="coerce").astype(float))]
+    if schedules and "timepoint_label" in w:
+        tl = w.timepoint_label.loc[km.index].astype("string")
+        acc_k = w.study_accession.loc[km.index].astype(str)
+        su = pd.Series(np.nan, index=km.index)
+        for acc_, idx in acc_k.groupby(acc_k).groups.items():
+            labs = tl.loc[idx].dropna().astype(str).str.strip()
+            if not len(labs) or labs.map(lambda v: bool(BARE_NUM.match(v))).mean() < 0.9:
+                continue
+            u = schedule_unit(schedules.get(acc_), labs.unique())
+            if u:
+                su.loc[idx] = pd.to_numeric(labs.reindex(idx), errors="coerce") * SCHED_UNIT[u]
+        cands.append(("timepoint_stated_unit", su.astype(float)))
+    if mapped_offsets is not None and len(mapped_offsets):
+        mo = pd.to_numeric(w.sample_key.loc[km.index].map(mapped_offsets), errors="coerce")
+        cands.append(("timepoint_mapped", mo.astype(float)))
     if "collection_date" in w:
         mm = w.collection_date.loc[km.index].map(_month_date)
         cands.append(("date_month", (pd.to_datetime(mm, errors="coerce") - pd.Timestamp("1900-01-01")).dt.days.astype(float)))

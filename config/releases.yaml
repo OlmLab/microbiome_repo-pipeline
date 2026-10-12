@@ -257,6 +257,15 @@ releases:
     site_tag: site-v1.19.1
     label: "external annotation of the 706 projects whose R2026.23 subject / relatedness batches were stopped by the content filter (owner-run, verified on ingest): subject ids for 46 projects, household and arm-code subject ids split (PRJEB108450, PRJNA1086951), family / setting fields for 8 projects, 500 study-design rows, 107 relations"
 
+  - release_id: R2026.25
+    package_version: '1.20.0'
+    previous_package_version: '1.19.1'
+    previous_release_id: R2026.24
+    notes_file: RELEASE_NOTES_R2026.25.md
+    data_tag: data-v1.20.0
+    site_tag: site-v1.20.0
+    label: "every pass on every project (gap-fill full-text, abstract, intervention, supplementary-table, subject and design passes; PubMed Central open-access bucket for papers Europe PMC could not serve); visit-code timing pass; self-contradictory metadata withheld (red ! badge); intervention arms (I marker + arm diagrams); 95 amplicon / targeted projects moved out of the shotgun scope; pooled BioSamples split by library; relationship graphs; Figures page"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

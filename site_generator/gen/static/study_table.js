@@ -39,7 +39,7 @@
         if (f === 'detailed_location') return ['location_site', 'location_locality', 'location_region'].map((k) => get(row, k)).filter(Boolean).join(', ');
         let v = get(row, f); if (v === 'unknown') return '';
         if (f === 'age_at_collection_days' && v !== '' && !isNaN(+v)) v = String(Math.round(+v));
-        if ((f === 'seq_gbp' || f === 'bmi') && v !== '' && !isNaN(+v)) v = (+v).toFixed(f === 'bmi' ? 1 : 2);
+        if ((f === 'seq_gbp' || f === 'bmi') && v !== '' && !isNaN(+v)) v = f === 'bmi' ? (+v).toFixed(1) : ((+v) >= 1 ? (+v).toFixed(2) : (+v) >= 0.01 ? (+v).toFixed(3) : (+v) > 0 ? (+v).toPrecision(2) : '0');   // R2026.25: shallow runs (Mbp) no longer round to 0.00
         return v;
       };
       const data = rows.filter((x) => x.length > 1).map((row) => {

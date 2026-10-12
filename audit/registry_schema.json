@@ -2036,6 +2036,16 @@
      "name": "relatedness_resolved",
      "type": "bool",
      "description": "related / co-located people linked to samples (families or shared settings with >= 2 people, or relations); null when no relatedness is described"
+    },
+    {
+     "name": "n_contradicted_samples",
+     "type": "int",
+     "description": "samples with at least one withheld (self-contradictory) value (R2026.25)"
+    },
+    {
+     "name": "contradiction_summary",
+     "type": "string",
+     "description": "human-readable summary of the contradictions and how they were handled (R2026.25)"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope",
@@ -2825,6 +2835,87 @@
      "name": "n_missing",
      "type": "int",
      "description": "passes that apply but were never attempted"
+    }
+   ]
+  },
+  "gut_metadata_contradictions.parquet": {
+   "key": [
+    "sample_key",
+    "field_name",
+    "kind"
+   ],
+   "one_row_per": "withheld sample x field: self-contradictory metadata — added R2026.25 / 1.20.0 (catalog.scopes.contradictions)",
+   "bitemporal": "none: recomputed each release",
+   "columns": [
+    {
+     "name": "sample_key",
+     "type": "string",
+     "description": "catalog sample"
+    },
+    {
+     "name": "study_accession",
+     "type": "string",
+     "description": "project"
+    },
+    {
+     "name": "field_name",
+     "type": "string",
+     "description": "field whose value is withheld"
+    },
+    {
+     "name": "kind",
+     "type": "string",
+     "description": "sources_disagree | person_inconsistent (one subject id, samples disagree on sex) | id_not_one_person (subject id shared by samples of both sexes; the id is withheld)"
+    },
+    {
+     "name": "value_a",
+     "type": "string",
+     "description": "value of the published-precedence source (or the sample's own value)"
+    },
+    {
+     "name": "route_a",
+     "type": "string",
+     "description": "route of value_a"
+    },
+    {
+     "name": "source_a",
+     "type": "string",
+     "description": "evidence source of value_a"
+    },
+    {
+     "name": "quote_a",
+     "type": "string",
+     "description": "evidence quote of value_a"
+    },
+    {
+     "name": "value_b",
+     "type": "string",
+     "description": "incompatible value from the other source"
+    },
+    {
+     "name": "route_b",
+     "type": "string",
+     "description": "route of value_b"
+    },
+    {
+     "name": "source_b",
+     "type": "string",
+     "description": "evidence source of value_b"
+    },
+    {
+     "name": "quote_b",
+     "type": "string",
+     "description": "evidence quote of value_b"
+    },
+    {
+     "name": "handling",
+     "type": "string",
+     "description": "what was published (normally: neither value)"
+    },
+    {
+     "name": "note",
+     "type": "string",
+     "description": "e.g. the sex split of the subject"
     }
    ]
   }
