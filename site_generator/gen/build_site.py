@@ -129,7 +129,8 @@ NAV = [('home', 'Home', 'index.html', None),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
-                                 ('about', 'Where values come from', 'about/value_sources.html'), ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html')])]
+                                 ('about', 'Where values come from', 'about/value_sources.html'), ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html'),
+                                 ('about', 'Accessibility, privacy & security', 'about/accessibility.html')])]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
              'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'figures.html'}
@@ -1258,8 +1259,11 @@ def main():
     print(f'[{time.time()-t0:.0f}s] data files written', file=sys.stderr)
 
     # ---------- docs (markdown -> html) ----------
-    def md_to_html(text):
+    def md_to_html(text, idp=''):
         html = markdown.markdown(text, extensions=['tables', 'fenced_code', 'toc'])
+        if idp:  # several documents on one page (release notes on Downloads): keep heading ids unique
+            html = re.sub(r'<(h[1-6]) id="', lambda m: f'<{m.group(1)} id="{idp}-', html)
+        html = re.sub(r'<(/?)h([1-5])\b', lambda m: f'<{m.group(1)}h{int(m.group(2)) + 1}', html)  # accessibility: one h1 per page
         return re.sub(r'<a href="([^"]+)">', lambda m: m.group(0) if m.group(1).startswith(('http', '#')) else '<a>', html)
     dictionary = (pkg / 'DATA_DICTIONARY.md').read_text(encoding='utf-8')
     docs = [('README.md', readme, 'README'), ('DATA_DICTIONARY.md', dictionary, 'Data dictionary'), ('CHANGELOG.md', (pkg / 'CHANGELOG.md').read_text(encoding='utf-8'), 'Changelog')]
@@ -1915,7 +1919,7 @@ def main():
         d = {k: (v if v != '' else None) for k, v in r._asdict().items()}
         d['data_url'] = rspec['site_pages']['data_release_url'].format(data_tag=d['data_tag']) if d['data_tag'] else None
         d['site_url'] = rspec['site_pages']['site_release_url'].format(site_tag=d['site_tag']) if d['site_tag'] else None
-        d['notes_html'] = md_to_html(notes_by_release[d['release_id']]) if d['release_id'] in notes_by_release else None
+        d['notes_html'] = md_to_html(notes_by_release[d['release_id']], idp='n' + re.sub(r'[^0-9A-Za-z]+', '-', str(d['release_id']))) if d['release_id'] in notes_by_release else None
         d['changes_href'] = rspec['site_pages']['changes_release'].format(release_id=d['release_id']).split('/')[-1]
         d['current'] = d['release_id'] == release_id
         releases.append(d)
@@ -2184,6 +2188,11 @@ def main():
     render('external.html', 'about/external.html', '../', nav='about', ext=ext_list, others=[r for r in src['related_efforts'] if r.get('ingestion') != 'used'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='External resources')])
     render('sources.html', 'about/sources.html', '../', nav='about', src=src, crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Sources & acknowledgements')])
+    render('accessibility.html', 'about/accessibility.html', '../', nav='about', crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Accessibility, privacy & security')])
+    import datetime as _dt
+    (out / '.well-known').mkdir(exist_ok=True)
+    _exp = (_dt.date.fromisoformat(str(build_date)[:10]) + _dt.timedelta(days=365)).isoformat()  # deterministic: build date + 1 year
+    (out / '.well-known' / 'security.txt').write_text(f"Contact: mailto:{about['contact_email']}\nExpires: {_exp}T00:00:00Z\nPreferred-Languages: en\nCanonical: {base_url}.well-known/security.txt\nPolicy: {base_url}about/accessibility.html#security\n", encoding='utf-8')
     render('about.html', 'about/index.html', '../', nav='about', stats=stats, rs=rstats, funnel=funnel, docs=doc_list, src=src, n_fields=len(fields),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About')])
 

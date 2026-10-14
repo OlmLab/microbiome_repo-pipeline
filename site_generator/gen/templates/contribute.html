@@ -15,7 +15,7 @@
 <p class="small">Something else wrong on a page? Use <b>Flag an issue</b> on that study page. Submitted contributions: <a href="https://github.com/{{ cs.repo }}/issues?q=label%3Acontribution">open issues</a>.</p>
 
 <h2>Projects that need metadata</h2>
-<div class="wl-filters"><input id="q" class="searchbox" type="search" placeholder="Filter by accession, title or author">
+<div class="wl-filters"><input id="q" aria-label="Filter projects" class="searchbox" type="search" placeholder="Filter by accession, title or author">
 <label title="A paper is linked, but its supplementary tables were not open to us (paywalled, publisher site only, or download failed) — the best odds for a quick contribution"><input type="checkbox" id="f-supp"> <span class="dot-warn">●</span> supplementary tables not accessible <span class="muted">({{ rows|selectattr('papers')|rejectattr('supp', 'equalto', 'used')|rejectattr('supp', 'equalto', 'checked')|list|length|fmt }})</span></label>
 <label title="A paper is linked but no open full text was available"><input type="checkbox" id="f-ft"> no open full text <span class="muted">({{ rows|selectattr('papers')|selectattr('ft', 'equalto', 'none')|list|length|fmt }})</span></label></div>
 <table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th>Paper</th><th></th></tr></thead><tbody>

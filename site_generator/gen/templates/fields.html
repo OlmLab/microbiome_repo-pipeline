@@ -17,7 +17,7 @@
 {% for f in fields %}<tr><td class="mono">{{ f.name }}</td><td class="mono small">{{ f.routes_allowed|join(' ') }}</td><td class="small">{{ f.vocab }}</td><td class="small">{{ f.caveat }}</td></tr>{% endfor %}
 </tbody></table>
 
-<h2 id="health_condition">Health-condition vocabulary</h2>
+<h2 id="hc-vocab">Health-condition vocabulary</h2>
 <p class="small"><span class="mono">config/vocab/health_conditions.yaml</span>. Codes are assigned from archive attributes and tables by rule and by a utility model over distinct (key, value) pairs, and from papers as cohort-wide statements only when every sequenced subject shares the condition; <span class="mono">unknown</span> is never a value.</p>
 <table class="tbl small"><thead><tr><th>code</th><th>label</th><th class="num">samples</th><th class="num">studies</th></tr></thead><tbody>
 {% for k, lbl, ns, nst in hc_rows %}<tr><td><a class="mono" href="../samples/index.html?health_condition={{ k }}">{{ k }}</a></td><td>{{ lbl }}</td><td class="num">{{ ns|fmt }}</td><td class="num">{{ nst|fmt }}</td></tr>{% endfor %}

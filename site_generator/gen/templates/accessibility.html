@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Accessibility, privacy &amp; security — {{ site.title }}{% endblock %}
+{% block desc %}Accessibility statement, privacy and analytics notice, and security practices for {{ site.title }}.{% endblock %}
+{% block content %}
+<h1>Accessibility, privacy &amp; security</h1>
+<p class="lead">{{ site.title }} is a public research resource of the <a href="{{ site.about.lab_url }}">{{ site.about.lab_name }}</a> ({{ site.about.department_name }}). This page states how the site meets the University of Colorado Boulder's requirements for accessibility, privacy and security.</p>
+
+<h2 id="accessibility">Accessibility</h2>
+<p>The University of Colorado Boulder is committed to providing equitable access to its programs and information. This site aims to conform to the <a href="https://www.w3.org/TR/WCAG21/">Web Content Accessibility Guidelines (WCAG) 2.1, Level AA</a>, the standard used by the CU Boulder <a href="https://www.colorado.edu/digital-accessibility">Digital Accessibility Office</a>.</p>
+<ul>
+<li>Every page has a "Skip to main content" link, one top-level heading, landmark regions (banner, navigation, main, footer) and a declared language.</li>
+<li>All navigation menus, filters, tables and the study and sample pages work with a keyboard; keyboard focus is always visible.</li>
+<li>Form controls have labels; images and figures have text alternatives; colour is never the only carrier of meaning (badges carry text, line styles and tooltips as well as colour).</li>
+<li>Text and interface colours from the CU Boulder palette meet the WCAG AA contrast ratio (4.5:1 for text).</li>
+<li>The rotating globe stops when you hover, drag or click it, and does not rotate when your system asks for reduced motion.</li>
+<li>Every chart, map and interactive explorer is backed by the same data as a table or as a downloadable CSV/Parquet file (<a href="{{ root }}downloads/index.html">Downloads</a>), so no information is available only visually.</li>
+</ul>
+<p><b>Known limitations.</b> The world maps and the PCA scatter plot are visual summaries; their underlying values are in the study tables and downloads. The sample and registry explorers need JavaScript and WebAssembly; the tables they query are downloadable directly. Very large tables are paged.</p>
+<p><b>Testing.</b> Each build is checked automatically for missing labels, missing text alternatives, duplicate identifiers and heading structure. A review by CU Boulder's <a href="https://www.colorado.edu/digital-accessibility/testing">Accessibility and Usability Lab</a> has been requested.</p>
+<p><b>Report a barrier.</b> If any part of this site is difficult to use, email <a href="mailto:{{ site.about.contact_email }}">{{ site.about.contact_email }}</a> with the page address and the problem; we will fix it or provide the information in an accessible format. You can also contact the <a href="https://www.colorado.edu/digital-accessibility">CU Boulder Digital Accessibility Office</a>.</p>
+
+<h2 id="privacy">Privacy &amp; analytics</h2>
+<ul>
+<li>This site is a set of static pages. It has no user accounts, no log-in, and no forms that send information to us. It sets no cookies.</li>
+<li>Page views are counted with <a href="https://www.goatcounter.com/">GoatCounter</a>, which records aggregate, cookie-free counts (page, referrer, browser type, country) and does not store IP addresses or build profiles of visitors.</li>
+<li>The site is hosted by <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Pages</a>. Pages load the CU Boulder brand bar and footer from colorado.edu, fonts from Google Fonts, and pinned JavaScript libraries from jsDelivr; these providers receive the standard information your browser sends with any request (such as IP address and browser type).</li>
+<li>"Flag an issue" and "Contribute" links open a form on GitHub; anything you submit there is public and governed by GitHub's terms.</li>
+<li>All metadata shown here comes from public archives (ENA, NCBI SRA/BioSample, DDBJ) and published papers. No private or controlled-access data are used; values that the sources contradict are withheld rather than published.</li>
+</ul>
+<p>See also the <a href="https://www.colorado.edu/compliance/policies/privacy-statement">University of Colorado Boulder privacy statement</a>.</p>
+
+<h2 id="security">Security</h2>
+<ul>
+<li>Static files only: no server-side code, database, log-in or file upload.</li>
+<li>Served over HTTPS only (HTTPS is enforced by GitHub Pages).</li>
+<li>Third-party JavaScript libraries are pinned to exact versions; those loaded as script tags (d3, topojson, jQuery, DataTables) carry Subresource Integrity hashes. A Content Security Policy blocks plug-ins and base-URL injection.</li>
+<li>The site is published only from tagged releases by a GitHub Actions workflow; the main branches are protected against force-pushes and deletion. All source code is public: <a href="https://github.com/OlmLab/microbiome_repo-pipeline">pipeline</a>, <a href="https://github.com/OlmLab/microbiome_repo">site</a>, <a href="https://github.com/OlmLab/microbiome_repo-data">data</a>.</li>
+<li>Report a security problem to <a href="mailto:{{ site.about.contact_email }}">{{ site.about.contact_email }}</a> (also listed in <a href="{{ root }}.well-known/security.txt">security.txt</a>).</li>
+</ul>
+
+<h2 id="contact">Contact</h2>
+<p>{{ site.about.contact_name }}, <a href="{{ site.about.lab_url }}">{{ site.about.lab_name }}</a>, <a href="{{ site.about.department_url }}">{{ site.about.department_name }}</a> — <a href="mailto:{{ site.about.contact_email }}">{{ site.about.contact_email }}</a>. Metadata corrections: <a href="{{ root }}{{ site.contribute_page or 'contribute/index.html' }}">Contribute</a>.</p>
+{% endblock %}

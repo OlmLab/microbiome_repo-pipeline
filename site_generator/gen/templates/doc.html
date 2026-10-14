@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ doc_title }} — {{ site.title }}{% endblock %}
 {% block content %}
+<h1>{{ doc_title }}</h1>
 <p class="small">Rendered from <a href="{{ md_name }}">{{ md_name }}</a>.</p>
 <div class="md">{{ body|safe }}</div>
 {% endblock %}

@@ -43,6 +43,12 @@ about:                                    # About section (site_generator/gen/te
   lab_url: "https://www.colorado.edu/lab/olm/"
   funder_name: "Anthropic's AI for Science program"
   funder_url: "https://www.anthropic.com/news/ai-for-science-program"
+  # CU Boulder brand header (site name + affiliation, styleguide.colorado.edu/branding) and policy page contact
+  short_lab_name: "Olm Lab"
+  department_name: "Department of Integrative Physiology"
+  department_url: "https://www.colorado.edu/iphy"
+  contact_name: "Matthew Olm"
+  contact_email: "matthew.olm@colorado.edu"
 
 local:
   root: "~/catalog"                       # the ONLY rw host grant the Release Engineer profile holds

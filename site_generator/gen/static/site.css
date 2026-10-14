@@ -6,7 +6,7 @@
   --accent:var(--cu-gold);--accent-text:#7A6A3C;--accent2:var(--cu-gold);--warn:#8A4A1A;
   --r1:var(--cu-gold);--r2:var(--cu-dark-gray);--r3:var(--cu-bronze);--r4:var(--cu-pale-gray);--maxw:1240px;font-size:15px}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Roboto,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.45}
 a{color:var(--accent-text);text-decoration:underline;text-decoration-color:var(--cu-gold);text-underline-offset:2px}a:hover{color:var(--cu-black);text-decoration-color:var(--cu-black)}
 code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
 pre{background:var(--panel);padding:.75rem;overflow:auto;border:1px solid var(--line);border-radius:6px}
@@ -217,13 +217,13 @@ th.srch{font-size:.72rem;white-space:nowrap;padding-left:.3rem;padding-right:.3r
 .pg-facts{margin:.1rem 0 .5rem;color:var(--cu-dark-gray);font-size:.95rem}
 .pg-links{margin:.2rem 0 0;font-size:.85rem}.pg-links a{margin-right:1.1rem;text-decoration:none;border-bottom:1px solid var(--cu-light-gray)}
 .pg-links a:hover{border-bottom-color:currentColor}.pg-links a.flag{color:#a33}
-.muted{color:#8a8d8f}
+.muted{color:#5f6365}
 .pg-sec{padding:.9rem 0 .7rem;border-bottom:1px solid #eee}
-.pg-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#8a8d8f;margin-bottom:.45rem;font-weight:600}
+.pg-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#5f6365;margin-bottom:.45rem;font-weight:600}
 .pg-label .muted{text-transform:none;letter-spacing:0;font-weight:400}
 .srcrow{display:flex;flex-wrap:wrap;gap:.35rem .5rem}
 .srcitem{font-size:.82rem;padding:.12rem .55rem;border:1px solid #e3e3e3;border-radius:999px;white-space:nowrap;cursor:help}
-.srcitem.used{border-color:#1a7f37;background:#f3fbf5}.srcitem.none{color:#9a9a9a}
+.srcitem.used{border-color:#1a7f37;background:#f3fbf5}.srcitem.none{color:#6b6b6b}
 .pg-more summary,.pg-details summary{font-size:.82rem;color:var(--cu-dark-gray);cursor:pointer;margin:.35rem 0}
 .pg-details details{border-top:1px solid #f0f0f0;padding:.15rem 0}.pg-details details:first-of-type{border-top:0}
 .dists{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.4rem 1.6rem}
@@ -240,7 +240,7 @@ th.srch{font-size:.72rem;white-space:nowrap;padding-left:.3rem;padding-right:.3r
 .stbl td.tclip{max-width:11rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .st-wrap{overflow-x:auto;max-width:100%}
 .stbl th.ecol,.stbl td.ecol{width:10px;min-width:10px;max-width:10px;padding:0 1px;background:#fafafa;border-left:1px solid #f0f0f0}
-.stbl th.ecol span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:.6rem;font-weight:400;color:#b0b0b0;white-space:nowrap;display:inline-block;max-height:7rem;overflow:hidden}
+.stbl th.ecol span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:.6rem;font-weight:400;color:#6b6b6b;white-space:nowrap;display:inline-block;max-height:7rem;overflow:hidden}
 .plist{margin:.1rem 0;padding-left:1.1rem;font-size:.85rem}.plist li{margin:.12rem 0}
 
 /* sheets (R2026.18): compact headers, narrow one-line cells, details on hover */
@@ -295,7 +295,7 @@ div.dt-container .dt-paging .dt-paging-button{border-radius:999px!important}
 .page-head h1{margin:.2rem 0 .25rem}.page-head p{margin:0;color:var(--cu-dark-gray);font-size:.93rem;max-width:860px}
 .page-head .pg-links{margin-top:.35rem}
 details.about-page{margin:.3rem 0 .8rem;font-size:.86rem;color:var(--cu-dark-gray);max-width:900px}
-details.about-page>summary{font-size:.8rem;color:#8a8d8f}
+details.about-page>summary{font-size:.8rem;color:#5f6365}
 
 /* mini globe + sparklines (R2026.18) */
 .glance{display:flex;gap:1.6rem;align-items:flex-start;flex-wrap:wrap}.glance-main{flex:1;min-width:280px}
@@ -317,7 +317,7 @@ svg.spark rect{fill:var(--cu-gold)}svg.spark.depth rect.repo{fill:none;stroke:#7
 #result-table td{cursor:pointer}
 
 .pg-origtitle{font-size:.82rem;margin:-.2rem 0 .35rem}.pg-desc{max-width:62rem;font-size:.96rem;line-height:1.5;margin:.2rem 0 .5rem}
-.mlabel{font-size:.68rem;color:#8a8d8f;border:1px solid #e3e3e3;border-radius:999px;padding:0 .45rem;margin-left:.3rem;white-space:nowrap;cursor:help}
+.mlabel{font-size:.68rem;color:#5f6365;border:1px solid #e3e3e3;border-radius:999px;padding:0 .45rem;margin-left:.3rem;white-space:nowrap;cursor:help}
 
 /* R2026.19: persistent search in the top bar */
 .navsearch{margin-left:.4rem;padding:.15rem 0}
@@ -367,9 +367,9 @@ ol.steps .step p{margin:.2rem 0 0;font-size:.88rem;color:#444}
 .step-list{margin:.25rem 0 0;padding-left:1.05rem;font-size:.88rem;color:#444;line-height:1.45}
 #wl-table td{vertical-align:middle}
 #wl-table td.wl-miss{font-size:.82rem;color:#555;white-space:nowrap}
-#wl-table td.wl-miss .sep{color:#bbb}
+#wl-table td.wl-miss .sep{color:#767676}
 #wl-table td.wl-paper{font-size:.82rem;white-space:nowrap}
-.dot-warn{color:#c8892a;font-size:.7rem;vertical-align:middle}
+.dot-warn{color:#a8650f;font-size:.7rem;vertical-align:middle}
 .btn.btn-sm{padding:.22rem .7rem;font-size:.8rem}
 .wl-filters label{flex-direction:row;align-items:center;gap:.35rem}
 
@@ -396,3 +396,23 @@ ol.steps .step p{margin:.2rem 0 0;font-size:.88rem;color:#444}
 .tag.ivt{background:#efe4c4;border-color:#a88b4a;color:#5a4a1a}
 .dzb.iv{background:#faf3e3;border-color:#a88b4a;color:#5a4a1a}
 .iv-box{margin:.4rem 0 .2rem}.iv-box svg{max-width:100%;height:auto}
+
+/* CU Boulder subdomain compliance (2026-10): campus brand bar, site-name header, Be Boulder footer (styleguide.colorado.edu/branding), skip link */
+.skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--cu-gold);color:var(--cu-black);padding:.5rem .9rem;font-weight:700;text-decoration:none}
+.skip-link:focus{left:.5rem;top:.5rem;outline:3px solid var(--cu-black)}
+main:focus{outline:none}
+.cu-brandbar{background:#000}
+.cu-brandbar .in,header.ucb .in{max-width:var(--maxw);margin:0 auto;padding:0 1rem}
+.cu-brandbar .ucb-brand-bar{padding:10px 0}
+.cu-brandbar noscript a{color:#fff;font-weight:700;display:inline-block;padding:10px 0}
+header.ucb{display:block;background:#000;color:#fff;border-top:1px solid #333;padding:14px 0 12px;font-family:"Roboto Condensed","Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.1}
+header.ucb .site-name{color:#fff;text-decoration:none;font-size:30px;font-weight:700}
+header.ucb .site-name:hover{color:var(--cu-gold)}
+header.ucb .affiliation{text-transform:uppercase;font-size:14px;padding-top:6px;font-weight:700;color:#aaa}
+header.ucb .affiliation a{color:#aaa;text-decoration:none}header.ucb .affiliation a:hover{color:#fff;text-decoration:underline}
+@media (max-width:640px){header.ucb .site-name{font-size:24px}header.ucb .affiliation{font-size:12px}}
+footer .site-policies{margin-bottom:.5rem}
+footer .cu-footer{margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--cu-black);text-align:left}
+footer .cu-footer .ucb-footer p{margin:0 0 .25rem}
+footer .cu-footer a{color:var(--cu-black)}
+footer .cu-footer img.ucb-footer-be-boulder{max-width:200px!important}
