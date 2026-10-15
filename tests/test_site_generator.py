@@ -147,7 +147,7 @@ def _all_html(site):
 # ---------------------------------------------------------------- item 5: nav + about
 def test_nav_order_and_about(site_new):
     html = _html(site_new, 'index.html')
-    nav = html[html.index('<nav class="topnav">'):html.index('</nav>')]
+    nav = html[html.index('<nav class="topnav"'):html.index('</nav>')]
     # R2026.15: grouped drop-down navigation (owner review 2026-10-01)
     top = re.findall(r'(?:<a href="[^"]*" [^>]*>([^<]+)</a>|<button type="button" class="navbtn"[^>]*>([^<]+?) <span)', nav)
     assert [a or b for a, b in top] == ['Home', 'Projects', 'Samples', 'Contribute', 'Explore', 'About']   # R2026.19 order
