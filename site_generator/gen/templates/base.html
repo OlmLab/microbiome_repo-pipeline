@@ -12,8 +12,6 @@
 <meta name="catalog-build-date" content="{{ site.build_date }}">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Roboto:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="{{ root }}static/site.css">
 {% if use_datatables %}
 <link rel="stylesheet" href="{{ root }}static/vendor/dataTables.dataTables-2.1.8.min.css" integrity="{{ site.sri['dataTables.dataTables-2.1.8.min.css'] }}" crossorigin="anonymous">
@@ -25,9 +23,8 @@
 </head>
 <body class="{% block bodyclass %}{% endblock %}">
 <a class="skip-link" href="#main">Skip to main content</a>
-<div class="cu-brandbar"><div class="in"><script src="https://cdn.colorado.edu/static/brand-assets/live/js/brand-bar.js" id="ucb-brand-bar-embed" data-color="white"></script><noscript><a class="ucb-home-link" href="https://www.colorado.edu">University of Colorado Boulder</a></noscript></div></div>
 <nav class="topnav" aria-label="Main"><div class="in">
-<span class="site-name-wrapper"><a class="brand site-name" href="{{ root }}index.html">{{ site.short_title }}</a><span class="affiliation"><a href="{{ site.about.lab_url }}">{{ site.about.short_lab_name }}</a> · <a href="{{ site.about.department_url }}">{{ site.about.department_name }}</a></span></span>
+<a class="brand" href="{{ root }}index.html">{{ site.short_title }}</a>
 {% for key, label, href, children in site.nav %}{% if children %}{% set grp_active = nav in children|map(attribute=0)|list %}<div class="navdd{% if grp_active %} active{% endif %}"><button type="button" class="navbtn" aria-haspopup="true" aria-expanded="false">{{ label }} <span aria-hidden="true">▾</span></button><div class="navmenu" role="menu">{% for ck, cl, ch in children %}{% if ch %}<a role="menuitem" href="{{ root }}{{ ch }}"{% if page_path == ch %} class="active"{% endif %}>{{ cl }}</a>{% else %}<span class="navhead">{{ cl }}</span>{% endif %}{% endfor %}</div></div>
 {% else %}<a href="{{ root }}{{ href }}" {% if nav==key %}class="active"{% endif %}>{{ label }}</a>
 {% endif %}{% endfor %}<form class="navsearch" action="{{ root }}index.html" method="get" role="search"><input name="q" type="search" placeholder="Search projects, samples, authors…" aria-label="Search the repository" autocomplete="off"></form></div></nav>
@@ -39,7 +36,6 @@
 <div class="site-policies"><a href="{{ root }}about/accessibility.html">Accessibility</a> · <a href="{{ root }}about/accessibility.html#privacy">Privacy &amp; analytics</a> · <a href="{{ root }}about/accessibility.html#security">Security</a> · <a href="{{ root }}about/accessibility.html#contact">Contact</a></div>
 <div id="release-line"><b>{{ site.title }}</b> · release <a href="{{ root }}downloads/index.html#rel-{{ site.release_id }}"><span class="mono">{{ site.release_id }}</span></a> · package <span class="mono">{{ site.version }}</span> · build <span class="mono">{{ site.sha8 }}</span>{% if site.doi %} · <a href="https://doi.org/{{ site.doi }}">DOI</a>{% elif site.concept_doi %} · <a href="https://doi.org/{{ site.concept_doi }}">DOI</a>{% endif %} · <a href="{{ root }}changes/{{ site.release_id }}.html">what changed</a> · <a href="{{ root }}about/index.html">About &amp; citation</a> · <a href="{{ root }}about/methods.html#limitations">Limitations</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a> · <a href="{{ site.about.lab_url }}">{{ site.about.lab_name }}</a></div>
 <div class="muted">Built with an LLM-assisted pipeline: every value links to its source, route and confidence — treat values as evidence-linked claims{% if site.has_contribute %}; corrections and missing metadata are welcome via <a href="{{ root }}{{ site.contribute_page }}">Contribute</a>{% endif %}.</div>
-<div class="cu-footer"><script src="https://cdn.colorado.edu/static/brand-assets/live/js/footer.js" id="ucb-footer-embed" data-color="black"></script><noscript><div class="ucb-footer"><p><a class="ucb-home-link" href="https://www.colorado.edu">University of Colorado Boulder</a></p><p>&copy; Regents of the University of Colorado</p><p class="ucb-footer-links"><a href="https://www.colorado.edu/about/privacy-statement">Privacy</a> &bull; <a href="https://www.colorado.edu/about/legal-trademarks">Legal &amp; Trademarks</a> &bull; <a href="https://www.colorado.edu/map">Campus Map</a></p></div></noscript></div>
 </footer>
 
 {% if use_datatables %}

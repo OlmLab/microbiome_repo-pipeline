@@ -6,7 +6,7 @@
   --accent:var(--cu-gold);--accent-text:#7A6A3C;--accent2:var(--cu-gold);--warn:#8A4A1A;
   --r1:var(--cu-gold);--r2:var(--cu-dark-gray);--r3:var(--cu-bronze);--r4:var(--cu-pale-gray);--maxw:1240px;font-size:15px}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Roboto,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.45}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
 a{color:var(--accent-text);text-decoration:underline;text-decoration-color:var(--cu-gold);text-underline-offset:2px}a:hover{color:var(--cu-black);text-decoration-color:var(--cu-black)}
 code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
 pre{background:var(--panel);padding:.75rem;overflow:auto;border:1px solid var(--line);border-radius:6px}
@@ -397,23 +397,8 @@ ol.steps .step p{margin:.2rem 0 0;font-size:.88rem;color:#444}
 .dzb.iv{background:#faf3e3;border-color:#a88b4a;color:#5a4a1a}
 .iv-box{margin:.4rem 0 .2rem}.iv-box svg{max-width:100%;height:auto}
 
-/* CU Boulder subdomain compliance (2026-10): campus brand bar, site-name header, Be Boulder footer (styleguide.colorado.edu/branding), skip link */
+/* Accessibility (2026-10): skip link */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--cu-gold);color:var(--cu-black);padding:.5rem .9rem;font-weight:700;text-decoration:none}
 .skip-link:focus{left:.5rem;top:.5rem;outline:3px solid var(--cu-black)}
 main:focus{outline:none}
-.cu-brandbar{background:#fff;border-bottom:1px solid var(--line)}
-.cu-brandbar .in{max-width:var(--maxw);margin:0 auto;padding:0 1rem}
-.cu-brandbar .ucb-brand-bar{padding:5px 0}
-.cu-brandbar .ucb-brand-bar img.ucb-logo{max-width:170px!important;min-width:140px!important}
-.cu-brandbar .ucb-brand-bar img.ucb-search{width:14px!important;height:14px!important}
-.cu-brandbar noscript a{color:var(--cu-black);font-weight:700;font-size:.85rem;display:inline-block;padding:5px 0}
-.topnav .site-name-wrapper{margin-right:auto;display:flex;flex-direction:column;line-height:1.1}
-.topnav .site-name-wrapper .brand{margin-right:0}
-.topnav .affiliation{font-size:.68rem;text-transform:uppercase;letter-spacing:.03em;font-weight:600;color:#aaa;white-space:nowrap}
-.topnav .affiliation a{color:#aaa;padding:0;text-decoration:none;opacity:1}.topnav .affiliation a:hover{color:#fff;background:none;text-decoration:underline}
-@media (max-width:640px){.topnav .affiliation{display:none}}
 footer .site-policies{margin-bottom:.5rem}
-footer .cu-footer{margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--cu-black);text-align:left}
-footer .cu-footer .ucb-footer p{margin:0 0 .25rem}
-footer .cu-footer a{color:var(--cu-black)}
-footer .cu-footer img.ucb-footer-be-boulder{max-width:150px!important}
