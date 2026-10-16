@@ -118,7 +118,7 @@ def make_package(out: Path, new_cols: bool):
 
 
 def build(pkg: Path, out: Path):
-    cmd = [sys.executable, str(GEN / 'build_site.py'), '--package', str(pkg), '--out', str(out), '--base-url', 'https://olmlab.github.io/microbiome_repo/', '--build-date', DATE]
+    cmd = [sys.executable, str(GEN / 'build_site.py'), '--package', str(pkg), '--out', str(out), '--base-url', 'https://microbiomerepo.com/', '--build-date', DATE]
     r = subprocess.run(cmd, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-4000:]
     return out

@@ -4,7 +4,7 @@ Two layers:
   * spec-level tests (always run): config/releases.yaml shape, release ordering, Zenodo URL construction, templates reference no placeholder URL.
   * built-site tests (run when CATALOG_SITE_DIR points at a build and CATALOG_PACKAGE_DIR at the package it was built from):
       python site_generator/gen/tests/make_mock_release_package.py --src data/inputs/data_package --out build/mock_package_1.3.0
-      cd site_generator/gen && python build_site.py --package ../../build/mock_package_1.3.0 --out ../../build/site --base-url https://olmlab.github.io/microbiome_repo/ --build-date 2026-09-26
+      cd site_generator/gen && python build_site.py --package ../../build/mock_package_1.3.0 --out ../../build/site --base-url https://microbiomerepo.com/ --build-date 2026-09-26
       CATALOG_SITE_DIR=build/site CATALOG_PACKAGE_DIR=build/mock_package_1.3.0 python -m pytest site_generator/gen/tests/test_release_pages.py
 """
 import json, os, re, sys

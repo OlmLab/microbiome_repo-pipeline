@@ -1,7 +1,7 @@
 # microbiome_repo-pipeline — Infant Gut Shotgun-Metagenome Catalog
 
 Code, configuration, tests and documentation that build and maintain the catalog
-(https://olmlab.github.io/microbiome_repo/). Data tables live in `microbiome_repo-data`, the generated site in
+(https://microbiomerepo.com/). Data tables live in `microbiome_repo-data`, the generated site in
 `microbiome_repo` (docs/DATA_LAYOUT.md). Assembled 2026-09-26 from the release-v11 artifacts (config/inputs.json
 records every source artifact id + sha256).
 

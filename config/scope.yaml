@@ -239,7 +239,7 @@ package_version: "1.6.0"
 scope_rules:
   infant_gut:
     rule: in_infant_catalog == include
-    site: https://olmlab.github.io/microbiome_repo/
+    site: https://microbiomerepo.com/
   gut_child:
     rule: gut_stool in body_sites AND (child in life_stages OR adolescent in life_stages)
     site: null

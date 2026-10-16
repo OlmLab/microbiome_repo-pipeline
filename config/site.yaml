@@ -8,7 +8,7 @@ site:
   tagline: "every public human shotgun-metagenome study in ENA/SRA/DDBJ (registry) and a curated, evidence-linked catalog of human gut metagenomes of all ages"
   curated_scope_title: "Infant Gut Shotgun-Metagenome Catalog"     # historical name of the infant extension (package README history); no site section carries it since 1.10.0
   curated_scope_short: "Infant gut"
-  base_url: "https://olmlab.github.io/microbiome_repo/"
+  base_url: "https://microbiomerepo.com/"   # custom domain (GitHub Pages cname, set 2026-10); olmlab.github.io/microbiome_repo/ redirects here
   placeholder_base_url: "https://USERNAME.github.io/REPOSITORY/"   # build fails if base_url == this
   build_date_source: package_release_date   # never wall-clock (A2 determinism); taken from VERSION.json
   gzip_mtime: 0                             # deterministic *.csv.gz (A2)
@@ -63,7 +63,7 @@ local:
 # Web analytics (R2026.16, owner request 2026-10-08). Off until an id is set; one provider at a time.
 #   goatcounter: create a free site at https://www.goatcounter.com/signup (code = the subdomain you pick, e.g. microbiome-repo)
 #   ga4:         a Google Analytics 4 measurement id (G-XXXXXXXXXX)
-#   plausible:   the domain registered at plausible.io (olmlab.github.io/microbiome_repo)
+#   plausible:   the domain registered at plausible.io (microbiomerepo.com)
 analytics:
   provider: goatcounter
   id: "microbiome-repo"

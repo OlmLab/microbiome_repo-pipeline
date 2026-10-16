@@ -2,7 +2,7 @@
 
 Spec-level tests always run; built-site tests need CATALOG_SITE_DIR (a build of the MOCK 1.6.0 package) and CATALOG_PACKAGE_DIR:
     python site_generator/gen/tests/make_mock_registry_package.py --src data/inputs/data_package --out build/mock_package_1.6.0
-    python site_generator/gen/build_site.py --package build/mock_package_1.6.0 --out build/site_mock --base-url https://olmlab.github.io/microbiome_repo/ --build-date 2026-10-31
+    python site_generator/gen/build_site.py --package build/mock_package_1.6.0 --out build/site_mock --base-url https://microbiomerepo.com/ --build-date 2026-10-31
     CATALOG_SITE_DIR=build/site_mock CATALOG_PACKAGE_DIR=build/mock_package_1.6.0 python -m pytest site_generator/gen/tests/test_registry_pages.py
 """
 import json, os, re, sys
