@@ -642,6 +642,92 @@ def study_glance(g):
                 timeline=mini_bars_svg(years) if len(years) >= 2 else '', years=(years[0][0], years[-1][0]) if years else None,
                 depth=depth)
 
+AU_COLS = ['study_accession', 'pmid', 'position', 'author_display', 'author_key', 'is_first', 'is_last']
+# R2026.25 author fix (owner, 2026-10-16, after an author's report): authors are credited only through papers that GENERATED the
+# project's data. Re-analysis / citing papers (reused_public_data, cited_only) never credit authors; 'unsure' links are listed
+# separately as "possibly associated". Relation-less infant rows count as generating only when the BioProject record itself
+# cites the paper (bioproject_publication_epmc) or the paper was curated for the study (catalog_linked_pmids).
+AU_GENERATED = {'own_data', 'bioproject_registered', 'ena_registered'}
+AU_GENERATED_METHODS = {'bioproject_publication_epmc', 'catalog_linked_pmids'}
+
+
+def _au_initials_compatible(a, b):
+    a, b = a.replace(' ', ''), b.replace(' ', '')
+    return a.startswith(b) or b.startswith(a)
+
+
+def orcid_key_map(rows):
+    """(orcid, author_key) -> canonical key for name variants carrying the same Europe PMC ORCID with the same surname and
+    compatible initials ('morgan x' -> 'morgan xc'). Applied ROW-wise (only rows that carry that ORCID): a bare key such as
+    'zhou j' is shared by many people. ORCIDs on different surnames are Europe PMC assignment errors and are ignored."""
+    if 'orcid' not in rows.columns:
+        return {}
+    r = rows.dropna(subset=['orcid', 'author_key'])
+    r = r[r.orcid.astype(str).str.match(r'^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$')]
+    m = {}
+    for oid, g in r.groupby('orcid'):
+        keys = sorted(set(g.author_key), key=lambda k: (-len(k), k))
+        if len(keys) < 2:
+            continue
+        canon = keys[0]
+        sur = canon.rsplit(' ', 1)[0]
+        for k in keys[1:]:
+            ks = k.rsplit(' ', 1)
+            if len(ks) == 2 and ks[0] == sur and ' ' in canon and _au_initials_compatible(ks[1], canon.rsplit(' ', 1)[1]):
+                m[(oid, k)] = canon
+    return m
+
+
+def load_site_authors(pkg, inc_set, overrides_path, RR=None):
+    parts, possible, rows_orcid = [], [], []
+    if (pkg / 'registry_authors.parquet').exists():
+        ra = pd.read_parquet(pkg / 'registry_authors.parquet')
+        ra = ra[ra[RR].isna()] if RR and RR in ra.columns else ra
+        rows_orcid.append(ra)
+        ra = ra.assign(orcid=ra.orcid if 'orcid' in ra.columns else None)
+        parts.append(ra[ra.paper_relation.isin(AU_GENERATED)][AU_COLS + ['orcid']])
+        possible.append(ra[ra.paper_relation.eq('unsure')][AU_COLS + ['orcid']])
+    if (pkg / 'authors.parquet').exists():
+        ia = pd.read_parquet(pkg / 'authors.parquet')
+        gen = ia.paper_relation.isin(AU_GENERATED) | (ia.paper_relation.isna() & ia.link_method.isin(AU_GENERATED_METHODS))
+        parts.append(ia[gen][AU_COLS])
+        possible.append(ia[ia.paper_relation.eq('unsure')][AU_COLS])
+    empty = pd.DataFrame(columns=AU_COLS)
+    authors = pd.concat(parts, ignore_index=True) if parts else empty.copy()
+    poss = pd.concat(possible, ignore_index=True) if possible else empty.copy()
+    ov = pd.read_csv(overrides_path, comment='#', dtype=str).fillna('') if Path(overrides_path).exists() else pd.DataFrame(columns=['action'])
+    if len(ov):
+        assert set(ov.action) <= {'remove_author', 'add_author', 'remove_link'}, f'author_overrides.csv: unknown action {set(ov.action)}'
+        add = ov[ov.action == 'add_author']
+        if len(add):
+            add = add.assign(position=add.groupby(['study_accession', 'pmid']).cumcount() + 1, is_first=add.is_first.eq('1'), is_last=add.is_last.eq('1'))
+            authors = pd.concat([add[AU_COLS], authors], ignore_index=True)
+    km = orcid_key_map(pd.concat(rows_orcid, ignore_index=True)) if rows_orcid else {}
+    disp = {}
+    for d in (authors, poss):
+        d['pmid'] = d.pmid.astype(str).str.replace(r'\.0$', '', regex=True)
+        oc = d['orcid'] if 'orcid' in d.columns else pd.Series([None] * len(d), index=d.index)
+        d['author_key'] = [km.get((o, k), k) for o, k in zip(oc, d.author_key)]
+    for r in authors.dropna(subset=['author_key']).itertuples(index=False):
+        if len(str(r.author_display)) > len(disp.get(r.author_key, '')):
+            disp[r.author_key] = str(r.author_display)
+    for d in (authors, poss):
+        d['author_display'] = [disp.get(k, v) for k, v in zip(d.author_key, d.author_display)]
+    if len(ov):
+        for r in ov[ov.action == 'remove_author'].itertuples(index=False):
+            for d in (authors, poss):
+                keys = {r.author_key} | {c for (o, k), c in km.items() if k == r.author_key}
+                d.drop(d.index[(d.study_accession == r.study_accession) & d.author_key.isin(keys)], inplace=True)
+        for r in ov[ov.action == 'remove_link'].itertuples(index=False):
+            for d in (authors, poss):
+                d.drop(d.index[(d.study_accession == r.study_accession) & (d.pmid == str(r.pmid))], inplace=True)
+    authors = authors[authors.study_accession.isin(inc_set)].dropna(subset=['author_key']).drop_duplicates(['study_accession', 'author_key'])[AU_COLS].reset_index(drop=True)
+    poss = poss[poss.study_accession.isin(inc_set)].dropna(subset=['author_key']).drop_duplicates(['study_accession', 'author_key'])
+    have = set(zip(authors.study_accession, authors.author_key))
+    poss = poss[pd.Series([(s, k) not in have for s, k in zip(poss.study_accession, poss.author_key)], index=poss.index, dtype=bool)][AU_COLS].reset_index(drop=True)
+    return authors, poss
+
+
 def read_about(cfg_path):
     a = yaml.safe_load(Path(cfg_path).read_text(encoding='utf-8')).get('about', {}) or {}
     for k in ('lab_name', 'lab_url', 'funder_name', 'funder_url'):
@@ -1112,16 +1198,7 @@ def main():
     papers['paper_id'] = papers.paper_id.astype(str)
     papers = papers[papers.study_accession.isin(inc_set)].drop_duplicates(['study_accession', 'paper_id']).reset_index(drop=True)
     papers['title'] = papers.title.map(strip_frame_tokens).map(lambda t: None if isnull(t) else re.sub(r'<[^>]+>', '', str(t)))
-    au_parts = []
-    if (pkg / 'registry_authors.parquet').exists():
-        ra = pd.read_parquet(pkg / 'registry_authors.parquet')
-        ra = ra[ra[RR].isna()] if RR in ra.columns else ra
-        au_parts.append(ra[['study_accession', 'pmid', 'position', 'author_display', 'author_key', 'is_first', 'is_last']])
-    if (pkg / 'authors.parquet').exists():
-        ia = pd.read_parquet(pkg / 'authors.parquet')
-        au_parts.append(ia[['study_accession', 'pmid', 'position', 'author_display', 'author_key', 'is_first', 'is_last']])
-    authors = pd.concat(au_parts, ignore_index=True) if au_parts else pd.DataFrame(columns=['study_accession', 'pmid', 'position', 'author_display', 'author_key', 'is_first', 'is_last'])
-    authors = authors[authors.study_accession.isin(inc_set)].dropna(subset=['author_key']).drop_duplicates(['study_accession', 'author_key']).reset_index(drop=True)
+    authors, authors_possible = load_site_authors(pkg, inc_set, Path(a.config).parent / 'author_overrides.csv', RR)
     authors['pmid'] = authors.pmid.astype(str)
     authors['author_display'] = authors.author_display.astype(str)
     leaks = [v for v in authors.author_display if ORG_LEAK_RE.search(v)]
@@ -1904,6 +1981,11 @@ def main():
         if r.study_accession not in d['s']:
             d['s'].append(r.study_accession)
         d['f'] += int(bool(r.is_first))
+    for r in authors_possible.sort_values(['author_key', 'study_accession'], kind='mergesort').itertuples(index=False):
+        d = aidx.setdefault(r.author_key, dict(n=r.author_display, s=[], f=0))
+        d.setdefault('p', [])
+        if r.study_accession not in d['p']:
+            d['p'].append(r.study_accession)
     shards = {}
     for key in sorted(aidx):
         letter = key[:1].lower() if key[:1].isalpha() and key[:1].isascii() else '_'

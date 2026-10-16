@@ -4,8 +4,8 @@
 {% block content %}
 <h1>Authors</h1>
 <p class="lead">Search {{ n_index|fmt }} author names ({{ stats.n_author_rows|fmt }} study × author rows over {{ stats.n_studies_with_author|fmt }} of the {{ stats.n_studies|fmt }} catalog studies).</p>
-<details class="about-page"><summary>About this page</summary><p>Each hit lists the catalog studies the author is linked to through a paper (Europe PMC author lists of the linked papers; for the infant-extension studies also the curated links). Each study appears as a preview card: accession, title, samples, country / top condition, year.</p></details>
-<p class="note"><b>Caveats:</b> names are string-matched from Europe PMC author strings — the same person can appear under several initial variants (e.g. "Aagaard K" and "Aagaard KM") and no disambiguation was attempted; studies without a linked paper have no authors; consortium names are kept as group authors. A paper linked with relation <span class="mono">unsure</span> may re-analyse rather than produce the data.</p>
+<details class="about-page"><summary>About this page</summary><p>An author is credited with a project only through a paper that <b>generated</b> that project's data (Europe PMC author list of the paper; the paper is the data's publication according to the BioProject record, the paper's data-availability statement, or its full text). Papers that re-analyse or cite public data credit no one. Links where it is unclear whether the paper produced or re-used the data are listed separately as <i>possibly associated</i>. Name variants that share an ORCID (e.g. "Morgan X" and "Morgan XC") are merged. Each project appears as a preview card: accession, title, samples, country / top condition, year.</p></details>
+<p class="note"><b>Caveats:</b> names are matched from Europe PMC author strings — variants without a shared ORCID stay separate (e.g. "Aagaard K" and "Aagaard KM"); projects whose data paper was not found have no authors; consortium names are kept as group authors. <b>Wrong or missing projects under your name?</b> <a id="au-fix" href="#">Tell us</a> and we will correct it in the next update.</p>
 <input id="q" aria-label="Search authors" class="searchbox" type="search" placeholder="Surname (and initials), e.g. Segata N, Knight R, Olm" autocomplete="off">
 <div id="status" class="small"></div>
 <div id="results"></div>
@@ -33,12 +33,21 @@
       const div = document.createElement('div'); div.id = 'a-' + encodeURIComponent(k).replace(/%/g, '_');
       const cards = a.s.map(acc => { const r = S[acc] || {}; return '<a class="card scard" href="../studies/' + h(acc) + '.html"><span class="mono">' + h(acc) + '</span>' + (r.y ? ' <span class="small">' + h(r.y) + '</span>' : '') +
         '<br><span class="small">' + h(r.t || '(no title)') + '</span><br><span class="small">' + (r.n !== undefined ? Number(r.n).toLocaleString() + ' samples' : '') + (r.co ? ' · ' + h(r.co) : '') + (r.hc ? ' · ' + h(r.hc) : '') + '</span></a>'; });
-      div.innerHTML = '<h3>' + h(a.n) + ' <span class="small">' + a.s.length + ' stud' + (a.s.length === 1 ? 'y' : 'ies') + (a.f ? ' · first author on ' + a.f : '') + '</span></h3><div class="scards">' + cards.join('') + '</div>';
+      const card = acc => { const r = S[acc] || {}; return '<a class="card scard" href="../studies/' + h(acc) + '.html"><span class="mono">' + h(acc) + '</span>' + (r.y ? ' <span class="small">' + h(r.y) + '</span>' : '') +
+        '<br><span class="small">' + h(r.t || '(no title)') + '</span><br><span class="small">' + (r.n !== undefined ? Number(r.n).toLocaleString() + ' samples' : '') + (r.co ? ' · ' + h(r.co) : '') + (r.hc ? ' · ' + h(r.hc) : '') + '</span></a>'; };
+      const pos = a.p || [];
+      div.innerHTML = '<h3>' + h(a.n) + ' <span class="small">' + a.s.length + ' project' + (a.s.length === 1 ? '' : 's') + (a.f ? ' · first author on ' + a.f : '') + (pos.length ? ' · ' + pos.length + ' possibly associated' : '') + '</span></h3>' +
+        (a.s.length ? '<div class="scards">' + cards.join('') + '</div>' : '') +
+        (pos.length ? '<details class="au-poss"' + (a.s.length ? '' : ' open') + '><summary class="small">Possibly associated (' + pos.length + ') — a paper by this author mentions the project, but it is unclear whether the paper produced or re-used the data</summary><div class="scards">' + pos.map(card).join('') + '</div></details>' : '');
       out.appendChild(div);
     }
   }
   let sidx = null;
   async function studyIndex(){ if (!sidx) sidx = fetch('../data/studies_index.json').then(r => r.json()).then(rows => Object.fromEntries(rows.map(r => [r.a, r]))).catch(() => ({})); return sidx; }
+  const fix = document.getElementById('au-fix'); if (fix) fix.addEventListener('click', ev => { ev.preventDefault(); const C = window.CATALOG || {};
+    const u = new URL(C.issueRepo || 'https://github.com/OlmLab/microbiome_repo/issues/new'); u.searchParams.set('template', C.issueTemplate || 'simple-finding.yml'); u.searchParams.set('labels', 'authorship');
+    u.searchParams.set('title', '[authorship] ' + (q.value || '<your name>')); u.searchParams.set('problem', 'Author page: projects listed under ' + (q.value || 'my name') + ' that are not mine, or my projects that are missing');
+    u.searchParams.set('details', 'Wrong (not my data): \nMissing (project accession -> paper PMID): \nORCID (optional): '); u.searchParams.set('release_id', C.releaseId || ''); u.searchParams.set('page_url', location.href); window.open(u.toString(), '_blank', 'noopener'); });
   q.addEventListener('input', () => { clearTimeout(q._t); q._t = setTimeout(run, 150); });
   const init = new URLSearchParams(location.search).get('q'); if (init) { q.value = init; run(); }
 })();

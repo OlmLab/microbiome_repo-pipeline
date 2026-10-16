@@ -402,3 +402,4 @@ ol.steps .step p{margin:.2rem 0 0;font-size:.88rem;color:#444}
 .skip-link:focus{left:.5rem;top:.5rem;outline:3px solid var(--cu-black)}
 main:focus{outline:none}
 footer .site-policies{margin-bottom:.5rem}
+.au-poss{margin:.2rem 0 .9rem}.au-poss .scard{border-left-style:dashed;opacity:.92}
