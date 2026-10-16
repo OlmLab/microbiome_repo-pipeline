@@ -33,6 +33,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const P = ['condition', 'intervention', 'design', 'age', 'country', 'min_samples', 'cases_controls', 'arms', 'source', 'sampling'];
   const prm = new URLSearchParams(location.search);
   for (const k of P) { const el = $('pf-' + k); const v = prm.get(k); if (el && v !== null) { if (el.type === 'checkbox') el.checked = v === '1'; else el.value = v; } }
+  const CODES = new Set(rows.flatMap(r => (r.ctry || '').toLowerCase().split(';').filter(Boolean)));  // a 2-letter ISO code matches the code only (TR must not match AusTRalia)
   const ok = r => {
     const c = $('pf-condition').value, iv = $('pf-intervention').value, dz = $('pf-design').value, ag = $('pf-age').value;
     const co = $('pf-country').value.trim().toLowerCase(), mn = $('pf-min_samples').value;
@@ -41,7 +42,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
     if (iv === '__any__' && !ivs.length) return false; if (iv === '__none__' && ivs.length) return false;
     if (iv && !iv.startsWith('__') && !ivs.includes(iv) && !(r.arms || []).includes(iv)) return false;
     if (dz === '__controlled__') { if (!['randomized_controlled_trial', 'non_randomized_controlled', 'crossover'].includes(r.dz) && !r.cca) return false; } else if (dz && r.dz !== dz) return false; if (ag && !(r.ags || []).includes(ag)) return false;
-    if (co && !(String(r.co || '').toLowerCase().includes(co) || (co.length === 2 && (r.ctry || '').toLowerCase().split(';').includes(co)))) return false; if (mn !== '' && r.n < parseInt(mn)) return false;
+    if (co && !(CODES.has(co) ? (r.ctry || '').toLowerCase().split(';').includes(co) : String(r.co || '').toLowerCase().includes(co))) return false; if (mn !== '' && r.n < parseInt(mn)) return false;
     if ($('pf-cases_controls').checked && !r.ccc) return false; if ($('pf-arms').checked && !r.cca) return false;
     const so = $('pf-source').value; if (so !== '' && (r.sf || 'nnnnnnn')[parseInt(so)] !== 'u') return false;
     const gq = prm.get('group'); if (gq && r.grp !== gq) return false;
