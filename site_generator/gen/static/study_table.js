@@ -42,9 +42,14 @@
         if ((f === 'seq_gbp' || f === 'bmi') && v !== '' && !isNaN(+v)) v = f === 'bmi' ? (+v).toFixed(1) : ((+v) >= 1 ? (+v).toFixed(2) : (+v) >= 0.01 ? (+v).toFixed(3) : (+v) > 0 ? (+v).toPrecision(2) : '0');   // R2026.25: shallow runs (Mbp) no longer round to 0.00
         return v;
       };
-      const data = rows.filter((x) => x.length > 1).map((row) => {
+      // R2026.26: control samples (blanks, mock communities, positive controls) get a 'sample type' column when the project has any
+      const TYPE = { negative_control: 'negative control (blank)', mock_community: 'mock community', positive_control: 'positive control', synthetic_community: 'defined community' };
+      const body = rows.filter((x) => x.length > 1);
+      const hasCtl = ix.sample_type !== undefined && body.some((row) => (get(row, 'sample_type') || 'specimen') !== 'specimen');
+      const data = body.map((row) => {
         const key = get(row, 'sample_key'), bs = get(row, 'biosample_accession');
         const out = [key, bs];
+        if (hasCtl) { const ty = get(row, 'sample_type') || 'specimen'; out.push(ty === 'specimen' ? '' : (TYPE[ty] || ty)); }
         for (const c of cfg.cols) out.push(c.empty ? '' : val(row, c.f));
         out.push(val(row, 'seq_gbp')); out.push(get(row, 'n_runs'));
         out._row = row; return out;
@@ -54,13 +59,14 @@
       const columns = [
         { title: 'sample', render: (d, t) => t === 'display' ? '<a class="mono" href="../samples/sample.html?id=' + encodeURIComponent(d) + '">' + esc(d) + '</a>' : d },
         { title: 'archive', render: (d, t) => { if (t !== 'display') return d; const u = archiveUrl(d); return u ? '<a class="mono" href="' + u + '">' + esc(d) + '</a>' : esc(d); } }];
+      if (hasCtl) columns.push({ title: 'sample type', render: (d, t) => t === 'display' ? (d ? '<span class="tag ctl" title="Control sample: no person metadata">' + esc(d) + '</span>' : '') : (d || 'specimen') });
       cfg.cols.forEach((c, j) => columns.push(c.empty
         ? { title: '<span>' + esc(c.label) + '</span>', className: 'ecol', orderable: false, render: () => '' }
         : { title: esc(c.label), className: c.num ? 'num' : 'tclip', render: (d, t, row) => t === 'display' ? (d ? '<span title="' + esc(tipOf(row._row, c, d)) + '">' + esc(d) + '</span>' : '') : d }));
       columns.push({ title: 'Gbp', className: 'num' }); columns.push({ title: 'runs', className: 'num' });
       st.textContent = '';
       new DataTable('#samples', { data, columns, pageLength: 25, lengthMenu: [25, 100, 500, 2000], order: [], autoWidth: false, deferRender: true,
-        headerCallback: (thead) => { thead.querySelectorAll('th').forEach((th, i) => { const c = cfg.cols[i - 2]; if (c) th.title = c.f; }); } });
+        headerCallback: (thead) => { thead.querySelectorAll('th').forEach((th, i) => { const c = cfg.cols[i - (hasCtl ? 3 : 2)]; if (c) th.title = c.f; }); } });
     } catch (e) {
       st.innerHTML = 'The sample table could not be loaded here (' + esc(e.message) + '). Download it below or open the <a href="../samples/index.html?q=' + encodeURIComponent(cfg.acc) + '">sample sheet</a>.';
     }

@@ -406,3 +406,4 @@ footer .site-policies{margin-bottom:.5rem}
 /* R2026.26 metadata behind an access application */
 .tag.acc{background:#fff;color:var(--cu-black);border:1px solid var(--cu-black);font-weight:700}.tag.acc.part{border-style:dashed;font-weight:400}
 .access-note{max-width:900px}
+.tag.ctl{background:#fff;border:1px dashed var(--cu-dark-gray);color:var(--cu-black)}

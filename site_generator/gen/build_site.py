@@ -1384,6 +1384,12 @@ def main():
     _cxp = pkg / 'gut_metadata_contradictions.parquet'
     _cx_all = pd.read_parquet(_cxp) if _cxp.exists() else pd.DataFrame(columns=['study_accession'])
     contra_by_study = {}
+    # R2026.26 control samples named on the project page
+    controls_by_study = {}
+    if 'sample_type' in cw.columns:
+        _CTL = {'negative_control': 'negative control (blank)', 'mock_community': 'mock community', 'positive_control': 'positive control', 'synthetic_community': 'defined community'}
+        for r in cw[cw.sample_type.fillna('specimen') != 'specimen'][['study_accession', 'sample_key', 'sample_type']].sort_values(['study_accession', 'sample_key']).itertuples(index=False):
+            controls_by_study.setdefault(r.study_accession, []).append(dict(key=r.sample_key, label=_CTL.get(r.sample_type, r.sample_type)))
     iv_by_study = {}
     _ivl = {c: (v or {}).get('label', c) for c, v in iv_voc.items()}
     if 'intervention' in cw.columns and 'intervention_design' in cs.columns:
@@ -1802,7 +1808,7 @@ def main():
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
                papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
                group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), contra=contra_by_study.get(acc), ivarms=iv_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
-               samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
+               controls=controls_by_study.get(acc, []), samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)
