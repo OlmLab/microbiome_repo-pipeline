@@ -1680,7 +1680,7 @@
     {
      "name": "age_category_basis",
      "type": "string",
-     "description": "age_at_collection_days | infant_catalog_age_scope | sample_life_stage | study_life_stage | unknown"
+     "description": "age_at_collection_days | infant_catalog_age_scope | sample_life_stage | study_life_stage | unknown | control_sample"
     },
     {
      "name": "body_site_class",
@@ -1690,7 +1690,12 @@
     {
      "name": "body_site_basis",
      "type": "string",
-     "description": "sample_attribute | study_single_site | none"
+     "description": "sample_attribute | study_single_site | none | control_sample"
+    },
+    {
+     "name": "sample_type",
+     "type": "string",
+     "description": "specimen | negative_control | mock_community | positive_control | synthetic_community — controls are detected from sample title / library name / isolation source / scientific name (catalog.scopes.controls; config/sample_types.csv) and carry no person-level values (R2026.26)"
     },
     {
      "name": "infant_scope",
@@ -2046,6 +2051,31 @@
      "name": "contradiction_summary",
      "type": "string",
      "description": "human-readable summary of the contradictions and how they were handled (R2026.25)"
+    },
+    {
+     "name": "n_control_samples",
+     "type": "int",
+     "description": "samples with sample_type other than specimen (blanks, mock communities, positive controls, defined communities) (R2026.26)"
+    },
+    {
+     "name": "metadata_access",
+     "type": "string",
+     "description": "open | partly_controlled | controlled — 'controlled' = the BioProject names an access-controlled study (dbGaP) and the public records carry neither age nor health condition; 'partly_controlled' = some phenotype is public (R2026.26)"
+    },
+    {
+     "name": "metadata_access_system",
+     "type": "string",
+     "description": "access system holding the controlled metadata (dbGaP)"
+    },
+    {
+     "name": "metadata_access_study",
+     "type": "string",
+     "description": "access-controlled study accession(s), e.g. phs001443"
+    },
+    {
+     "name": "metadata_access_url",
+     "type": "string",
+     "description": "where to read about / apply for the controlled metadata"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope",

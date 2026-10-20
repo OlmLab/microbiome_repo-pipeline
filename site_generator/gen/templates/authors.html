@@ -45,7 +45,7 @@
   let sidx = null;
   async function studyIndex(){ if (!sidx) sidx = fetch('../data/studies_index.json').then(r => r.json()).then(rows => Object.fromEntries(rows.map(r => [r.a, r]))).catch(() => ({})); return sidx; }
   const fix = document.getElementById('au-fix'); if (fix) fix.addEventListener('click', ev => { ev.preventDefault(); const C = window.CATALOG || {};
-    const u = new URL(C.issueRepo || 'https://github.com/OlmLab/microbiome_repo/issues/new'); u.searchParams.set('template', C.issueTemplate || 'simple-finding.yml'); u.searchParams.set('labels', 'authorship');
+    const u = new URL(C.issueRepo || 'https://github.com/OlmLab/microbiome_repo/issues/new'); u.searchParams.set('template', C.issueTemplate || 'simple-finding.yml'); u.searchParams.set('labels', 'finding,authorship');
     u.searchParams.set('title', '[authorship] ' + (q.value || '<your name>')); u.searchParams.set('problem', 'Author page: projects listed under ' + (q.value || 'my name') + ' that are not mine, or my projects that are missing');
     u.searchParams.set('details', 'Wrong (not my data): \nMissing (project accession -> paper PMID): \nORCID (optional): '); u.searchParams.set('release_id', C.releaseId || ''); u.searchParams.set('page_url', location.href); window.open(u.toString(), '_blank', 'noopener'); });
   q.addEventListener('input', () => { clearTimeout(q._t); q._t = setTimeout(run, 150); });

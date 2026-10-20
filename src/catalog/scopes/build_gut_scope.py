@@ -490,6 +490,27 @@ def build(a):
         samples = samples[~samples.sample_key.isin(drop)].reset_index(drop=True)
         bio = bio[~bio.sample_accession.isin(drop)]
         print(f"sample exclusions: {n0 - len(samples)} samples removed ({sx})")
+    # R2026.26: control / non-specimen samples (config/sample_types.csv from catalog.scopes.controls). action=exclude rows are not
+    # human-associated (defined communities from soil/rhizosphere); action=mark rows stay in the catalog as sample_type != specimen
+    # and carry no person-level determinations (a blank has no age, sex or condition).
+    stp = getattr(a, "sample_types", None)
+    stypes = {}
+    if stp and os.path.exists(stp):
+        std = pd.read_csv(stp, dtype=str)
+        _want = set(std.sample_accession)
+        _sub = samples[samples.biosample_accession.isin(_want) | samples.sample_key.isin(_want)]
+        bs2key = {}
+        for _b, _k in zip(_sub.biosample_accession, _sub.sample_key):
+            bs2key.setdefault(_b, []).append(_k)
+        _skeys = set(_sub.sample_key)
+        def _keys(acc):
+            return bs2key.get(acc, []) + ([acc] if acc in _skeys and acc not in bs2key.get(acc, []) else [])
+        ex_keys = {k for acc in std.loc[std.action == "exclude", "sample_accession"] for k in _keys(acc)}
+        n0 = len(samples)
+        samples = samples[~samples.sample_key.isin(ex_keys)].reset_index(drop=True)
+        bio = bio[~bio.sample_accession.isin(ex_keys)]
+        stypes = {k: st_ for acc, st_ in zip(std.loc[std.action == "mark", "sample_accession"], std.loc[std.action == "mark", "sample_type"]) for k in _keys(acc)}
+        print(f"sample types: {n0 - len(samples)} non-human synthetic samples removed, {len(stypes)} control samples marked ({stp})")
 
     # ---- determinations
     parts = [pd.DataFrame(rows_from_registry_biosamples(bio, rid, pv), columns=DET_COLS), load_any(a.r1), load_any(a.r1_extra), load_any(getattr(a, "r1_newfields", None)),
@@ -545,6 +566,8 @@ def build(a):
         det_r4 = det_r4[~pd.Series([(s_, f_) in _ck for s_, f_ in zip(det_r4.sample_key, det_r4.field_name)], index=det_r4.index)]
     det_all = pd.concat([det_sample, det_r4], ignore_index=True)
     det_all = det_all[det_all.field_name.isin(PACK_FIELDS + INFANT_ONLY)].copy()
+    if stypes:   # controls carry no person-level values (inherited cohort statements included)
+        det_all = det_all[~det_all.sample_key.isin(set(stypes))].copy()
     inf = det_all.src_track == "infant_catalog"
     det_all.loc[~inf, "release_added"] = rid
     det_all.loc[~inf, "package_added"] = pv
@@ -555,6 +578,7 @@ def build(a):
     conf = det_all.pivot_table(index="sample_key", columns="field_name", values="confidence", aggfunc="first")
     route = det_all.pivot_table(index="sample_key", columns="field_name", values="route", aggfunc="first")
     w = samples.set_index("sample_key")
+    w["sample_type"] = pd.Series(w.index.map(lambda k: stypes.get(k, "specimen")), index=w.index)
     for f in PACK_FIELDS + INFANT_ONLY:
         w[f] = piv[f] if f in piv.columns else None
         if f in PACK_FIELDS:
@@ -610,6 +634,11 @@ def build(a):
     bsc0 = wide0.set_index("sample_key").body_site_class
     m0 = w.index.isin(bsc0.index)
     w.loc[m0, "body_site_class"] = pd.Series(w.index[m0].map(bsc0), index=w.index[m0])
+    _ctl = w.sample_type.ne("specimen")   # controls: no inherited life stage or gut-site class
+    w.loc[_ctl, "age_category"] = "unknown"
+    w.loc[_ctl, "age_category_basis"] = "control_sample"
+    w.loc[_ctl, "body_site_class"] = "unknown"
+    w.loc[_ctl, "body_site_basis"] = "control_sample"
     # infant_scope == the infant catalog's catalog_scope rule exactly (age_scope infant_evidenced/study_all_infant AND body site primary/unknown)
     inf_scope0 = pd.Series(w.index.map(scope0), index=w.index).isin(["infant_evidenced", "study_all_infant"])
     w["infant_scope"] = is_inf & inf_scope0 & w.body_site_class.isin(["primary", "unknown"])
@@ -645,8 +674,10 @@ def build(a):
 
     # ---- studies
     g = w.groupby("study_accession")
-    cov = pd.DataFrame({f"cov_{f}": g[f].apply(lambda s: round(float(s.notna().mean()), 3)) for f in PACK_FIELDS})
-    cov["cov_age_category"] = g.age_category.apply(lambda s: round(float((s.fillna("unknown") != "unknown").mean()), 3))   # core age (life stage)
+    # coverage is over human specimens; control samples (sample_type != specimen) carry no person fields by design (R2026.26)
+    gc = (w[w.sample_type.eq("specimen")] if "sample_type" in w.columns else w).groupby("study_accession")
+    cov = pd.DataFrame({f"cov_{f}": gc[f].apply(lambda s: round(float(s.notna().mean()), 3)) for f in PACK_FIELDS})
+    cov["cov_age_category"] = gc.age_category.apply(lambda s: round(float((s.fillna("unknown") != "unknown").mean()), 3))   # core age (life stage)
     # R2026.22 (owner audit): a catalog project must have at least one catalog sample. Projects left empty after the sample
     # filters are dropped and logged: umbrella children whose BioSamples are catalogued under the parent BioProject (e.g. the
     # MetaHIT single-subject projects under PRJNA33049), projects whose every sample was excluded (PRJEB39960: mouse recipients
@@ -670,6 +701,20 @@ def build(a):
         empty_log = []
     gs = studies.set_index("study_accession").join(cov, how="left")
     gs["n_samples_curated"] = g.size()
+    # R2026.26: metadata behind an access application (config/metadata_access.csv from scripts/harvest_metadata_access.py).
+    # controlled = the public records carry neither age nor health condition (the key metadata need an application, e.g. TEDDY);
+    # partly_controlled = some phenotype is public, the rest needs an application (e.g. HMP).
+    gs["metadata_access"], gs["metadata_access_system"], gs["metadata_access_study"], gs["metadata_access_url"] = "open", None, None, None
+    _map = getattr(a, "metadata_access", None)
+    if _map and os.path.exists(_map):
+        _m = pd.read_csv(_map, dtype=str).drop_duplicates("study_accession").set_index("study_accession")
+        _ix = gs.index.intersection(_m.index)
+        _key_missing = (gs.loc[_ix, "cov_age_at_collection_days"].fillna(0) == 0) & (gs.loc[_ix, "cov_health_condition"].fillna(0) == 0)
+        gs.loc[_ix, "metadata_access"] = _key_missing.map({True: "controlled", False: "partly_controlled"})
+        gs.loc[_ix, "metadata_access_system"] = _m.loc[_ix, "access_system"]
+        gs.loc[_ix, "metadata_access_study"] = _m.loc[_ix, "access_study"]
+        gs.loc[_ix, "metadata_access_url"] = _m.loc[_ix, "apply_url"]
+    gs["n_control_samples"] = w[w.sample_type != "specimen"].groupby("study_accession").size().reindex(gs.index).fillna(0).astype(int) if "sample_type" in w.columns else 0
     gs = gs.join(long_study, how="left").join(rel_study, how="left")
     _cs = contra_summary(contra).set_index("study_accession")
     gs = gs.join(_cs, how="left")
@@ -802,6 +847,8 @@ def main(argv=None) -> int:
     ap.add_argument("--run-bases", help="NCBI SRA runinfo bases for runs without an ENA base_count (scripts/fill_run_bases.py)")
     ap.add_argument("--deep-glob", help="deep per-sample annotation rows (R1 names/attributes, R2 supplements, R3 body tables; data/inputs/gut/deep/deep_determinations_shard_*.parquet, R2026.18)")
     ap.add_argument("--r1-infant", help="R1 BioSample-attribute determinations for infant-catalog samples (gut_r1_infant_determinations.parquet, R2026.17); the infant catalog still wins per field by precedence")
+    ap.add_argument("--metadata-access", help="CSV from scripts/harvest_metadata_access.py (study_accession, access_system, access_study, apply_url)")
+    ap.add_argument("--sample-types", help="CSV from catalog.scopes.controls (sample_accession, sample_type, action mark|exclude)")
     ap.add_argument("--sample-exclusions", help="CSV of sample_key / biosample_accession removed from the catalog (host audit, R2026.17)")
     ap.add_argument("--r1-interventions", help="R1 per-sample intervention arms (gut_r1_intervention_determinations.parquet, R2026.15)")
     ap.add_argument("--interventions-study", help="glob of study-level intervention classification shards (gut_intervention_studies_shard_*.parquet, R2026.15)")

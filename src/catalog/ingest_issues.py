@@ -53,8 +53,33 @@ def parse_form_body(body: str) -> dict:
     return out
 
 
+# R2026.26 (intake test): the site's two-question form (site_generator/gen/issue_templates/simple-finding.yml) and the Authors
+# page link use human labels, not schema ids; map them so a site report keeps its accession and text.
+SIMPLE_LABELS = [("What is wrong or missing", "current_state"), ("Tell us more", "evidence_quote"), ("accession", "identifier"),
+                 ("release id", "release_tag"), ("page URL", "evidence_source")]
+
+
+def parse_simple_form(body: str) -> dict:
+    out = {}
+    parts = HEADING.split(body or "")
+    for i in range(1, len(parts) - 1, 2):
+        label, value = parts[i].strip(), parts[i + 1].strip()
+        fid = next((f for k, f in SIMPLE_LABELS if label.startswith(k)), None)
+        if fid and value not in ("_No response_", "None", "n/a"):
+            out[fid] = value
+    return out
+
+
 def issue_to_row(issue: dict) -> dict:
     form = parse_form_body(issue.get("body") or "")
+    if not form.get("finding_type"):
+        simple = parse_simple_form(issue.get("body") or "")
+        if simple:
+            form = {**simple, **{k: v for k, v in form.items() if v}}
+            names = {l.get("name") for l in issue.get("labels", []) if isinstance(l, dict)}
+            form.setdefault("finding_type", "other")
+            kind = "authorship report (Authors page)" if ("authorship" in names or "[authorship]" in (issue.get("title") or "")) else "site report (two-question form)"
+            form["proposed_change"] = form.get("proposed_change") or f"curator to review — {kind}"
     row = {c: "" for c in COLS}
     row.update({k: v for k, v in form.items() if k in row})
     row["date"] = (issue.get("created_at") or "")[:10]

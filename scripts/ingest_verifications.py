@@ -41,6 +41,8 @@ def rows_from_issues(issues):
     rows = {}
     for i in issues:
         labels = {l["name"] for l in i.get("labels", [])}
+        if re.search(r"\[TEST\b", i.get("title") or "", re.I):   # intake tests (R2026.26) never count
+            continue
         if labels & {"invalid", "wontfix"}:
             continue
         body = i.get("body") or ""

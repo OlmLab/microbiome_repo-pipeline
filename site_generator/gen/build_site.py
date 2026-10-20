@@ -1728,6 +1728,8 @@ def main():
                       **({'rd': str(s['relatedness_designs'])} if not isnull(s.get('relatedness_designs')) and str(s.get('relatedness_designs')) not in ('', 'nan', 'None') else ({'rd': 'families'} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {})),
                       **({'rr': 1} if (not isnull(s.get('relatedness_resolved')) and bool(s.get('relatedness_resolved'))) else {}),
                       **({'ivr': (2 if iv_by_study[s['study_accession']]['resolved'] else 1)} if s['study_accession'] in iv_by_study else {}),
+                      **({'ma': str(s.get('metadata_access'))} if str(s.get('metadata_access') or 'open') in ('controlled', 'partly_controlled') else {}),
+                      **({'nc': int(s.get('n_control_samples'))} if (not isnull(s.get('n_control_samples')) and int(s.get('n_control_samples') or 0) > 0) else {}),
                       **({'cx': int(s.get('n_contradicted_samples')), 'cxs': str(s.get('contradiction_summary') or '')[:400]} if (not isnull(s.get('n_contradicted_samples')) and int(s.get('n_contradicted_samples') or 0) > 0) else {}))
                  for s in studies]
     (out / 'data' / 'studies_index.json').write_text(dumps(sidx_rows), encoding='utf-8')

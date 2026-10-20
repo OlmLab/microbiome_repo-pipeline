@@ -147,6 +147,19 @@ def study_keys(pkg: Path, acc: str) -> dict:
     sw = sw[sw.study_accession == acc]
     for c in ('sample_key', 'secondary_sample', 'sample_title', 'biosample_accession'):
         keys[c] |= {v for v in sw[c].dropna().astype(str) if v}
+    # R2026.26 (intake test): the human-gut catalog (gut_runs / gut_sample_metadata_wide) is the main scope; the tables above
+    # cover the infant extension only, so a gut-catalog project used to be rejected as 'not in the package'.
+    import pyarrow.parquet as pq
+    for name, colmap in (('gut_runs.parquet', {'run_accession': 'run_accession', 'library_name': 'library_name', 'sample_accession': 'biosample_accession', 'secondary_sample_accession': 'secondary_sample'}),
+                         ('gut_sample_metadata_wide.parquet', {'sample_key': 'sample_key', 'secondary_sample': 'secondary_sample', 'biosample_accession': 'biosample_accession'})):
+        fp = pkg / name
+        if not fp.exists():
+            continue
+        have = set(pq.ParquetFile(fp).schema_arrow.names)
+        cols = [c for c in colmap if c in have]
+        g = pd.read_parquet(fp, columns=['study_accession'] + cols, filters=[('study_accession', '==', acc)])
+        for c in cols:
+            keys[colmap[c]] |= {v for v in g[c].dropna().astype(str) if v}
     return keys
 
 

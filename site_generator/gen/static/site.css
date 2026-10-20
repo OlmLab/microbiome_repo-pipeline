@@ -403,3 +403,6 @@ ol.steps .step p{margin:.2rem 0 0;font-size:.88rem;color:#444}
 main:focus{outline:none}
 footer .site-policies{margin-bottom:.5rem}
 .au-poss{margin:.2rem 0 .9rem}.au-poss .scard{border-left-style:dashed;opacity:.92}
+/* R2026.26 metadata behind an access application */
+.tag.acc{background:#fff;color:var(--cu-black);border:1px solid var(--cu-black);font-weight:700}.tag.acc.part{border-style:dashed;font-weight:400}
+.access-note{max-width:900px}
