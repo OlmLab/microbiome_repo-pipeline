@@ -1016,17 +1016,17 @@ overrides:
   - study_accession: PRJNA763692
     date: '2026-10-12'
     stage: owner_decision
-    assay: other
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "802 closed and 5,927 high-quality metagenome-assembled genomes"}
-    note: "R2026.25 shallow-run screen: both readings 'not_reads'; median 7 reads / 3.1 Mbp per run, strategy {\"WGS\": 1859}, selection {\"RANDOM\": 1859}; quote: 802 closed and 5,927 high-quality metagenome-assembled genomes"
+    note: "R2026.25 shallow-run screen: both readings 'not_reads'; median 7 reads / 3.1 Mbp per run, strategy {\"WGS\": 1859}, selection {\"RANDOM\": 1859}; quote: 802 closed and 5,927 high-quality metagenome-assembled genomes| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 360 deep runs (110-123 Gbp) are 150-nt shotgun; the 1,499 shallow 'runs' are assembled genomes uploaded as reads (626 kb reads) and are excluded per sample"
   - study_accession: PRJEB77729
     date: '2026-10-12'
     stage: owner_decision
-    assay: amplicon_misfiled
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "Using metagenomic data, we could show that specific strains could be tracked"}
-    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 89,284 reads / 26.0 Mbp per run, strategy {\"WGS\": 1787}, selection {\"PCR\": 1680, \"RANDOM\": 107}; quote: Using metagenomic data, we could show that specific strains could be tracked"
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 89,284 reads / 26.0 Mbp per run, strategy {\"WGS\": 1787}, selection {\"PCR\": 1680, \"RANDOM\": 107}; quote: Using metagenomic data, we could show that specific strains could be tracked| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 107 TruSeq Nano runs (6 Gbp) are shotgun; 1,680 'Caporaso' runs are 16S V4 (95-96 % of reads start with 515F) and are excluded per sample"
   - study_accession: PRJNA900041
     date: '2026-10-12'
     stage: owner_decision
@@ -1065,10 +1065,10 @@ overrides:
   - study_accession: PRJEB37883
     date: '2026-10-12'
     stage: owner_decision
-    assay: amplicon_misfiled
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "samples were subjected to amplicon-based microbiome analyses"}
-    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 137,530 reads / 41.0 Mbp per run, strategy {\"WGS\": 753}, selection {\"PCR\": 733, \"RANDOM\": 20}; quote: samples were subjected to amplicon-based microbiome analyses"
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 137,530 reads / 41.0 Mbp per run, strategy {\"WGS\": 753}, selection {\"PCR\": 733, \"RANDOM\": 20}; quote: samples were subjected to amplicon-based microbiome analyses| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 20 RANDOM runs (3-4 Gbp) are shotgun; 733 PCR runs are 16S V4 (98 % 515F) and are excluded per sample"
   - study_accession: PRJNA782810
     date: '2026-10-12'
     stage: owner_decision
@@ -1107,10 +1107,10 @@ overrides:
   - study_accession: PRJNA746322
     date: '2026-10-12'
     stage: owner_decision
-    assay: amplicon
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "amplify the V4 region of the 16S rRNA gene"}
-    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 98,391 reads / 49.2 Mbp per run, strategy {\"OTHER\": 198}, selection {\"PCR\": 198}; quote: amplify the V4 region of the 16S rRNA gene"
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 98,391 reads / 49.2 Mbp per run, strategy {\"OTHER\": 198}, selection {\"PCR\": 198}; quote: amplify the V4 region of the 16S rRNA gene| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 63 deep runs (16-27 Gbp) are shotgun; the shallow runs are 16S V4 (96-97 % 515F) and are excluded per sample"
   - study_accession: PRJNA802048
     date: '2026-10-12'
     stage: owner_decision
@@ -1135,10 +1135,10 @@ overrides:
   - study_accession: PRJNA767648
     date: '2026-10-12'
     stage: owner_decision
-    assay: amplicon_misfiled
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "we performed 16S rRNA gene sequencing and compared gut microbiome composition"}
-    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 64,380 reads / 38.7 Mbp per run, strategy {\"WGA\": 88, \"WGS\": 50}, selection {\"PCR\": 138}; quote: we performed 16S rRNA gene sequencing and compared gut microbiome composition"
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 64,380 reads / 38.7 Mbp per run, strategy {\"WGA\": 88, \"WGS\": 50}, selection {\"PCR\": 138}; quote: we performed 16S rRNA gene sequencing and compared gut microbiome composition| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 52 deep runs (24-28 Gbp) are shotgun; the shallow 301-nt runs are amplicon (3-11 % distinct read starts) and are excluded per sample"
   - study_accession: PRJNA973721
     date: '2026-10-12'
     stage: owner_decision
@@ -1331,10 +1331,10 @@ overrides:
   - study_accession: PRJNA540073
     date: '2026-10-12'
     stage: owner_decision
-    assay: other
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "Targeted Capture of Antibiotic Resistance Determinants"}
-    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 84,400 reads / 42.4 Mbp per run, strategy {\"Targeted-Capture\": 38, \"WGS\": 12}, selection {\"Hybrid Selection\": 38, \"RANDOM\": 12}; quote: Targeted Capture of Antibiotic Resistance Determinants"
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 84,400 reads / 42.4 Mbp per run, strategy {\"Targeted-Capture\": 38, \"WGS\": 12}, selection {\"Hybrid Selection\": 38, \"RANDOM\": 12}; quote: Targeted Capture of Antibiotic Resistance Determinants| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 12 RANDOM runs are shotgun; 38 Hybrid Selection runs are targeted capture and are excluded per run"
   - study_accession: PRJNA1013917
     date: '2026-10-12'
     stage: owner_decision
@@ -1457,10 +1457,10 @@ overrides:
   - study_accession: PRJNA1171148
     date: '2026-10-12'
     stage: owner_decision
-    assay: amplicon_misfiled
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "run statistics: median 62,255 reads / 37.5 Mbp per run, strategy {\"WGS\": 165}, selection {\"PCR\": 165}"}
-    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 62,255 reads / 37.5 Mbp per run, strategy {\"WGS\": 165}, selection {\"PCR\": 165}; evidence = run statistics only"
+    note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 62,255 reads / 37.5 Mbp per run, strategy {\"WGS\": 165}, selection {\"PCR\": 165}; evidence = run statistics only| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 25 deep runs (11-16 Gbp) are shotgun; the shallow 301-nt runs are amplicon (1-2 % distinct read starts) and are excluded per sample"
   - study_accession: PRJNA1024544
     date: '2026-10-12'
     stage: owner_decision
@@ -1639,10 +1639,10 @@ overrides:
   - study_accession: PRJNA324581
     date: '2026-10-12'
     stage: owner_decision
-    assay: other
+    assay: mixed
     assay_evidence:
     - {source: owner_decision, quote: "run statistics: median 295,532 reads / 40.6 Mbp per run, strategy {\"WGS\": 27, \"OTHER\": 27}, selection {\"RANDOM\": 27, \"Hybrid Selection\": 27}"}
-    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 295,532 reads / 40.6 Mbp per run, strategy {\"WGS\": 27, \"OTHER\": 27}, selection {\"RANDOM\": 27, \"Hybrid Selection\": 27}; evidence = run statistics only"
+    note: "R2026.25 shallow-run screen: both readings 'targeted_or_enriched'; median 295,532 reads / 40.6 Mbp per run, strategy {\"WGS\": 27, \"OTHER\": 27}, selection {\"RANDOM\": 27, \"Hybrid Selection\": 27}; evidence = run statistics only| R2026.27 read check (first ~3,000 reads of sample runs, owner 2026-10-20): 27 RANDOM runs are shotgun (VLP virome); 27 Hybrid Selection runs are targeted capture and are excluded per run"
   - study_accession: PRJNA1089239
     date: '2026-10-12'
     stage: owner_decision

@@ -275,6 +275,15 @@ releases:
     site_tag: site-v1.21.0
     label: "control samples marked (blanks, mock communities, positive controls; no person metadata) and non-human defined communities removed; metadata behind an access application flagged (dbGaP); paper-link audit (640 single-mention 'generated' links re-labelled as citing, 41 as unsure); author pages credit only data-generating papers"
 
+  - release_id: R2026.27
+    package_version: '1.22.0'
+    previous_package_version: '1.21.0'
+    previous_release_id: R2026.26
+    notes_file: RELEASE_NOTES_R2026.27.md
+    data_tag: data-v1.22.0
+    site_tag: site-v1.22.0
+    label: "read-level amplicon check (first reads of each run): 8 mixed projects excluded in R2026.25 return with their shotgun samples only; amplicon samples inside included projects removed"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver
