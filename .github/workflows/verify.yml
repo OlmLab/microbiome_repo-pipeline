@@ -93,7 +93,7 @@ jobs:
           bad = []
           for f in files:
               try:
-                  n = duckdb.sql(f"select count(*) from read_parquet('{f}')").fetchone()[0]
+                  n = duckdb.connect().execute(f"select count(*) from read_parquet('{f}')").fetchone()[0]
                   print(f"{n:>9}  {os.path.relpath(f, root)}")
               except Exception as e:
                   bad.append((f, str(e)[:120]))
