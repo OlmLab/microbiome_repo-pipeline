@@ -284,6 +284,15 @@ releases:
     site_tag: site-v1.22.0
     label: "read-level amplicon check (first reads of each run): 8 mixed projects excluded in R2026.25 return with their shotgun samples only; amplicon samples inside included projects removed"
 
+  - release_id: R2026.28
+    package_version: '1.23.0'
+    previous_package_version: '1.22.0'
+    previous_release_id: R2026.27
+    notes_file: RELEASE_NOTES_R2026.28.md
+    data_tag: data-v1.23.0
+    site_tag: site-v1.23.0
+    label: "external review fixes: curated supplementary tables for PRJEB51728 / PRJEB49383 / PRJNA898628 (subject ids, arms, infant fields), subject ids from sample / run / accession columns rejected everywhere, CHILD (PRJNA838575) flagged as restricted metadata, read check of 3 runs per catalog project"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

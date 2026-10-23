@@ -1,0 +1,49 @@
+# config/curated_supp_tables.yaml — per-project supplementary tables read with an explicit, reviewed column mapping (R2026.28).
+# Used when the automatic supplementary pass got a project wrong (wrong column, failed key join, missed table). Applied by
+# scripts/apply_curated_supp_tables.py -> data/inputs/gut/curated_supp_corrections.parquet (a dq_corrections file): every field
+# listed under `fields` is RETIRED for the whole project first, then recoded per sample from the table (route R2, the cell quoted).
+# key.match: run (run accession) | sample_alias | sample_alias_stem (alias = text before the first '.', case and '-' ignored)
+# transforms: map {raw: code} (unmapped raw values are skipped), regex (first group kept), number, day_label ('Day28' -> 28)
+schema_version: 1
+tables:
+  - study_accession: PRJEB51728
+    reported: "2026-10-21 external review: subject_id came from Table S9 `sequence_id` (run accessions) and from sample ids"
+    source: PMC11929092/mmc1.xlsx
+    sheet: Table S2
+    filter: {bioproject_id: PRJEB51728}
+    key: {column: sample_id, match: sample_alias}
+    fields:
+      subject_id: {column: subject_id}
+  - study_accession: PRJEB49383
+    reported: "2026-10-21 external review: per-sample metadata are in the Source Data workbook; the automatic pass read 25 tables but joined 0 (SampleID 'NEW1016.S138.L005' vs archive alias 'NEW1016')"
+    source: PMC9519454/41564_2022_1213_MOESM3_ESM.xlsx
+    sheet: "Fig 1,5c+d, eFig1,2,4a+b"
+    key: {column: SampleID, match: sample_alias_stem}
+    fields:
+      subject_id: {column: SERVISPatientNo}
+      age_at_collection_days: {column: DOL, transform: number}
+      antibiotic_exposure: {column: Abx_7d, transform: {map: {"Yes": "yes", "No": "no"}}, note: "antibiotics in the 7 days before the sample"}
+      probiotic_exposure: {column: Probiotics_Summary, transform: {map: {"During": "yes", "Never": "no"}}}
+      feeding_mode: {column: EBMandForm2, transform: {map: {"EBMonly": "exclusive_breast", "FormulaOnly": "formula", "EBM+Formula": "mixed"}}}
+      intervention: {column: whichprob, transform: {map: {"I": "probiotic", "LB2": "probiotic", "": "no_intervention"}}}
+      intervention_detail: {column: whichprob, transform: {map: {"I": "Infloran (B. bifidum + L. acidophilus) cohort", "LB2": "Labinic (B. bifidum, B. longum subsp. infantis, L. acidophilus) cohort", "": "no-probiotic cohort"}}}
+  - study_accession: PRJNA898628
+    reported: "2026-10-21 external review: Table S2 of the 2023 paper (PMC10192547) has 32 columns for all 220 samples keyed on run accession"
+    source: PMC10192547/mmc1.xlsx
+    sheet: Table S2
+    key: {column: Accession, match: run}
+    fields:
+      subject_id: {column: Sample_ID, transform: {regex: '^([A-Z]+\d*-\d+)-\d+$'}}
+      timepoint_label: {column: TimePoint}
+      age_at_collection_days: {column: TimePoint, transform: day_label}
+      intervention: {column: Intervention, transform: {map: {"Antibiotics": "antibiotic", "Antibiotics+probiotics": "probiotic", "Control": "no_intervention", "No": "no_intervention"}}}
+      intervention_detail: {column: Intervention, transform: {map: {"Antibiotics": "preterm, antibiotics without probiotics", "Antibiotics+probiotics": "preterm, antibiotics and probiotics", "Control": "full-term control", "No": "preterm, no antibiotics or probiotics"}}}
+      probiotic_exposure: {column: Probiotics, transform: {map: {"Yes": "yes", "No": "no"}}}
+      maternal_antibiotics: {column: maternal_antibiotics, transform: {map: {"Yes": "yes", "No": "no"}}}
+      delivery_mode: {column: Birth_mode, transform: {map: {"CS": "c_section", "Vag": "vaginal"}}}
+      feeding_mode: {column: Milk_type, transform: {map: {"BM": "exclusive_breast", "F": "formula", "BM/F": "mixed"}}}
+      gestational_age_weeks: {column: Gestational_age, transform: number}
+      birth_weight_grams: {column: Birth_weight, transform: number}
+      preterm_status: {column: Gestational_age, transform: preterm_lt37}
+      nec_status: {column: NEC, transform: {map: {"0": "no", "1": "yes"}}}
+      health_condition: {column: Gestational_age, transform: {preterm_or: healthy_control}}

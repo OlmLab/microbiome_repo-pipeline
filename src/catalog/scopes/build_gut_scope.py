@@ -17,6 +17,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import sys
 
 import numpy as np
@@ -295,12 +296,43 @@ def _route_of(src, sample_level: bool) -> str:
     return "R2" if sample_level else "R3"
 
 
+# R2026.28 (external review, PRJEB51728): a subject id must never come from a column that names a sample, run, library,
+# sequence, accession, family or study — those identify a sample or a group, not a person. Applied to every non-generated
+# subject_id row (supplementary tables, name rules, archive attributes); values that are themselves run / sample accessions are
+# dropped too unless they were minted on purpose by the one-sample-per-subject rule (GENERATED_SUBJECT_RULES).
+SUBJECT_BAD_COLUMN = re.compile(r"(?i)^#?\s*(sequence[ _]?id|seq[ _]?id|run|run[ _]?acc(ession)?|sra[ _]?run|ena[ _]?run|sample|sample[ _]?id|sampleid|sample[ _]?name|"
+                                r"biosample|biosample[ _]?acc(ession)?|library|library[ _]?(name|id)|accession|accession[ _]?id|ncbi[ _]?accession|family[ _]?id|"
+                                r"study[ _]?id|manifest|barcode|age)$")
+ACCESSION_VALUE = re.compile(r"^(?:[EDS]RR|[EDS]RS|[EDS]RX|SAM[NED]A?|SAMEA|PRJ[A-Z]{2})\d+$")
+
+
+def guard_subject_ids(det: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    m = det.field_name.eq("subject_id") & ~det.determined_by.astype(str).isin(GENERATED_SUBJECT_RULES | {"curated_supp_v1"})
+    if not m.any():
+        return det, 0
+    col = det.loc[m, "evidence_quote"].astype(str).str.extract(r"^\s*([^=;:]+?)\s*=")[0].fillna("")
+    val = det.loc[m, "value_normalized"].astype(str)
+    badc = col.map(lambda c: bool(SUBJECT_BAD_COLUMN.match(c)))
+    # a sample/run-named column is only rejected when it really is per-sample (every value used once in that
+    # project+column); repeated values mean the column groups samples, i.e. it holds person ids under a poor header.
+    # family / study / age columns are always rejected; accession-shaped values always are.
+    st = det.loc[m, "study_accession"].astype(str)
+    sk = det.loc[m, "sample_key"].astype(str)
+    nuse = sk.groupby([st, col, val]).transform("nunique").groupby([st, col]).transform("max")
+    always = col.str.match(r"(?i)^(family[ _]?id|study[ _]?id|age)$")
+    bad = (badc & ((nuse <= 1) | always)) | val.str.match(ACCESSION_VALUE)
+    drop = bad[bad].index
+    return det.drop(index=drop), int(len(drop))
+
+
 def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) -> tuple[pd.DataFrame, dict]:
     """dq_corrections.parquet columns: sample_key (may be empty = whole study), study_accession, field_name, action {retire, recode, keep},
-    old_value, new_value, evidence_source, evidence_locator, evidence_quote, confidence, rationale, determined_by."""
-    if not path or not os.path.exists(path):
+    old_value, new_value, evidence_source, evidence_locator, evidence_quote, confidence, rationale, determined_by.
+    `path` may list several files separated by spaces (R2026.28: + data/inputs/gut/curated_supp_corrections.parquet)."""
+    paths = [x for x in str(path or "").split() if os.path.exists(x)]
+    if not paths:
         return det, {"n_rows": 0}
-    c = pd.read_parquet(path)
+    c = pd.concat([pd.read_parquet(x) for x in paths], ignore_index=True)
     c = c[c.action.isin(["retire", "recode"])].copy()
     if not len(c):
         return det, {"n_rows": 0}
@@ -542,6 +574,8 @@ def build(a):
     iv_study = load_intervention_studies(getattr(a, "interventions_study", None))
     det, n_iv_recode = recode_intervention_cohort(det, iv_study, rid, pv)
     det, n_corr = apply_corrections(det, getattr(a, "corrections", None), rid, pv)
+    det, n_corr["subject_ids_rejected_column"] = guard_subject_ids(det)
+    print(f"subject guard: {n_corr['subject_ids_rejected_column']} subject_id values from sample / run / accession / family columns dropped")
     n_corr["intervention_cohort_recoded"] = n_iv_recode
     det_study = det[det.scope == "study_all"]
     det_sample = det[det.scope != "study_all"]
@@ -705,15 +739,22 @@ def build(a):
     # controlled = the public records carry neither age nor health condition (the key metadata need an application, e.g. TEDDY);
     # partly_controlled = some phenotype is public, the rest needs an application (e.g. HMP).
     gs["metadata_access"], gs["metadata_access_system"], gs["metadata_access_study"], gs["metadata_access_url"] = "open", None, None, None
-    _map = getattr(a, "metadata_access", None)
-    if _map and os.path.exists(_map):
-        _m = pd.read_csv(_map, dtype=str).drop_duplicates("study_accession").set_index("study_accession")
+    _maps = [x for x in str(getattr(a, "metadata_access", None) or "").split() if os.path.exists(x)]
+    gs["metadata_access_how"] = None
+    if _maps:   # several files: harvested dbGaP links + config/metadata_access_manual.csv (owner / reviewer entries win: listed last)
+        _m = pd.concat([pd.read_csv(x, dtype=str) for x in _maps], ignore_index=True).drop_duplicates("study_accession", keep="last").set_index("study_accession")
         _ix = gs.index.intersection(_m.index)
         _key_missing = (gs.loc[_ix, "cov_age_at_collection_days"].fillna(0) == 0) & (gs.loc[_ix, "cov_health_condition"].fillna(0) == 0)
         gs.loc[_ix, "metadata_access"] = _key_missing.map({True: "controlled", False: "partly_controlled"})
         gs.loc[_ix, "metadata_access_system"] = _m.loc[_ix, "access_system"]
         gs.loc[_ix, "metadata_access_study"] = _m.loc[_ix, "access_study"]
         gs.loc[_ix, "metadata_access_url"] = _m.loc[_ix, "apply_url"]
+        if "how_to_apply" in _m.columns:
+            gs.loc[_ix, "metadata_access_how"] = _m.loc[_ix, "how_to_apply"]
+        if "level" in _m.columns:   # manual entries may state the level (e.g. CHILD: only the visit age is public)
+            _lv = _m.loc[_ix, "level"].dropna()
+            _lv = _lv[_lv.isin(["controlled", "partly_controlled"])]
+            gs.loc[_lv.index, "metadata_access"] = _lv
     gs["n_control_samples"] = w[w.sample_type != "specimen"].groupby("study_accession").size().reindex(gs.index).fillna(0).astype(int) if "sample_type" in w.columns else 0
     gs = gs.join(long_study, how="left").join(rel_study, how="left")
     _cs = contra_summary(contra).set_index("study_accession")
