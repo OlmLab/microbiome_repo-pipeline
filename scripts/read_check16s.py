@@ -13,6 +13,7 @@ Call:  adapter_dimer  >= 50 % of reads carry an Illumina adapter in their first 
        amplicon   frac16s >= 0.50
        amplicon_other  ITS primer in >= 10 % of reads, or one 20-nt read start in >= 15 % of non-adapter reads
        shotgun    frac16s <  0.05 and top 20-nt read start < 5 % (shotgun stool metagenomes are ~0.1-1 % 16S)
+       rrna_rich  16S + 23S (NCBI LSU_prokaryote_rRNA) >= 20 % of reads but not a 16S amplicon (RNA without rRNA depletion)
        unclear    otherwise (mixed libraries, other targeted genes, rRNA-rich RNA libraries)
 Reads that are N-masked, colour-space or homopolymer are removed first (they made deep shotgun runs look like
 amplicons in the R2026.27 check). A low distinct20 / uniq15 alone never makes a run amplicon: duplicated or position-sorted shotgun files also have it.
@@ -23,6 +24,7 @@ import argparse, csv, os, subprocess, tempfile, zlib, collections, re, concurren
 import requests
 
 MMI = os.path.expanduser('~/catalog/cache/partie/refseq_16S.mmi')
+MMI23 = os.path.expanduser('~/catalog/cache/partie/refseq_23S.mmi')   # NCBI LSU_prokaryote_rRNA (4,047 genes)
 PRIMERS = ['GTGCCAGCMGCCGCGGTAA', 'GGACTACHVGGGTWTCTAAT', 'CCTACGGGNGGCWGCAG', 'GACTACHVGGGTATCTAATCC',
            'AGAGTTTGATCMTGGCTCAG', 'AGAGTTTGATCCTGGCTCAG', 'ATTAGAWACCCBDGTAGTCC', 'CCGTCAATTCMTTTRAGTTT']
 IUPAC = {'M': '[AC]', 'R': '[AG]', 'W': '[AT]', 'S': '[CG]', 'Y': '[CT]', 'K': '[GT]', 'V': '[ACG]', 'H': '[ACT]',
@@ -76,10 +78,12 @@ def stats(seqs):
         for i, s in enumerate(seqs):
             fh.write(f'>r{i}\n{s}\n')
         fa = fh.name
-    out = subprocess.run(['minimap2', '-x', 'sr', '-t', '1', '--secondary=no', MMI, fa],
-                         capture_output=True, text=True).stdout
+    def mapped(idx):
+        out = subprocess.run(['minimap2', '-x', 'sr', '-t', '1', '--secondary=no', idx, fa], capture_output=True, text=True).stdout
+        return {l.split('\t', 1)[0] for l in out.splitlines() if l}
+    hit = mapped(MMI)
+    hit23 = mapped(MMI23) if os.path.exists(MMI23) else set()
     os.unlink(fa)
-    hit = {l.split('\t', 1)[0] for l in out.splitlines() if l}
     km = collections.Counter(s[i:i + 15] for s in seqs for i in range(0, len(s) - 14))
     uniq15 = sum(1 for v in km.values() if v <= 10) / max(1, len(km))
     pre = collections.Counter(s[:20] for s in seqs)
@@ -89,7 +93,8 @@ def stats(seqs):
     ad = [bool(ADAPTER.search(s[:60])) for s in seqs]
     clean = [s for s, x in zip(seqs, ad) if not x]
     top1 = (collections.Counter(s[:20] for s in clean).most_common(1)[0][1] / len(clean)) if clean else 0.0
-    return dict(reads=n_all, usable=n, masked_share=round(1 - n / n_all, 4), len=int(sum(map(len, seqs)) / n), frac16s=round(len(hit) / n, 4), uniq15=round(uniq15, 4),
+    return dict(reads=n_all, usable=n, masked_share=round(1 - n / n_all, 4), len=int(sum(map(len, seqs)) / n), frac16s=round(len(hit) / n, 4), frac23s=round(len(hit23) / n, 4),
+                frac_rrna=round(len(hit | hit23) / n, 4), uniq15=round(uniq15, 4),
                 distinct20=round(distinct20, 4), primer_share=round(primer, 4), its_share=round(its, 4),
                 adapter_share=round(sum(ad) / n, 4), top1_share=round(top1, 4))
 
@@ -103,12 +108,14 @@ def call(r):
         return 'adapter_dimer'          # failed library: most reads are adapter-adapter products
     if r['its_share'] >= 0.1 or r['top1_share'] >= 0.15:
         return 'amplicon_other'         # ITS / other gene amplicon: a few read starts dominate
+    if r.get('frac_rrna', 0) >= 0.2:
+        return 'rrna_rich'              # 16S+23S >= 20 % without being a 16S amplicon: typical of RNA libraries without rRNA depletion
     if r['frac16s'] < 0.05 and r['top1_share'] < 0.05:
         return 'shotgun'                # calibration: shotgun runs > 1 Gbp have top1 median 0.001, 99th pct 0.13
     return 'unclear'
 
 
-def check(run, nbytes=1_500_000, nreads=4000):
+def check(run, nbytes=600_000, nreads=4000):
     urls = fastq_urls(run)
     if not urls:
         return {'run': run, 'verdict': 'no_fastq'}
@@ -118,8 +125,13 @@ def check(run, nbytes=1_500_000, nreads=4000):
     if sum(1 for x in seqs if re.search(r'[0-3]{10}', x)) > 0.5 * len(seqs):
         return {'run': run, 'reads': len(seqs), 'verdict': 'colour_space'}
     if sum(1 for x in seqs if usable(x)) < 1000:
-        # head of file is N-masked (human reads removed) or low-complexity: read deeper, up to 12 MB
-        seqs = [x for x in head_reads(urls[0], 12_000_000, 60000) if usable(x)][:nreads] or seqs
+        # head of file is N-masked (human reads removed) or low-complexity: read deeper, up to 4 MB; if still
+        # < 200 usable reads the run is mostly host (masked) reads -> 'mostly_masked'
+        deep = head_reads(urls[0], 4_000_000, 20000)
+        masked = 1 - sum(1 for x in deep if usable(x)) / max(1, len(deep))
+        seqs = [x for x in deep if usable(x)][:nreads] or seqs
+        if len(seqs) < 200:
+            return {'run': run, 'reads': len(deep), 'usable': len(seqs), 'masked_share': round(masked, 4), 'verdict': 'mostly_masked'}
     r = stats(seqs)
     r.update(run=run, verdict=call(r))
     return r
@@ -134,7 +146,7 @@ if __name__ == '__main__':
     done = {r['run'] for r in csv.DictReader(open(a.out))} if os.path.exists(a.out) else set()
     todo = [r for r in dict.fromkeys(runs) if r not in done]
     print(len(runs), 'runs;', len(todo), 'to check', flush=True)
-    F = ['run', 'reads', 'usable', 'masked_share', 'len', 'frac16s', 'uniq15', 'distinct20', 'primer_share', 'its_share', 'adapter_share', 'top1_share', 'verdict']
+    F = ['run', 'reads', 'usable', 'masked_share', 'len', 'frac16s', 'frac23s', 'frac_rrna', 'uniq15', 'distinct20', 'primer_share', 'its_share', 'adapter_share', 'top1_share', 'verdict']
     new = not os.path.exists(a.out)
     fh = open(a.out, 'a', newline=''); wr = csv.DictWriter(fh, fieldnames=F, extrasaction='ignore')
     if new:

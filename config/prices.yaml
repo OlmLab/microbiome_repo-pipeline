@@ -1,0 +1,6 @@
+# $ per million tokens [input, output, cache read] by model family, for the llm_backend ledger estimate only.
+# List prices as of 2026-10 (third-party pages; see manuscript Figure 5 notes). Cache writes are charged at 1.25x input.
+# Message Batches API calls are estimated at half these rates. Update when prices change.
+haiku: [1.0, 5.0, 0.10]
+sonnet: [2.0, 10.0, 0.20]
+opus: [4.0, 20.0, 0.20]

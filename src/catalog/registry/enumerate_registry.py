@@ -22,7 +22,12 @@ Slices (NO taxon frame, NO date filter unless --since):
                           human-metagenome taxa)).  GENOMIC x tax_eq(9606) (1.19M human-genome
                           runs) and GENOMIC x host_tax_id=9606 (70k isolate genomes) are excluded
                           by design -- see ENUMERATION_REGISTRY_REPORT.md.
-  S4 METATRANSCRIPTOMIC is out of scope and never pulled.
+  S4 rna_human           (R2026.30 scope expansion; not in the default slice set) RNA libraries of human-associated
+                          communities: library_source=METATRANSCRIPTOMIC AND (host_tax_id=9606 OR tax_eq(9606) OR
+                          human-metagenome taxa), OR library_source=VIRAL RNA AND human-metagenome taxa (VIRAL RNA x host
+                          9606 alone is millions of virus genome-surveillance runs), OR library_source=TRANSCRIPTOMIC AND human-metagenome
+                          taxa, OR library_strategy=RNA-Seq AND library_source=METAGENOMIC AND (human-metagenome taxa OR
+                          host_tax_id=9606). Human tissue RNA-seq (TRANSCRIPTOMIC x Homo sapiens) is excluded by design.
 
 Every human-metagenome taxid is verified against ENA's scientific_name before use
 (enumerate_universe_v3.verify_taxa convention). Every slice's ENA count is compared with the
@@ -138,9 +143,16 @@ def build_slices(since=None):
         else:                                     # >150k runs/year: ENA truncates ~100 MB streams -> quarters
             for qi, (m0, m1, d1) in enumerate([("01", "03", "31"), ("04", "06", "30"), ("07", "09", "30"), ("10", "12", "31")], 1):
                 parts.append((f"y{y}q{qi}", f"first_public>={y}-{m0}-01 AND first_public<={y}-{m1}-{d1}"))
+    human = f"(host_tax_id=9606 OR tax_eq(9606) OR {taxc})"
+    # VIRAL RNA x host 9606 alone is millions of SARS-CoV-2 / influenza genome-surveillance runs: only with community taxa
+    s4 = (f'(library_source="METATRANSCRIPTOMIC" AND {human}) OR (library_source="VIRAL RNA" AND {taxc}) OR '
+          f'(library_source="TRANSCRIPTOMIC" AND {taxc}) OR '
+          f'(library_strategy="RNA-Seq" AND library_source="METAGENOMIC" AND (host_tax_id=9606 OR {taxc}))')
+    s4 = f"({s4})" + d
     return [("S1", "shotgun_frame_free", s1, parts),
             ("S2", "misfiled_genomic_human_taxa", s2, None),
-            ("S3", "adjudication_other_tc_wga", s3, None)]
+            ("S3", "adjudication_other_tc_wga", s3, None),
+            ("S4", "rna_human", s4, None)]
 
 
 def verify_taxa(taxa, log):
@@ -614,7 +626,7 @@ def write_report(out_dir, audit, st, runs, bi, infant, misses, t_start, lines, s
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True, help="output directory")
-    ap.add_argument("--slices", nargs="*", default=["S1", "S2", "S3"], help="subset of S1 S2 S3")
+    ap.add_argument("--slices", nargs="*", default=["S1", "S2", "S3"], help="subset of S1 S2 S3 S4 (S4 = human RNA libraries, opt-in)")
     ap.add_argument("--since", default=None, help="optional YYYY-MM-DD; first_public>=SINCE on every slice")
     ap.add_argument("--infant-universe", default=None, help="universe_studies_all.parquet of the infant catalog")
     ap.add_argument("--stage", choices=["pull", "aggregate", "all"], default="all",
