@@ -292,6 +292,14 @@ releases:
     data_tag: data-v1.23.0
     site_tag: site-v1.23.0
     label: "external review fixes: curated supplementary tables for PRJEB51728 / PRJEB49383 / PRJNA898628 (subject ids, arms, infant fields), subject ids from sample / run / accession columns rejected everywhere, CHILD (PRJNA838575) flagged as restricted metadata, read check of 3 runs per catalog project"
+  - release_id: R2026.29
+    package_version: '1.24.0'
+    previous_package_version: '1.23.0'
+    previous_release_id: R2026.28
+    notes_file: RELEASE_NOTES_R2026.29.md
+    data_tag: data-v1.24.0
+    site_tag: site-v1.24.0
+    label: "read check rebuilt on the share of reads that align to 16S rRNA (after PARTIE): 92 wrongly excluded samples reinstated, 5,470 amplicon samples in 55 projects excluded, 32 projects found to be amplicon-only"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

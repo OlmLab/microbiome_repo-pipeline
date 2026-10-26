@@ -1678,3 +1678,231 @@ overrides:
     assay_evidence:
     - {source: owner_decision, quote: "run statistics: median 74,333 reads / 31.5 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}"}
     note: "R2026.25 shallow-run screen: both readings 'amplicon'; median 74,333 reads / 31.5 Mbp per run, strategy {\"WGS\": 2}, selection {\"PCR\": 2}; evidence = run statistics only"
+
+# ---- R2026.29 read check (scripts/read_check16s.py; 16S share of reads after PARTIE, Torres et al. 2017, plus read-start
+#      diversity for other targeted amplicons): every catalog sample of these projects has only amplicon runs; samples excluded in
+#      config/sample_exclusions.csv
+  - study_accession: PRJDB14457
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "50 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 50 catalog samples are amplicon by reads"
+  - study_accession: PRJEB14082
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "49 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 49 catalog samples are amplicon by reads"
+  - study_accession: PRJEB14083
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "4 runs checked are 16S amplicon (median 99.8 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 4 catalog samples are amplicon by reads"
+  - study_accession: PRJEB22515
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "126 runs checked are 16S amplicon (median 99.3 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 126 catalog samples are amplicon by reads"
+  - study_accession: PRJEB24522
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "25 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 27 catalog samples are amplicon by reads"
+  - study_accession: PRJEB25227
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "60 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 60 catalog samples are amplicon by reads"
+  - study_accession: PRJEB28609
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "20 runs checked are 16S amplicon (median 97.5 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 20 catalog samples are amplicon by reads"
+  - study_accession: PRJEB33794
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "55 runs checked are 16S amplicon (median 98.8 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 55 catalog samples are amplicon by reads"
+  - study_accession: PRJEB44214
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "88 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 88 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1086498
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "258 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 258 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1154919
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "61 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 61 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1216225
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "56 runs checked are 16S amplicon (median 98.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 56 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1255639
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "89 runs checked are 16S amplicon (median 99.4 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 89 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1291050
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "12 runs checked are 16S amplicon (median 99.7 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 12 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1294521
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "55 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 55 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1332501
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "12 runs checked are 16S amplicon (median 95.3 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 12 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1389836
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "43 runs checked are 16S amplicon (median 67.1 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 47 catalog samples are amplicon by reads"
+  - study_accession: PRJNA1433876
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "33 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 33 catalog samples are amplicon by reads"
+  - study_accession: PRJNA275687
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "16 runs checked are 16S amplicon (median 98.6 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 16 catalog samples are amplicon by reads"
+  - study_accession: PRJNA381333
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "208 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 208 catalog samples are amplicon by reads"
+  - study_accession: PRJNA474601
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "1 runs checked are 16S amplicon (median 99.5 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 1 catalog samples are amplicon by reads"
+  - study_accession: PRJNA483343
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "40 runs checked are 16S amplicon (median 97.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 40 catalog samples are amplicon by reads"
+  - study_accession: PRJNA566436
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "18 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 18 catalog samples are amplicon by reads"
+  - study_accession: PRJNA647065
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "50 runs checked are 16S amplicon (median 99.8 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 51 catalog samples are amplicon by reads"
+  - study_accession: PRJNA715947
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "99 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 99 catalog samples are amplicon by reads"
+  - study_accession: PRJNA736213
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "22 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 22 catalog samples are amplicon by reads"
+  - study_accession: PRJNA738684
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "52 runs checked are 16S amplicon (median 100.0 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 52 catalog samples are amplicon by reads"
+  - study_accession: PRJNA766776
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "40 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 40 catalog samples are amplicon by reads"
+  - study_accession: PRJNA791018
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "86 runs checked are 16S amplicon (median 99.9 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 86 catalog samples are amplicon by reads"
+  - study_accession: PRJNA858101
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "586 runs checked are 16S amplicon (median 97.8 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 587 catalog samples are amplicon by reads"
+  - study_accession: PRJNA895415
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "84 runs checked are 16S amplicon (median 99.3 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 84 catalog samples are amplicon by reads"
+  - study_accession: PRJNA936897
+    date: '2026-10-23'
+    stage: curator_audit
+    assay: amplicon_misfiled
+    assay_evidence:
+    - {source: reads, quote: "3 runs checked are 16S amplicon (median 97.2 % of reads align to RefSeq 16S rRNA)"}
+    note: "R2026.29 read check: all 3 catalog samples are amplicon by reads"
