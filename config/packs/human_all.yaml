@@ -1,0 +1,109 @@
+# config/packs/human_all.yaml — the scope of the R2026.30 large update: every human-associated shotgun metagenome
+# (DNA and RNA), at any body site, plus sequenced mock / standard communities as benchmarks.
+#
+# Relation to gut.yaml: human_all is a SUPERSET. gut_* tables stay as a view of it (body_site_primary = gut_stool),
+# so existing downloads and the site's gut pages keep working. Fields below are the gut pack's fields plus the
+# site-independent additions of this update (nucleic_acid / processing / sequencing / RNA methods) and the
+# per-body-site packs. The gut pack's infant_only fields stay infant-only.
+schema_version: 1
+scope_id: human_all_v1
+
+study_rule:
+  host_human: [yes, mixed]
+  assay: [shotgun_dna, mixed, rna]          # amplicon, isolate_genome, unknown stay out; `other` enters only by audit
+  body_sites: any                            # every site in config/vocab/body_sites.yaml
+  note: >
+    A project enters when its reads support it: the read check (scripts/read_check16s.py) must not call every checked
+    run amplicon, and a project whose runs are all 16S / ITS / other-gene amplicon is excluded whatever the archive says.
+    Mock / standard-community projects enter through sample_rule.sample_type instead of the host rule.
+
+sample_rule:
+  nucleic_acid: [dna, rna]                   # one specimen may carry both; each data set is recorded separately
+  sample_type: [specimen, negative_control, mock_community, positive_control, standard]
+  note: >
+    The catalog record is the SPECIMEN (BioSample). Person-level fields are stated once per specimen; sequencing and
+    RNA-method fields belong to its DATA SETS (dna_shotgun / rna_shotgun). Control and mock samples never carry
+    person-level values.
+
+# ---------------------------------------------------------------- fields
+# Inherited from config/packs/gut.yaml (same definitions, same routes): age_at_collection_days, sex, bmi, country,
+# health_condition(+detail), antibiotic_exposure, subject_id, timepoint_label, collection_date, location_region,
+# location_locality, location_site, latitude, longitude, lifestyle(+detail), diet(+detail), smoking_status,
+# medication(+detail), intervention(+detail), stool_consistency_bristol, family_id, family_role, shared_setting_type,
+# shared_setting_id — and the infant_only fields (delivery_mode, feeding_mode, preterm_status, gestational_age_weeks,
+# birth_weight_grams, maternal_antibiotics, probiotic_exposure, hmo_supplementation, nec_status).
+inherit: config/packs/gut.yaml
+
+fields:
+  # ---- what the sample IS
+  body_site: {type: vocab, vocab: config/vocab/body_sites.yaml, routes: [R1, R2, R3, R4],
+              note: "per sample, not per project: multi-site projects state it per sample. UBERON id in body_site_uberon"}
+  body_site_detail: {type: text, max_len: 120, routes: [R1, R2, R3, R4],
+                     note: "the source's own specimen words (saliva, supragingival plaque, BAL, sputum, nasal swab, plasma, tumour tissue)"}
+  body_site_uberon: {type: text, max_len: 40, routes: [R1, R2, R3, R4], note: "UBERON:nnnnnnn for body_site_detail when it maps cleanly"}
+  sample_type: {type: enum, values: [specimen, negative_control, mock_community, positive_control, standard, other],
+                routes: [R1, R2, R3], note: "non-specimen samples carry no person-level values (catalog.scopes.controls)"}
+  nucleic_acid: {type: enum, values: [dna, rna, conflict], routes: [R1, R2, R3],
+                 note: "per DATA SET. Decided from library_source/strategy, run and sample names, the paper's methods, and the
+                        rRNA read share; disagreement -> conflict, shown in neither the DNA nor the RNA view"}
+  processing: {type: vocab_list, vocab: config/vocab/processing.yaml, routes: [R1, R2, R3, R4], detail_field: processing_detail,
+               note: "what was done to the sample before sequencing beyond plain extraction: virome_vlp, host_depletion,
+                      targeted_capture, wga_mda, sorted_fraction (IgA / FACS), rrna_depletion, culture_enriched, other"}
+  processing_detail: {type: text, max_len: 160, routes: [R2, R3]}
+
+  # ---- how it was sequenced (DNA and RNA)
+  seq_platform: {type: text, max_len: 60, routes: [R1], note: "ENA instrument_platform / instrument_model, per run"}
+  seq_read_layout: {type: text, max_len: 40, routes: [R1], note: "paired/single and read length, from ENA"}
+  seq_preservation: {type: text, max_len: 120, routes: [R3], note: "how the sample was stored before extraction (RNAlater, DNA/RNA Shield, flash-frozen, -80 °C, FTA card)"}
+  seq_extraction_kit: {type: text, max_len: 140, routes: [R3]}
+  seq_library_kit: {type: text, max_len: 140, routes: [R3]}
+  seq_host_depletion: {type: text, max_len: 140, routes: [R3], note: "method named by the paper, or not_reported"}
+  seq_positive_control: {type: text, max_len: 140, routes: [R3]}
+  seq_negative_control: {type: text, max_len: 140, routes: [R3], note: "rarely reported; record not_reported when the methods are silent"}
+
+  # ---- RNA data sets only
+  rna_dnase: {type: enum, values: ["yes", "no", not_reported], routes: [R3]}
+  rna_rrna_depletion: {type: text, max_len: 140, routes: [R3], note: "kit / method (Ribo-Zero Plus, NEBNext, riboPOOL, FastSelect) or none / not_reported"}
+  rna_host_depletion: {type: text, max_len: 140, routes: [R3]}
+  rna_poly_a_selection: {type: enum, values: ["yes", "no", not_reported], routes: [R3], note: "poly-A selection on a microbial RNA library is a red flag; record it"}
+  rna_strandedness: {type: enum, values: [stranded, unstranded, not_reported], routes: [R3]}
+  rna_target: {type: enum, values: [whole_community, virus_enriched, dual_host_microbe, not_reported], routes: [R3, R4]}
+  rna_rrna_read_share: {type: float, range: [0, 1], routes: [R1],
+                        note: "share of reads aligning to 16S+23S rRNA, measured by scripts/read_check16s.py — a free readout of depletion efficiency"}
+
+  # ---- study shape (per project, expanded to samples)
+  study_shape: {type: enum, values: [population_survey, cross_sectional_groups, case_control, cohort_longitudinal,
+                                     single_arm_intervention, rct, crossover, non_randomised_intervention,
+                                     method_or_benchmark, case_series, unclear], routes: [R3, R4]}
+  study_arm: {type: text, max_len: 80, routes: [R1, R2, R3], note: "the arm / group this sample's subject belonged to, in the paper's own words"}
+
+  # ---- disease detail (R2026.30)
+  condition_label: {type: text, max_len: 120, routes: [R1, R2, R3, R4], note: "the most specific condition the source states, verbatim"}
+  condition_specificity: {type: enum, values: [specific, general, vague], routes: [R1, R2, R3, R4]}
+  condition_mondo: {type: text, max_len: 40, routes: [R1, R2, R3, R4], note: "MONDO:nnnnnnn chosen among exact / synonym candidates; never the first search hit"}
+
+  # ---- access
+  metadata_access: {type: enum, values: [open, controlled, partly], routes: [R1, R3],
+                    note: "controlled = the participant metadata need an application (dbGaP / EGA / cohort data-access committee), from BioProject links AND data-availability statements"}
+  metadata_access_how: {type: text, max_len: 400, routes: [R1, R3]}
+
+# ---------------------------------------------------------------- per-body-site packs (all fields optional)
+site_packs:
+  vaginal_urogenital: [pregnancy_status, gestational_week, menstrual_phase, specimen_kind]   # swab / urine / catheter
+  oral: [oral_site]                                                                          # saliva, supragingival plaque, subgingival plaque, tongue, buccal, throat
+  skin: [skin_site, skin_microenvironment]                                                   # moist / dry / sebaceous
+  respiratory_lower: [respiratory_specimen, ventilation_status]                              # sputum, BAL, tracheal aspirate, lung tissue
+  nasal_nasopharyngeal: [nasal_specimen]
+  blood_tissue: [blood_fraction, tissue_type, tumour_status]                                 # plasma / serum / whole blood / cfDNA; tumour vs adjacent normal
+  milk: [days_post_partum]
+  eye_ear: [eye_ear_site]
+
+outputs:
+  studies: human_studies.parquet
+  samples_wide: human_sample_metadata_wide.parquet
+  determinations: human_sample_determinations.parquet
+  runs: human_runs.parquet
+  views:
+    gut: {filter: "body_site_primary == 'gut_stool'", prefix: gut_}
+    dna: {filter: "has_dna", prefix: dna_}
+    rna: {filter: "has_rna", prefix: rna_}

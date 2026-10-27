@@ -1,0 +1,14 @@
+# config/vocab/processing.yaml — what was done to a sample before sequencing beyond plain nucleic-acid extraction (R2026.30).
+# Recorded per data set and shown like the intervention / longitudinal markers. Plain total extraction is not a value.
+schema_version: 1
+codes:
+  virome_vlp: {label: virus-like particle enrichment, synonyms: [vlp, virus-like particle, virome enrichment, viral enrichment]}
+  host_depletion: {label: host-cell or host-DNA depletion, synonyms: [host depletion, human DNA depletion, saponin, MolYsis, NEBNext Microbiome, CRISPR depletion]}
+  targeted_capture: {label: hybridisation capture or targeted enrichment, synonyms: [hybrid capture, probe capture, SureSelect, Twist panel, VirCapSeq]}
+  wga_mda: {label: whole-genome amplification, synonyms: [wga, mda, phi29, repli-g, multiple displacement amplification]}
+  sorted_fraction: {label: sorted or antibody-selected fraction, synonyms: [iga-seq, iga sorting, facs, cell sorting, viability sorting]}
+  rrna_depletion: {label: ribosomal RNA depletion, synonyms: [ribo-zero, riboPOOL, fastselect, rrna depletion]}
+  culture_enriched: {label: culture enrichment, note: out of scope as a whole project; kept as a code for mixed projects, synonyms: [culturomics, culture-enriched, plate scrape]}
+  stable_isotope_probing: {label: stable-isotope probing, synonyms: [sip, heavy fraction]}
+  size_fraction: {label: size-fractionated sample, synonyms: [size fraction]}
+  other: {label: other named processing}
