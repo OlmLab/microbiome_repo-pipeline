@@ -276,7 +276,7 @@ publish-branch:  ## stage 7 — copy site + package into the clones, commit on r
 	# 2026-09-30: no Sandpiper history in the data repo). They are staged in a throw-away git repo under /tmp and force-pushed as the
 	# single-commit orphan branch `release-assets`; release.yml checks that branch out (depth 1) and attaches assets/* to the Release.
 	rm -rf $(DATA_CLONE)/assets $(ASSETS_WT) && mkdir -p $(ASSETS_WT)/assets
-	@if [ -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" ]; then for t in genus species; do $(PY) scripts/split_parquet.py $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_$$t.parquet $(ASSETS_WT)/assets/gut_sandpiper_sample_$${t}_v$(VERSION) --max-mb 90; done; echo "Sandpiper long tables staged"; fi
+	@if [ -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" ]; then for t in genus species; do $(PY) scripts/split_parquet.py $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_$$t.parquet $(ASSETS_WT)/assets/catalog_sandpiper_sample_$${t}_v$(VERSION) --max-mb 90; done; echo "Sandpiper long tables staged"; fi
 	# registry_runs is re-written with zstd (snappy copy passed 100 MB at R2026.13: 128 MB → 75 MB) so it stays one file below GitHub's hard limit
 	@if [ -f "$(REGISTRY_RUNS)" ]; then $(PY) -c "import pyarrow.parquet as pq,sys; pq.write_table(pq.read_table(sys.argv[1]), sys.argv[2], compression='zstd', compression_level=9, row_group_size=200000)" $(REGISTRY_RUNS) $(ASSETS_WT)/assets/registry_runs_v$(VERSION).parquet && (cd $(ASSETS_WT)/assets && shasum -a 256 registry_runs_v$(VERSION).parquet > registry_runs_v$(VERSION).parquet.sha256); echo "registry_runs asset staged"; fi
 	echo "$(VERSION)" > $(ASSETS_WT)/assets/ASSETS_VERSION.txt

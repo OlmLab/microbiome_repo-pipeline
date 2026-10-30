@@ -128,6 +128,9 @@ def main(pkg, after_docs=False):
             s2 = s2.replace("This is the first **numbered catalog release** (`R<YYYY>.<n>`; `VERSION.json.release_id`).",
                             "Releases are numbered `R<YYYY>.<n>` (`VERSION.json.release_id`).")
             s2 = re.sub(r"Built \d{4}-\d{2}-\d{2} → \d{4}-\d{2}-\d{2} with ", "Built with ", s2)
+            s2 = s2.replace("The full run × taxon profiles (`sandpiper_profiles.parquet`, ~100 MB) are a Release asset, not in this package.",
+                            "Genus- and species-level long tables for every profiled catalog sample are Release assets "
+                            "(`catalog_sandpiper_sample_genus_v<version>_part*.parquet`, `catalog_sandpiper_sample_species_v<version>_part*.parquet`).")
             open(rp, "w", encoding="utf-8").write(s2)
         sp_rep = os.path.join(pkg, "CATALOG_SANDPIPER_REPORT.md")
         if os.path.exists(sp_rep):

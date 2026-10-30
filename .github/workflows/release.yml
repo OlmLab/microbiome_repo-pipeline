@@ -49,7 +49,7 @@ jobs:
           python - <<'EOF'
           import glob, os, sqlite3, pandas as pd, json
           V = json.load(open("package/VERSION.json"))["package_version"]
-          con = sqlite3.connect(f"infant_catalog_v{V}.sqlite")
+          con = sqlite3.connect(f"microbiome_repo_v{V}.sqlite")
           # 1.12.0: the two largest fact tables (gut_sample_determinations 3.1 M rows, gut_runs 0.7 M rows) push the SQLite past the
           # 2 GiB release-asset limit (data-v1.12.0 upload failed twice); they stay parquet-only, everything else is loaded.
           SKIP = {"catalog_sample_determinations", "catalog_runs", "gut_sample_determinations", "gut_runs"}
@@ -90,7 +90,7 @@ jobs:
           body_path: package/README.md
           files: |
             data_package_v*.zip
-            infant_catalog_v*.sqlite
+            microbiome_repo_v*.sqlite
             SHA256SUMS.txt
             package/VERSION.json
             assets/*
