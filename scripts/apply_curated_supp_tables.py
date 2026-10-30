@@ -53,7 +53,7 @@ def transform(v, t):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--config", default="config/curated_supp_tables.yaml")
-    ap.add_argument("--out", default="data/inputs/gut/curated_supp_corrections.parquet"); ap.add_argument("--wide", default="build/package/gut_sample_metadata_wide.parquet")
+    ap.add_argument("--out", default="data/inputs/gut/curated_supp_corrections.parquet"); ap.add_argument("--wide", default="build/package/catalog_sample_metadata_wide.parquet")
     a = ap.parse_args()
     cfg = yaml.safe_load(open(a.config))
     w = pd.read_parquet(a.wide, columns=["sample_key", "study_accession", "biosample_accession", "release_retired"])

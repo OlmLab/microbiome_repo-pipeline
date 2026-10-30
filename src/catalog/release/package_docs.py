@@ -94,6 +94,13 @@ def build_counts(pkg: str, package_version: str, release_id: str) -> dict:
     return c
 
 
+def _sp_marker(text: str) -> str:
+    """DATA_DICTIONARY anchor for appended sections: the Sandpiper columns heading (carried with or without its version note)."""
+    old = "\n## Sandpiper columns (added v1.2.0)"
+    return old if old in text else "\n## Sandpiper columns"
+
+
+
 def update_readme(pkg: str, package_version: str, release_id: str, build_date: str, counts: dict) -> None:
     p = os.path.join(pkg, "README.md")
     s = open(p, encoding="utf-8").read()
@@ -110,9 +117,8 @@ def update_readme(pkg: str, package_version: str, release_id: str, build_date: s
     if _title and s.startswith("# ") and " — data package" in s.split("\n", 1)[0]:
         # the H1 always carries the current site title (config/site.yaml) — a rename is a one-line config change
         s = re.sub(r"^# .*? — data package", f"# {_title} — data package", s, count=1)
-        intro = ("\n\n**Two tiers in one package.** The `registry_*` tables cover every public human shotgun-metagenome study in ENA/SRA/DDBJ "
-                 "(all body sites, all ages; archive-only classification plus the harvested BioSample tier). All other tables belong to the first "
-                 f"**curated scope**, the {_scope} — the description below is that scope's.\n")
+        intro = ("\n\n**Two tiers in one package.** The `registry_*` tables list every screened public study in ENA/SRA/DDBJ with a human-associated metagenome signal "
+                 "(all body sites, all ages; archive-only classification plus the harvested BioSample tier); the `catalog_*` tables are the curated tier.\n")
         if "**Two tiers in one package.**" not in s:
             first_blank = s.index("\n\n") if "\n\n" in s else len(s)
             s = s[:first_blank] + intro + s[first_blank:]
@@ -195,7 +201,8 @@ One row per release id, oldest first: `release_id`, `package_version`, `release_
 mints one), `n_studies_included`, `n_samples`, `n_catalog_scope`, `n_determinations_current`, `sandpiper_version`, `notes_file`. Historical
 rows carry only the counts the CHANGELOGs state (empty otherwise — never invented).
 """
-    s = s.replace("\n## Sandpiper columns (added v1.2.0)", section + "\n## Sandpiper columns (added v1.2.0)", 1)
+    _m = _sp_marker(s)
+    s = s.replace(_m, section + _m, 1)
     open(p, "w", encoding="utf-8").write(s)
 
 
@@ -277,7 +284,7 @@ def update_docs_worklist(pkg: str, package_version: str, release_id: str, counts
           "(age column without unit) · `partial_coverage` (paper + tables processed, fields still missing). Field-level code `complete` = field at/above threshold.",
           "**Contribution types**: `per_sample_table`, `id_key`, `paper_pointer`, `age_schedule`, `verdict_evidence` (dropdown of the GitHub Issue form",
           "`catalog-contribution.yml` that `issue_url` opens prefilled). Rows get `release_retired` when the study becomes complete in a later release.", ""]
-    marker = "\n## Sandpiper columns (added v1.2.0)"
+    marker = _sp_marker(d)
     if marker in d:
         d = d.replace(marker, "\n".join(L) + marker, 1)
     else:
@@ -305,31 +312,37 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
     if "`registry_studies.parquet`" not in s:
         anchor = "| `DATA_DICTIONARY.md` | | Every column, every vocabulary |"
         assert anchor in s, "README Files table anchor row not found"
-        rows = [f"| `registry_studies.parquet` | {n_st:,} | **Registry tier**: one row per ENA study of the human shotgun-metagenome universe (all body sites, all ages) — host_human, assay, body_sites/life_stages (config/vocab codes with UBERON anchors), population flags, access, evidence rows, classification_stage, infant-catalog verdict, scope_memberships (config/scope.yaml) — {release_id} |"]
+        rows = [f"| `registry_studies.parquet` | {n_st:,} | **Registry tier**: one row per screened ENA study with a human-associated metagenome signal (all body sites, all ages) — host_human, assay, body_sites/life_stages (config/vocab codes with UBERON anchors), population flags, access, evidence rows, classification_stage, infant-catalog verdict, scope_memberships (config/scope.yaml) — {release_id} |"]
         if os.path.exists(au_p):
             rows.append(f"| `registry_universe_audit.csv` | {_rows(au_p):,} | Registry enumeration audit: per ENA slice the archive count, rows pulled and completeness — {release_id} |")
         rows.append(f"| `REGISTRY_REPORT.md` | | Registry build report (universe counts per slice, host / assay / site / stage facets, scope sizes, deviations) — {release_id} |")
         s = s.replace(anchor, "\n".join(rows) + "\n" + anchor, 1)
         open(rp, "w", encoding="utf-8").write(s)
-    extra_desc = {"gut_sample_determinations.parquet": "**Curated scope gut_all (R2026.7)**: one row per sample × field for every human gut shotgun-metagenome sample, all ages — value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; infant-catalog rows copied verbatim (src_track infant_catalog)",
-                  "gut_sample_metadata_wide.parquet": "gut_all scope, one row per sample: age category, age, sex, BMI, country, health condition, antibiotic exposure, subject, timepoint, collection date, detailed location (region / locality / site), latitude / longitude, lifestyle (+ route / confidence per field; 1.12.0 fields from config/packs/gut.yaml), infant-only fields, body-site class, `infant_scope` (== the infant catalog's catalog_scope filter)",
-                  "gut_studies.parquet": "gut_all scope studies: registry columns + per-field coverage (cov_<field> for every pack field), age-category / health-condition distributions, sequencing summary (n_runs_total, Gbp per run, instrument models, layouts, Sandpiper share; 1.12.0), curated depth and source",
-                  "gut_relatedness.parquet": "**Relatedness groups (R2026.23)**: one row per family or shared setting (household, village / community, tribe, daycare / school, care home, ward, unit) with at least two catalogued people — study, group kind / type / id, people (person keys), samples, role counts and the family motif (e.g. mother + father + child)",
-                  "gut_relations.parquet": "**Explicit relations (R2026.23)**: pairwise links stated by authors that are not expressible as a family id — FMT donor_of, twin_of / twin_mz_of / twin_dz_of, partner_of, roommate_of, mother_of, sibling_of — with evidence source, quote and confidence",
-                  "gut_metadata_contradictions.parquet": "**Self-contradictory metadata (R2026.25)**: one row per withheld sample × field — two sample-level sources with incompatible values (sex, country, antibiotics yes/no, age > max(30 d, 20 %), BMI > 2, healthy_control vs a disease) or one subject id whose samples disagree on sex; value_a / source_a / quote_a and value_b / source_b / quote_b, handling (the value is not published) and a note. Project pages show a red ! badge",
-                  "gut_pass_coverage.csv": "**Annotation pass coverage (R2026.25)**: one row per catalog project — whether each applicable pass ran (full text, abstract, interventions, deep per-sample, supplementary tables, subject_id, study design); the release fails when a pass never ran without a recorded exception",
-                  "gut_runs.parquet": "**Catalog runs (R2026.12)**: one row per sequencing run of a gut_all study — accessions, library strategy / source / layout, instrument, read and base counts, first_public, sandpiper_profiled and the catalog sample_key (run-unit samples keyed by run accession)",
-                  "gut_sandpiper_sample_summary.parquet": "**Sandpiper community profiles for the whole catalog (R2026.12)**: one row per catalog sample with a SingleM/Sandpiper 2.0.0 profile (GTDB R232) — profiled runs, depth proxy, genus richness, Shannon, top genus, QC flags; the genus- and species-level long tables (gut_sandpiper_sample_genus / _species, 185 + 199 MB) ship as the release asset gut_sandpiper_profiles_<version>.zip",
-                  "gut_sandpiper_pca_scores.parquet": "Genus-level CLR-PCA scores (pc1-pc5) of every profiled sample with root coverage >= 2 — the data behind Atlas › PCA",
-                  "gut_sandpiper_pca_loadings.parquet": "Genus loadings of the same PCA", "gut_sandpiper_pca_variance.csv": "Explained variance ratio per component", "gut_sandpiper_study_coverage.csv": "Sandpiper join coverage per catalog study",
+    extra_desc = {"catalog_sample_determinations.parquet": "**Catalog determinations**: one row per sample × field for every catalog sample (every body site, all ages) — value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; infant-catalog rows copied verbatim (src_track infant_catalog)",
+                  "catalog_sample_metadata_wide.parquet": "Catalog samples, one row per sample: body_site_code / body_site_class / body_site_basis, has_dna / has_rna, age category, age, sex, BMI, country, health condition, antibiotic exposure, subject, timepoint, collection date, detailed location (region / locality / site), latitude / longitude, lifestyle (+ route / confidence per field), infant-only fields, body-site class, `infant_scope` (== the infant catalog's catalog_scope filter)",
+                  "catalog_studies.parquet": "Catalog projects: body sites (sample_body_sites, body_site_primary), nucleic acid of the data sets (nucleic_acid, n_runs_dna / n_runs_rna, n_samples_dna / n_samples_rna), methods and setting read from the paper (platform, extraction_kit, library_kit, study_shape, n_participants, recruitment, settlement), registry columns + per-field coverage (cov_<field> for every pack field), age-category / health-condition distributions, sequencing summary (n_runs_total, Gbp per run, instrument models, layouts, Sandpiper share; 1.12.0), curated depth and source",
+                  "catalog_relatedness.parquet": "**Relatedness groups (R2026.23)**: one row per family or shared setting (household, village / community, tribe, daycare / school, care home, ward, unit) with at least two catalogued people — study, group kind / type / id, people (person keys), samples, role counts and the family motif (e.g. mother + father + child)",
+                  "catalog_relations.parquet": "**Explicit relations (R2026.23)**: pairwise links stated by authors that are not expressible as a family id — FMT donor_of, twin_of / twin_mz_of / twin_dz_of, partner_of, roommate_of, mother_of, sibling_of — with evidence source, quote and confidence",
+                  "catalog_metadata_contradictions.parquet": "**Self-contradictory metadata (R2026.25)**: one row per withheld sample × field — two sample-level sources with incompatible values (sex, country, antibiotics yes/no, age > max(30 d, 20 %), BMI > 2, healthy_control vs a disease) or one subject id whose samples disagree on sex; value_a / source_a / quote_a and value_b / source_b / quote_b, handling (the value is not published) and a note. Project pages show a red ! badge",
+                  "catalog_pass_coverage.csv": "**Annotation pass coverage (R2026.25)**: one row per catalog project — whether each applicable pass ran (full text, abstract, interventions, deep per-sample, supplementary tables, subject_id, study design); the release fails when a pass never ran without a recorded exception",
+                  "catalog_runs.parquet": "**Catalog runs (R2026.12)**: one row per sequencing run of a catalog sample — nucleic_acid (dna / rna) and rrna_read_share where measured, accessions, library strategy / source / layout, instrument, read and base counts, first_public, sandpiper_profiled and the catalog sample_key (run-unit samples keyed by run accession)",
+                  "catalog_sandpiper_sample_summary.parquet": "**Sandpiper community profiles for the whole catalog (R2026.12)**: one row per catalog sample with a SingleM/Sandpiper 2.0.0 profile (GTDB R232) — profiled runs, depth proxy, genus richness, Shannon, top genus, QC flags; the genus- and species-level long tables (catalog_sandpiper_sample_genus / _species) ship as release assets in parts",
+                  "catalog_sandpiper_pca_scores.parquet": "Genus-level CLR-PCA scores (pc1-pc5) of every profiled sample with root coverage >= 2 — the data behind Atlas › PCA",
+                  "catalog_sandpiper_pca_loadings.parquet": "Genus loadings of the same PCA", "catalog_sandpiper_pca_variance.csv": "Explained variance ratio per component", "catalog_sandpiper_study_coverage.csv": "Sandpiper join coverage per catalog study",
                   "registry_biosamples.parquet": "**Registry sample tier (R2026.5)**: one row per harvested BioSample of the human_all registry studies outside the curated infant catalog — body site, life stage / age_days, sex, country, collection year normalised to the vocabularies (utility-model pass over distinct attribute pairs, docs/REGISTRY_S2_PILOT.md), raw key/value provenance, disease text unnormalised",
                   "registry_study_papers.parquet": "Registry study × paper links from Europe PMC accession mentions and NCBI BioProject declared publications (deterministic relation classes; docs/REGISTRY_S2_PAPERS.md)",
                   "registry_authors.parquet": "Authors (with ORCID / affiliation where present) of ≤ 5 linked papers per registry study, Europe PMC core records",
                   "registry_bioproject_records.parquet": "NCBI BioProject record per registry study: organisation, submitter, declared publications, dates, data types"}
     readme_rows = []
     for fn in [f for f in schema if f not in ("registry_studies.parquet", "registry_universe_audit.csv", "registry_runs.parquet") and os.path.exists(os.path.join(pkg, f))]:
-        if f"`{fn}`" not in s:
+        if f"| `{fn}`" not in s:  # a Files-table row, not a mention in the intro text
             readme_rows.append(f"| `{fn}` | {_rows(os.path.join(pkg, fn)):,} | {extra_desc.get(fn, schema[fn].get('one_row_per', ''))} — {release_id} |")
+    # catalog files outside the frozen schema (documented in the generated column reference) still get a Files row
+    for fn, desc in [("catalog_sample_determinations_conflicts.parquet", "Competing values not committed: one row per sample × field × alternative value where sources disagree, with its evidence (the committed value is in `catalog_sample_determinations`)"),
+                     ("catalog_sandpiper_study_panels.parquet", "Composition panel per project: mean relative abundance of the top genera / phyla over the profiled samples of the project's most-profiled body site (`panel_body_site`)"),
+                     ("CATALOG_SANDPIPER_REPORT.md", "How the catalog samples were joined to Sandpiper profiles: streaming pass, join coverage, QC flags, tables, PCA")]:
+        if os.path.exists(os.path.join(pkg, fn)) and f"| `{fn}`" not in s:
+            readme_rows.append(f"| `{fn}` | {(f'{_rows(os.path.join(pkg, fn)):,}' if fn.endswith('.parquet') else '')} | {desc} |")
     if readme_rows:
         anchor = "| `DATA_DICTIONARY.md` | | Every column, every vocabulary |"
         s = open(rp, encoding="utf-8").read()
@@ -345,18 +358,18 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
             blocks += [f"| `{c['name']}` | {c.get('type', '')} | {c.get('description', '')} |" for c in schema[fn]["columns"]]
             blocks += [""]
         if blocks:
-            marker = "\n## Sandpiper columns (added v1.2.0)"
+            marker = _sp_marker(d)
             d = d.replace(marker, "\n" + "\n".join(blocks) + marker, 1) if marker in d else d.rstrip() + "\n\n" + "\n".join(blocks)
             open(dp, "w", encoding="utf-8").write(d)
         return True
     L = [f"\n## Registry tier ({release_id}, package {package_version})",
-         "The registry is the **outer tier** of the catalog (docs/EXPANSION.md): every ENA study with a human shotgun-metagenome signal, any body site,",
+         "The registry is the **outer tier** of the catalog: every screened ENA study with a human-associated metagenome signal, any body site,",
          "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration slices: S1 `library_source=METAGENOMIC` ×",
          "`WGS|WXS`; S2 misfiled `GENOMIC` on verified human-metagenome taxa; S3 `OTHER|Targeted-Capture|WGA` adjudication (per-slice completeness in",
          "`registry_universe_audit.csv`). Classification stages: `deterministic_prior` (infant-universe verdict carried over), `deterministic_rule`,",
          "`sonnet_x2` (two rubric replicates agree), `opus_adjudicated` (replicates disagreed → adjudication), `curator_audit` (study-level host/assay audit, config/registry_overrides.yaml), `owner_decision` (study-level owner override, config/registry_overrides.yaml), `pending`. Vocabularies: the pipeline's",
-         "`config/vocab/{body_sites,life_stages,assay,population_flags}.yaml`; scope rules: `config/scope.yaml`. The curated infant catalog is the scope",
-         "`infant_gut` inside this registry (`in_infant_catalog` mirrors `universe_studies_all.triage_verdict`). The run-level table `registry_runs.parquet`",
+         "`config/vocab/{body_sites,life_stages,assay,population_flags}.yaml`; scope rules: `config/scope.yaml` (`in_infant_catalog` mirrors",
+         "`universe_studies_all.triage_verdict`). The run-level table `registry_runs.parquet`",
          "(all runs of the universe, 46 ENA fields + `found_by`) is attached to the GitHub Release of the data repository as `registry_runs_v<version>.parquet`",
          "(too large for this package). Bitemporal columns follow the package convention (`release_added`, `release_retired`, `package_added`).", ""]
     tables = [("registry_studies.parquet", f"registry_studies.parquet ({n_st:,} rows)"), ("registry_universe_audit.csv", "registry_universe_audit.csv")]
@@ -368,7 +381,7 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
         L += [f"### {title}", "", "| column | dtype | meaning |", "|---|---|---|"]
         L += [f"| `{c['name']}` | {c.get('type', '')} | {c.get('description', '')} |" for c in schema[fn]["columns"]]
         L += [""]
-    marker = "\n## Sandpiper columns (added v1.2.0)"
+    marker = _sp_marker(d)
     if marker in d:
         d = d.replace(marker, "\n".join(L) + marker, 1)
     else:
@@ -399,9 +412,18 @@ def rewrite_readme_intro(pkg: str, package_version: str, intro_template: str | N
     s = open(rp, encoding="utf-8").read()
     if "## Files" not in s or not s.startswith("# "):
         return False
-    gs = pd.read_parquet(os.path.join(pkg, "gut_studies.parquet"))
-    gw = pd.read_parquet(os.path.join(pkg, "gut_sample_metadata_wide.parquet"), columns=["sample_key", "age_at_collection_days", "sex", "country", "health_condition", "antibiotic_exposure", "infant_scope"])
-    gd = pq.ParquetFile(os.path.join(pkg, "gut_sample_determinations.parquet")).metadata.num_rows
+    gs = pd.read_parquet(os.path.join(pkg, "catalog_studies.parquet"))
+    gw = pd.read_parquet(os.path.join(pkg, "catalog_sample_metadata_wide.parquet"), columns=["sample_key", "age_at_collection_days", "sex", "country", "health_condition", "antibiotic_exposure", "infant_scope", "release_retired"])
+    # R2026.31: headline counts are CURRENT rows only (retired rows stay in the tables for the value timeline)
+    if "release_retired" in gs.columns:
+        gs = gs[gs.release_retired.isna()]
+    gw = gw[gw.release_retired.isna()]
+    _dpath = os.path.join(pkg, "catalog_sample_determinations.parquet")
+    if "release_retired" in pq.ParquetFile(_dpath).schema.names:
+        _t = pq.read_table(_dpath, columns=["release_retired"])
+        gd = _t.column(0).null_count  # rows with release_retired null = current
+    else:
+        gd = pq.ParquetFile(_dpath).metadata.num_rows
     rg = pd.read_parquet(os.path.join(pkg, "registry_studies.parquet"), columns=["study_accession", "n_biosamples_harvested", "release_retired"])
     rg = rg[rg.release_retired.isna()]
     vals = dict(n_registry=len(rg), n_registry_biosamples=int(pd.to_numeric(rg.n_biosamples_harvested, errors="coerce").fillna(0).sum()),
@@ -424,12 +446,12 @@ def rewrite_readme_intro(pkg: str, package_version: str, intro_template: str | N
 
 
 INFANT_QUALIFIER = ("INFANT-CATALOG verdict (historical, 2026-09 infant screen) — NOT membership in the all-age catalog: a study can be "
-                    "`excluded` here (e.g. age_adult_only) and still be in `gut_studies`. Catalog membership = presence in `gut_studies.parquet`.")
+                    "`excluded` here (e.g. age_adult_only) and still be in `catalog_studies`. Catalog membership = presence in `catalog_studies.parquet`.")
 _INFANT_REWRITES = {
     "| `triage_verdict` | str | include/exclude/uncertain from the triage cascade |": "| `triage_verdict` | str | include/exclude/uncertain from the infant triage cascade. " + INFANT_QUALIFIER + " |",
     "| `catalog_status` | str | included / excluded / human_review |": "| `catalog_status` | str | included / excluded / human_review in the INFANT catalog. " + INFANT_QUALIFIER + " |",
     "| `reason_code` | str | controlled exclusion reason (null for included) |": "| `reason_code` | str | controlled exclusion reason of the INFANT screen (null for included); age_* codes are infant-age reasons, not catalog exclusions |",
-    "| `catalog_status`, `triage_verdict`, `decision_stage`, `confidence`, `evidence` | inclusion verdict and its evidence |": "| `catalog_status`, `triage_verdict`, `decision_stage`, `confidence`, `evidence` | INFANT-catalog inclusion verdict and its evidence (historical; not all-age catalog membership — use `gut_studies.parquet`) |",
+    "| `catalog_status`, `triage_verdict`, `decision_stage`, `confidence`, `evidence` | inclusion verdict and its evidence |": "| `catalog_status`, `triage_verdict`, `decision_stage`, `confidence`, `evidence` | INFANT-catalog inclusion verdict and its evidence (historical; not all-age catalog membership — use `catalog_studies.parquet`) |",
 }
 
 
@@ -448,7 +470,7 @@ def qualify_infant_verdicts(pkg: str) -> int:
     r = os.path.join(pkg, "README.md")
     if os.path.exists(r):
         t = open(r, encoding="utf-8").read()
-        warn = ("> **Catalog membership:** a study is in the catalog when it is in `gut_studies.parquet` (samples: `gut_sample_metadata_wide.parquet`). "
+        warn = ("> **Catalog membership:** a study is in the catalog when it is in `catalog_studies.parquet` (samples: `catalog_sample_metadata_wide.parquet`). "
                 "The `catalog_status` / `triage_verdict` / `reason_code` columns of `universe_studies_all.parquet` and `study_metadata_wide.parquet` are the "
                 "historical INFANT-catalog screen (389 included) — do not filter the all-age catalog on them.")
         if warn not in t:

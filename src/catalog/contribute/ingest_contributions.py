@@ -150,8 +150,8 @@ def study_keys(pkg: Path, acc: str) -> dict:
     # R2026.26 (intake test): the human-gut catalog (gut_runs / gut_sample_metadata_wide) is the main scope; the tables above
     # cover the infant extension only, so a gut-catalog project used to be rejected as 'not in the package'.
     import pyarrow.parquet as pq
-    for name, colmap in (('gut_runs.parquet', {'run_accession': 'run_accession', 'library_name': 'library_name', 'sample_accession': 'biosample_accession', 'secondary_sample_accession': 'secondary_sample'}),
-                         ('gut_sample_metadata_wide.parquet', {'sample_key': 'sample_key', 'secondary_sample': 'secondary_sample', 'biosample_accession': 'biosample_accession'})):
+    for name, colmap in (('catalog_runs.parquet', {'run_accession': 'run_accession', 'library_name': 'library_name', 'sample_accession': 'biosample_accession', 'secondary_sample_accession': 'secondary_sample'}),
+                         ('catalog_sample_metadata_wide.parquet', {'sample_key': 'sample_key', 'secondary_sample': 'secondary_sample', 'biosample_accession': 'biosample_accession'})):
         fp = pkg / name
         if not fp.exists():
             continue

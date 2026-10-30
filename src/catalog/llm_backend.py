@@ -85,8 +85,18 @@ def _normalise(raw: dict, model: str) -> dict:
         status = "empty"
     else:
         status = "ok"
+    got = raw.get("model") or model
+    if status == "ok" and _family(got) != _family(model):
+        # answered by a different model tier than requested (e.g. a provider fallback for sensitive content): never committed,
+        # cached like a refusal so it is not silently re-sent, and listed in the pass report
+        status = "model_substituted"
     return {"text": text or "", "tool_use": tool, "stop_reason": stop, "usage": raw.get("usage") or {},
-            "model": raw.get("model") or model, "status": status, "error": str(err) if err else None}
+            "model": got, "model_requested": model, "status": status, "error": str(err) if err else None}
+
+
+def _family(model: str) -> str:
+    m = (model or "").lower()
+    return next((f for f in ("haiku", "sonnet", "opus") if f in m), m)
 
 
 class LLM:
@@ -154,7 +164,10 @@ class LLM:
         p = self._path(key)
         if os.path.exists(p):
             r = json.load(open(p))
-            r["status_original"], r["status"] = r.get("status"), "cached"
+            # only a good answer reads back as 'cached'; a cached refusal / substitution / empty keeps its own status,
+            # so callers that accept ("ok", "cached") can never take it as an answer
+            r["status_original"] = r.get("status")
+            r["status"] = "cached" if r["status_original"] == "ok" else r["status_original"]
             return r
         return None
 

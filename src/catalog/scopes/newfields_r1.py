@@ -533,7 +533,7 @@ def build_gut_runs(registry_runs: pd.DataFrame, sandpiper: pd.DataFrame | None, 
     their runs from the curated infant runs table; (3) runs whose ENA base_count is 0 / blank (dbGaP-protected or not yet mirrored)
     take NCBI SRA runinfo bases (base_count_source = ncbi_sra)."""
     cols = ["run_accession", "study_accession", "sample_accession", "secondary_sample_accession", "experiment_accession", "library_name", "library_strategy",
-            "library_source", "library_layout", "instrument_platform", "instrument_model", "read_count", "base_count", "first_public"]
+            "library_source", "library_selection", "library_layout", "instrument_platform", "instrument_model", "read_count", "base_count", "first_public", "run_origin"]
     m1 = dict(zip(wide.biosample_accession, wide.sample_key))
     sec = wide[wide.secondary_sample.notna()]
     m2 = dict(zip(sec.secondary_sample, sec.sample_key))
@@ -636,8 +636,8 @@ def _sample_key_map(attrs: pd.DataFrame, wide: pd.DataFrame, gut_runs: pd.DataFr
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--attributes", required=True, help="harvested BioSample attribute rows (parquet)")
-    ap.add_argument("--wide", required=True, help="package gut_sample_metadata_wide.parquet (sample_key join)")
-    ap.add_argument("--gut-runs", help="gut_runs.parquet (first_public year per sample; run-unit sample keys)")
+    ap.add_argument("--wide", required=True, help="package catalog_sample_metadata_wide.parquet (sample_key join)")
+    ap.add_argument("--gut-runs", help="catalog_runs.parquet (first_public year per sample; run-unit sample keys)")
     ap.add_argument("--registry-runs"), ap.add_argument("--registry-sandpiper"), ap.add_argument("--gut-studies", help="build gut_runs when --gut-runs is absent")
     ap.add_argument("--out-dir", required=True), ap.add_argument("--release-id", default="R2026.12"), ap.add_argument("--package-version", default="1.12.0")
     ap.add_argument("--no-llm", action="store_true", help="skip the utility-model steps (location map / lifestyle confirmation) — deterministic rows only")
@@ -710,7 +710,7 @@ def run(a) -> int:
         gs = set(pd.read_parquet(a.gut_studies, columns=["study_accession"]).study_accession)
         sp = pd.read_parquet(a.registry_sandpiper) if a.registry_sandpiper and os.path.exists(a.registry_sandpiper) else None
         gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp, gs, wide)
-        gut_runs.to_parquet(os.path.join(a.out_dir, "gut_runs.parquet"), index=False)
+        gut_runs.to_parquet(os.path.join(a.out_dir, "catalog_runs.parquet"), index=False)
     fp_year = _first_public_year(gut_runs)
     A = _sample_key_map(attrs, wide, gut_runs)
     A = A[A.attr_value.notna()]

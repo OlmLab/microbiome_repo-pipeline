@@ -15,7 +15,7 @@ Per project (gut_studies): n_subjects, n_subjects_repeated, n_samples_repeated, 
 followup_days_median / _max, interval_days_median, time_axis, longitudinal_status (longitudinal | repeated_unresolved |
 cross_sectional | unknown), plus relatedness columns n_families, n_related_people, n_mother_child_families, n_twin_sets,
 n_shared_settings, family_motifs (json {motif: n}), shared_setting_types (';'), relatedness_designs (';').
-Tables: gut_relatedness.parquet (one row per family or shared-setting unit with >= 2 people), gut_relations.parquet
+Tables: catalog_relatedness.parquet (one row per family or shared-setting unit with >= 2 people), catalog_relations.parquet
 (explicit pairwise relations from the annotation shards, e.g. twin zygosity or FMT donor -> recipient).
 """
 from __future__ import annotations

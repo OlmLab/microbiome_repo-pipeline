@@ -2,7 +2,7 @@ schema_version: 1
 vocabulary: interventions
 note: |
   Interventions that a study ADMINISTERS to its participants (by the investigators, as part of the study design), recorded at two
-  levels. Study level (gut_studies.interventions): ';'-joined, alphabetically sorted list of codes for every intervention arm of the
+  levels. Study level (catalog_studies.interventions): ';'-joined, alphabetically sorted list of codes for every intervention arm of the
   study, plus intervention_design and the population's underlying health condition; a study is tagged only when the source says the
   investigators gave the intervention (trial, feeding study, FMT procedure, surgery cohort sampled before/after). Sample level
   (field `intervention`): what THIS sample's subject had received in the study at or before sampling — the codes below plus

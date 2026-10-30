@@ -5,7 +5,7 @@ very recent submissions not yet mirrored. NCBI SRA runinfo carries `spots` / `ba
 reads are protected). Output: one row per run accession with ncbi_spots, ncbi_bases, ncbi_consent, fetched_at; cached and appended, so
 re-runs only query new accessions.
 
-Usage: python scripts/fill_run_bases.py --runs build/package/gut_runs.parquet --out data/inputs/registry/run_bases_ncbi.parquet
+Usage: python scripts/fill_run_bases.py --runs build/package/catalog_runs.parquet --out data/inputs/registry/run_bases_ncbi.parquet
 """
 import argparse, io, os, re, sys, time
 from datetime import date

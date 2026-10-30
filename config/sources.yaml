@@ -127,7 +127,7 @@ related_efforts:
   join: run accession, project id.
   licence: No licence statement; the Help page asks for citation. Download files dated 2021-09-26.
   ingestion: used
-  assessment: Body-site and disease annotations for non-gut sites make it a candidate when the oral, skin and vaginal scopes are curated.
+  assessment: Body-site and disease annotations for oral, skin and vaginal samples make it a candidate external source for those sites.
   resource_id: mbodymap
   ingested: 6,404 R2 evidence rows per-sample values for 3,070 samples in 5 catalog studies — health_condition 3,070, sex 3,062, health_condition_detail 272. Joined on archive accessions; each row links
     to the source record.

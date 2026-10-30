@@ -5,7 +5,7 @@ Reads the NCBI BioProject record of every PRJNA catalog project (E-utilities efe
 study accessions (phs######) it names. Output: config/metadata_access.csv (study_accession, access_system, access_study,
 apply_url, evidence). build_gut_scope turns this into gut_studies.metadata_access (controlled | partly_controlled) using the
 project's public core-field coverage.
-usage: python scripts/harvest_metadata_access.py --studies build/package/gut_studies.parquet --out config/metadata_access.csv
+usage: python scripts/harvest_metadata_access.py --studies build/package/catalog_studies.parquet --out config/metadata_access.csv
 """
 import argparse, re, time
 import pandas as pd, requests

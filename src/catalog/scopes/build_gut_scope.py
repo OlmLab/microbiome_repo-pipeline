@@ -34,7 +34,7 @@ INFANT_ONLY = ["delivery_mode", "feeding_mode", "preterm_status", "gestational_a
 ROUTE_RANK = {"R1": 1, "R2": 2, "R3": 3, "R4": 4}
 # rules that mint a subject_id (see docs/DEEP_ANNOTATION_BRIEF.md SUBJECT RULE); unique_v1 = one sample per subject
 GENERATED_SUBJECT_RULES = {"gut_subject_unique_v1", "gut_subject_single_v1", "gut_subject_single_case_v1"}
-SRC = "gut_all_v1"
+SRC = "catalog_v1"
 STAGE_TO_CAT = {"neonate": "neonate", "infant": "infant", "child": "child", "adolescent": "adolescent", "adult": "adult", "elderly": "elderly"}
 
 
@@ -164,8 +164,13 @@ def split_pooled_biosamples(samples: pd.DataFrame, registry_runs_path, src: str)
     if not registry_runs_path or not os.path.exists(registry_runs_path):
         return samples, 0
     ga = samples[(samples.curated_source == src) & (samples.sample_unit == "biosample")]
-    rr = pd.read_parquet(registry_runs_path, columns=["run_accession", "study_accession", "sample_accession", "library_name", "library_source", "library_strategy"],
+    import pyarrow.parquet as _pq
+    _rc = ["run_accession", "study_accession", "sample_accession", "library_name", "library_source", "library_strategy"]
+    _has_origin = "run_origin" in _pq.read_schema(registry_runs_path).names
+    rr = pd.read_parquet(registry_runs_path, columns=_rc + (["run_origin"] if _has_origin else []),
                          filters=[("study_accession", "in", sorted(set(ga.study_accession)))])
+    if _has_origin:   # R2026.31: the split is decided on the registry's runs only (refetched RNA runs do not re-split a specimen)
+        rr = rr[rr.run_origin.fillna("registry") != "refetch"]
     rr = rr[rr.library_source.isin(["METAGENOMIC", "GENOMIC"]) & ~rr.library_strategy.isin(["AMPLICON", "RNA-Seq"])]
     r = rr[rr.sample_accession.isin(set(ga.biosample_accession))].copy()
     r["stem"] = r.library_name.fillna("").astype(str).str.replace(POOLED_STEM, "", regex=True, case=False).str.lower()
@@ -189,6 +194,130 @@ def split_pooled_biosamples(samples: pd.DataFrame, registry_runs_path, src: str)
     out = pd.concat([samples[~((samples.curated_source == src) & samples.biosample_accession.isin(keys))], new[samples.columns]], ignore_index=True)
     print(f"pooled BioSamples split into library units: {len(keys)} BioSamples -> {len(new)} units from {len(runs)} runs ({pooled.study_accession.nunique()} projects)", file=sys.stderr)
     return out, int(len(new))
+
+
+_LEGACY_CODE = re.compile(r"^gut_(?!stool)")
+
+
+def neutral_codes(df: pd.DataFrame) -> pd.DataFrame:
+    """R2026.31: pipeline codes in the published tables (determined_by, src_track, curated_source, parse_note, *_determined_by)
+    drop the historical gut_ prefix (gut_all_v1 → catalog_v1, gut_r1_v1:… → catalog_r1_v1:…). Values that are data (quotes,
+    sheet names, sample names) are never touched."""
+    if df is None or not len(df):
+        return df
+    df = df.copy()
+    for c in df.columns:
+        if c in ("determined_by", "src_track", "curated_source", "parse_note") or c.endswith("_determined_by") or c.endswith("determined_by_a") or c.endswith("determined_by_b"):
+            v = df[c]
+            m = v.notna()
+            if m.any():
+                df.loc[m, c] = v[m].astype(str).str.replace("gut_all_v1", "catalog_v1", regex=False).str.replace(_LEGACY_CODE, "catalog_", regex=True)
+    return df
+
+
+# ---- R2026.31: data sets of every project, DNA and RNA kept apart
+RNA_SOURCES = {"TRANSCRIPTOMIC", "METATRANSCRIPTOMIC", "VIRAL RNA"}
+DNA_SOURCES = {"GENOMIC", "METAGENOMIC", "SYNTHETIC", "OTHER"}
+RNA_STRATEGIES = {"RNA-Seq", "miRNA-Seq", "ncRNA-Seq", "FL-cDNA", "EST", "ssRNA-seq"}
+
+
+def run_nucleic_acid(src, strategy):
+    s, t = str(src or "").upper(), str(strategy or "")
+    if s in RNA_SOURCES or t in RNA_STRATEGIES:
+        return "rna"
+    if s in DNA_SOURCES:
+        return "dna"
+    return "unclear"
+
+
+def classify_runs(runs: pd.DataFrame, read_checks, extra_acc: set):
+    """Run-level scope (R2026.31). Single-cell libraries are out everywhere. AMPLICON libraries are out unless the read
+    check found shotgun reads. Runs found only by the per-project refetch (run_origin == "refetch") enter the original
+    projects only when they are RNA libraries of a catalogued specimen — further DNA runs of those projects stay with the
+    registry's enumeration rules (picked up by the monthly sweep). Adds nucleic_acid and rrna_read_share per run."""
+    r = runs.copy()
+    rep_ = {}
+    src = r.library_source.astype(str).str.upper()
+    sc = src.str.contains("SINGLE CELL")
+    rep_["single_cell_runs_dropped"] = int(sc.sum())
+    r = r[~sc]
+    share, verdict = {}, {}
+    for path in [x.strip() for x in str(read_checks or "").split(",") if x.strip()]:
+        if not os.path.exists(path):
+            continue
+        rc = pd.read_csv(path, dtype=str)
+        if "run" not in rc.columns:
+            continue
+        if "frac_rrna" in rc.columns:
+            for k, v in pd.to_numeric(rc.set_index("run")["frac_rrna"], errors="coerce").dropna().items():
+                share.setdefault(k, float(v))
+        if "verdict" in rc.columns:
+            for k, v in rc.set_index("run")["verdict"].dropna().items():
+                verdict.setdefault(k, v)
+    is_amp = r.library_strategy.astype(str).str.upper().eq("AMPLICON")
+    rescued = r.run_accession.map(verdict).eq("shotgun")
+    orig_registry = ~r.study_accession.isin(extra_acc) & r.get("run_origin", pd.Series("registry", index=r.index)).fillna("registry").eq("registry")
+    drop_amp = is_amp & ~rescued & ~orig_registry
+    rep_["amplicon_runs_dropped"] = int(drop_amp.sum())
+    rep_["amplicon_runs_kept_read_check_shotgun"] = int((is_amp & rescued).sum())
+    r = r[~drop_amp]
+    r["nucleic_acid"] = [run_nucleic_acid(x, y) for x, y in zip(r.library_source, r.library_strategy)]
+    r["rrna_read_share"] = r.run_accession.map(share)
+    if "run_origin" in r.columns:
+        ref = r.run_origin.eq("refetch") & ~r.study_accession.isin(extra_acc)
+        bad = ref & ~(r.nucleic_acid.eq("rna") & r.sample_key.notna())
+        rep_["refetch_runs_not_taken"] = int(bad.sum())
+        rep_["refetch_rna_runs_taken"] = int((ref & ~bad).sum())
+        r = r[~bad]
+    # a run with no catalogued specimen in a classified project is a data set of a specimen that left the scope
+    nokey = r.sample_key.isna() & r.study_accession.isin(extra_acc)
+    rep_["runs_without_specimen_dropped"] = int(nokey.sum())
+    r = r[~nokey]
+    return r.reset_index(drop=True), rep_
+
+
+def study_nucleic_acid(runs: pd.DataFrame, facts_path=None) -> pd.DataFrame:
+    """Per project: nucleic_acid (dna / rna / both / unclear / conflict) from the runs, with the paper as the tie-breaker.
+    An archive label of TRANSCRIPTOMIC / RNA-Seq is a specific statement about the deposit and outranks a paper summarised as
+    DNA; a paper saying RNA over a DNA-labelled deposit is decided by the reads (median rRNA share >= 0.10 = RNA)."""
+    rn = runs.groupby("study_accession").nucleic_acid.agg(lambda v: sorted(set(v) - {"unclear"}) or sorted(set(v)))
+    out = pd.DataFrame(index=rn.index)
+    out["nucleic_acid_archive"] = rn.map(lambda v: ";".join(v))
+    out["n_runs_dna"] = runs[runs.nucleic_acid == "dna"].groupby("study_accession").size()
+    out["n_runs_rna"] = runs[runs.nucleic_acid == "rna"].groupby("study_accession").size()
+    out["n_runs_dna"] = out.n_runs_dna.fillna(0).astype(int)
+    out["n_runs_rna"] = out.n_runs_rna.fillna(0).astype(int)
+    rrna = runs.groupby("study_accession").rrna_read_share.median() if "rrna_read_share" in runs.columns else pd.Series(dtype=float)
+    paper = pd.Series(dtype=str)
+    if facts_path and os.path.exists(facts_path):
+        f = pd.read_parquet(facts_path)
+        if "nucleic_acid_paper" in f.columns:
+            paper = f.drop_duplicates("study_accession").set_index("study_accession").nucleic_acid_paper.astype(str).str.lower()
+
+    def resolve(acc, arch_s):
+        arch = set(arch_s.split(";")) - {""}
+        pp = paper.get(acc, "")
+        if pp in ("dna", "rna") and arch and arch != {pp} and arch != {"unclear"}:
+            if pp in arch:
+                return pp, False
+            if arch == {"rna"}:
+                return "rna", False
+            sh = rrna.get(acc)
+            if pp == "rna" and sh is not None and not pd.isna(sh):
+                return ("rna" if sh >= 0.10 else "dna"), False
+            return "conflict", True
+        if pp == "both" or arch >= {"dna", "rna"}:
+            return "both", False
+        if arch == {"dna"} or pp == "dna":
+            return "dna", False
+        if arch == {"rna"} or pp == "rna":
+            return "rna", False
+        return "unclear", False
+
+    res = [resolve(acc, v) for acc, v in out.nucleic_acid_archive.items()]
+    out["nucleic_acid"] = [x[0] for x in res]
+    out["nucleic_acid_conflict"] = [x[1] for x in res]
+    return out
 
 
 def sequencing_summary(gut_runs: pd.DataFrame) -> pd.DataFrame:
@@ -485,6 +614,16 @@ def build(a):
         if dropped:
             print(f"study_rule: {len(dropped)} leaf-listed studies fail the pack study_rule on the current registry and are dropped: {dropped[:20]}", file=sys.stderr)
             studies = studies[~studies.study_accession.isin(dropped)].copy()
+    # R2026.31: projects decided by the scope classification (every human body site, DNA and RNA) join the same build.
+    # Their study rows come from scripts/prepare_catalog_inputs.py; the gut study_rule above does not apply to them.
+    extra_acc = set()
+    xs_p = getattr(a, "extra_studies", None)
+    if xs_p and os.path.exists(xs_p):
+        xs = pd.read_parquet(xs_p)
+        xs = xs[~xs.study_accession.isin(set(studies.study_accession))]
+        extra_acc = set(xs.study_accession)
+        studies = pd.concat([studies, xs.reindex(columns=studies.columns)], ignore_index=True)
+        print(f"extra studies: {len(extra_acc)} added from {xs_p}", file=sys.stderr)
     gut_acc = set(studies.study_accession)
     infant_acc = set(studies.loc[studies.in_infant_catalog == "include", "study_accession"]) if "in_infant_catalog" in studies.columns else set()
 
@@ -495,13 +634,25 @@ def build(a):
     bio = bio[bio.study_accession.isin(gut_acc)]
     if "release_retired" in bio.columns:
         bio = bio[bio.release_retired.isna()]
+    xb_p = getattr(a, "extra_biosamples", None)
+    if xb_p and os.path.exists(xb_p):
+        xb = pd.read_parquet(xb_p)
+        # classified projects: their specimen rows replace the registry's; original projects: specimens the registry did not
+        # hold (RNA-only BioSamples found by the per-project run refetch) are appended
+        xb_new = xb[xb.study_accession.isin(extra_acc)]
+        xb_add = xb[xb.study_accession.isin(gut_acc - extra_acc) & ~xb.sample_accession.isin(set(bio.sample_accession))]
+        bio = pd.concat([bio[~bio.study_accession.isin(extra_acc)], xb_new.reindex(columns=bio.columns), xb_add.reindex(columns=bio.columns)], ignore_index=True)
+        bio = bio.drop_duplicates("sample_accession", keep="first")
+        print(f"extra biosamples: {len(xb_new)} for classified projects, {len(xb_add)} appended to original projects", file=sys.stderr)
+    # body-site code of every BioSample from the archive tier, used below for curated rows that only carry a class
+    _bs_code_by_bios = dict(zip(bio.sample_accession, bio.body_site_code))
     wide0 = pd.read_parquet(os.path.join(a.package, "sample_metadata_wide.parquet"))
     wide0 = wide0[wide0.study_accession.isin(infant_acc)]
     # BioSamples shared between BioProjects (umbrella / re-deposited studies): the curated infant assignment wins, so the infant
     # rows come first and the registry rows of the same sample are dropped
     samples = pd.concat([
         pd.DataFrame(dict(sample_key=wide0.sample_key.values, study_accession=wide0.study_accession.values, biosample_accession=wide0.biosample_accession.values, secondary_sample=wide0.secondary_sample.values,
-                          sample_unit=wide0.sample_unit.values, body_site_code=wide0.body_site_class.map({"primary": "gut_stool", "unknown": None, "excluded": "other_site", "linked": "other_site"}).values,
+                          sample_unit=wide0.sample_unit.values, body_site_code=[("gut_stool" if c == "primary" else None if c == "unknown" else (_bs_code_by_bios.get(b) if isinstance(_bs_code_by_bios.get(b), str) and _bs_code_by_bios.get(b) not in ("gut_stool", "unknown_site") else "other_site")) for c, b in zip(wide0.body_site_class, wide0.biosample_accession)],
                           sample_life_stage=None, curated_source="infant_catalog")),
         pd.DataFrame(dict(sample_key=bio.sample_accession.values, study_accession=bio.study_accession.values, biosample_accession=bio.sample_accession.values, secondary_sample=None,
                           sample_unit="biosample", body_site_code=bio.body_site_code.values, sample_life_stage=bio.life_stage.values, curated_source=SRC)),
@@ -546,7 +697,7 @@ def build(a):
 
     # ---- determinations
     parts = [pd.DataFrame(rows_from_registry_biosamples(bio, rid, pv), columns=DET_COLS), load_any(a.r1), load_any(a.r1_extra), load_any(getattr(a, "r1_newfields", None)),
-             load_any(getattr(a, "r1_newfields_v2", None)), load_any(getattr(a, "r1_interventions", None)), load_any(getattr(a, "r1_infant", None)), load_any(getattr(a, "deep_glob", None)), load_any(a.r2_glob), load_any(a.r3_glob), load_any(a.r4_glob)]
+             load_any(getattr(a, "r1_newfields_v2", None)), load_any(getattr(a, "r1_interventions", None)), load_any(getattr(a, "r1_infant", None)), load_any(getattr(a, "deep_glob", None)), load_any(a.r2_glob), load_any(a.r3_glob), load_any(a.r4_glob), load_any(getattr(a, "extra_determinations", None))]
     det0 = pd.read_parquet(os.path.join(a.package, "sample_determinations.parquet"))
     det0 = det0[det0.study_accession.isin(infant_acc) & det0.field_name.isin(PACK_FIELDS + INFANT_ONLY)]
     if "release_retired" in det0.columns:
@@ -554,6 +705,12 @@ def build(a):
     det0 = det0.assign(src_track="infant_catalog").reindex(columns=DET_COLS)
     det = pd.concat(parts + [det0], ignore_index=True)
     det = det[det.study_accession.isin(gut_acc)]
+    # R2026.31: a collection date in the future or before 1980 is a record error, whatever route carried it (pack rule)
+    _cy = pd.to_numeric(det.value_normalized.astype(str).str[:4], errors="coerce")
+    _bad_date = det.field_name.eq("collection_date") & ((_cy > pd.Timestamp.now().year) | (_cy < 1980))
+    if _bad_date.any():
+        print(f"collection_date rows rejected (year outside 1980–now): {int(_bad_date.sum())}", file=sys.stderr)
+        det = det[~_bad_date]
     cond = pd.read_parquet(a.condition_map) if a.condition_map and os.path.exists(a.condition_map) else None
     abx = pd.read_parquet(a.antibiotic_map) if a.antibiotic_map and os.path.exists(a.antibiotic_map) else None
     det = apply_condition_maps(det, cond, abx, rid, pv)
@@ -657,17 +814,26 @@ def build(a):
     basis = pd.Series("unknown", index=w.index)
     basis = basis.mask(~is_inf & cat_study.notna(), "study_life_stage").mask(~is_inf & cat_r4.notna(), grp_basis).mask(~is_inf & cat_stage.notna(), "sample_life_stage").mask(is_inf & cat_inf.notna(), "infant_catalog_age_scope").mask(cat_age.notna(), "age_at_collection_days")
     w["age_category_basis"] = basis
-    w["body_site_class"] = w.body_site_code.map(lambda c: "primary" if c == "gut_stool" else ("unknown" if (c is None or pd.isna(c) or c == "unknown_site") else "excluded"))
+    # R2026.31: every human body site is in scope, so a stated site is `primary`; `unknown` = no site stated
+    w["body_site_class"] = w.body_site_code.map(lambda c: "primary" if isinstance(c, str) and c not in ("unknown_site",) else "unknown")
     w["body_site_basis"] = w.body_site_code.map(lambda c: "sample_attribute" if isinstance(c, str) and c not in ("unknown_site",) else "none")
-    # a sample without any site attribute in a study whose ONLY registry body site is gut_stool is a gut sample by study design
+    # a sample without any site attribute in a study that sampled ONE body site takes that site by study design (basis recorded)
     st_sites = reg.set_index("study_accession").body_sites if "body_sites" in reg.columns else pd.Series(dtype=str)
-    single_gut = w.study_accession.map(st_sites).fillna("") == "gut_stool"
+    st_sites = st_sites[~st_sites.index.duplicated()]
+    if extra_acc:   # the scope classification's site list is the better source for the projects it decided
+        _xs = studies[studies.study_accession.isin(extra_acc)].set_index("study_accession").body_sites
+        st_sites = pd.concat([st_sites[~st_sites.index.isin(_xs.index)], _xs])
+    _one = st_sites.fillna("").astype(str).str.replace("unknown_site", "").str.strip(";")
+    _one = _one[(_one != "") & ~_one.str.contains(";")]
+    single = w.study_accession.map(_one)
     no_attr = w.body_site_code.isna() | (w.body_site_code == "unknown_site")
-    w.loc[~is_inf & single_gut & no_attr, "body_site_class"] = "primary"
-    w.loc[~is_inf & single_gut & no_attr, "body_site_basis"] = "study_single_site"
+    _fill = ~is_inf & single.notna() & no_attr
+    w.loc[_fill, "body_site_code"] = single[_fill]
+    w.loc[_fill, "body_site_class"] = "primary"
+    w.loc[_fill, "body_site_basis"] = "study_single_site"
     bsc0 = wide0.set_index("sample_key").body_site_class
     m0 = w.index.isin(bsc0.index)
-    w.loc[m0, "body_site_class"] = pd.Series(w.index[m0].map(bsc0), index=w.index[m0])
+    w.loc[m0, "body_site_class"] = pd.Series(w.index[m0].map(bsc0.map({"primary": "primary", "unknown": "unknown", "excluded": "primary", "linked": "primary"})), index=w.index[m0])
     _ctl = w.sample_type.ne("specimen")   # controls: no inherited life stage or gut-site class
     w.loc[_ctl, "age_category"] = "unknown"
     w.loc[_ctl, "age_category_basis"] = "control_sample"
@@ -675,7 +841,9 @@ def build(a):
     w.loc[_ctl, "body_site_basis"] = "control_sample"
     # infant_scope == the infant catalog's catalog_scope rule exactly (age_scope infant_evidenced/study_all_infant AND body site primary/unknown)
     inf_scope0 = pd.Series(w.index.map(scope0), index=w.index).isin(["infant_evidenced", "study_all_infant"])
-    w["infant_scope"] = is_inf & inf_scope0 & w.body_site_class.isin(["primary", "unknown"])
+    _gutlike = w.body_site_code.isna() | w.body_site_code.isin(["gut_stool", "unknown_site"])
+    _old_inf_cls = pd.Series(w.index.map(bsc0), index=w.index)
+    w["infant_scope"] = is_inf & inf_scope0 & (_old_inf_cls.isin(["primary", "unknown"]) | (_old_inf_cls.isna() & _gutlike))
     # n_fields_with_value counts the CORE + KEY fields (owner tiers, 2026-09-29); detailed_location counts through its derived column
     tier_cols = [f for f in pf["core"] + pf["key"] if f in w.columns]
     # age_category is never null ('unknown' = not covered), so it is masked before counting (R2026.15: core age = life stage)
@@ -685,6 +853,33 @@ def build(a):
     w["n_fields_with_value"] = _tc.notna().sum(axis=1)
     w["release_added"], w["release_retired"], w["package_added"] = rid, None, pv
     w = w.reset_index()
+
+    # ---- runs (R2026.31: built before the study roll-ups so data sets out of scope can remove their specimens)
+    gut_runs = None
+    run_report = {}
+    if getattr(a, "registry_runs", None) and os.path.exists(a.registry_runs):
+        from catalog.scopes.newfields_r1 import build_gut_runs
+        sp_ = pd.read_parquet(a.registry_sandpiper) if getattr(a, "registry_sandpiper", None) and os.path.exists(a.registry_sandpiper) else None
+        inf_runs_p = os.path.join(a.package, "runs.parquet")
+        nb = pd.read_parquet(a.run_bases) if getattr(a, "run_bases", None) and os.path.exists(a.run_bases) else None
+        eb_p = os.path.join(os.path.dirname(a.run_bases), "run_bases_estimated.parquet") if getattr(a, "run_bases", None) else None
+        eb = pd.read_parquet(eb_p) if eb_p and os.path.exists(eb_p) else None
+        gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp_, gut_acc, w, infant_runs=pd.read_parquet(inf_runs_p) if os.path.exists(inf_runs_p) else None, ncbi_bases=nb, est_bases=eb, run_alias=RUN_UNIT_ALIAS)
+        gut_runs, run_report = classify_runs(gut_runs, getattr(a, "read_checks", None), extra_acc)
+        # specimens of the classified projects whose every data set is out of scope (amplicon / single-cell) leave the catalog;
+        # the original projects keep theirs (their amplicon decisions were made sample by sample by the read check)
+        keyed = set(gut_runs.sample_key.dropna())
+        orphan = w.study_accession.isin(extra_acc) & ~w.sample_key.isin(keyed)
+        run_report["specimens_without_an_in_scope_data_set"] = int(orphan.sum())
+        if orphan.any():
+            gone = set(w.loc[orphan, "sample_key"])
+            w = w[~orphan].reset_index(drop=True)
+            det_all = det_all[~det_all.sample_key.isin(gone)].copy()
+            if len(conflicts) and "sample_key" in conflicts.columns:
+                conflicts = conflicts[~conflicts.sample_key.isin(gone)].copy()
+            if len(contra) and "sample_key" in contra.columns:
+                contra = contra[~contra.sample_key.isin(gone)].copy()
+        print(f"runs: {json.dumps(run_report)}", file=sys.stderr)
 
     # R2026.23: repeated sampling and relatedness (catalog.scopes.longitudinal) — per-sample timing / person columns, per-project
     # summaries, and the relatedness / relations tables. Study-level design records come from the annotation shards.
@@ -800,31 +995,44 @@ def build(a):
     if iv_study is not None:
         gs = gs.join(iv_study.set_index("study_accession")[IV_STUDY_COLS], how="left")
         gs["interventions"] = gs["interventions"].fillna("")
-    # ---- runs (gut_runs.parquet, 1.12.0) + study sequencing summary
-    gut_runs = None
-    if getattr(a, "registry_runs", None) and os.path.exists(a.registry_runs):
-        from catalog.scopes.newfields_r1 import build_gut_runs
-        sp = pd.read_parquet(a.registry_sandpiper) if getattr(a, "registry_sandpiper", None) and os.path.exists(a.registry_sandpiper) else None
-        inf_runs_p = os.path.join(a.package, "runs.parquet")
-        nb = pd.read_parquet(a.run_bases) if getattr(a, "run_bases", None) and os.path.exists(a.run_bases) else None
-        eb_p = os.path.join(os.path.dirname(a.run_bases), "run_bases_estimated.parquet") if getattr(a, "run_bases", None) else None
-        eb = pd.read_parquet(eb_p) if eb_p and os.path.exists(eb_p) else None
-        gut_runs = build_gut_runs(pd.read_parquet(a.registry_runs), sp, gut_acc, w, infant_runs=pd.read_parquet(inf_runs_p) if os.path.exists(inf_runs_p) else None, ncbi_bases=nb, est_bases=eb, run_alias=RUN_UNIT_ALIAS)
+    # ---- study sequencing summary (runs built above)
+    if gut_runs is not None:
         gs = gs.join(sequencing_summary(gut_runs), how="left")
+        gs = gs.join(study_nucleic_acid(gut_runs, getattr(a, "study_facts", None)), how="left")
         from catalog.scopes.newfields_r1 import sample_depth
         sd = sample_depth(gut_runs)
         for c in sd.columns:   # per-sample depth on the wide table (R2026.16: every sample shows a depth)
             w[c] = w.sample_key.map(sd[c])
         w["n_runs"] = w["n_runs"].fillna(0).astype(int)
+        _na = gut_runs[gut_runs.sample_key.notna()].groupby("sample_key").nucleic_acid.agg(lambda v: set(v))
+        w["has_dna"] = w.sample_key.map(lambda k: "dna" in _na.get(k, set())).astype(bool)
+        w["has_rna"] = w.sample_key.map(lambda k: "rna" in _na.get(k, set())).astype(bool)
         gs["n_runs_total"] = gs.n_runs_total.fillna(0).astype(int)
+        gs["n_samples_dna"] = w[w.has_dna].groupby("study_accession").size().reindex(gs.index).fillna(0).astype(int)
+        gs["n_samples_rna"] = w[w.has_rna].groupby("study_accession").size().reindex(gs.index).fillna(0).astype(int)
+    # body sites sampled, from the specimens (R2026.31)
+    _bs = w[w.body_site_code.notna() & (w.body_site_code != "unknown_site")].groupby("study_accession").body_site_code
+    gs["sample_body_sites"] = _bs.apply(lambda s: json.dumps(s.value_counts().to_dict())).reindex(gs.index)
+    gs["body_site_primary"] = _bs.agg(lambda s: s.value_counts().index[0]).reindex(gs.index)
+    gs["n_body_sites"] = _bs.nunique().reindex(gs.index).fillna(0).astype(int)
+    # paper-derived study facts (methods, design, setting) from the link audit + full-text passes (R2026.31)
+    sf_p = getattr(a, "study_facts", None)
+    if sf_p and os.path.exists(sf_p):
+        sf = pd.read_parquet(sf_p).drop_duplicates("study_accession").set_index("study_accession")
+        sf = sf.drop(columns=[c for c in ("nucleic_acid_paper",) if c in sf.columns])
+        clash = [c for c in sf.columns if c in gs.columns]
+        sf = sf.rename(columns={c: f"{c}_paper" for c in clash if not c.endswith("_paper")})
+        sf = sf[[c for c in sf.columns if c not in gs.columns]]
+        gs = gs.join(sf, how="left")
     gs["n_samples_curated"] = gs.n_samples_curated.fillna(0).astype(int)
     # per-project source checkmarks (R2026.18): archive / abstract / full text / supplement / external / contribution / expert
     from catalog.scopes.study_sources import study_source_flags
     gs = gs.join(study_source_flags(det_all, list(gs.index), os.path.dirname(os.path.abspath(a.studies)), infant_acc), how="left")
     # model-written short titles / descriptions (R2026.18; data/inputs/gut/short_descriptions.parquet, labelled as machine-written on the site)
     sd_p = os.path.join(os.path.dirname(os.path.abspath(a.studies)), "short_descriptions.parquet")
-    if os.path.exists(sd_p):
-        sd = pd.read_parquet(sd_p).drop_duplicates("study_accession").set_index("study_accession")
+    sd_parts = [pd.read_parquet(x) for x in (sd_p, getattr(a, "short_descriptions_extra", None)) if x and os.path.exists(x)]
+    if sd_parts:
+        sd = pd.concat(sd_parts, ignore_index=True).drop_duplicates("study_accession", keep="first").set_index("study_accession")
         gs = gs.join(sd[[c for c in ("short_title", "short_description", "short_description_model", "short_description_sources") if c in sd.columns]], how="left")
     gs["release_added"], gs["release_retired"], gs["package_added"] = rid, None, pv
     gs = gs.reset_index()
@@ -836,6 +1044,8 @@ def build(a):
         for name, key, df_ref in ((pack["tables"]["determinations"], ["sample_key", "field_name"], "det"), (pack["tables"]["samples_wide"], ["sample_key"], "w"), (pack["tables"]["studies"], ["study_accession"], "gs")):
             # gut_runs is a pure archive projection (no release columns): rebuilt in full each release
             prev_p = os.path.join(a.previous_dir, name)
+            if not os.path.exists(prev_p):   # packages before 1.26.0 name these tables gut_*
+                prev_p = os.path.join(a.previous_dir, name.replace("catalog_", "gut_", 1))
             if os.path.exists(prev_p):
                 prev = pd.read_parquet(prev_p)
                 if df_ref == "det":
@@ -846,17 +1056,21 @@ def build(a):
                     gs = carry_release_columns(gs, prev, key, rid)
     if gut_runs is not None:
         gs["n_runs_total"] = pd.to_numeric(gs.n_runs_total, errors="coerce").fillna(0).astype(int)
-        gut_runs.to_parquet(os.path.join(a.out, pack["tables"].get("runs", "gut_runs.parquet")), index=False)
+        gut_runs = gut_runs[gut_runs.study_accession.isin(set(gs.study_accession))]
+        gut_runs.to_parquet(os.path.join(a.out, pack["tables"].get("runs", "catalog_runs.parquet")), index=False)
     for f in pf.get("int_range") or {}:  # keep the nullable-integer dtype through carry_release_columns
         if f in w.columns:
             w[f] = pd.to_numeric(w[f], errors="coerce").astype("Int64")
+    det_all, w, gs, conflicts, contra = (neutral_codes(x) for x in (det_all, w, gs, conflicts, contra))
+    if "body_site_class" in w.columns:   # retired rows keep their site, under the R2026.31 classes
+        w["body_site_class"] = w.body_site_class.replace({"excluded": "primary", "linked": "primary"})
     det_all.to_parquet(os.path.join(a.out, pack["tables"]["determinations"]), index=False)
     w.to_parquet(os.path.join(a.out, pack["tables"]["samples_wide"]), index=False)
     gs.to_parquet(os.path.join(a.out, pack["tables"]["studies"]), index=False)
-    rel_groups[rel_groups.study_accession.isin(set(gs.study_accession))].to_parquet(os.path.join(a.out, "gut_relatedness.parquet"), index=False)
-    (relations[relations.study_accession.isin(set(gs.study_accession))] if len(relations) else pd.DataFrame(columns=["study_accession", "subject_a", "subject_b", "relation", "evidence_source", "evidence_quote", "confidence"])).to_parquet(os.path.join(a.out, "gut_relations.parquet"), index=False)
-    conflicts.to_parquet(os.path.join(a.out, "gut_sample_determinations_conflicts.parquet"), index=False)
-    contra.to_parquet(os.path.join(a.out, "gut_metadata_contradictions.parquet"), index=False)
+    rel_groups[rel_groups.study_accession.isin(set(gs.study_accession))].to_parquet(os.path.join(a.out, "catalog_relatedness.parquet"), index=False)
+    (relations[relations.study_accession.isin(set(gs.study_accession))] if len(relations) else pd.DataFrame(columns=["study_accession", "subject_a", "subject_b", "relation", "evidence_source", "evidence_quote", "confidence"])).to_parquet(os.path.join(a.out, "catalog_relations.parquet"), index=False)
+    conflicts.to_parquet(os.path.join(a.out, "catalog_sample_determinations_conflicts.parquet"), index=False)
+    contra.to_parquet(os.path.join(a.out, "catalog_metadata_contradictions.parquet"), index=False)
     summary = dict(n_studies=int(len(gs)), n_samples=int(len(w)), n_determinations=int(len(det_all)), n_conflicts=int(len(conflicts)), n_contradicted=int(len(contra)), n_contradicted_samples=int(contra.sample_key.nunique()) if len(contra) else 0, corrections=n_corr,
                    by_source=w.curated_source.value_counts().to_dict(), age_category=w.age_category.value_counts().to_dict(),
                    coverage={f: round(float(w[f].notna().mean()), 4) for f in PACK_FIELDS}, routes=det_all.route.value_counts().to_dict(),
@@ -894,9 +1108,16 @@ def main(argv=None) -> int:
     ap.add_argument("--r1-interventions", help="R1 per-sample intervention arms (gut_r1_intervention_determinations.parquet, R2026.15)")
     ap.add_argument("--interventions-study", help="glob of study-level intervention classification shards (gut_intervention_studies_shard_*.parquet, R2026.15)")
     ap.add_argument("--r1-newfields-v2", help="R1 determinations of the 1.13.0 fields (diet, smoking_status, medication, stool_consistency_bristol) from catalog.scopes.newfields_r1_v2"),
-    ap.add_argument("--registry-runs", help="registry_runs.parquet → gut_runs.parquet + study sequencing summary columns"), ap.add_argument("--registry-sandpiper", help="registry_runs_sandpiper.parquet (sandpiper_profiled per run)"), ap.add_argument("--r2-glob"), ap.add_argument("--r3-glob", help="R3 full-text study_all determinations (glob)"), ap.add_argument("--r4-glob"), ap.add_argument("--condition-map"), ap.add_argument("--antibiotic-map")
+    ap.add_argument("--registry-runs", help="registry_runs.parquet → catalog_runs.parquet + study sequencing summary columns"), ap.add_argument("--registry-sandpiper", help="registry_runs_sandpiper.parquet (sandpiper_profiled per run)"), ap.add_argument("--r2-glob"), ap.add_argument("--r3-glob", help="R3 full-text study_all determinations (glob)"), ap.add_argument("--r4-glob"), ap.add_argument("--condition-map"), ap.add_argument("--antibiotic-map")
     ap.add_argument("--out", required=True), ap.add_argument("--summary"), ap.add_argument("--release-id", default="R2026.7"), ap.add_argument("--package-version", default="1.8.0")
-    ap.add_argument("--previous-dir", help="previous package dir: gut_* tables there provide release_added / retirements")
+    ap.add_argument("--previous-dir", help="previous package dir: its catalog_* (gut_* before 1.26.0) tables provide release_added / retirements")
+    # R2026.31: one catalog over every human body site, DNA and RNA (scripts/prepare_catalog_inputs.py → data/inputs/catalog/)
+    ap.add_argument("--extra-studies", help="study rows of the projects decided by the scope classification (extra_studies.parquet)")
+    ap.add_argument("--extra-biosamples", help="specimen rows in registry_biosamples columns (extra_biosamples.parquet)")
+    ap.add_argument("--extra-determinations", help="per-sample determinations of those specimens (extra_determinations.parquet)")
+    ap.add_argument("--study-facts", help="paper-derived study facts (study_facts.parquet: nucleic_acid_paper, methods, design, setting)")
+    ap.add_argument("--short-descriptions-extra", help="short titles / descriptions of the projects not in data/inputs/gut/short_descriptions.parquet")
+    ap.add_argument("--read-checks", help="comma-separated read-check CSVs (run, frac_rrna, verdict) in priority order")
     build(ap.parse_args(argv))
     return 0
 

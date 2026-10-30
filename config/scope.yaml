@@ -27,7 +27,7 @@ vocabularies:
 scopes:
   - id: human_all
     label: All human shotgun metagenomes (registry)
-    definition: Every ENA study with ≥ 1 human-host shotgun-DNA metagenome run; archive-only metadata (route R1), Sandpiper profiles, papers and authors.
+    definition: Every ENA study with ≥ 1 human-host shotgun metagenome run; archive-only metadata (route R1), Sandpiper profiles, papers and authors.
     tier: registry
     body_sites: ["*"]
     life_stages: ["*"]
@@ -35,7 +35,7 @@ scopes:
     field_pack: core
   - id: infant_gut
     label: Infant gut (0–3 y)
-    definition: Human gut/stool shotgun metagenomes from subjects aged 0–1,100 days (the Infant Gut Shotgun-Metagenome Catalog).
+    definition: Human gut/stool shotgun metagenomes from subjects aged 0–1,100 days (with the deep infant-field curation).
     tier: curated
     body_sites: [gut_stool]
     life_stages: [neonate, infant]
@@ -49,15 +49,15 @@ scopes:
     tier: registry
     body_sites: [gut_stool]
     life_stages: [child, adolescent]
-    curated: false
+    curated: true
     field_pack: gut
   - id: gut_adult
     label: Adult gut (≥ 18 y)
-    definition: Human gut/stool shotgun metagenomes from adults and the elderly — first curated scope after infant_gut (external gold curatedMetagenomicData).
+    definition: Human gut/stool shotgun metagenomes from adults and the elderly (external gold standard — curatedMetagenomicData).
     tier: registry
     body_sites: [gut_stool]
     life_stages: [adult, elderly]
-    curated: false
+    curated: true
     field_pack: gut
   - id: oral
     label: Oral cavity
@@ -65,7 +65,7 @@ scopes:
     tier: registry
     body_sites: [oral]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: oral
   - id: skin
     label: Skin
@@ -73,7 +73,7 @@ scopes:
     tier: registry
     body_sites: [skin]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: skin
   - id: vaginal_urogenital
     label: Vaginal / urogenital
@@ -81,7 +81,7 @@ scopes:
     tier: registry
     body_sites: [vaginal_urogenital]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: vaginal_urogenital
   - id: respiratory
     label: Respiratory tract
@@ -89,7 +89,7 @@ scopes:
     tier: registry
     body_sites: [nasal_nasopharyngeal, respiratory_lower]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: respiratory
   - id: milk
     label: Human milk
@@ -97,7 +97,7 @@ scopes:
     tier: registry
     body_sites: [milk]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: core
   - id: blood_tissue
     label: Blood / tissue
@@ -105,7 +105,7 @@ scopes:
     tier: registry
     body_sites: [blood_tissue]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: core
   - id: other_site
     label: Other body site
@@ -113,11 +113,11 @@ scopes:
     tier: registry
     body_sites: [other_site, eye_ear]
     life_stages: ["*"]
-    curated: false
+    curated: true
     field_pack: core
   - id: unknown_site
     label: Body site unknown
-    definition: Human studies whose body site could not be determined from the archive record; the site-classification queue.
+    definition: Human studies whose body site could not be determined from the archive record.
     tier: registry
     body_sites: [unknown_site]
     life_stages: ["*"]

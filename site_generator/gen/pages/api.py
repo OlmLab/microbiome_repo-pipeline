@@ -140,7 +140,7 @@ def build(render, out: Path, ctx: dict):
     _dump(vocab, api / 'vocabularies.json')
     index = dict(
         name=ctx['site_title'], release=ctx['release_id'], package_version=ctx['version'], base_url=base,
-        description='Evidence-linked metadata for public human gut shotgun metagenomes (all ages). A project = an INSDC BioProject; a sample = a BioSample (rarely a run).',
+        description='Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages. A project = an INSDC BioProject; a sample = a BioSample (rarely a run).',
         how_to_search=[
             'Pick the most specific slice: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
             'Filter its projects on the other keys (health_conditions counts, interventions, intervention_design, has_cases_and_healthy_controls, has_treated_and_control_arms, n_samples, countries).',
@@ -150,7 +150,7 @@ def build(render, out: Path, ctx: dict):
                        by_intervention={c: f'{base}api/by-intervention/{c}.json' for c in slices['intervention']},
                        by_condition={c: f'{base}api/by-condition/{c}.json' for c in slices['condition']},
                        by_age={c: f'{base}api/by-age/{c}.json' for c in slices['age']},
-                       samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/gut_sample_metadata_wide.parquet'),
+                       samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/catalog_sample_metadata_wide.parquet'),
         project_keys=dict(accession='BioProject accession', title='project title', n_samples='curated catalog samples',
                           gbp_per_sample_median='median sequencing depth per sample (Gbp)', health_conditions='code -> number of samples',
                           age_categories='life stage -> number of samples', countries='country -> number of samples', sex='sex -> number of samples',
@@ -176,7 +176,7 @@ def llms_txt(index, ctx):
     b = index['base_url']
     ivs = ', '.join(f'{c}' for c in index['endpoints']['by_intervention'])
     return f"""# {index['name']} — instructions for LLMs and agents
-> Evidence-linked metadata for every public human gut shotgun metagenome (all ages): {index['counts']['projects']:,} projects (INSDC BioProjects), {ctx['stats'].get('n_samples', 0):,} samples. Release {index['release']} (package {index['package_version']}).
+> Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages: {index['counts']['projects']:,} projects (INSDC BioProjects), {ctx['stats'].get('n_samples', 0):,} samples. Release {index['release']} (package {index['package_version']}).
 
 Use ONLY the files below; fetch them, do not guess accessions or counts. All files are plain JSON / CSV at stable URLs.
 
@@ -209,8 +209,8 @@ Use ONLY the files below; fetch them, do not guess accessions or counts. All fil
 ## For code-running agents
 DuckDB can query the full per-sample table over HTTP:
   INSTALL httpfs; LOAD httpfs;
-  SELECT study_accession, intervention, count(*) FROM read_parquet('{b}data/gut_sample_metadata_wide.parquet') WHERE health_condition IN ('ulcerative_colitis','crohns_disease') GROUP BY ALL;
-Study-level columns (interventions, intervention_design, population_condition …): {b}data/gut_studies.parquet. Field definitions: {b}fields/index.html.
+  SELECT study_accession, intervention, count(*) FROM read_parquet('{b}data/catalog_sample_metadata_wide.parquet') WHERE health_condition IN ('ulcerative_colitis','crohns_disease') GROUP BY ALL;
+Study-level columns (interventions, intervention_design, population_condition …): {b}data/catalog_studies.parquet. Field definitions: {b}fields/index.html.
 
 ## Caveats
 Values are evidence-linked claims (route R1 archive attribute > R2 supplementary table > R3 paper text > R4 abstract), not ground truth; study-level

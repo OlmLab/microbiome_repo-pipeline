@@ -645,8 +645,8 @@ def _pick(det: pd.DataFrame, field: str, rank_fn) -> tuple[pd.DataFrame, pd.Data
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--attributes", required=True, help="harvested BioSample attribute rows (parquet; diet / smoking / medication / stool keys)")
-    ap.add_argument("--wide", required=True, help="package gut_sample_metadata_wide.parquet (sample_key join)")
-    ap.add_argument("--gut-runs", help="gut_runs.parquet (run-unit sample keys)")
+    ap.add_argument("--wide", required=True, help="package catalog_sample_metadata_wide.parquet (sample_key join)")
+    ap.add_argument("--gut-runs", help="catalog_runs.parquet (run-unit sample keys)")
     ap.add_argument("--registry-runs"), ap.add_argument("--registry-sandpiper"), ap.add_argument("--gut-studies", help="build gut_runs when --gut-runs is absent")
     ap.add_argument("--out-dir", required=True), ap.add_argument("--release-id", default=RELEASE_ID), ap.add_argument("--package-version", default=PACKAGE_VERSION)
     ap.add_argument("--no-llm", action="store_true", help="skip the utility-model steps — deterministic rows only")

@@ -1,19 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Scope — {{ site.title }}{% endblock %}
-{% block desc %}How the catalog (human gut shotgun metagenomes, all ages) is cut from the registry of {{ stats.n_registry|fmt }} human shotgun-metagenome studies, and which gut studies are left out and why.{% endblock %}
+{% block desc %}What the catalog holds — human-associated microbial communities sequenced by shotgun DNA or RNA sequencing, every body site and age — how projects are admitted, and which human projects of the registry are left out and why.{% endblock %}
 {% block content %}
 <h1>Scope: from the registry to the catalog</h1>
 <p class="small"><a href="index.html">About</a> › Scope</p>
-<p class="lead">The registry lists every shotgun-metagenome INSDC BioProject reached through ENA and classifies its host; the catalog curates the human studies whose runs include the <b>human gut / stool</b>, at every age.</p>
-<details class="about-page"><summary>About this page</summary><p>Study rule (<span class="mono">config/packs/gut.yaml</span>): <span class="mono">{{ pack.study_rule }}</span>. Sample rule: <span class="mono">{{ pack.sample_rule }}</span>. Every sample of a catalog study is kept, with a <span class="mono">body_site_class</span> (primary = gut/stool, unknown = no site attribute, excluded/linked = another site of a gut study) so that nothing is silently dropped.</p></details>
+<p class="lead">The catalog holds human-associated microbial communities sequenced by <b>shotgun DNA or RNA sequencing</b>, from every body site and at every age, plus sequenced mock and standard communities used as benchmarks. DNA and RNA data sets are kept apart: each run is labelled DNA or RNA, and each project carries the nucleic acid of its data sets.</p>
+<p class="small">A project is admitted when a classification of its archive record, sample attributes, read check and linked paper finds human-associated communities sequenced by shotgun. Out of scope are non-human hosts, environmental samples, amplicon sequencing of any gene (even when filed as WGS or RNA-Seq), human genome or human tissue transcriptome sequencing, single-cell libraries, cultured isolates and virus genome surveillance. Within an admitted project, amplicon and single-cell data sets are left out run by run, and a sample without any in-scope data set is left out.</p>
+<details class="about-page"><summary>About this page</summary><p>Every sample of a catalog project is kept with its own body-site code (<span class="mono">body_site_code</span>; <span class="mono">body_site_class</span> = primary when a human site is stated, unknown when none is). A sample without a site attribute in a project that sampled one body site takes that site, with the basis recorded (<span class="mono">body_site_basis = study_single_site</span>). Sample rule: <span class="mono">{{ pack.sample_rule }}</span>.</p></details>
 <h2>Funnel</h2>
 <table class="tbl small" style="max-width:720px"><tbody>
 {% for label, n in funnel %}<tr><td>{{ label }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}
 </tbody></table>
 <h2>Age categories</h2>
-<p class="small">Age at collection in days → category (<span class="mono">config/packs/gut.yaml</span>): {% for k, v in pack.age_categories.items() %}<span class="mono">{{ k }}</span> {{ v[0] }}–{{ v[1] if v[1] is not none else '∞' }} d{% if not loop.last %} · {% endif %}{% endfor %}. Without a numeric age the category falls back to the sample's stated life stage, then to a cohort-wide statement (R3/R4), then to the study's primary life stage; the basis is recorded per sample.</p>
-<h2>Gut studies not in the catalog ({{ n_excl|fmt }})</h2>
-<p class="small">Registry studies with gut / stool among their body sites that fail the study rule — host not human (yes or mixed), assay not shotgun (amplicon, genome, transcriptome), or classification still pending. They stay in the registry with their evidence and enter the catalog when a later cycle resolves them.</p>
+<p class="small">Age at collection in days → category: {% for k, v in pack.age_categories.items() %}<span class="mono">{{ k }}</span> {{ v[0] }}–{{ v[1] if v[1] is not none else '∞' }} d{% if not loop.last %} · {% endif %}{% endfor %}. Without a numeric age the category falls back to the sample's stated life stage, then to a cohort-wide statement (R3/R4), then to the study's primary life stage; the basis is recorded per sample.</p>
+<h2>Human projects of the registry not in the catalog ({{ n_excl|fmt }})</h2>
+<p class="small">Registry projects with a human host (yes or mixed) that are not in the catalog — typically amplicon, human-genome or isolate sequencing, or a classification still pending. They stay in the registry with their evidence and enter the catalog when a later cycle admits them.</p>
 <table class="tbl small" style="max-width:820px"><thead><tr><th>host human</th><th>assay</th><th>classification stage</th><th class="num">studies</th><th class="num">runs</th></tr></thead><tbody>
 {% for r in excl_reasons %}<tr><td class="mono">{{ r.host or '—' }}</td><td class="mono">{{ r.assay or '—' }}</td><td class="mono">{{ r.stage or '—' }}</td><td class="num">{{ r.n|fmt }}</td><td class="num">{{ r.n_runs|fmt }}</td></tr>{% endfor %}
 </tbody></table>
@@ -21,9 +22,9 @@
 <table id="excl" class="tbl display compact small" style="width:100%"><thead><tr><th>study</th><th>title</th><th>host</th><th>assay</th><th>body sites</th><th>life stages</th><th>stage</th><th class="num">runs</th><th class="num">samples</th></tr></thead><tbody>
 {% for r in excl_rows %}<tr><td><a class="mono" href="../registry/index.html?study={{ r.study_accession }}">{{ r.study_accession }}</a></td><td class="small">{{ (r.study_title or '')[:120] }}</td><td class="mono">{{ r.host_human or '' }}</td><td class="mono">{{ r.assay or '' }}</td><td class="mono small">{{ r.body_sites or '' }}</td><td class="mono small">{{ r.life_stages or '' }}</td><td class="mono small">{{ r.classification_stage or '' }}</td><td class="num">{{ r.n_runs|fmt }}</td><td class="num">{{ r.n_samples|fmt }}</td></tr>{% endfor %}
 </tbody></table>
-<h2>Other body-site scopes in the registry (future curation)</h2>
+<h2>Body-site scopes of the registry</h2>
 <table class="tbl small" style="max-width:720px"><thead><tr><th>scope</th><th class="num">studies</th><th class="num">runs</th><th>status</th></tr></thead><tbody>
-{% for s in scopes %}<tr><td><a href="../registry/scopes/{{ s.id }}.html">{{ s.label }}</a> <span class="mono small">{{ s.id }}</span></td><td class="num">{{ s.n_studies|fmt }}</td><td class="num">{{ s.n_runs|fmt }}</td><td class="small">{% if s.curated %}curated (part of the catalog){% else %}registry only — planned{% endif %}</td></tr>{% endfor %}
+{% for s in scopes %}<tr><td><a href="../registry/scopes/{{ s.id }}.html">{{ s.label }}</a> <span class="mono small">{{ s.id }}</span></td><td class="num">{{ s.n_studies|fmt }}</td><td class="num">{{ s.n_runs|fmt }}</td><td class="small">{% if s.curated %}curated (part of the catalog){% else %}registry only{% endif %}</td></tr>{% endfor %}
 </tbody></table>
 {% endblock %}
 {% block scripts %}<script>new DataTable('#excl',{pageLength:25,order:[[7,'desc']],lengthMenu:[25,100,300]});</script>{% endblock %}

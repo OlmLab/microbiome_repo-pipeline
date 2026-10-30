@@ -119,7 +119,7 @@ def build(prev: str, new: str, cfg: dict | None = None, cycle_log: str | None = 
             d = d[d.release_retired.isna()].drop(columns=["release_retired"])
         return d
 
-    # ---- catalog (gut_*, all ages) and registry — first when the tables exist (1.8.0+)
+    # ---- catalog (catalog_*; gut_* before 1.26.0) and registry — first when the tables exist (1.8.0+)
     # coverage rows: the pack's core + key fields (config/packs/gut.yaml; 1.12.0) — a field absent from the previous package counts 0 there
     CORE = ["age_at_collection_days", "sex", "bmi", "country", "health_condition", "antibiotic_exposure", "subject_id", "timepoint_label"]
     try:
@@ -127,33 +127,67 @@ def build(prev: str, new: str, cfg: dict | None = None, cycle_log: str | None = 
         CORE = list(dict.fromkeys(list(_pack.get("core_fields") or []) + list(_pack.get("key_fields") or []) + CORE))
     except Exception:  # noqa: BLE001 — fall back to the historical list when the pack is unavailable
         pass
-    gp, gn = os.path.join(prev, "gut_sample_metadata_wide.parquet"), os.path.join(new, "gut_sample_metadata_wide.parquet")
+    def _prev_table(name):   # packages before 1.26.0 name the catalog tables gut_*; the comparison reads either
+        p_ = os.path.join(prev, name)
+        return p_ if os.path.exists(p_) else os.path.join(prev, name.replace("catalog_", "gut_", 1))
+
+    def _prev_keys(name, key):
+        p_ = _prev_table(name)
+        return keys(prev, os.path.basename(p_), key)
+
+    # 1.25.0 shipped the catalog in two table families (gut_* and human_*); the previous-package side of the comparison is their union
+    _LEGACY_SECOND = {"catalog_studies.parquet": "human_studies.parquet", "catalog_sample_metadata_wide.parquet": "human_samples.parquet",
+                      "catalog_runs.parquet": "human_runs.parquet"}
+
+    def _prev_second(name):
+        p2 = os.path.join(prev, _LEGACY_SECOND.get(name, ""))
+        return p2 if name in _LEGACY_SECOND and not os.path.exists(os.path.join(prev, name)) and os.path.exists(p2) else None
+
+    def _n_current(p):
+        if not os.path.exists(p):
+            return 0
+        if "release_retired" in pq.ParquetFile(p).schema.names:
+            return pq.read_table(p, columns=["release_retired"]).column(0).null_count
+        return pq.ParquetFile(p).metadata.num_rows
+
+    gp, gn = _prev_table("catalog_sample_metadata_wide.parquet"), os.path.join(new, "catalog_sample_metadata_wide.parquet")
     if os.path.exists(gn):
-        gsp, gsn = keys(prev, "gut_studies.parquet", "study_accession"), keys(new, "gut_studies.parquet", "study_accession")
+        gsp, gsn = _prev_keys("catalog_studies.parquet", "study_accession"), keys(new, "catalog_studies.parquet", "study_accession")
+        if _prev_second("catalog_studies.parquet"):
+            gsp = gsp | keys(prev, os.path.basename(_prev_second("catalog_studies.parquet")), "study_accession")
         new_cols = set(pq.ParquetFile(gn).schema.names)
         CORE = [f for f in CORE if f in new_cols]
         prev_cols = set(pq.ParquetFile(gp).schema.names) if os.path.exists(gp) else set()
         gwp = _current(gp, ["sample_key"] + CORE).reindex(columns=["sample_key"] + CORE) if os.path.exists(gp) else pd.DataFrame(columns=["sample_key"] + CORE)
+        if _prev_second("catalog_sample_metadata_wide.parquet"):
+            _h = _current(_prev_second("catalog_sample_metadata_wide.parquet"), ["sample_key", "life_stage", "collection_year"] + CORE)
+            _h = _h.rename(columns={k: v for k, v in {"life_stage": "age_category", "collection_year": "collection_date"}.items() if v not in _h.columns})
+            _h = _h.reindex(columns=["sample_key"] + CORE)
+            gwp = pd.concat([gwp, _h[~_h.sample_key.isin(set(gwp.sample_key))]], ignore_index=True)
         gwn = _current(gn, ["sample_key"] + CORE)
         for _d in (gwp, gwn):   # age_category: 'unknown' = not covered
             if "age_category" in _d.columns:
                 _d["age_category"] = _d["age_category"].where(_d["age_category"].fillna("unknown") != "unknown")
-        grp, grn = os.path.join(prev, "gut_runs.parquet"), os.path.join(new, "gut_runs.parquet")
-        n_runs_prev = pq.ParquetFile(grp).metadata.num_rows if os.path.exists(grp) else 0
-        n_runs_new = pq.ParquetFile(grn).metadata.num_rows if os.path.exists(grn) else 0
-        ndp = pq.ParquetFile(os.path.join(prev, "gut_sample_determinations.parquet")).metadata.num_rows if os.path.exists(os.path.join(prev, "gut_sample_determinations.parquet")) else 0
-        ndn = pq.ParquetFile(os.path.join(new, "gut_sample_determinations.parquet")).metadata.num_rows
-        L += ["## Catalog (human gut, all ages: `gut_*` tables)", "",
+        grp, grn = _prev_table("catalog_runs.parquet"), os.path.join(new, "catalog_runs.parquet")
+        if _prev_second("catalog_runs.parquet") and os.path.exists(grp):
+            _rk = set(_current(grp, ["run_accession"]).run_accession.astype(str)) | set(_current(_prev_second("catalog_runs.parquet"), ["run_accession"]).run_accession.astype(str))
+            n_runs_prev = len(_rk)
+        else:
+            n_runs_prev = _n_current(grp)
+        n_runs_new = _n_current(grn)
+        ndp = _n_current(_prev_table("catalog_sample_determinations.parquet"))
+        ndn = _n_current(os.path.join(new, "catalog_sample_determinations.parquet"))
+        L += ["## Catalog (`catalog_*` tables)", "",
               _md_table([["catalog studies", _fmt(len(gsp)), _fmt(len(gsn)), _fmt(len(gsn - gsp)), _fmt(len(gsp - gsn))],
                          ["catalog samples", _fmt(len(gwp)), _fmt(len(gwn)), _fmt(len(set(gwn.sample_key) - set(gwp.sample_key))), _fmt(len(set(gwp.sample_key) - set(gwn.sample_key)))],
                          ["sample × field values (current)", _fmt(ndp), _fmt(ndn), f"{ndn - ndp:+,}", ""],
-                         ["catalog runs (`gut_runs`)", _fmt(n_runs_prev), _fmt(n_runs_new), f"{n_runs_new - n_runs_prev:+,}", ""]],
+                         ["catalog runs (`catalog_runs`)", _fmt(n_runs_prev), _fmt(n_runs_new), f"{n_runs_new - n_runs_prev:+,}", ""]],
                         ["entity", pv_prev, pv_new, "added", "removed"]), ""]
         rows = []
         for f in CORE:
             a, b = int(gwp[f].notna().sum()) if len(gwp) else 0, int(gwn[f].notna().sum())
             rows.append([f"`{f}`", _fmt(a), f"{100 * a / len(gwp):.1f}%" if len(gwp) else "—", _fmt(b), f"{100 * b / len(gwn):.1f}%" if len(gwn) else "—", f"{b - a:+,}"])
-        L += ["Per-field coverage over all catalog samples (`gut_sample_metadata_wide`):", "", _md_table(rows, ["field", f"n {pv_prev}", "cov", f"n {pv_new}", "cov", "Δ n"]), ""]
+        L += ["Per-field coverage over all catalog samples (`catalog_sample_metadata_wide`):", "", _md_table(rows, ["field", f"n {pv_prev}", "cov", f"n {pv_new}", "cov", "Δ n"]), ""]
         if gsn - gsp:
             L += ["New catalog studies: " + ", ".join(sorted(gsn - gsp)[:60]) + (" …" if len(gsn - gsp) > 60 else ""), ""]
     rp_, rn_ = os.path.join(prev, "registry_studies.parquet"), os.path.join(new, "registry_studies.parquet")
@@ -249,8 +283,29 @@ def build(prev: str, new: str, cfg: dict | None = None, cycle_log: str | None = 
     L += ["## Schema changes", ""]
     fp, fn_ = _files(prev), _files(new)
     added_f, removed_f = sorted(set(fn_) - set(fp)), sorted(set(fp) - set(fn_))
+    # 1.26.0: the catalog tables of the previous package carried other prefixes; a previous file whose catalog_* counterpart
+    # exists (or a report renamed to CATALOG_*) is a rename, earlier release-notes files are not shipped any more (public history)
+    def _counterpart(f):
+        for pre in ("gut_", "human_"):
+            if f.startswith(pre):
+                rest = f[len(pre):].replace("samples.parquet", "sample_metadata_wide.parquet") if pre == "human_" else f[len(pre):]
+                return "catalog_" + rest
+        if f.endswith("_SANDPIPER_REPORT.md"):
+            return "CATALOG_SANDPIPER_REPORT.md"
+        return None
+    renamed = [f for f in removed_f if _counterpart(f) in fn_]
+    old_notes = [f for f in removed_f if f.startswith("RELEASE_NOTES_") and f not in renamed]
+    removed_f = [f for f in removed_f if f not in renamed and f not in old_notes]
+    targets = {_counterpart(f) for f in renamed}
+    added_f = [f for f in added_f if f not in targets and not f.startswith("RELEASE_NOTES_")]
     L += ["New files: " + (", ".join(f"`{f}`" for f in added_f) if added_f else "none"),
-          "Removed files: " + (", ".join(f"`{f}`" for f in removed_f) if removed_f else "none"), ""]
+          "Removed files: " + (", ".join(f"`{f}`" for f in removed_f) if removed_f else "none")]
+    if renamed:
+        L += [f"Renamed: {len(renamed)} files of the previous package are now the `catalog_*` tables ("
+              + ", ".join(f"`{t}`" for t in sorted(targets)) + ")."]
+    if old_notes:
+        L += [f"Release notes of earlier releases ({len(old_notes)} files) are no longer shipped; this package carries its own release notes only."]
+    L += [""]
     col_rows = []
     for f in sorted(set(fp) & set(fn_)):
         if not f.endswith((".parquet", ".csv", ".csv.gz")):

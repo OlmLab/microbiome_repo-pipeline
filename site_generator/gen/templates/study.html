@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 {% block bodyclass %}wide{% endblock %}
 {% block title %}{{ s.study_accession }} — {{ (s.study_title or '')[:80] }} — {{ site.title }}{% endblock %}
-{% block desc %}{{ s.study_accession }}: {{ (s.study_title or '')[:120] }} — {{ n_total|fmt }} curated human gut metagenome samples with evidence-linked metadata.{% endblock %}
+{% block desc %}{{ s.study_accession }}: {{ (s.study_title or '')[:120] }} — {{ n_total|fmt }} samples with evidence-linked metadata.{% endblock %}
 {% block content %}
 {# R2026.18 project page: minimalist, compact — header line, sources, distributions, coverage, the full sample table; long material in <details> #}
 <div class="pg">
 <header class="pg-head">
-<div class="pg-acc"><span class="mono">{{ s.study_accession }}</span>{% if s.secondary_study_accession %} <span class="mono muted">{{ s.secondary_study_accession }}</span>{% endif %}</div>
+<div class="pg-acc"><span class="mono">{{ s.study_accession }}</span>{% if s.secondary_study_accession %} <span class="mono muted">{{ s.secondary_study_accession }}</span>{% endif %}
+{% if s.nucleic_acid %}<span class="nab {{ s.nucleic_acid }}" title="Nucleic acid of this project's data sets, from the archive's library source with the paper's methods as tie-breaker">{{ na_label.get(s.nucleic_acid, s.nucleic_acid) }}</span>{% endif %}</div>
 <h1 class="pg-title">{{ s.short_title if s.short_title else (s.study_title or '(no title in the archive record)') }}</h1>
 {% if s.short_title and s.study_title %}<div class="pg-origtitle muted" title="Title in the archive record">{{ s.study_title }}</div>{% endif %}
 {% if s.short_description %}<p class="pg-desc">{{ s.short_description }} <span class="mlabel" title="Written by a language model ({{ s.short_description_model or 'Sonnet-class' }}) from {{ s.short_description_sources or 'the archive record, the linked abstract and the curated sample facts' }}; check the sources below">machine-written summary</span></p>{% endif %}
-<p class="pg-facts"><b>{{ n_total|fmt }}</b> samples · <b>{{ s.n_runs|fmt }}</b> runs{% if countries %} · {% for k, n in countries[:3] %}{{ k }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if s.life_stage_primary %} · {{ stage_labels.get(s.life_stage_primary, s.life_stage_primary) if stage_labels is mapping else s.life_stage_primary }}{% endif %}{% if s.first_public_min %} · {{ s.first_public_min[:4] }}{% endif %}{% if seq and seq.gbp_per_sample is not none %} · {{ seq.gbp_per_sample|gbp }} / sample{% endif %}{% if s.cohort_id %} · cohort <a href="../cohorts/{{ s.cohort_id }}.html">{{ s.cohort_name[:50] }}</a>{% endif %}</p>
+<p class="pg-facts"><b>{{ n_total|fmt }}</b> samples · <b>{{ s.n_runs|fmt }}</b> runs{% if has_rna %} · {{ has_dna|fmt }} with a DNA data set · {{ has_rna|fmt }} with an RNA data set{% endif %}{% if countries %} · {% for k, n in countries[:3] %}{{ k }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if s.life_stage_primary %} · {{ stage_labels.get(s.life_stage_primary, s.life_stage_primary) if stage_labels is mapping else s.life_stage_primary }}{% endif %}{% if s.first_public_min %} · {{ s.first_public_min[:4] }}{% endif %}{% if seq and seq.gbp_per_sample is not none %} · {{ seq.gbp_per_sample|gbp }} / sample{% endif %}{% if s.cohort_id %} · cohort <a href="../cohorts/{{ s.cohort_id }}.html">{{ s.cohort_name[:50] }}</a>{% endif %}</p>
+{{ methods|safe }}
 {% if s.metadata_access in ('controlled', 'partly_controlled') %}<p class="note access-note"><b>{% if s.metadata_access == 'controlled' %}Key metadata need an access application.{% else %}Some metadata need an access application.{% endif %}</b> The sequence data are public, but {% if s.metadata_access == 'controlled' %}the participant metadata (e.g. age, health condition) are{% else %}part of the participant metadata is{% endif %} held under controlled access in {{ s.metadata_access_system }} (<a href="{{ s.metadata_access_url }}">{{ s.metadata_access_study }}</a>); {% if s.metadata_access_how %}{{ s.metadata_access_how }}{% else %}researchers apply to the study's data access committee through that page.{% endif %} The values shown here are only what the public records carry.</p>{% endif %}
 {% if s.n_control_samples and s.n_control_samples > 0 %}<p class="small muted">Includes {{ s.n_control_samples|fmt }} control sample{{ 's' if s.n_control_samples != 1 }} (blanks, mock communities or other standards; marked in the “sample type” column of the sample table). They carry no person metadata:{% if controls %} {% for c in controls[:12] %}<a class="mono" href="../samples/sample.html?id={{ c.key }}">{{ c.key }}</a> <span class="tag ctl">{{ c.label }}</span>{% if not loop.last %}, {% endif %}{% endfor %}{% if controls|length > 12 %} and {{ controls|length - 12 }} more (column “sample type” in the table below){% endif %}{% endif %}</p>{% endif %}
 {% if s.study_group_members and s.study_group_members is string %}{% set gm = s.study_group_members.split(';') %}<p class="pg-group small">One study deposited as {{ gm|length }} BioProjects ({{ s.study_group_n_samples|fmt }} catalog samples together): {% for m in gm %}{% if m == s.study_accession %}<b class="mono">{{ m }}</b>{% else %}<a class="mono" href="{{ m }}.html">{{ m }}</a>{% endif %}{% if not loop.last %} · {% endif %}{% endfor %} · <a href="index.html?group={{ s.study_group_id }}">show together</a></p>{% endif %}
@@ -37,10 +39,11 @@
 <section class="pg-sec">
 <div class="pg-label">Samples at a glance</div>
 <div class="glance">
+{% if body %}<div class="glance-body">{{ body|safe }}</div>{% endif %}
 {% if glance.globe %}<div class="glance-globe"><div id="globe" class="globe-box" title="Where the samples come from — drag to rotate"></div><div class="muted small">{% if glance.globe.points %}{{ glance.globe.points|length }} sampling locations · {% endif %}{{ glance.globe.countries|length }} {{ 'country' if glance.globe.countries|length == 1 else 'countries' }}</div></div>{% endif %}
 <div class="glance-main">
 <div class="dists">
-{% for title, items, labels in [('Age', ages, {}), ('Condition', conds, hc_labels), ('Sex', sexes, {}), ('Country', countries, {}), ('Body site', sites, {})] %}{% if items %}
+{% for title, items, labels in [('Age', ages, {}), ('Condition', conds, hc_labels), ('Sex', sexes, {}), ('Country', countries, {}), ('Body site', [] if body else sites, {})] %}{% if items %}
 <div class="dist"><div class="dist-h">{{ title }}</div>{% for k, n in items[:6] %}<div class="distrow" title="{{ k }}{% if labels.get(k) %} — {{ labels.get(k) }}{% endif %}: {{ n|fmt }} of {{ n_total|fmt }}"><span class="dk">{{ k }}</span><span class="db"><span style="width:{{ (100 * n / (n_total or 1))|round(1) }}%"></span></span><span class="dn">{{ n|fmt }}</span></div>{% endfor %}{% if items|length > 6 %}<div class="muted small">+{{ items|length - 6 }} more</div>{% endif %}</div>
 {% endif %}{% endfor %}
 </div>
@@ -48,10 +51,36 @@
 </div></div>
 </section>
 
+<section class="pg-sec" id="study-design">
+<div class="pg-label">Study design</div>
+<p class="pg-facts">{% if s.study_shape %}<b>{{ s.study_shape|replace('_', ' ') }}</b>{% elif s.study_shape_classification and s.study_shape_classification != 'unclear' %}<b>{{ s.study_shape_classification|replace('_', ' ') }}</b>{% endif %}{% if s.n_participants %} · <b>{{ s.n_participants|round(0)|int|fmt }}</b> participants stated by the paper{% endif %}{% if n_subjects %} · <b>{{ n_subjects|fmt }}</b> people identifiable in the data{% endif %}{% if n_timepoints %} · <b>{{ n_timepoints|fmt }}</b> distinct timepoint labels{% endif %}</p>
+<table class="livtbl"><tr><th>What the data show</th><th>Value</th><th>Which variable says so</th></tr>
+<tr><td>Samples</td><td>{{ n_total|fmt }}</td><td class="muted mono small">sample records of this project</td></tr>
+{% if n_subjects %}<tr><td>People</td><td>{{ n_subjects|fmt }}{% if n_subjects < n_total %} · {{ (n_total / n_subjects)|round(1) }} samples per person{% endif %}</td><td class="muted mono small">subject_id · from the sample attribute naming the person</td></tr>{% else %}<tr><td>People</td><td><span class="pend">not identifiable in the deposited records</span></td><td class="muted mono small">no sample attribute names a subject, patient or participant</td></tr>{% endif %}
+{% if n_timepoints %}<tr><td>Timepoints</td><td>{{ n_timepoints|fmt }} distinct labels</td><td class="muted mono small">timepoint_label · from the sample attribute naming the visit or day</td></tr>{% endif %}
+{% if sites|length > 1 %}<tr><td>Body sites</td><td>{% for k, n in sites %}{{ k }} ({{ n|fmt }}){% if not loop.last %} · {% endif %}{% endfor %}</td><td class="muted mono small">body_site_code · from each sample's own record</td></tr>{% endif %}
+{% if has_dna and has_rna %}<tr><td>Data sets per sample</td><td>{{ has_dna|fmt }} DNA · {{ has_rna|fmt }} RNA</td><td class="muted mono small">library_source of each run</td></tr>{% endif %}
+{% if conds %}<tr><td>Groups compared</td><td>{% for k, n in conds[:4] %}{{ hc_labels.get(k, k) if hc_labels is mapping else k }} ({{ n|fmt }}){% if not loop.last %} · {% endif %}{% endfor %}</td><td class="muted mono small">health_condition · mapped from the sample's disease / group attribute</td></tr>{% endif %}
+</table>
+{% if s.n_participants and not n_subjects %}<p class="note small"><b>Check:</b> the paper states {{ s.n_participants|round(0)|int|fmt }} participants, but no variable in the deposited records says which samples came from the same person, so the {{ n_total|fmt }} samples cannot be grouped by participant here.</p>{% endif %}
+{% if s.n_participants and n_subjects and (s.n_participants|int) != n_subjects %}<p class="note small"><b>Check:</b> the paper states {{ s.n_participants|round(0)|int|fmt }} participants, but {{ n_subjects|fmt }} people can be told apart in the deposited records. The difference usually means some participants were not sequenced, or the person identifier is missing for part of the samples.</p>{% endif %}
+</section>
+
+{% if living %}
+<section class="pg-sec" id="living">
+<div class="pg-label">Living conditions and exposure</div>
+{{ living|safe }}
+{% if exposure %}<details class="pg-more"><summary>{{ exposure|length }} exposure item{{ 's' if exposure|length != 1 }} read from the paper</summary>
+<table class="tbl small compact"><thead><tr><th>Concept</th><th>Scale</th><th>What the paper says</th></tr></thead><tbody>
+{% for x in exposure %}<tr><td>{{ x.concept|replace('_', ' ') }}</td><td><span class="scale {{ x.scale }}">{{ x.scale }}</span></td><td>{{ x.summary }}{% if x.quote %}<div class="small muted">“{{ x.quote }}”</div>{% endif %}</td></tr>{% endfor %}
+</tbody></table></details>{% endif %}
+</section>
+{% endif %}
+
 {% if contra %}<section class="pg-sec" id="contradictions">
 <div class="pg-label"><span class="tag cxt">!</span> Self-contradictory metadata</div>
 <p class="small">{{ contra.summary }}.</p>
-<p class="small muted">The sources disagree on {{ contra.n|fmt }} sample{{ 's' if contra.n != 1 else '' }}. Where two incompatible values exist for one sample (or one person's samples disagree on sex), neither value is published: the field is left empty here, in the sample sheet and in the downloads. Both sides, with their sources, are in <span class="mono">gut_metadata_contradictions.parquet</span> of the data package (<a href="../about/value_sources.html#contradictions">what counts as a contradiction</a>).</p>
+<p class="small muted">The sources disagree on {{ contra.n|fmt }} sample{{ 's' if contra.n != 1 else '' }}. Where two incompatible values exist for one sample (or one person's samples disagree on sex), neither value is published: the field is left empty here, in the sample sheet and in the downloads. Both sides, with their sources, are in <span class="mono">catalog_metadata_contradictions.parquet</span> of the data package (<a href="../about/value_sources.html#contradictions">what counts as a contradiction</a>).</p>
 <details class="pg-more"><summary>Contradicted values ({{ contra.rows|length }}{% if contra.n_rows > contra.rows|length %} of {{ contra.n_rows|fmt }}{% endif %})</summary><table class="tbl small compact"><thead><tr><th>sample</th><th>field</th><th>value</th><th>other value</th><th>handling</th></tr></thead><tbody>
 {% for r in contra.rows %}<tr><td><a class="mono" href="../samples/sample.html?id={{ r.sample }}">{{ r.sample }}</a></td><td>{{ r.field }}</td><td>{{ r.a if r.a is not none else '—' }}{% if r.sa %} <span class="muted">({{ r.sa }})</span>{% endif %}</td><td>{% if r.b is not none %}{{ r.b }}{% if r.sb %} <span class="muted">({{ r.sb }})</span>{% endif %}{% else %}<span class="muted">{{ r.note or '—' }}</span>{% endif %}</td><td class="muted">{{ r.handling }}</td></tr>
 {% endfor %}</tbody></table></details>
@@ -78,8 +107,8 @@
 <div class="pg-label">Community composition</div>
 {% if panel and panel.genus %}<div class="spbar">{% for seg in panel.genus.segs %}<span class="spseg" style="width:{{ seg.w }}%;background:{{ seg.color }}" title="{{ seg.label }}: {{ seg.pct }}% mean relative abundance"></span>{% endfor %}</div>
 <div class="splegend small">{% for seg in panel.genus.segs %}<span title="{{ seg.label }}: {{ seg.pct }}%"><i style="background:{{ seg.color }}"></i>{% if seg.taxon.startswith('g__') %}<i class="it">{{ seg.label }}</i>{% else %}{{ seg.label }}{% endif %} {{ seg.pct }}%</span>{% endfor %}</div>
-<p class="small muted">Genera, mean relative abundance over {{ panel.n|fmt }} profiled gut samples of this project (<a href="https://sandpiper.qut.edu.au/">Sandpiper</a> SingleM profiles, {{ panel.taxonomy }}; low-depth and non-metagenome profiles left out).</p>
-{% else %}<p class="small muted">No Sandpiper profile for this project's samples yet.</p>{% endif %}
+<p class="small muted">Genera, mean relative abundance over {{ panel.n|fmt }} profiled {% if panel.site %}{{ panel.site }} {% endif %}samples of this project (<a href="https://sandpiper.qut.edu.au/">Sandpiper</a> SingleM profiles, {{ panel.taxonomy }}; low-depth and non-metagenome profiles left out).</p>
+{% else %}<p class="small muted">{% if s.nucleic_acid == 'rna' %}Community profiles here come from Sandpiper, which profiles DNA metagenomes; this project's data sets are RNA.{% else %}No Sandpiper profile for this project's samples.{% endif %}</p>{% endif %}
 </section>
 
 <section class="pg-sec">
@@ -100,8 +129,8 @@
 <section class="pg-sec pg-details">
 <div class="pg-label">Details</div>
 {% if s.description %}<details><summary>Archive description</summary><p class="small">{{ s.description[:4000] }}{% if s.description|length > 4000 %} …{% endif %}</p></details>{% endif %}
-<details><summary>How this project entered the registry</summary>{% if rg %}<p class="small">{{ rg_summary }} Assay <span class="mono">{{ rg.assay }}</span>.</p>
-{% if rg_evidence %}<ul class="small evlist">{% for e in rg_evidence %}<li><span class="tag">{{ e.kind }}</span> <span class="mono">{{ e.source }}</span> · “{{ e.quote }}”</li>{% endfor %}</ul>{% endif %}{% else %}<p class="small">No registry row.</p>{% endif %}</details>
+<details><summary>How this project entered the catalog</summary>{% if rg %}<p class="small">{{ rg_summary }} Assay <span class="mono">{{ rg.assay }}</span>.</p>
+{% if rg_evidence %}<ul class="small evlist">{% for e in rg_evidence %}<li><span class="tag">{{ e.kind }}</span> <span class="mono">{{ e.source }}</span> · “{{ e.quote }}”</li>{% endfor %}</ul>{% endif %}{% else %}<p class="small">This project was found and admitted by the scope classification (archive record, sample attributes, read check and linked paper); it has no row in the registry tables.</p>{% endif %}</details>
 {% if group_stmts %}<details><summary>Cohort-wide statements ({{ group_stmts|length }})</summary>
 <p class="small muted">From the abstract / description (R4) or the paper's methods (R3); committed only when true of every sequenced subject, and used only where no sample-level value exists.</p>
 <table class="tbl small compact"><thead><tr><th>field</th><th>value</th><th>route</th><th class="num">conf.</th><th>source</th><th>quote</th></tr></thead><tbody>

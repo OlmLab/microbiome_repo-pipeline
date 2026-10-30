@@ -1,11 +1,11 @@
-// Sample explorer — the catalog (human gut, all ages): DuckDB-WASM over data/gut_sample_metadata_wide.parquet (+ gut_studies.parquet
+// Sample explorer — the catalog (every body site, all ages): DuckDB-WASM over data/catalog_sample_metadata_wide.parquet (+ catalog_studies.parquet
 // for titles), fully client-side, one row per sample. Same boot / failure pattern as registry_explorer.js. Values shown with their
 // route (R1 archive attribute, R2 supplementary table, R3 paper full text, R4 abstract) and confidence; the verbatim evidence quotes
-// live in gut_sample_determinations.parquet (Downloads) and per study in data/studies/<PRJ>_determinations.csv.gz.
+// live in catalog_sample_determinations.parquet (Downloads) and per study in data/studies/<PRJ>_determinations.csv.gz.
 const DUCKDB_URL = 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm';
-const CFG = window.GUT_CFG;
+const CFG = window.CATALOG_CFG;
 const PAGE = 50;
-// core + key fields come from config/packs/gut.yaml through GUT_CFG (item 7); detailed_location is derived from location_site/locality/region
+// core + key fields come from the field pack through CATALOG_CFG (item 7); detailed_location is derived from location_site/locality/region
 const FIELDS = [...(CFG.coreFields || ['age_at_collection_days', 'sex', 'country', 'health_condition', 'subject_id']), ...(CFG.keyFields || ['detailed_location', 'lifestyle', 'collection_date', 'antibiotic_exposure', 'bmi', 'timepoint_label'])];
 // R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel
 const SHOW = ['sample_key', 'archive', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
@@ -218,7 +218,7 @@ async function showDetail(key) {
   html += '</table>';
   const inf = ['delivery_mode', 'feeding_mode', 'preterm_status', 'gestational_age_weeks', 'birth_weight_grams', 'maternal_antibiotics', 'probiotic_exposure', 'hmo_supplementation', 'nec_status'].filter(f => COLS.has(f) && s[f] !== null && s[f] !== undefined);
   if (inf.length) html += '<h3>Infant extension fields</h3><table class="tbl kv">' + inf.map(f => `<tr><td>${f}</td><td>${fmtV(s[f])}</td></tr>`).join('') + '</table>';
-  html += `<h3>Evidence</h3><p class="small">Every value above has an evidence row (verbatim quote ≤ 12 words, labelled source, locator, route, confidence): <a href="${detUrl(s.study_accession)}">${h(s.study_accession)}_determinations.csv.gz</a> (this study) or <span class="mono">gut_sample_determinations.parquet</span> (all). Cohort-wide statements (R3/R4) are shown on the <a href="${CFG.studiesUrl}${h(s.study_accession)}.html">study page</a>.</p>`;
+  html += `<h3>Evidence</h3><p class="small">Every value above has an evidence row (verbatim quote ≤ 12 words, labelled source, locator, route, confidence): <a href="${detUrl(s.study_accession)}">${h(s.study_accession)}_determinations.csv.gz</a> (this study) or <span class="mono">catalog_sample_determinations.parquet</span> (all). Cohort-wide statements (R3/R4) are shown on the <a href="${CFG.studiesUrl}${h(s.study_accession)}.html">study page</a>.</p>`;
   body.innerHTML = html;
 }
 

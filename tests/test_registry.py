@@ -38,7 +38,9 @@ def test_vocabularies_match_frozen_spec():
     assert V.scope_ids() == SPEC_SCOPES
     scope = V.load_scope()
     inf = next(s for s in scope["scopes"] if s["id"] == "infant_gut")
-    assert inf["curated"] is True and sum(s["curated"] for s in scope["scopes"]) == 1
+    # R2026.31: one catalog over every human body site — every body-site scope is curated, the registry tier and the
+    # unknown-site queue are not
+    assert inf["curated"] is True and {s["id"] for s in scope["scopes"] if not s["curated"]} == {"human_all", "unknown_site"}
 
 
 def test_uberon_lookup():

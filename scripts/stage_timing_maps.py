@@ -14,7 +14,7 @@ import pandas as pd
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--maps", default="data/inputs/gut/timing/timing_map_shard_*.parquet")
-ap.add_argument("--wide", default="data/inputs/data_package/gut_sample_metadata_wide.parquet")
+ap.add_argument("--wide", default="data/inputs/data_package/catalog_sample_metadata_wide.parquet")
 ap.add_argument("--runs", default="data/inputs/registry/registry_runs.parquet")
 ap.add_argument("--out", default="data/inputs/gut/timing/timing_samples.parquet")
 a = ap.parse_args()

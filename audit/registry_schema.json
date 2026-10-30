@@ -1203,12 +1203,12 @@
    ],
    "bitemporal": "release columns appended by catalog.registry.add_registry_tables (harvest 2026-09-27, docs/REGISTRY_S2_PAPERS.md)"
   },
-  "gut_sample_determinations.parquet": {
+  "catalog_sample_determinations.parquet": {
    "key": [
     "sample_key",
     "field_name"
    ],
-   "one_row_per": "sample × field of the gut_all curated scope (current value; precedence infant catalog > R1 > R2 > R3 > R4)",
+   "one_row_per": "sample × field of the catalog (current value; precedence infant catalog > R1 > R2 > R3 > R4)",
    "columns": [
     {
      "name": "sample_key",
@@ -1219,7 +1219,7 @@
     {
      "name": "field_name",
      "type": "string",
-     "description": "Field of config/packs/gut.yaml",
+     "description": "Field of the catalog field pack",
      "key": true
     },
     {
@@ -1290,7 +1290,7 @@
     {
      "name": "src_track",
      "type": "string",
-     "description": "infant_catalog (copied from the curated infant tables) | gut_all_v1"
+     "description": "infant_catalog (copied from the curated infant tables) | catalog_v1"
     },
     {
      "name": "release_added",
@@ -1310,11 +1310,11 @@
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope; infant-catalog rows keep their original release_added"
   },
-  "gut_sample_metadata_wide.parquet": {
+  "catalog_sample_metadata_wide.parquet": {
    "key": [
     "sample_key"
    ],
-   "one_row_per": "sample of the gut_all curated scope (one column per field with its route and confidence)",
+   "one_row_per": "sample of the catalog (one column per field with its route and confidence)",
    "columns": [
     {
      "name": "sample_key",
@@ -1355,7 +1355,7 @@
     {
      "name": "curated_source",
      "type": "string",
-     "description": "infant_catalog | gut_all_v1"
+     "description": "infant_catalog | catalog_v1"
     },
     {
      "name": "in_infant_catalog",
@@ -1675,7 +1675,7 @@
     {
      "name": "age_category",
      "type": "string",
-     "description": "neonate | infant | child | adolescent | adult | elderly | unknown (config/packs/gut.yaml age_categories)"
+     "description": "neonate | infant | child | adolescent | adult | elderly | unknown (the catalog field pack age_categories)"
     },
     {
      "name": "age_category_basis",
@@ -1685,12 +1685,12 @@
     {
      "name": "body_site_class",
      "type": "string",
-     "description": "primary (gut/stool) | unknown | excluded | linked"
+     "description": "primary = a human body site is stated for the sample (body_site_code), unknown = no site stated"
     },
     {
      "name": "body_site_basis",
      "type": "string",
-     "description": "sample_attribute | study_single_site | none | control_sample"
+     "description": "sample_attribute | study_single_site | none | control_sample · study_single_site = no site attribute, the project sampled one body site"
     },
     {
      "name": "sample_type",
@@ -1725,7 +1725,7 @@
     {
      "name": "subject_n_samples",
      "type": "int",
-     "description": "gut samples of this sample's person in the project (1 for generated ids)"
+     "description": "samples of this sample's person in the project (1 for generated ids)"
     },
     {
      "name": "days_since_first_sample",
@@ -1741,15 +1741,35 @@
      "name": "person_key",
      "type": "string",
      "description": "person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key>"
+    },
+    {
+     "name": "has_dna",
+     "type": "bool",
+     "description": "the sample has at least one DNA data set (run with a DNA library source) in catalog_runs"
+    },
+    {
+     "name": "has_rna",
+     "type": "bool",
+     "description": "the sample has at least one RNA data set (TRANSCRIPTOMIC / METATRANSCRIPTOMIC / VIRAL RNA library source, or an RNA-Seq strategy)"
+    },
+    {
+     "name": "n_runs",
+     "type": "int64",
+     "description": "runs of the sample in catalog_runs"
+    },
+    {
+     "name": "seq_gbp",
+     "type": "float",
+     "description": "sequenced bases of the sample (Gbp)"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope"
   },
-  "gut_studies.parquet": {
+  "catalog_studies.parquet": {
    "key": [
     "study_accession"
    ],
-   "one_row_per": "study of the gut_all curated scope — registry columns plus curation coverage",
+   "one_row_per": "study of the catalog — registry columns plus curation coverage",
    "columns": [
     {
      "name": "study_accession",
@@ -1820,7 +1840,7 @@
     {
      "name": "n_samples_curated",
      "type": "int64",
-     "description": "Samples in gut_sample_metadata_wide"
+     "description": "Samples in catalog_sample_metadata_wide"
     },
     {
      "name": "age_categories",
@@ -1840,12 +1860,12 @@
     {
      "name": "curated_source",
      "type": "string",
-     "description": "infant_catalog | gut_all_v1"
+     "description": "infant_catalog | catalog_v1"
     },
     {
      "name": "n_runs_total",
      "type": "int",
-     "description": "Runs of the study in gut_runs — R2026.12"
+     "description": "Runs of the study in catalog_runs — R2026.12"
     },
     {
      "name": "gbp_per_run_mean",
@@ -1910,17 +1930,17 @@
     {
      "name": "n_subjects",
      "type": "int",
-     "description": "distinct people with a gut sample: real subject ids + generated one-sample-per-subject ids (R2026.23)"
+     "description": "distinct people with a sample: real subject ids + generated one-sample-per-subject ids (R2026.23)"
     },
     {
      "name": "n_subjects_repeated",
      "type": "int",
-     "description": "people with >= 2 gut samples"
+     "description": "people with >= 2 samples"
     },
     {
      "name": "n_samples_repeated",
      "type": "int",
-     "description": "gut samples belonging to those people"
+     "description": "samples belonging to those people"
     },
     {
      "name": "samples_per_subject_median",
@@ -1960,7 +1980,7 @@
     {
      "name": "n_families",
      "type": "int",
-     "description": "families with >= 2 catalogued people (gut_relatedness)"
+     "description": "families with >= 2 catalogued people (catalog_relatedness)"
     },
     {
      "name": "n_related_people",
@@ -2030,7 +2050,7 @@
     {
      "name": "n_relations",
      "type": "int",
-     "description": "explicit pairwise relations stated for the project (gut_relations)"
+     "description": "explicit pairwise relations stated for the project (catalog_relations)"
     },
     {
      "name": "longitudinal_resolved",
@@ -2076,16 +2096,151 @@
      "name": "metadata_access_url",
      "type": "string",
      "description": "where to read about / apply for the controlled metadata"
+    },
+    {
+     "name": "metadata_access_how",
+     "type": "string",
+     "description": "how to request the controlled metadata, when it is not a standard dbGaP application (config/metadata_access_manual.csv)"
+    },
+    {
+     "name": "nucleic_acid",
+     "type": "string",
+     "description": "dna / rna / both / unclear / conflict — nucleic acid of the project's data sets: the archive library source of its runs, with the paper's methods as tie-breaker (an explicit TRANSCRIPTOMIC / RNA-Seq label outranks the paper; a paper saying RNA over DNA-labelled runs is decided by the median rRNA read share ≥ 0.10)"
+    },
+    {
+     "name": "nucleic_acid_archive",
+     "type": "string",
+     "description": "';'-joined nucleic acids of the runs (dna, rna)"
+    },
+    {
+     "name": "nucleic_acid_conflict",
+     "type": "bool",
+     "description": "archive and paper disagree and the reads could not decide"
+    },
+    {
+     "name": "n_runs_dna",
+     "type": "int64",
+     "description": "DNA runs"
+    },
+    {
+     "name": "n_runs_rna",
+     "type": "int64",
+     "description": "RNA runs"
+    },
+    {
+     "name": "n_samples_dna",
+     "type": "int64",
+     "description": "samples with a DNA data set"
+    },
+    {
+     "name": "n_samples_rna",
+     "type": "int64",
+     "description": "samples with an RNA data set"
+    },
+    {
+     "name": "sample_body_sites",
+     "type": "string",
+     "description": "JSON {body_site_code: samples} over the project's samples"
+    },
+    {
+     "name": "body_site_primary",
+     "type": "string",
+     "description": "body site of most samples"
+    },
+    {
+     "name": "n_body_sites",
+     "type": "int64",
+     "description": "distinct body sites among the samples"
+    },
+    {
+     "name": "platform",
+     "type": "string",
+     "description": "sequencing platform stated by the generating paper"
+    },
+    {
+     "name": "extraction_kit",
+     "type": "string",
+     "description": "DNA / RNA extraction kit stated by the paper"
+    },
+    {
+     "name": "library_kit",
+     "type": "string",
+     "description": "library preparation kit stated by the paper"
+    },
+    {
+     "name": "n_participants",
+     "type": "float",
+     "description": "participants stated by the paper"
+    },
+    {
+     "name": "study_shape",
+     "type": "string",
+     "description": "study design read from the paper (cohort_longitudinal, case_control, rct, …)"
+    },
+    {
+     "name": "rna_methods",
+     "type": "bool",
+     "description": "the paper states RNA methods (rRNA depletion, DNase, strandedness)"
+    },
+    {
+     "name": "recruitment",
+     "type": "string",
+     "description": "recruitment setting stated by the paper"
+    },
+    {
+     "name": "settlement",
+     "type": "string",
+     "description": "settlement type stated by the paper (urban, rural, …)"
+    },
+    {
+     "name": "n_places",
+     "type": "float",
+     "description": "named places below country level in the paper"
+    },
+    {
+     "name": "lifestyle_paper",
+     "type": "string",
+     "description": "population lifestyle stated by the paper (config/vocab/lifestyle.yaml)"
+    },
+    {
+     "name": "metadata_access_paper",
+     "type": "string",
+     "description": "how participant metadata can be obtained, as stated by the paper"
+    },
+    {
+     "name": "paper_ids_generated",
+     "type": "string",
+     "description": "';'-joined paper ids judged by the link audit to have generated the data"
+    },
+    {
+     "name": "n_exposure_items",
+     "type": "float",
+     "description": "exposure items read from the paper (catalog_exposure_items)"
+    },
+    {
+     "name": "processing",
+     "type": "string",
+     "description": "sample processing before sequencing, from the scope classification (virome_vlp, host_depletion, wga_mda, …)"
+    },
+    {
+     "name": "study_shape_classification",
+     "type": "string",
+     "description": "study design from the scope classification"
+    },
+    {
+     "name": "nucleic_acid_classification",
+     "type": "string",
+     "description": "nucleic acid from the scope classification"
     }
    ],
    "bitemporal": "release columns written by catalog.scopes.build_gut_scope",
-   "columns_note": "gut_studies carries every registry_studies column; the list above names only the scope-specific additions"
+   "columns_note": "catalog_studies carries every registry_studies column; the list above names only the scope-specific additions"
   },
-  "gut_runs.parquet": {
+  "catalog_runs.parquet": {
    "key": [
     "run_accession"
    ],
-   "one_row_per": "sequencing run of a gut_all catalog study (registry_runs ∩ gut_studies) with the catalog sample_key — added R2026.12 / 1.12.0",
+   "one_row_per": "sequencing run of a catalog project (registry_runs ∩ catalog_studies) with the catalog sample_key — added R2026.12 / 1.12.0",
    "bitemporal": "none: pure projection of registry_runs + registry_runs_sandpiper, rebuilt in full each release (catalog.scopes.build_gut_scope / newfields_r1.build_gut_runs)",
    "columns": [
     {
@@ -2096,7 +2251,7 @@
     {
      "name": "study_accession",
      "type": "string",
-     "description": "BioProject of the run (a gut_studies row)"
+     "description": "BioProject of the run (a catalog_studies row)"
     },
     {
      "name": "sample_accession",
@@ -2166,11 +2321,41 @@
     {
      "name": "sample_key",
      "type": "string",
-     "description": "gut_sample_metadata_wide.sample_key of the run's sample (run accession for run-unit samples; null when the BioSample is not a catalog sample, e.g. pooled runs)"
+     "description": "catalog_sample_metadata_wide.sample_key of the run's sample (run accession for run-unit samples; null when the BioSample is not a catalog sample, e.g. pooled runs)"
+    },
+    {
+     "name": "library_selection",
+     "type": "string",
+     "description": "ENA library_selection"
+    },
+    {
+     "name": "run_origin",
+     "type": "string",
+     "description": "registry = enumerated by the registry; refetch = per-project ENA run list of an earlier project (RNA libraries only); delta = run of a project admitted by the scope classification"
+    },
+    {
+     "name": "run_study_accession",
+     "type": "string",
+     "description": "BioProject the archive files the run under (differs from study_accession when a catalog sample's run is filed under another project)"
+    },
+    {
+     "name": "base_count_source",
+     "type": "string",
+     "description": "ena / ncbi_sra / estimate_submitted_bytes / none"
+    },
+    {
+     "name": "nucleic_acid",
+     "type": "string",
+     "description": "dna / rna / unclear from library_source and library_strategy"
+    },
+    {
+     "name": "rrna_read_share",
+     "type": "float",
+     "description": "share of reads aligning to 16S rRNA in the read check (where the run was checked)"
     }
    ]
   },
-  "gut_sandpiper_sample_summary.parquet": {
+  "catalog_sandpiper_sample_summary.parquet": {
    "key": [
     "sample_key"
    ],
@@ -2180,7 +2365,7 @@
     {
      "name": "sample_key",
      "type": "str",
-     "description": "catalog sample key (gut_sample_metadata_wide)"
+     "description": "catalog sample key (catalog_sample_metadata_wide)"
     },
     {
      "name": "study_accession",
@@ -2195,7 +2380,7 @@
     {
      "name": "n_runs_total",
      "type": "int64",
-     "description": "runs of the sample in gut_runs"
+     "description": "runs of the sample in catalog_runs"
     },
     {
      "name": "qc_partial",
@@ -2359,7 +2544,7 @@
     }
    ]
   },
-  "gut_sandpiper_pca_scores.parquet": {
+  "catalog_sandpiper_pca_scores.parquet": {
    "key": [
     "sample_key"
    ],
@@ -2433,7 +2618,7 @@
     }
    ]
   },
-  "gut_sandpiper_pca_loadings.parquet": {
+  "catalog_sandpiper_pca_loadings.parquet": {
    "key": [
     "genus"
    ],
@@ -2502,7 +2687,7 @@
     }
    ]
   },
-  "gut_sandpiper_pca_variance.csv": {
+  "catalog_sandpiper_pca_variance.csv": {
    "key": [
     "pc"
    ],
@@ -2566,7 +2751,7 @@
     }
    ]
   },
-  "gut_sandpiper_study_coverage.csv": {
+  "catalog_sandpiper_study_coverage.csv": {
    "key": [
     "study_accession"
    ],
@@ -2586,7 +2771,7 @@
     {
      "name": "n_runs",
      "type": "int64",
-     "description": "runs in gut_runs"
+     "description": "runs in catalog_runs"
     },
     {
      "name": "n_runs_profiled",
@@ -2690,7 +2875,7 @@
     }
    ]
   },
-  "gut_relatedness.parquet": {
+  "catalog_relatedness.parquet": {
    "key": [
     "study_accession",
     "group_kind",
@@ -2698,7 +2883,7 @@
     "group_id"
    ],
    "one_row_per": "family or shared setting with >= 2 catalogued people — added R2026.23 / 1.19.0",
-   "bitemporal": "none: derived from gut_sample_metadata_wide each release (catalog.scopes.longitudinal.relatedness)",
+   "bitemporal": "none: derived from catalog_sample_metadata_wide each release (catalog.scopes.longitudinal.relatedness)",
    "columns": [
     {
      "name": "study_accession",
@@ -2752,7 +2937,7 @@
     }
    ]
   },
-  "gut_relations.parquet": {
+  "catalog_relations.parquet": {
    "key": [
     "study_accession",
     "subject_a",
@@ -2809,7 +2994,7 @@
     }
    ]
   },
-  "gut_pass_coverage.csv": {
+  "catalog_pass_coverage.csv": {
    "key": [
     "study_accession"
    ],
@@ -2868,7 +3053,7 @@
     }
    ]
   },
-  "gut_metadata_contradictions.parquet": {
+  "catalog_metadata_contradictions.parquet": {
    "key": [
     "sample_key",
     "field_name",
@@ -2946,6 +3131,94 @@
      "name": "note",
      "type": "string",
      "description": "e.g. the sex split of the subject"
+    }
+   ]
+  },
+  "catalog_exposure_items.parquet": {
+   "key": [
+    "study_accession",
+    "concept"
+   ],
+   "one_row_per": "exposure item read from a project's paper",
+   "columns": [
+    {
+     "name": "study_accession",
+     "type": "string",
+     "description": "catalog project"
+    },
+    {
+     "name": "concept",
+     "type": "string",
+     "description": "sanitation, drinking_water, siblings, livestock_or_animals, …"
+    },
+    {
+     "name": "scale",
+     "type": "string",
+     "description": "per_person / per_group / whole_cohort"
+    },
+    {
+     "name": "summary",
+     "type": "string",
+     "description": "what the paper records"
+    },
+    {
+     "name": "quote",
+     "type": "string",
+     "description": "verbatim quote from the paper"
+    }
+   ]
+  },
+  "catalog_study_papers.parquet": {
+   "key": [
+    "study_accession",
+    "paper_id"
+   ],
+   "one_row_per": "project × paper judged by the link audit to have generated (own_data) or reused (reuse) the project's data",
+   "columns": [
+    {
+     "name": "study_accession",
+     "type": "string",
+     "description": "catalog project"
+    },
+    {
+     "name": "paper_id",
+     "type": "string",
+     "description": "PMID or DOI"
+    },
+    {
+     "name": "pmid",
+     "type": "string",
+     "description": "PubMed id"
+    },
+    {
+     "name": "pmcid",
+     "type": "string",
+     "description": "PubMed Central id"
+    },
+    {
+     "name": "doi",
+     "type": "string",
+     "description": "DOI"
+    },
+    {
+     "name": "title",
+     "type": "string",
+     "description": "paper title"
+    },
+    {
+     "name": "relation",
+     "type": "string",
+     "description": "own_data / reuse"
+    },
+    {
+     "name": "year",
+     "type": "string",
+     "description": "publication year"
+    },
+    {
+     "name": "journal",
+     "type": "string",
+     "description": "journal"
     }
    ]
   }

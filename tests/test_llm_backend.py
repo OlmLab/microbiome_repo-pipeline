@@ -97,3 +97,13 @@ def test_anthropic_batch_backend(tmp_path, monkeypatch):
     assert all(q["params"]["model"] == "claude-sonnet-test" for q in c.created[0])
     rows = list(csv.DictReader(open(tmp_path / "c" / "ledger.csv")))
     assert abs(float(rows[0]["usd"]) - 0.5 * 2000 * 2 / 1e6) < 1e-9      # batch = half price
+
+
+def test_substituted_model_not_committed_and_not_resent(tmp_path):
+    sub = dict(ok("answer"), model="claude-haiku-x")          # requested rubric role resolves to sonnet
+    h = FakeHost([sub])
+    llm = LB.LLM("rubric", cache_dir=str(tmp_path / "c"), host=h, backend="host", pass_name="t")
+    r = llm([{"prompt": "x"}])
+    assert r[0]["status"] == "model_substituted" and r[0]["model_requested"] != r[0]["model"]
+    r2 = llm([{"prompt": "x"}])                                  # cached, read back with its own status, not 'cached'
+    assert r2[0]["status"] == "model_substituted" and h.calls == 1

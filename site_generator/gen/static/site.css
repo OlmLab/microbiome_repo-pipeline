@@ -407,3 +407,32 @@ footer .site-policies{margin-bottom:.5rem}
 .tag.acc{background:#fff;color:var(--cu-black);border:1px solid var(--cu-black);font-weight:700}.tag.acc.part{border-style:dashed;font-weight:400}
 .access-note{max-width:900px}
 .tag.ctl{background:#fff;border:1px dashed var(--cu-dark-gray);color:var(--cu-black)}
+
+/* R2026.30 — project page: methods strip, body figure, living conditions, DNA/RNA badges */
+.mstrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
+.mstrip>div{padding:.5rem .8rem;border-left:1px solid #eee}.mstrip>div:first-child{border-left:0}
+.mstrip .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:#5f6365;font-weight:600}
+.mstrip .v{font-size:.92rem;font-weight:600;margin-top:.1rem}.mstrip .v.nr{color:#9a9a9a;font-weight:400;font-style:italic}
+.mstrip .s{font-size:.76rem;color:#5f6365;margin-top:.1rem}
+.mextra{font-size:.78rem;color:#444;margin:.1rem 0 .3rem}
+.mextra .x{display:inline-block;padding:.05rem .5rem;margin:.1rem .25rem .1rem 0;border-radius:999px;background:#efe4c4;border:1px solid #d9c896;color:#4a3c14}
+.mextra .x.warn{background:#fff6e5;border-color:#e0b25b;color:#7a4b00}
+.v2-glance{display:grid;grid-template-columns:230px minmax(0,1fr);gap:1.6rem;align-items:start}
+.v2-glance .dists{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem 1.6rem}
+.bs{display:flex;gap:.8rem;align-items:flex-start}.bs-fig{width:46px;height:80px;flex:none}
+.bs-list{list-style:none;margin:0;padding:.1rem 0 0;font-size:.8rem;line-height:1.3}
+.bs-list li{margin:0 0 .45rem;display:grid;grid-template-columns:.7rem 1fr;column-gap:.3rem}
+.bs-dot{margin-top:.3rem}.bs-name{font-weight:600}.bs-det{grid-column:2;color:#5f6365;font-size:.76rem}
+.livtbl{width:100%;border-collapse:collapse;font-size:.82rem}
+.livtbl td,.livtbl th{padding:.28rem .4rem;border-bottom:1px solid #f0f0ee;text-align:left;vertical-align:top}
+.livtbl th{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#5f6365}
+.scale{font-size:.68rem;padding:.02rem .42rem;border-radius:999px;border:1px solid #ccc;white-space:nowrap}
+.scale.person{border-color:#1a7f37;color:#1a7f37}.scale.group{border-color:#2f4b7c;color:#2f4b7c}
+.scale.cohort{border-color:#7a5c00;color:#7a5c00}.scale.place{border-color:#555;color:#555}
+.pend{color:#9a9a9a;font-style:italic}
+.nab{display:inline-block;font-size:.7rem;padding:.04rem .5rem;border-radius:999px;border:1px solid #bbb;margin-left:.35rem;vertical-align:middle}
+.nab.dna{border-color:#2f6b3f;color:#2f6b3f;background:#f2f8f3}.nab.rna{border-color:#8a4b8a;color:#8a4b8a;background:#faf3fa}
+.nab.conflict{border-color:#b3261e;color:#b3261e;background:#fdf3f2}
+
+.glance-body{flex:none;min-width:200px;max-width:260px}
+.nab.both{border-color:#4b5f8a;color:#4b5f8a;background:#f3f5fa}

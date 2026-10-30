@@ -1,13 +1,13 @@
 """Atlas › PCA page: an interactive Canvas2D scatter of every catalog sample with a Sandpiper genus profile
-(CLR-PCA scores, package table gut_sandpiper_pca_scores.parquet) coloured by curated metadata.
+(CLR-PCA scores, package table catalog_sandpiper_pca_scores.parquet) coloured by curated metadata.
 
 Called by build_site.py as ``build(env, render, ctx, out_dir)``:
   env      the generator's Jinja Environment (unused here; render() owns it)
   render   render(tpl, path, root, nav, **ctx) — the generator's helper (writes out_dir/path, records it)
   ctx      dict with package tables: ctx['wide'] (gut_sample_metadata_wide), ctx['studies'] (gut_studies) and EITHER
            ctx['pca_scores'], ctx['pca_loadings'], ctx['pca_variance'], ctx['sp_summary'] (DataFrames) OR ctx['pkg']
-           (a package directory holding gut_sandpiper_pca_scores.parquet, gut_sandpiper_pca_loadings.parquet,
-           gut_sandpiper_pca_variance.csv, gut_sandpiper_sample_summary.parquet)
+           (a package directory holding catalog_sandpiper_pca_scores.parquet, catalog_sandpiper_pca_loadings.parquet,
+           catalog_sandpiper_pca_variance.csv, catalog_sandpiper_sample_summary.parquet)
   out_dir  site output root (Path or str)
 
 Writes  atlas/pca.html (root='../', nav='atlas'), data/atlas/pca_points.bin, data/atlas/pca_codes.bin,
@@ -52,8 +52,8 @@ def _read_inputs(ctx):
     if all(k in ctx for k in ('pca_scores', 'pca_loadings', 'pca_variance', 'sp_summary')):
         return ctx['pca_scores'], ctx['pca_loadings'], ctx['pca_variance'], ctx['sp_summary']
     pkg = Path(ctx['pkg'])
-    return (pd.read_parquet(pkg / 'gut_sandpiper_pca_scores.parquet'), pd.read_parquet(pkg / 'gut_sandpiper_pca_loadings.parquet'),
-            pd.read_csv(pkg / 'gut_sandpiper_pca_variance.csv'), pd.read_parquet(pkg / 'gut_sandpiper_sample_summary.parquet'))
+    return (pd.read_parquet(pkg / 'catalog_sandpiper_pca_scores.parquet'), pd.read_parquet(pkg / 'catalog_sandpiper_pca_loadings.parquet'),
+            pd.read_csv(pkg / 'catalog_sandpiper_pca_variance.csv'), pd.read_parquet(pkg / 'catalog_sandpiper_sample_summary.parquet'))
 
 
 def encode_field(values: pd.Series, cap: int):
@@ -120,8 +120,8 @@ def build(env, render, ctx, out_dir):
                                   neg=[(g, round(float(v), 4)) for g, v in s.nsmallest(TOP_LOADINGS).items()])
     meta = dict(n_points=int(n), n_pcs=len(pc_cols), pcs=pcs, fields=fields, keys='\n'.join(pts['sample_key'].astype(str)),
                 study_titles=titles, loadings=load,
-                generated_from=dict(scores='gut_sandpiper_pca_scores.parquet', loadings='gut_sandpiper_pca_loadings.parquet',
-                                    metadata='gut_sample_metadata_wide.parquet', summary='gut_sandpiper_sample_summary.parquet'),
+                generated_from=dict(scores='catalog_sandpiper_pca_scores.parquet', loadings='catalog_sandpiper_pca_loadings.parquet',
+                                    metadata='catalog_sample_metadata_wide.parquet', summary='catalog_sandpiper_sample_summary.parquet'),
                 layout=dict(points='Float32[n_points*n_pcs] row-major (point i, pc j at i*n_pcs+j), little-endian',
                             codes='per field: dtype[n_points] at byte offset `offset`; code indexes `labels`; last two labels are other and (no value)'))
     sizes = {'pca_points.bin': (out / DATA_DIR / 'pca_points.bin').stat().st_size, 'pca_codes.bin': (out / DATA_DIR / 'pca_codes.bin').stat().st_size}

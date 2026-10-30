@@ -22,7 +22,7 @@
   const ctx = canvas.getContext('2d'), octx = overlay.getContext('2d');
 
   function setBoot(m) { const b = $('boot-msg'); if (b) b.textContent = m; }
-  function bootFail(e) { $('boot').innerHTML = '<b>The PCA map could not start.</b> ' + h(e && e.message || e) + ' The scores are downloadable as gut_sandpiper_pca_scores.parquet (Downloads).'; console.error(e); }
+  function bootFail(e) { $('boot').innerHTML = '<b>The PCA map could not start.</b> ' + h(e && e.message || e) + ' The scores are downloadable as catalog_sandpiper_pca_scores.parquet (Downloads).'; console.error(e); }
 
   async function init() {
     try {

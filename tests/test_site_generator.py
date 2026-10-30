@@ -3,7 +3,7 @@
 Builds the site from a TINY synthetic package (two variants: with and without the new gut-pack columns collection_date /
 location_* / latitude / longitude / lifyle) and asserts the restructure items: nav order, redirects, wording, registry human
 count (yes + mixed), contribute worklist driven by config/packs/gut.yaml core_fields, sample links, About block from
-config/site.yaml, sequencing block from gut_runs.parquet, column-presence-tolerant explorer / fields / study pages.
+config/site.yaml, sequencing block from catalog_runs.parquet, column-presence-tolerant explorer / fields / study pages.
 Nothing here is a curated value: every synthetic row is labelled SYNTHETIC and accessions are PRJTEST… / SYN… shapes.
 """
 import html as htmlmod, json, os, re, subprocess, sys
@@ -68,9 +68,9 @@ def make_package(out: Path, new_cols: bool):
                              read_count=str(1000000 * (i + 1)), base_count=str(150000000 * (i + 1)), first_public=f'2020-01-{(i % 28) + 1:02d}', sandpiper_profiled=bool(i % 2), sample_key=key))
     cw = pd.DataFrame(wide)
     cd = pd.DataFrame(det)
-    cw.to_parquet(out / 'gut_sample_metadata_wide.parquet', index=False)
-    cd.to_parquet(out / 'gut_sample_determinations.parquet', index=False)
-    pd.DataFrame(runs).to_parquet(out / 'gut_runs.parquet', index=False)
+    cw.to_parquet(out / 'catalog_sample_metadata_wide.parquet', index=False)
+    cd.to_parquet(out / 'catalog_sample_determinations.parquet', index=False)
+    pd.DataFrame(runs).to_parquet(out / 'catalog_runs.parquet', index=False)
     cs_rows = []
     for st in studies:
         g = cw[cw.study_accession == st['acc']]
@@ -84,7 +84,7 @@ def make_package(out: Path, new_cols: bool):
             r[f'cov_{f}'] = float(g[f].notna().mean()) if f in g.columns else 0.0
         r.update({RA: RID, RR: None, PA: RID})
         cs_rows.append(r)
-    pd.DataFrame(cs_rows).to_parquet(out / 'gut_studies.parquet', index=False)
+    pd.DataFrame(cs_rows).to_parquet(out / 'catalog_studies.parquet', index=False)
     # registry: the two catalog studies + one per other host_human value (yes counted with mixed = "human")
     reg_rows = []
     hosts = [('PRJTEST000001', 'yes'), ('PRJTEST000002', 'yes'), ('PRJTEST000003', 'mixed'), ('PRJTEST000004', 'unknown'), ('PRJTEST000005', 'no'), ('PRJTEST000006', 'no')]
@@ -193,7 +193,7 @@ def test_removed_strings(site_new):
 def test_home_tiles_search_and_bars(site_new):
     # R2026.16 minimalist home (owner review 2026-10-08): description, one search box, example queries, links — no tiles or bars
     home = _html(site_new, 'index.html')
-    cw = pd.read_parquet(site_new / 'data' / 'gut_sample_metadata_wide.parquet')
+    cw = pd.read_parquet(site_new / 'data' / 'catalog_sample_metadata_wide.parquet')
     assert 'id="q"' in home and 'class="hero"' in home and 'cards tiles' not in home and 'hbars' not in home
     assert f'{cw.study_accession.nunique():,} projects</a>' in home and f'{len(cw):,} samples</a>' in home and 'hero-credit' in home
     for href in ('samples/index.html', 'studies/index.html', 'registry/index.html', 'llms/index.html'):
@@ -224,15 +224,15 @@ def test_registry_human_count_is_yes_plus_mixed(site_new):
 def test_study_page_sections(site_new):
     t = _html(site_new, 'studies/PRJTEST000001.html')
     # R2026.18 redesign: registry entry in a collapsed Details section; coverage = core fields always, then every field with values
-    assert 'How this project entered the registry' in t and 'Registry classification</h2>' not in t
+    assert 'How this project entered the catalog' in t and 'Registry classification</h2>' not in t
     assert 'Classified as human' in t and 'by deterministic_rule with confidence 0.90' in t
     assert 'sample.attr.host' in t and '“Homo sapiens”' in t
     assert 'registry/index.html?study=PRJTEST000001' in t
     cov_rows = re.findall(r'<tr( class="core")?><td><a class="mono" href="../fields/index.html#([a-z_]+)"', t)
     assert [f for c, f in cov_rows if c] == CORE
     assert all(f not in CORE for c, f in cov_rows if not c) and len(cov_rows) > len(CORE)
-    # sequencing summary from gut_runs.parquet
-    runs = pd.read_parquet(site_new / 'data' / 'package' / 'gut_runs.parquet')
+    # sequencing summary from catalog_runs.parquet
+    runs = pd.read_parquet(site_new / 'data' / 'package' / 'catalog_runs.parquet')
     g = runs[runs.study_accession == 'PRJTEST000001']
     gbp = pd.to_numeric(g.base_count) / 1e9
     assert 'id="sequencing"' in t and f'{len(g):,} runs' in t and f'mean {gbp.mean():.2f} Gbp per run' in t and f'median {gbp.median():.2f}' in t

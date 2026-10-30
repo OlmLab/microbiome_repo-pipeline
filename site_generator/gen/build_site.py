@@ -19,6 +19,7 @@ byte-identical (tests/test_build_determinism.py).
 """
 import posixpath
 import argparse, gzip, hashlib, io, json, math, os, re, shutil, sys, time
+from collections import Counter
 from pathlib import Path
 from urllib.parse import quote
 import pandas as pd
@@ -59,16 +60,29 @@ FIELD_CAVEATS = {
     'probiotic_exposure': 'Infant field: any probiotic given to the infant.', 'hmo_supplementation': 'Infant field: HMO-supplemented formula.', 'nec_status': 'Infant field: necrotising enterocolitis diagnosis.',
 }
 FILE_DESC = {
-    'gut_studies.parquet': 'Start here (studies). One row per catalog study: registry classification, linked papers, per-field coverage (cov_*), age-category and health-condition distributions, curated depth and source.',
-    'gut_sample_metadata_wide.parquet': 'Start here (samples). One row per sample: identifiers, body-site code/class, age_category (+ basis), every field with __route and __confidence, infant extension fields, infant_scope flag.',
-    'gut_sample_determinations.parquet': 'Long form: one row per sample × field with route, scope, confidence, evidence_source, evidence_locator and a verbatim evidence quote (≤ 12 words).',
-    'registry_studies.parquet': 'Registry tier: one row per ENA study with a human shotgun-metagenome signal — host, body sites (UBERON-anchored codes), life stages, assay, access, classification stage, scope memberships, harvested-sample roll-ups.',
+    'catalog_runs.parquet': 'One row per sequencing run of a catalog sample: library strategy / source / layout, platform, reads and bases, nucleic_acid (dna / rna) and the measured rRNA read share where a read check ran.',
+    'catalog_exposure_items.parquet': 'Routine exposure items read from the papers (concept, scale person / group / cohort / place, summary and a verbatim quote).',
+    'catalog_study_papers.parquet': 'Papers judged by the link audit to have generated (own_data) or reused (reuse) a project\'s data.',
+    'catalog_relatedness.parquet': 'One row per family or shared-setting unit with two or more sampled people.',
+    'catalog_relations.parquet': 'Explicit relations between sampled people (mother–child, twins, partners, donor–recipient) with evidence.',
+    'catalog_sample_determinations_conflicts.parquet': 'Values that lost a precedence decision against the published value (kept for audit).',
+    'catalog_metadata_contradictions.parquet': 'Samples whose sources disagree; neither value is published.',
+    'catalog_pass_coverage.csv': 'Per project: which curation passes ran and which were not applicable.',
+    'catalog_sandpiper_sample_summary.parquet': 'Per profiled sample: Sandpiper QC flags, richness and the metadata used by the Atlas.',
+    'catalog_sandpiper_pca_scores.parquet': 'CLR-PCA scores of the Sandpiper genus profiles (Atlas › PCA).',
+    'catalog_sandpiper_pca_loadings.parquet': 'Genus loadings of the CLR-PCA.', 'catalog_sandpiper_pca_variance.csv': 'Variance explained per principal component.',
+    'catalog_sandpiper_study_coverage.csv': 'Per project: samples with a Sandpiper profile.',
+    'CATALOG_SANDPIPER_REPORT.md': 'How the Sandpiper profiles of the catalog samples were assembled and filtered.',
+    'catalog_studies.parquet': 'Start here (projects). One row per catalog project: body sites, nucleic acid (DNA / RNA) of its data sets, registry classification, linked papers, methods and setting read from the paper, per-field coverage (cov_*), age-category and health-condition distributions, curated depth and source.',
+    'catalog_sample_metadata_wide.parquet': 'Start here (samples). One row per sample: identifiers, body-site code/class, DNA / RNA data sets (has_dna, has_rna), age_category (+ basis), every field with __route and __confidence, infant extension fields, infant_scope flag.',
+    'catalog_sample_determinations.parquet': 'Long form: one row per sample × field with route, scope, confidence, evidence_source, evidence_locator and a verbatim evidence quote (≤ 12 words).',
+    'registry_studies.parquet': 'Registry tier: one row per screened ENA study with a human-associated metagenome signal — host, body sites (UBERON-anchored codes), life stages, assay, access, classification stage, scope memberships, harvested-sample roll-ups.',
     'registry_biosamples.parquet': 'Registry sample tier: one row per harvested BioSample with normalised body site, life stage / age, sex, country.',
     'registry_study_papers.parquet': 'Study ↔ paper links of the registry studies (PMID/PMCID/DOI, relation own_data/unsure, method, confidence).',
     'registry_authors.parquet': 'Study × author × paper rows for the registry studies (Europe PMC author lists).',
     'registry_bioproject_records.parquet': 'NCBI BioProject records (title, description, umbrella, organisation) for the registry studies.',
     'registry_universe_audit.csv': 'Registry enumeration audit: per ENA slice, archive count vs rows pulled and completeness.',
-    'sample_metadata_wide.parquet': 'Infant extension: the deep infant-gut curation (delivery mode, feeding, gestational age, birth weight …) for the infant studies; these rows are also in gut_sample_metadata_wide (curated_source = infant_catalog).',
+    'sample_metadata_wide.parquet': 'Infant extension: the deep infant-gut curation (delivery mode, feeding, gestational age, birth weight …) for the infant studies; these rows are also in catalog_sample_metadata_wide (curated_source = infant_catalog).',
     'sample_metadata_wide.csv.gz': 'Infant extension table as gzip-compressed CSV.',
     'sample_determinations.parquet': 'Infant extension: evidence rows of the infant-field curation.',
     'sample_determinations_all.parquet': 'Infant extension, bitemporal: current + retired rows with release_added / release_retired.',
@@ -83,7 +97,7 @@ FILE_DESC = {
     'confidence_tiers.csv': 'Infant extension: engine confidence tiers.', 'tier_field_precision.csv': 'Infant extension: precision per route × tier vs the cMD gold join.',
     'sample_unit_classification.csv': 'Infant extension: per-BioSample multi-run classification.', 'sample_unit_classification_by_study.csv': 'Infant extension: per-study sample-unit class.',
     'sandpiper_sample_summary.parquet': 'Sandpiper/SingleM per-sample summary for the infant studies (sp_* columns, QC flags, URL).',
-    'sandpiper_top_genera.parquet': 'Top-15 genera per profiled infant-study sample.', 'sandpiper_study_panels.parquet': 'Per-study mean top phyla / genera (infant studies).', 'gut_sandpiper_study_panels.parquet': 'Per-project mean top-12 genera over profiled gut samples (project-page composition bar).',
+    'sandpiper_top_genera.parquet': 'Top-15 genera per profiled infant-study sample.', 'sandpiper_study_panels.parquet': 'Per-study mean top phyla / genera (infant studies).', 'catalog_sandpiper_study_panels.parquet': 'Per-project mean top-12 genera over profiled samples (project-page composition bar).',
     'sandpiper_run_qc.parquet': 'Infant-study runs: profiled or miss reason, QC fields.', 'sandpiper_study_coverage.csv': 'Per infant study: runs/samples profiled.',
     'sandpiper_study_qc_flags.csv': 'Per infant study: flag fractions.', 'sandpiper_flag_definitions.json': "Sandpiper's published QC flag definitions.", 'sandpiper_flag_table.csv': 'QC-flag vocabulary.',
     'authors.parquet': 'Infant extension: study × author × paper rows.', 'study_authors_summary.csv': 'Infant extension: first/last author and organisations per screened study.',
@@ -99,8 +113,8 @@ FILE_DESC = {
 OFFSITE = [dict(name='registry_runs_v{v}.parquet', desc='Registry run tier: one row per sequencing run of every registry study (≈ 2 M rows, ≈ 80 MB) — GitHub Release asset data-v{v}.'),
            dict(name='infant_catalog_v{v}.sqlite', desc='All package tables as one SQLite database — Release asset.'),
            dict(name='sandpiper_profiles.parquet', desc='Full sample × rank × taxon Sandpiper profiles of the infant studies (≈100 MB) — Release asset.'),
-           dict(name='gut_sandpiper_sample_genus_v{v}_part*.parquet', desc='Genus-level Sandpiper relative abundances for every profiled catalog sample (long table: sample_key, genus, relabund, coverage; ≈ 185 MB in < 90 MB parts, concatenate the parts) — Release asset.'),
-           dict(name='gut_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (relabund ≥ 0.001; ≈ 200 MB in parts) — Release asset.')]
+           dict(name='catalog_sandpiper_sample_genus_v{v}_part*.parquet', desc='Genus-level Sandpiper relative abundances for every profiled catalog sample (long table: sample_key, genus, relabund, coverage; ≈ 185 MB in < 90 MB parts, concatenate the parts) — Release asset.'),
+           dict(name='catalog_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (relabund ≥ 0.001; ≈ 200 MB in parts) — Release asset.')]
 TAXON_PALETTE = ['#CFB87C', '#565A5C', '#A88B4A', '#8C8F91', '#7A6A3C', '#3C3C3C', '#8A7A48', '#7F7060', '#6E6A5E', '#8F7418', '#6F6D62', '#6B6F73', '#7D7461', '#4A4A4A', '#75604A', '#5F6366']
 UNASSIGNED_COLOR = '#D9D9D9'
 # R2026.20 project-page genus bar: 12 distinguishable colours (CU gold first, then a colour-blind-aware qualitative set)
@@ -133,7 +147,7 @@ NAV = [('home', 'Home', 'index.html', None),
                                  ('about', 'Accessibility, privacy & security', 'about/accessibility.html')])]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
-             'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'figures.html'}
+             'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'human/index.html': '../studies/index.html', 'human/projects/index.html': '../../studies/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'figures.html'}
 ARCHIVE_URLS = {'SAMN': 'https://www.ncbi.nlm.nih.gov/biosample/', 'SAMD': 'https://ddbj.nig.ac.jp/resource/biosample/', 'SAME': 'https://www.ebi.ac.uk/ena/browser/view/',
                 'RUN': 'https://www.ebi.ac.uk/ena/browser/view/'}
 
@@ -836,7 +850,7 @@ def _gbp_per_sample(g):
 
 
 def gbp_stats(runs):
-    """Item 11: per-study sequencing summary from gut_runs.parquet (base_count / 1e9 per run)."""
+    """Item 11: per-study sequencing summary from catalog_runs.parquet (base_count / 1e9 per run)."""
     r = runs.copy()
     r['gbp'] = pd.to_numeric(r['base_count'], errors='coerce') / 1e9
     r['sp'] = r['sandpiper_profiled'].fillna(False).astype(bool) if 'sandpiper_profiled' in r.columns else False
@@ -1058,6 +1072,7 @@ def main():
     ap.add_argument('--scope-config', default=str(HERE.parent.parent / 'config' / 'scope.yaml'))
     ap.add_argument('--pack-config', default=str(HERE.parent.parent / 'config' / 'packs' / 'gut.yaml'))
     ap.add_argument('--sources-config', default=str(HERE.parent.parent / 'config' / 'sources.yaml'))
+    ap.add_argument('--human-dir', default=None, help='ignored since R2026.31 (one catalog; kept so older Makefiles still run)')
     ap.add_argument('--collections-config', default=str(HERE.parent.parent / 'config' / 'collections.yaml'), help='optional (another track); searched from the home page when present')
     ap.add_argument('--atlas-data', default=None, help='precomputed Atlas payload directory (taxa.json, matrix_*.bin, observations.json, obs/); optional')
     ap.add_argument('--allow-placeholder-base-url', action='store_true', help='test builds only')
@@ -1119,13 +1134,13 @@ def main():
     pack = yaml.safe_load(Path(a.pack_config).read_text(encoding='utf-8'))
     hcv = yaml.safe_load((repo_root / 'config' / 'vocab' / 'health_conditions.yaml').read_text(encoding='utf-8'))['codes']
     hc_labels = {k: (v.get('label', '') if isinstance(v, dict) else '') for k, v in hcv.items()}
-    cs = pd.read_parquet(pkg / 'gut_studies.parquet')
+    cs = pd.read_parquet(pkg / 'catalog_studies.parquet')
     cs_all = cs.copy()
-    cw = pd.read_parquet(pkg / 'gut_sample_metadata_wide.parquet')
-    cd = pd.read_parquet(pkg / 'gut_sample_determinations.parquet')
+    cw = pd.read_parquet(pkg / 'catalog_sample_metadata_wide.parquet')
+    cd = pd.read_parquet(pkg / 'catalog_sample_determinations.parquet')
     cs = cs[cs[RR].isna()].reset_index(drop=True) if RR in cs.columns else cs
     if 'longitudinal_resolved' not in cs.columns and 'longitudinal_status' in cs.columns:   # packages built before R2026.25
-        _rl = pd.read_parquet(pkg / 'gut_relations.parquet') if (pkg / 'gut_relations.parquet').exists() else pd.DataFrame(columns=['study_accession'])
+        _rl = pd.read_parquet(pkg / 'catalog_relations.parquet') if (pkg / 'catalog_relations.parquet').exists() else pd.DataFrame(columns=['study_accession'])
         cs['n_relations'] = cs.study_accession.map(_rl.groupby('study_accession').size()).fillna(0).astype(int)
         _lg = cs.longitudinal_status.isin(['longitudinal', 'repeated_unresolved'])
         cs['longitudinal_resolved'] = (_lg & pd.to_numeric(cs.get('followup_days_median'), errors='coerce').notna()).where(_lg, None)
@@ -1153,9 +1168,10 @@ def main():
     ls_labels = {k: (v.get('label', '') if isinstance(v, dict) else '') for k, v in (yaml.safe_load(ls_path.read_text(encoding='utf-8'))['codes'].items() if ls_path.exists() else {})}
     # item 7: the new columns may be absent from the wide table — every use goes through has_col / field_series (present → render, absent → omit)
     has_col = {f: (field_series(cw, f, DERIVED) is not None) for f in set(all_fields) | set(DERIVED) | {'lifestyle_detail', 'latitude', 'longitude', 'location_locality', 'location_region', 'location_site'}}
+    has_col['has_rna'] = 'has_rna' in cw.columns and 'has_dna' in cw.columns
     n_by_study = cw.groupby('study_accession').size().to_dict()
     # item 11: run-level table (optional) → per-study sequencing block + Gbp/run on the studies index
-    runs_path = pkg / 'gut_runs.parquet'
+    runs_path = pkg / 'catalog_runs.parquet'
     seq_by_study = gbp_stats(pd.read_parquet(runs_path)) if runs_path.exists() else {}
 
     # registry tier
@@ -1179,7 +1195,10 @@ def main():
     _codes = set(vocabs['life_stage']); _bad = {c for v in rg.life_stages.dropna() for c in split_list(v)} - _codes
     assert not _bad, f'registry_studies.life_stages codes outside config/vocab/life_stages.yaml: {sorted(_bad)[:5]}'
     assert (set(rg[RA].dropna().astype(str)) | set(rg[RR].dropna().astype(str))) <= known_ids, 'registry_studies: release ids missing from releases.csv'
-    assert inc_set <= set(rg.study_accession), 'F13: every catalog study is a registry study'
+    # R2026.31: projects found by the large update's own enumeration (RNA slice, newer deposits) are catalog projects without a
+    # registry row; F13 now only requires that the registry and the catalog do not disagree on accessions they share
+    n_outside_registry = len(inc_set - set(rg.study_accession))
+    print(f'catalog projects without a registry row: {n_outside_registry}', file=sys.stderr)
     for c in ('health_context', 'description_short', 'study_title'):
         rg[c] = rg[c].map(strip_frame_tokens)
     rg_by = rg.set_index('study_accession')
@@ -1195,6 +1214,10 @@ def main():
         spl = spl[spl[RR].isna()] if RR in spl.columns else spl
         spl = spl.assign(relation='curated', year=None, journal=None)[['study_accession', 'paper_id', 'pmid', 'pmcid', 'doi', 'title', 'relation', 'year', 'journal']]
         papers = pd.concat([papers, spl], ignore_index=True)
+    if (pkg / 'catalog_study_papers.parquet').exists():   # papers judged by the link audit to have generated / reused a project's data
+        cpl = pd.read_parquet(pkg / 'catalog_study_papers.parquet')
+        cpl = cpl.reindex(columns=['study_accession', 'paper_id', 'pmid', 'pmcid', 'doi', 'title', 'relation', 'year', 'journal'])
+        papers = pd.concat([papers, cpl], ignore_index=True)
     papers['paper_id'] = papers.paper_id.astype(str)
     papers = papers[papers.study_accession.isin(inc_set)].drop_duplicates(['study_accession', 'paper_id']).reset_index(drop=True)
     papers['title'] = papers.title.map(strip_frame_tokens).map(lambda t: None if isnull(t) else re.sub(r'<[^>]+>', '', str(t)))
@@ -1209,7 +1232,7 @@ def main():
 
     # Sandpiper panels where they exist (infant studies) — optional
     # R2026.20: one genus panel for EVERY profiled catalog project (gut_sandpiper_study_panels); the infant-only panels are the fallback
-    panels = pd.read_parquet(pkg / 'gut_sandpiper_study_panels.parquet') if (pkg / 'gut_sandpiper_study_panels.parquet').exists() else (
+    panels = pd.read_parquet(pkg / 'catalog_sandpiper_study_panels.parquet') if (pkg / 'catalog_sandpiper_study_panels.parquet').exists() else (
         pd.read_parquet(pkg / 'sandpiper_study_panels.parquet') if (pkg / 'sandpiper_study_panels.parquet').exists() else pd.DataFrame())
 
     # ---------- stats (all from tables) ----------
@@ -1249,7 +1272,7 @@ def main():
                 data_release_url=rspec['site_pages']['data_release_url'].format(data_tag=cur_rel['data_tag']) if cur_rel['data_tag'] else None,
                 zenodo_badge=f'https://zenodo.org/badge/{data_repo_id}.svg', zenodo_latest=f'https://zenodo.org/badge/latestdoi/{data_repo_id}', data_repo_id=data_repo_id,
                 releases_page=rspec['site_pages']['releases_index'], changes_page=rspec['site_pages']['changes_index'],
-                description=f"{names['title']}: every public human shotgun-metagenome study (registry) and a curated, evidence-linked catalog of human gut metagenomes of all ages with per-sample metadata.",
+                description=f"{names['title']}: a curated, evidence-linked catalog of human-associated shotgun metagenomes and metatranscriptomes — every body site, all ages — with per-sample metadata, and a registry of every screened public study.",
                 citation=f'{names["title"]}, release {release_id} (data package {version}), OlmLab, {cur_rel["release_date"]}.' + (f' doi:{doi}' if doi else ''),
                 sri=json.loads((HERE / 'static' / 'vendor' / 'SRI.json').read_text()), has_contribute=True, contribute_page='contribute/index.html',
                 has_registry=True, registry_page='registry/index.html', data_repo=read_github_repo(a.config, 'data'))
@@ -1284,7 +1307,7 @@ def main():
     rep = Path(a.reports) if a.reports else None
 
     # ---------- data files ----------
-    IN_DATA = ['gut_sample_metadata_wide.parquet', 'gut_studies.parquet', 'gut_sample_determinations.parquet', sspec['files']['studies']]
+    IN_DATA = ['catalog_sample_metadata_wide.parquet', 'catalog_studies.parquet', 'catalog_sample_determinations.parquet', sspec['files']['studies']]
     for name in ('registry_biosamples.parquet', 'registry_study_papers.parquet', 'registry_authors.parquet'):
         if (pkg / name).exists():
             IN_DATA.append(name)
@@ -1299,7 +1322,7 @@ def main():
         meta = vj['tables'].get(f.name, {})
         pkg_files.append(dict(name=f.name, size=human(f.stat().st_size), bytes=f.stat().st_size, rows=meta.get('rows'),
                               sha256=meta.get('sha256', ''), href=('data/' if f.name in IN_DATA else 'data/package/') + f.name,
-                              desc=FILE_DESC.get(f.name, ''), group=('catalog' if f.name.startswith('gut_') else 'registry' if f.name.startswith('registry_') else
+                              desc=FILE_DESC.get(f.name, ''), group=('catalog' if f.name.startswith('catalog_') or f.name == 'CATALOG_SANDPIPER_REPORT.md' else 'registry' if f.name.startswith('registry_') else
                                                                      'release' if f.name in ('releases.csv', 'VERSION.json', 'README.md', 'DATA_DICTIONARY.md', 'CHANGELOG.md', 'getting_started.ipynb') or f.name.startswith('RELEASE_NOTES_') else 'infant')))
     zip_name, zip_size, zip_href = None, None, None
     if a.package_zip:
@@ -1350,7 +1373,7 @@ def main():
     for name, title in PUBLIC_REPORT_DOCS:
         if rep and (rep / name).exists() and name not in [d[0] for d in docs]:
             docs.append((name, (rep / name).read_text(encoding='utf-8'), title))
-    for name, title in [('COLLECTIONS.md', 'Collections: how membership rules work and how to propose one'), ('GUT_SANDPIPER_REPORT.md', 'Sandpiper profiles for the whole catalog (report)')]:
+    for name, title in [('COLLECTIONS.md', 'Collections: how membership rules work and how to propose one'), ('CATALOG_SANDPIPER_REPORT.md', 'Sandpiper profiles for the whole catalog (report)')]:
         cand = [q for q in ((pkg / name), (HERE.parent.parent / 'docs' / name)) if q.exists()]
         if cand and name not in [d[0] for d in docs]:
             docs.append((name, cand[0].read_text(encoding='utf-8'), title))
@@ -1362,6 +1385,15 @@ def main():
         doc_list.append(dict(name=name, title=title, href=f'docs/{name[:-3]}.html'))
 
     # ---------- per-study helpers ----------
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    from pages import project_facts as PF
+    exposure_by_study = {}   # paper-derived exposure items (catalog_exposure_items.parquet), shown under Living conditions
+    if (pkg / 'catalog_exposure_items.parquet').exists():
+        _ex = pd.read_parquet(pkg / 'catalog_exposure_items.parquet')
+        for acc_, e_ in _ex.groupby('study_accession'):
+            exposure_by_study[acc_] = [dict(concept=str(x.get('concept') or ''), scale=str(x.get('scale') or ''), summary=str(x.get('summary') or '')[:200],
+                                            quote=str(x.get('quote') or '')[:300]) for x in e_.head(12).to_dict('records')]
     papers_by_study = {}
     for r in papers.sort_values(['study_accession', 'relation', 'paper_id'], kind='mergesort').itertuples(index=False):
         papers_by_study.setdefault(r.study_accession, []).append(dict(
@@ -1379,9 +1411,9 @@ def main():
         authors_by_study[acc] = lst
     # R2026.23 sampling design + relatedness per project (gut_studies longitudinal / relatedness columns, gut_relatedness table,
     # per-sample days_since_first_sample / family columns of the wide table)
-    relg = pd.read_parquet(pkg / 'gut_relatedness.parquet') if (pkg / 'gut_relatedness.parquet').exists() else pd.DataFrame(columns=['study_accession'])
+    relg = pd.read_parquet(pkg / 'catalog_relatedness.parquet') if (pkg / 'catalog_relatedness.parquet').exists() else pd.DataFrame(columns=['study_accession'])
     design_by_study = {}
-    _cxp = pkg / 'gut_metadata_contradictions.parquet'
+    _cxp = pkg / 'catalog_metadata_contradictions.parquet'
     _cx_all = pd.read_parquet(_cxp) if _cxp.exists() else pd.DataFrame(columns=['study_accession'])
     contra_by_study = {}
     # R2026.26 control samples named on the project page
@@ -1419,7 +1451,7 @@ def main():
     _tl_by = {k_: v_ for k_, v_ in _tl[pd.to_numeric(_tl.get('subject_n_samples'), errors='coerce').fillna(0) >= 2].groupby('study_accession')} if len(_tl) else {}
     _fam_by = {k_: v_ for k_, v_ in cw[cw.family_id.notna()][['study_accession', 'sample_key', 'person_key', 'family_id', 'family_role', 'subject_id']].groupby('study_accession')} if 'family_id' in cw.columns and 'person_key' in cw.columns else {}
     _relg_by = {k_: v_ for k_, v_ in relg.groupby('study_accession')} if len(relg) else {}
-    _rlx = pd.read_parquet(pkg / 'gut_relations.parquet') if (pkg / 'gut_relations.parquet').exists() else pd.DataFrame(columns=['study_accession', 'subject_a', 'subject_b', 'relation'])
+    _rlx = pd.read_parquet(pkg / 'catalog_relations.parquet') if (pkg / 'catalog_relations.parquet').exists() else pd.DataFrame(columns=['study_accession', 'subject_a', 'subject_b', 'relation'])
     _rlx_by = {k_: v_ for k_, v_ in _rlx.groupby('study_accession')} if len(_rlx) else {}
     _pc = cw[[c_ for c_ in ['study_accession', 'person_key', 'subject_id', 'sample_key', 'biosample_accession'] if c_ in cw.columns]]
     _net_studies = set(_rlx_by) | set(_fam_by) | set(_relg_by)
@@ -1510,6 +1542,8 @@ def main():
                     segs.append(dict(taxon='other', label='other genera', pct=round(other, 1), left=round(left, 2), w=round(other, 2), color='#FFFFFF'))
                 d[rank] = dict(segs=segs, n=int(gg.n_samples_panel.iloc[0]) if len(gg) else int(r0.n_samples_panel))
             d.update(n=int(r0.n_samples_panel), taxonomy=f"{r0.taxonomy_db} {r0.taxonomy_version}", definition=str(r0.panel_definition))
+            _pbs = r0.get('panel_body_site') if hasattr(r0, 'get') else None
+            d['site'] = (vocabs['body_site'].get(_pbs) or str(_pbs).replace('_', ' ')).lower() if isinstance(_pbs, str) and _pbs else ''
             panel_by_study[acc] = d
 
     # per-study determination summaries: route × field counts, sample evidence rows
@@ -1723,8 +1757,12 @@ def main():
     _cc = {}
     for (acc_, iso_), n_ in _cc_by.items():
         _cc.setdefault(acc_, []).append(iso_)
+    def _sites_of(s_):   # body-site codes of a project's samples, most samples first (catalog_studies.sample_body_sites)
+        d_ = jl(s_.get('sample_body_sites'))
+        return [k for k, _ in sorted(d_.items(), key=lambda kv: (-kv[1], kv[0]))] if d_ else [c for c in split_list(s_.get('body_sites')) if c != 'unknown_site']
     sidx_rows = [dict(**study_filters(s['study_accession']), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
+                      bs=_sites_of(s), na=(s.get('nucleic_acid') or '') if not isnull(s.get('nucleic_acid')) else '',
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
                       iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
                       src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
@@ -1757,10 +1795,16 @@ def main():
         for c_ in set(x for x in r_['iv'].split(';') if x) | set(x for x in r_['arms'] if x not in ('placebo', 'no_intervention')):
             _ivc[c_] = _ivc.get(c_, 0) + 1
     _hcs = sorted({c for r_ in sidx_rows for c in r_['hcs']} | {r_['pc'] for r_ in sidx_rows if r_['pc']})
+    def _site_label(c):
+        v_ = vocabs['body_site'].get(c)
+        return v_ if isinstance(v_, str) else (v_.get('label') if isinstance(v_, dict) and v_.get('label') else c.replace('_', ' '))
     render('studies_index.html', 'studies/index.html', '../', nav='studies', use_datatables=True, stats=stats, n_rows=len(studies), has_seq=bool(seq_by_study),
            hc_opts=[(c, hc_labels.get(c, '')) for c in _hcs if c not in ('unknown',)], iv_opts=[(c, (iv_voc.get(c) or {}).get('label', c), _ivc[c]) for c in iv_voc if c in _ivc],
            design_opts=[d for d in ('randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure') if any(r_['dz'] == d for r_ in sidx_rows)],
            age_opts=[c for c in age_cats if c != 'unknown'],
+           site_opts=[(c, _site_label(c), n) for c, n in sorted(Counter(c for r_ in sidx_rows for c in r_['bs']).items(), key=lambda kv: -kv[1])],
+           na_opts=[(k, PF.NA_LABEL[k]) for k in ('dna', 'rna', 'both') if any(r_['na'] == k for r_ in sidx_rows)],
+           site_label_map={c: _site_label(c) for r_ in sidx_rows for c in r_['bs']},
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies')])
     for s in studies:
         acc = s['study_accession']
@@ -1794,7 +1838,12 @@ def main():
         ev_sample = dg[dg.scope != 'study_all'].assign(_src=lambda d: d.evidence_source.astype(str).str.split('.').str[:2].str.join('.')).drop_duplicates(['field_name', 'route', '_src']).sort_values(['field_name', 'route'], kind='mergesort').head(40) if len(dg) else dg
         ev_rows_study = [clean(x) for x in ev_sample[['sample_key', 'field_name', 'value_normalized', 'route', 'confidence', 'evidence_source', 'evidence_locator', 'evidence_quote']].to_dict('records')]
         ages = counts_sorted(g.age_category.fillna('unknown'))
-        sites = counts_sorted(g.body_site_class.fillna('unknown'))
+        sites = counts_sorted(g.body_site_code.where(g.body_site_code.notna() & (g.body_site_code != 'unknown_site')).dropna().map(lambda c: (vocabs['body_site'].get(c) or c.replace('_', ' ')) if isinstance(vocabs['body_site'].get(c), str) else c.replace('_', ' '))) if 'body_site_code' in g.columns else []
+        site_counts = {k: int(v) for k, v in g.body_site_code.dropna().value_counts().items()} if 'body_site_code' in g.columns else {}
+        n_subjects = int(g.subject_id.nunique()) if 'subject_id' in g.columns and g.subject_id.notna().any() else 0
+        n_timepoints = int(g.timepoint_label.nunique()) if 'timepoint_label' in g.columns and g.timepoint_label.notna().any() else 0
+        has_dna = int(g.has_dna.fillna(False).astype(bool).sum()) if 'has_dna' in g.columns else 0
+        has_rna = int(g.has_rna.fillna(False).astype(bool).sum()) if 'has_rna' in g.columns else 0
         conds = counts_sorted(g.health_condition.dropna())[:8]
         countries = counts_sorted(g.country.dropna())[:8]
         sexes = counts_sorted(g.sex.dropna())
@@ -1810,6 +1859,9 @@ def main():
                group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), contra=contra_by_study.get(acc), ivarms=iv_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
                controls=controls_by_study.get(acc, []), samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
+               na_label=PF.NA_LABEL, methods=PF.methods_strip(PF.facts_of(s)), body=PF.body_figure(site_counts, n_total),
+               living=PF.living_table(PF.living_of(s)), exposure=exposure_by_study.get(acc, []), n_subjects=n_subjects,
+               n_timepoints=n_timepoints, has_dna=has_dna, has_rna=has_rna,
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)
 
@@ -1875,10 +1927,11 @@ def main():
     (out / 'data' / 'lookup' / 'studies.json').write_text(json.dumps([[a_, str(t_ or '')[:140]] for a_, t_ in zip(lk_studies.study_accession, lk_studies.study_title)], separators=(',', ':')), encoding='utf-8')
     render('sample.html', 'samples/sample.html', '../', nav='samples', example=str(cw.sample_key.iloc[0]) if len(cw) else '', labels_json=json.dumps({k_: v_ for k_, v_ in LABELS.items()}),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Samples', href='index.html'), dict(label='Sample')])
-    render('explorer.html', 'samples/index.html', '../', nav='samples', stats=stats, age_cats=[c for c in age_cats if (cw.age_category == c).any()], iv_codes=iv_codes, iv_sample_codes=iv_sample_codes,
+    _sc = cw.body_site_code.where(cw.body_site_code != 'unknown_site').dropna().value_counts() if 'body_site_code' in cw.columns else pd.Series(dtype=int)
+    render('explorer.html', 'samples/index.html', '../', nav='samples', stats=stats, site_codes=[(c, vocabs['body_site'].get(c) or c.replace('_', ' '), int(n)) for c, n in _sc.items()], age_cats=[c for c in age_cats if (cw.age_category == c).any()], iv_codes=iv_codes, iv_sample_codes=iv_sample_codes,
            hc_codes=list(hc_rows.index), countries=sorted(cw.country.dropna().unique().tolist()), n_cols=int(cw.shape[1]), has_col=has_col, ls_codes=ls_codes,
            year_min=(years[0] if years else None), year_max=(years[-1] if years else None), n_fields_max=len(CORE_FIELDS) + len(KEY_FIELDS),
-           parquet_size=human((pkg / 'gut_sample_metadata_wide.parquet').stat().st_size), det_size=human((pkg / 'gut_sample_determinations.parquet').stat().st_size),
+           parquet_size=human((pkg / 'catalog_sample_metadata_wide.parquet').stat().st_size), det_size=human((pkg / 'catalog_sample_determinations.parquet').stat().st_size),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Samples')])
 
     # ---------- collections (config/collections.yaml) and Atlas › PCA (Sandpiper scores in the package) ----------
@@ -1891,7 +1944,7 @@ def main():
     if atlas_dir and (atlas_dir / 'taxa.json').exists():   # precomputed taxon-map payload + observation cards (data/inputs/gut/atlas; make atlas-precompute)
         _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs, figures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'figures')), out)
         print(f'[{time.time()-t0:.0f}s] atlas/index + observations from {atlas_dir}', file=sys.stderr)
-    if (pkg / 'gut_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
+    if (pkg / 'catalog_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)
         print(f'[{time.time()-t0:.0f}s] atlas/pca: {pca_stats.get("n_points") if isinstance(pca_stats, dict) else pca_stats}', file=sys.stderr)
 
@@ -1964,11 +2017,11 @@ def main():
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Fields')])
 
     # ---------- scope (how the catalog is cut from the registry) ----------
-    gut_cand = rg[rg.body_sites.map(lambda v: 'gut_stool' in split_list(v))]
-    funnel = [('registry studies (every ENA shotgun-metagenome study reached by the enumeration)', len(rg)), ('host human = yes or mixed', int(rg.host_human.isin(['yes', 'mixed']).sum())),
-              ('… with gut / stool among the body sites', len(gut_cand)), ('… host human AND assay shotgun (catalog rule)', len(gut_cand[gut_cand.host_human.isin(['yes', 'mixed']) & (gut_cand.assay.astype(str).str.startswith('shotgun') | gut_cand.study_accession.isin(inc_set))])),
-              ('catalog studies', len(cs))]
-    not_in = gut_cand[~gut_cand.study_accession.isin(inc_set)]
+    hum = rg[rg.host_human.isin(['yes', 'mixed'])]
+    funnel = [('registry studies (every ENA study reached by the enumeration)', len(rg)), ('host human = yes or mixed', len(hum)),
+              ('… of them in the catalog', int(hum.study_accession.isin(inc_set).sum())),
+              ('catalog projects (including projects found outside the registry slices)', len(cs))]
+    not_in = hum[~hum.study_accession.isin(inc_set)]
     excl_reasons = []
     for (h, asy, stg), g_ in not_in.groupby([not_in.host_human.fillna(''), not_in.assay.fillna(''), not_in.classification_stage.fillna('')]):
         excl_reasons.append(dict(host=h, assay=asy, stage=stg, n=len(g_), n_runs=int(g_.n_runs.fillna(0).sum())))
@@ -2013,6 +2066,15 @@ def main():
         d['changes_href'] = rspec['site_pages']['changes_release'].format(release_id=d['release_id']).split('/')[-1]
         d['current'] = d['release_id'] == release_id
         releases.append(d)
+    # public history (config/releases.yaml public_history_from): the site lists releases from that release on; the Changes
+    # pages of earlier releases redirect to the Changes index (those packages stay archived as GitHub / Zenodo releases)
+    _pub_from = rspec.get('public_history_from')
+    _ids = [d['release_id'] for d in releases]
+    if _pub_from in _ids:
+        _older = releases[:_ids.index(_pub_from)]
+        releases = releases[_ids.index(_pub_from):]
+        for d in _older:
+            REDIRECTS[rspec['site_pages']['changes_release'].format(release_id=d['release_id'])] = 'index.html'
     releases_desc = list(reversed(releases))
     for d in releases:
         if d['notes_html'] is not None:
@@ -2139,9 +2201,9 @@ def main():
         fs = [f for f in (out / sub).glob(pattern) if f.is_file()]
         return dict(n=len(fs), size=human(sum(f.stat().st_size for f in fs)), bytes=sum(f.stat().st_size for f in fs))
     sitedata = [
-        dict(path='data/gut_sample_metadata_wide.parquet', desc='Sample table loaded by the explorer (one row per catalog sample)', **dirstat('data', 'gut_sample_metadata_wide.parquet')),
-        dict(path='data/gut_studies.parquet', desc='Study table loaded by the explorer', **dirstat('data', 'gut_studies.parquet')),
-        dict(path='data/gut_sample_determinations.parquet', desc='Evidence rows (sample × field with verbatim quote)', **dirstat('data', 'gut_sample_determinations.parquet')),
+        dict(path='data/catalog_sample_metadata_wide.parquet', desc='Sample table loaded by the explorer (one row per catalog sample)', **dirstat('data', 'catalog_sample_metadata_wide.parquet')),
+        dict(path='data/catalog_studies.parquet', desc='Study table loaded by the explorer', **dirstat('data', 'catalog_studies.parquet')),
+        dict(path='data/catalog_sample_determinations.parquet', desc='Evidence rows (sample × field with verbatim quote)', **dirstat('data', 'catalog_sample_determinations.parquet')),
         dict(path='data/registry_studies.parquet', desc='Registry tier, loaded by the registry explorer', **dirstat('data', 'registry_studies.parquet')),
         dict(path='data/studies/<PRJ>.csv.gz|.parquet', desc='Per-study sample slices (gzip CSV + parquet)', **dirstat('data/studies', '*[0-9].csv.gz')),
         dict(path='data/studies/<PRJ>_determinations.csv.gz', desc='Per-study evidence rows (gzip CSV, mtime 0)', **dirstat('data/studies', '*_determinations.csv.gz')),
@@ -2153,7 +2215,7 @@ def main():
         dict(path='authors/idx/<letter>.json', desc='Author index shards', **dirstat('authors/idx')),
     ]
     offsite = [dict(o, name=o['name'].replace('{v}', version), desc=o['desc'].replace('{v}', version)) for o in OFFSITE]
-    groups = [('catalog', 'Catalog tables (human gut, all ages)'), ('registry', 'Registry tables (all human shotgun metagenomes)'), ('release', 'Release documents'), ('infant', 'Infant extension tables (deep infant-field curation of the infant studies; also present in the catalog tables)')]
+    groups = [('catalog', 'Catalog tables (every body site, DNA and RNA, all ages)'), ('registry', 'Registry tables (every screened study)'), ('release', 'Release documents'), ('infant', 'Infant extension tables (deep infant-field curation of the infant studies; also present in the catalog tables)')]
     render('downloads.html', 'downloads/index.html', '../', nav='downloads', files=pkg_files, groups=groups, zip_name=zip_name, zip_size=zip_size, zip_href=zip_href, sitedata=sitedata, offsite=offsite, vj=vj,
            releases=releases_desc, n_releases=len(releases), first_numbered=rspec['release_id']['first_numbered'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases')])
@@ -2315,10 +2377,8 @@ def main():
     def _why(r):
         if r.host_human not in ('yes', 'mixed'):
             return 'human host not established' if r.host_human != 'no' else 'host not human'
-        if r.assay not in ('shotgun_dna', 'mixed'):
-            return f'not a shotgun metagenome ({r.assay})'
-        if 'gut_stool' not in str(r.body_sites or '').split(';'):
-            return 'no gut samples'
+        if r.assay not in ('shotgun_dna', 'mixed', 'other'):
+            return f'not shotgun sequencing of a community ({r.assay})'
         return {'owner_decision': 'owner decision', 'curator_audit': 'curator audit', 'pending': 'classification pending'}.get(r.classification_stage, 'not in this release')
     _rs = rg[~rg.study_accession.isin(inc_set) & (rg.host_human != 'no')]
     reg_idx = [[r.study_accession, r.secondary_study_accession if isinstance(r.secondary_study_accession, str) else '', str(r.study_title or '')[:110], _why(r)] for r in _rs.itertuples()]
@@ -2346,6 +2406,10 @@ def main():
             continue
         tgt = f'../registry/index.html?study={acc_}'
         (out / 'studies' / f'{acc_}.html').write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="3; url={tgt}"><title>{acc_} — not in the catalog</title><p>{acc_} is no longer a catalog project (it has no catalog samples: its samples are catalogued under another BioProject, were excluded, or could not be harvested). It remains in the <a href="{tgt}">registry</a>.</p>', encoding='utf-8')
+    # R2026.31: project pages of the former all-body-sites section point to the one project page
+    for acc_ in sorted(inc_set):
+        (out / 'human' / 'projects').mkdir(parents=True, exist_ok=True)
+        (out / 'human' / 'projects' / f'{acc_}.html').write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=../../studies/{acc_}.html"><link rel="canonical" href="{base_url}studies/{acc_}.html"><title>moved</title><p><a href="../../studies/{acc_}.html">{acc_}</a></p>', encoding='utf-8')
     # items 5/6: old URLs keep working as redirects to their new homes
     for old_, new_ in REDIRECTS.items():
         (out / old_).parent.mkdir(parents=True, exist_ok=True)

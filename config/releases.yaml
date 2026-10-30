@@ -14,6 +14,9 @@ release_id:
 # is left null (never invented). n_* for R2026.1 are filled by bitemporal.py from the built tables.
   first_numbered: R2026.1            # alias of `first` (read by site_generator)
   historical: ['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2']   # pre-numbered package states, oldest first (= history[].id)
+# Public history (R2026.31): the package and the site publish release notes / changelog entries from this release on;
+# earlier releases stay archived with their own GitHub / Zenodo releases (scripts/public_history.py).
+public_history_from: R2026.31
 history:
   - id: '1.0.0'
     package_version: '1.0.0'
@@ -300,6 +303,22 @@ releases:
     data_tag: data-v1.24.0
     site_tag: site-v1.24.0
     label: "read check rebuilt on the share of reads that align to 16S rRNA (after PARTIE): 92 wrongly excluded samples reinstated, 5,470 amplicon samples in 55 projects excluded, 32 projects found to be amplicon-only"
+  - release_id: R2026.30
+    package_version: '1.25.0'
+    previous_package_version: '1.24.0'
+    previous_release_id: R2026.29
+    notes_file: RELEASE_NOTES_R2026.30.md
+    data_tag: data-v1.25.0
+    site_tag: site-v1.25.0
+    label: "the large update: scope widened from human gut DNA shotgun to every human body site with DNA and RNA kept as separate data sets, plus mock communities — 2,293 newly classified projects and 217,011 specimens added beside the gut catalog, with methods, study design, metadata-access route and living-conditions fields read from the paper"
+  - release_id: R2026.31
+    package_version: '1.26.0'
+    previous_package_version: '1.25.0'
+    previous_release_id: R2026.30
+    notes_file: RELEASE_NOTES_R2026.31.md
+    data_tag: data-v1.26.0
+    site_tag: site-v1.26.0
+    label: "one catalog: every human body site, DNA and RNA data sets kept apart, all projects in one project sheet with one project-page design; catalog_* tables replace gut_* and human_*; RNA-only specimens of earlier projects added; paper reading (link audit, full-text methods and setting) for every project"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
@@ -437,17 +456,17 @@ registry_tables:
     key: [study_accession]
     default_release_added: R2026.5
     built_with_release_columns: true
-  - file: gut_sample_determinations.parquet
+  - file: catalog_sample_determinations.parquet
     key: [sample_key, field_name]
     default_release_added: R2026.7
     built_with_release_columns: true
     diff_column: value_normalized
-  - file: gut_sample_metadata_wide.parquet
+  - file: catalog_sample_metadata_wide.parquet
     key: [sample_key]
     default_release_added: R2026.7
     built_with_release_columns: true
     diff_column: age_category
-  - file: gut_studies.parquet
+  - file: catalog_studies.parquet
     key: [study_accession]
     default_release_added: R2026.7
     built_with_release_columns: true

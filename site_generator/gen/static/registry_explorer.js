@@ -108,9 +108,8 @@ function readUrl() {
 }
 
 
-// Why a registry study is or is not in the curated catalog (R2026.16, owner: "it should be clear WHY"). Mirrors the pack study_rule
-// (config/packs/gut.yaml): host human yes/mixed AND assay shotgun_dna/mixed AND gut_stool among the body sites, or an included infant
-// study. Returns {inCat, reasons: [{short, long}]}; the first reason is the one shown in the table.
+// Why a registry study is or is not in the catalog ("it should be clear WHY"): host human yes/mixed AND shotgun DNA / RNA
+// sequencing; a study passing both without catalog samples has none in this release (catalogued elsewhere, excluded, not yet read). Returns {inCat, reasons: [{short, long}]}; the first reason is the one shown in the table.
 function catalogReasons(s) {
   if (INCLUDED.has(s.study_accession)) return {inCat: true, reasons: []};
   const out = [];
@@ -118,14 +117,11 @@ function catalogReasons(s) {
   if (!['yes', 'mixed'].includes(s.host_human)) out.push(s.host_human === 'no'
       ? {short: 'host not human', long: 'The runs are not from a human host (host_human = no).'}
       : {short: 'human host not established', long: `The archive metadata do not establish a human host (host_human = ${s.host_human || 'unknown'}).`});
-  if (!['shotgun_dna', 'mixed'].includes(s.assay)) out.push({short: `not a shotgun metagenome (${lab(s.assay)})`,
-      long: `The sequencing is not a DNA shotgun metagenome: assay = ${s.assay} (${lab(s.assay)})${s.library_sources ? '; library source ' + s.library_sources : ''}${s.library_strategies ? ', strategy ' + s.library_strategies : ''}.`});
-  const sites = (s.body_sites || '').split(';').filter(Boolean);
-  if (!sites.includes('gut_stool')) out.push({short: sites.length && !sites.every(x => x.startsWith('unknown')) ? `no gut samples (${sites.join(', ')})` : 'body site not established as gut',
-      long: sites.length && !sites.every(x => x.startsWith('unknown')) ? `None of the samples is from the gut / stool (body sites: ${sites.join(', ')}).` : 'No sample or study text establishes a gut / stool body site.'});
+  if (!['shotgun_dna', 'mixed', 'rna'].includes(s.assay)) out.push({short: `not shotgun DNA / RNA sequencing (${lab(s.assay)})`,
+      long: `The sequencing is not shotgun DNA or RNA sequencing of a microbial community: assay = ${s.assay} (${lab(s.assay)})${s.library_sources ? '; library source ' + s.library_sources : ''}${s.library_strategies ? ', strategy ' + s.library_strategies : ''}.`});
   if (s.classification_stage === 'owner_decision') out.push({short: 'owner decision', long: 'Excluded by a study-level owner decision (config/registry_overrides.yaml).'});
   if (s.classification_stage === 'pending') out.push({short: 'classification pending', long: 'The study has not been classified yet (stage pending); it will be reconsidered next cycle.'});
-  if (!out.length) out.push({short: 'not in this release', long: 'The study meets the rule but is not in this release.'});
+  if (!out.length) out.push({short: 'no catalog samples', long: 'The study passes the archive rule but has no catalog samples in this release: its samples are catalogued under another project, were excluded (amplicon or single-cell data sets only, non-human or synthetic samples), or the project has not been read from its paper yet.'});
   return {inCat: false, reasons: out};
 }
 function stageBadge(v) { return v ? `<span class="tag ${STAGE_CLASS[v] || ''}" title="${h(CFG.stageLabels[v] || v)}">${h(v)}</span>` : ''; }
@@ -147,7 +143,7 @@ async function run() {
     ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
     : `<th>${COL_LABELS[col] || col}</th>`).join('') + '</tr>';
   tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.study_accession)}" tabindex="0" role="button" aria-label="open details for ${h(row.study_accession)}">` +
-    `<td>${(() => { const c = catalogReasons(row); return c.inCat ? '<span class="tag incat" title="in the curated catalog (human gut, all ages) — study page with per-sample metadata">✓</span>' : '<span class="small muted" title="registry only — open the row to see why">—</span>'; })()}</td>` +
+    `<td>${(() => { const c = catalogReasons(row); return c.inCat ? '<span class="tag incat" title="in the catalog — project page with per-sample metadata">✓</span>' : '<span class="small muted" title="registry only — open the row to see why">—</span>'; })()}</td>` +
     `<td>${accLink(row.study_accession, row.in_infant_catalog)}</td><td><span class="small clip" title="${h(row.study_title)}">${h(row.study_title)}</span></td><td class="num">${fmtV(row.n_samples)}</td>` +
     `<td class="small">${h(row.body_sites)}</td><td class="small">${h(row.life_stages)}</td><td class="mono small">${h(row.assay)}</td><td>${stageBadge(row.classification_stage)}</td></tr>`).join('');
   const hv = hostValues(); const hostNote = hv.length && hv.length < HOST_ALL.length ? ` (host human: ${hv.join(', ')})` : '';

@@ -17,10 +17,12 @@ roles:
     used_by: run_sonnet_confirm.py, r3_prose_extract.py
     measured_tokens_per_item: 1150       # per study
   adjudicate:          # Opus-class: adjudication of non-unanimous verdicts, conflict patterns, group-statement audit
-    family_regex: "opus"
+    # pinned to Opus 5 (owner, 2026-10-28): the newest Opus refused 78 of 244 stage-1 tie-breaks, mostly pathogen projects
+    family_regex: "opus-5$"
     resolver: list_models
     used_by: merge_routes.py, adjudicate.py
   audit:               # blind kappa sample / auditor spot checks — same tier as adjudicate
-    family_regex: "opus"
+    # pinned to Opus 5 for the same reason as adjudicate: the newer Opus refuses pathogen/infection projects
+    family_regex: "opus-5$"
     resolver: list_models
     used_by: blind_audit.py

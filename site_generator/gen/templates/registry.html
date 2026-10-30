@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Registry: every screened shotgun-metagenome study — {{ site.title }}{% endblock %}
-{% block desc %}Registry tier: every shotgun-metagenome INSDC BioProject reached through ENA, classified for human host ({{ rs.n_human|fmt }} human studies of {{ rs.n_studies|fmt }}), body site, life stage, assay and access; the human-gut studies among them form the curated catalog.{% endblock %}
+{% block desc %}Registry tier: every shotgun-metagenome INSDC BioProject reached through ENA, classified for human host ({{ rs.n_human|fmt }} human studies of {{ rs.n_studies|fmt }}), body site, life stage, assay and access; the human-associated studies among them that pass the scope classification form the curated catalog.{% endblock %}
 {% block content %}
 <h1>Registry: every screened shotgun-metagenome study</h1>
 <p class="lead">Every screened shotgun-metagenome project in ENA, NCBI SRA and DDBJ ({{ rs.n_studies|fmt }}), classified for human host, body site, life stage and assay; ✓ marks the projects in the catalog.</p>
@@ -21,7 +21,7 @@
   <span class="lbl">Host human <span class="small">(default: human studies = yes + mixed)</span></span>
   <div><label class="chk"><input type="checkbox" id="f-host_yes" checked> yes</label><label class="chk"><input type="checkbox" id="f-host_mixed" checked> mixed</label><label class="chk"><input type="checkbox" id="f-host_unknown"> include unknown</label><label class="chk"><input type="checkbox" id="f-host_no"> include no (non-human)</label></div>
   <label for="f-classification_stage">Classification stage</label><select id="f-classification_stage" data-field="classification_stage"><option value="">(any)</option>{% for v in vocab.classification_stage %}<option>{{ v }}</option>{% endfor %}</select>
-  <label for="f-catalog">Catalog</label><select id="f-catalog"><option value="">all registry studies</option><option value="in">in the catalog (human gut, curated)</option><option value="out">registry only (not curated)</option></select>
+  <label for="f-catalog">Catalog</label><select id="f-catalog"><option value="">all registry studies</option><option value="in">in the catalog (curated)</option><option value="out">registry only (not curated)</option></select>
   <label for="f-min_samples">Minimum samples</label><input id="f-min_samples" type="number" min="0" placeholder="e.g. 50">
   <div class="btns"><button class="btn" id="apply">Apply</button><button class="btn sec" id="reset">Reset</button></div>
 </aside>
@@ -55,7 +55,7 @@
 </div>
 
 <h2 id="about">What a registry row is</h2>
-<p>Each study carries <i>archive-only</i> metadata (route R1): host, body site(s) anchored to UBERON, life stage(s), assay, access, and the classification stage that produced them, each committed value with an evidence row (labelled source, ≤ 12-word quote). Registry rows are <b>classifications, not inclusions</b>: a study can carry several body sites and life stages; rows at stage <span class="mono">pending</span> have not been classified yet. The <b>curated tier</b> goes deeper — per-sample fields recovered from supplementary tables and papers (routes R2–R4) — and is built scope by scope; the <a href="../studies/index.html">catalog</a> (human gut, all ages: {{ rs.n_catalog|fmt }} studies with study pages) is the first curated scope. See <a href="../about/methods.html#registry">Methods › Registry classification</a> for the cascade, the vocabularies and what the confidence means.</p>
+<p>Each study carries <i>archive-only</i> metadata (route R1): host, body site(s) anchored to UBERON, life stage(s), assay, access, and the classification stage that produced them, each committed value with an evidence row (labelled source, ≤ 12-word quote). Registry rows are <b>classifications, not inclusions</b>: a study can carry several body sites and life stages; rows at stage <span class="mono">pending</span> have not been classified yet. The <b>curated tier</b> goes deeper — per-sample fields recovered from supplementary tables and papers (routes R2–R4) ; the <a href="../studies/index.html">catalog</a> ({{ rs.n_catalog|fmt }} projects with project pages) covers every human body site. See <a href="../about/methods.html#registry">Methods › Registry classification</a> for the cascade, the vocabularies and what the confidence means.</p>
 <div class="cards">
 <div class="card"><div class="num">{{ rs.n_human|fmt }}</div><div class="lbl"><b>human studies</b> (host human = yes {{ rs.host.yes|fmt }} + mixed {{ rs.host.mixed|fmt }}), {{ rs.n_runs_human|fmt }} runs <span class="small">· {{ rs.n_studies|fmt }} INSDC BioProjects screened in total</span></div></div>
 <div class="card"><div class="num">{{ rs.n_runs|fmt }}</div><div class="lbl">sequencing runs</div></div>
@@ -64,7 +64,7 @@
 <div class="card"><div class="num">{{ rs.n_biosamples|fmt }}</div><div class="lbl">BioSamples</div></div>
 <div class="card"><div class="num">{{ rs.host.no|fmt }}</div><div class="lbl">non-human (host human = no) · {{ rs.host.unknown|fmt }} unknown — screened and kept for provenance, excluded from the default explorer view</div></div>
 <div class="card"><div class="num">{{ rs.n_classified|fmt }}</div><div class="lbl">classified ({{ rs.pct_classified }}%) · {{ rs.n_pending|fmt }} pending</div></div>
-<div class="card"><div class="num">{{ rs.n_scopes }}</div><div class="lbl">body-site scopes; {{ rs.n_catalog|fmt }} studies are in the <a href="../studies/index.html">curated catalog</a> (human gut, all ages)</div></div>
+<div class="card"><div class="num">{{ rs.n_scopes }}</div><div class="lbl">body-site scopes; {{ rs.n_catalog|fmt }} studies are in the <a href="../studies/index.html">curated catalog</a> (every body site, all ages)</div></div>
 </div>
 
 {% endblock %}

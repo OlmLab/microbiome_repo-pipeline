@@ -3,7 +3,7 @@
 A value is *contradicted* when two sample-level sources give incompatible values for the same sample and field, or when
 the samples of one person disagree on a person-constant field (sex). Contradicted values are WITHHELD: the sample gets no
 value for that field (and no cohort-wide statement may fill it), and both sides are kept, with their evidence, in
-gut_metadata_contradictions.parquet. Project pages show a red "!" badge with a summary.
+catalog_metadata_contradictions.parquet. Project pages show a red "!" badge with a summary.
 
 Incompatible means (formatting / refinement differences are not contradictions):
   sex, country            any different value

@@ -50,7 +50,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in-dir", required=True)
     ap.add_argument("--out-dir", default=os.path.join(REPO, "data", "inputs", "gut", "deep"))
-    ap.add_argument("--wide", default=os.path.join(REPO, "build", "package", "gut_sample_metadata_wide.parquet"))
+    ap.add_argument("--wide", default=os.path.join(REPO, "build", "package", "catalog_sample_metadata_wide.parquet"))
     ap.add_argument("--corrections", help="CSV study_accession,field_name,reason: audited published errors (R2026.20, e.g. unitless infant ages read "
                     "as years). For these (study, field) pairs a deep row that DISAGREES with an equal-route published value is kept with "
                     "confidence 0.95, so it wins in build_gut_scope.resolve")

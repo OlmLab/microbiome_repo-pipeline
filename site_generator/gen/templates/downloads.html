@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Downloads &amp; releases</h1>
 <p class="lead">Data package <b>{{ site.version }}</b> (release {{ site.release_id }}, built {{ site.build_date }}).</p>
-<details class="about-page"><summary>About this page</summary><p>Start with <span class="mono">gut_studies.parquet</span> (one row per catalog study) and <span class="mono">gut_sample_metadata_wide.parquet</span> (one row per sample); the evidence behind every value is in <span class="mono">gut_sample_determinations.parquet</span>; the registry of all human shotgun metagenomes is <span class="mono">registry_studies.parquet</span>. Column definitions: <a href="../docs/DATA_DICTIONARY.html">data dictionary</a>.</p></details>
+<details class="about-page"><summary>About this page</summary><p>Start with <span class="mono">catalog_studies.parquet</span> (one row per catalog study) and <span class="mono">catalog_sample_metadata_wide.parquet</span> (one row per sample); the evidence behind every value is in <span class="mono">catalog_sample_determinations.parquet</span>; the registry of all human shotgun metagenomes is <span class="mono">registry_studies.parquet</span>. Column definitions: <a href="../docs/DATA_DICTIONARY.html">data dictionary</a>.</p></details>
 {% if zip_name %}<div class="btns"><a class="btn" href="{{ zip_href }}">Whole package: {{ zip_name }} ({{ zip_size }})</a> {% if site.data_release_url %}<a class="btn sec" href="{{ site.data_release_url }}">GitHub Release {{ site.release_tag }}</a>{% endif %}</div>{% endif %}
 {% for gid, glabel in groups %}
 <h2>{{ glabel }}</h2>
@@ -21,16 +21,16 @@
 </tbody></table>
 <p class="small">Integrity: <a href="../data/manifest.json">manifest.json</a> (SHA-256 of every data file) · <a href="../data/VERSION.json">VERSION.json</a> (package tables with row counts and SHA-256). Licence: curated tables CC-BY-4.0; archive metadata under INSDC terms.</p>
 {% include "_cite.html" %}
-<h2 id="releases">Releases ({{ n_releases }}, from <span class="mono">releases.csv</span>)</h2>
-<p class="small">Every release is frozen and archived as a GitHub Release of the data repository (tag <span class="mono">data-v&lt;package&gt;</span>) and a site tag (<span class="mono">site-v&lt;package&gt;</span>). Numbered releases (<span class="mono">R&lt;YYYY&gt;.&lt;n&gt;</span>) start with <span class="mono">{{ first_numbered }}</span>; earlier states are identified by their package version. Every fact row carries <span class="mono">release_added</span> / <span class="mono">release_retired</span>; the <a href="../changes/index.html">Changes</a> pages list what changed in each release.</p>
-<table class="tbl compact" id="release-table"><thead><tr><th>Release</th><th>Date</th><th>Package</th><th>Data tag</th><th>Site tag</th><th>DOI</th><th class="num">Studies</th><th class="num">Samples</th><th class="num">Catalog scope</th><th class="num">Determinations (current)</th><th>Sandpiper</th><th>Changes</th></tr></thead><tbody>
+<h2 id="releases">Releases</h2>
+<p class="small">Every release is frozen and archived as a GitHub Release of the data repository (tag <span class="mono">data-v&lt;package&gt;</span>), with a matching site tag (<span class="mono">site-v&lt;package&gt;</span>) and a Zenodo version DOI. Every fact row carries <span class="mono">release_added</span> / <span class="mono">release_retired</span>; the <a href="../changes/index.html">Changes</a> page lists what changed in each release.</p>
+<table class="tbl compact" id="release-table"><thead><tr><th>Release</th><th>Date</th><th>Package</th><th>Data tag</th><th>Site tag</th><th>DOI</th><th class="num">Projects</th><th class="num">Samples</th><th class="num">Sample × field values</th><th>Sandpiper</th><th>Changes</th></tr></thead><tbody>
 {% for r in releases %}<tr{% if r.current %} class="final"{% endif %} id="rel-{{ r.release_id }}"><td class="mono">{{ r.release_id }}{% if r.current %} <b>current</b>{% endif %}</td><td>{{ r.release_date or '' }}</td><td class="mono">{{ r.package_version }}</td>
 <td class="mono">{% if r.data_url %}<a href="{{ r.data_url }}">{{ r.data_tag }}</a>{% else %}—{% endif %}</td><td class="mono">{% if r.site_url %}<a href="{{ r.site_url }}">{{ r.site_tag }}</a>{% else %}—{% endif %}</td>
 <td>{% if r.doi %}<a href="https://doi.org/{{ r.doi }}">{{ r.doi }}</a>{% else %}<span class="small">pending</span>{% endif %}</td>
-<td class="num">{{ r.n_studies_included|fmt }}</td><td class="num">{{ r.n_samples|fmt }}</td><td class="num">{{ r.n_catalog_scope|fmt }}</td><td class="num">{{ r.n_determinations_current|fmt }}</td><td class="mono">{{ r.sandpiper_version or '—' }}</td>
+<td class="num">{{ r.n_studies_included|fmt }}</td><td class="num">{{ r.n_samples|fmt }}</td><td class="num">{{ r.n_determinations_current|fmt }}</td><td class="mono">{{ r.sandpiper_version or '—' }}</td>
 <td><a href="../changes/{{ r.changes_href }}">changes</a></td></tr>{% endfor %}
 </tbody></table>
-<p class="small">Empty cells are counts the historical changelog does not state; nothing is back-filled by estimate. Historical rows (1.0.0 … 1.2.2) are documented in the <a href="../docs/CHANGELOG.html">package changelog</a>.</p>
+<p class="small">Earlier package versions stay archived as GitHub Releases of the data repository and on Zenodo (the concept DOI resolves to the newest version).</p>
 <h2 id="release-notes">Release notes</h2>
 {% for r in releases %}{% if r.notes_html %}
 <details{% if r.current %} open{% endif %} id="notes-{{ r.release_id }}"><summary><b>{{ r.release_id }}</b> — package {{ r.package_version }}, {{ r.release_date }} (<a href="../releases/RELEASE_NOTES_{{ r.release_id }}.md">markdown</a>)</summary>

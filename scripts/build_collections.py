@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Validate config/collections.yaml against a package directory and write collections_preview.csv (+ collections_studies.csv).
 
-usage: python scripts/build_collections.py --package <dir with gut_studies.parquet, gut_sample_metadata_wide.parquet>
+usage: python scripts/build_collections.py --package <dir with catalog_studies.parquet, catalog_sample_metadata_wide.parquet>
                                            [--config config/collections.yaml] [--out <dir>] [--check]
 --check exits 1 on any problem (unknown accession, bad vocabulary value, blurb > 60 words, filter-only set < 100 samples).
 Semantics: `studies` restricts to listed accessions; `filters` restrict samples (list = any-of, {min,max} = range);
@@ -22,7 +22,7 @@ def main():
     ap.add_argument('--package', required=True); ap.add_argument('--config', default=str(ROOT / 'config' / 'collections.yaml'))
     ap.add_argument('--out', default='.'); ap.add_argument('--check', action='store_true')
     a = ap.parse_args(); P = pathlib.Path(a.package); out = pathlib.Path(a.out)
-    st = pd.read_parquet(P / 'gut_studies.parquet'); wide = pd.read_parquet(P / 'gut_sample_metadata_wide.parquet')
+    st = pd.read_parquet(P / 'catalog_studies.parquet'); wide = pd.read_parquet(P / 'catalog_sample_metadata_wide.parquet')
     ver = json.load(open(P / 'VERSION.json'))['package_version'] if (P / 'VERSION.json').exists() else 'unknown'
     pack = yaml.safe_load(open(ROOT / 'config' / 'packs' / 'gut.yaml'))
     allowed = {'age_category': set(pack['age_categories']) | {'unknown'},
@@ -42,7 +42,7 @@ def main():
         if len(str(c.get('blurb', '')).split()) > 60: problems.append(f'{cid}: blurb > 60 words')
         studies = c.get('studies') or []; keep = [s for s in studies if s in exists]
         for s in studies:
-            if s not in exists: problems.append(f'{cid}: accession {s} not in gut_studies.parquet ({ver})')
+            if s not in exists: problems.append(f'{cid}: accession {s} not in catalog_studies.parquet ({ver})')
         filters = c.get('filters') or {}; mask = pd.Series(True, index=wide.index); notes = []
         for k, v in filters.items():
             if k in LIST_KEYS:
@@ -71,7 +71,7 @@ def main():
         sti = st.set_index('study_accession')
         for s in keep:
             srows.append(dict(collection=cid, study_accession=s, study_title=sti.loc[s, 'study_title'], n_samples_in_collection=int((sel.study_accession == s).sum()),
-                              ena_url=f'https://www.ebi.ac.uk/ena/browser/view/{s}', verified_in=f'gut_studies.parquet {ver}'))
+                              ena_url=f'https://www.ebi.ac.uk/ena/browser/view/{s}', verified_in=f'catalog_studies.parquet {ver}'))
     out.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(out / 'collections_preview.csv', index=False); pd.DataFrame(srows).to_csv(out / 'collections_studies.csv', index=False)
     print(pd.DataFrame(rows)[['id', 'kind', 'n_listed_studies', 'n_studies', 'n_samples']].to_string(index=False))

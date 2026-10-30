@@ -19,29 +19,11 @@ def n3(s):
     m = re.findall(r"\d+", str(s)); return m[-1].lstrip("0") if m else ""
 RUNGS = [("exact", lambda s: str(s).strip()), ("casefold", n1), ("stem", n2), ("number", n3)]
 
-def tables_of(pmc):
-    out = []
-    for p in glob.glob(f"{CACHE}/pmc_oa/{pmc}.*/*") + glob.glob(f"{CACHE}/pmc_oa/{pmc}/*"):
-        out += read_any(p, open(p, "rb").read())
-    z = f"{CACHE}/supp/{pmc}.zip"
-    if os.path.exists(z):
-        try:
-            with zipfile.ZipFile(z) as zf:
-                for n in zf.namelist(): out += read_any(n, zf.read(n))
-        except Exception: pass
-    return out
+# table readers (xlsx / csv / docx / pdf) are shared with extract_supp_rows so the audit and the extraction
+# always see exactly the same tables
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from extract_supp_rows import tables_of, read_any  # noqa: E402
 
-def read_any(name, data):
-    ext = name.lower().rsplit(".", 1)[-1]
-    try:
-        if ext in ("xlsx", "xlsm", "xls"):
-            sh = pd.read_excel(io.BytesIO(data), sheet_name=None, dtype=str, header=None, nrows=20000)
-            return [(f"{os.path.basename(name)}!{k}", v) for k, v in sh.items()]
-        if ext in ("csv", "tsv", "txt"):
-            return [(os.path.basename(name), pd.read_csv(io.BytesIO(data), sep=None, engine="python", dtype=str, header=None, nrows=20000))]
-    except Exception:
-        return []
-    return []
 
 def ena_keys(acc):
     r = requests.get("https://www.ebi.ac.uk/ena/portal/api/filereport", params=dict(accession=acc, result="read_run", format="tsv", limit=0,

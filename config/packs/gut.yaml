@@ -1,14 +1,15 @@
-# Curated scope `gut_all` — every human gut shotgun metagenome in the registry (all ages). Owner decision 2026-09-28:
+# The catalog's field pack (file name kept from R2026.7). R2026.31: one catalog over every human body site, DNA and RNA.
+# History: curated scope `gut_all` — every human gut shotgun metagenome in the registry (all ages). Owner decision 2026-09-28:
 # "curate all the non-infant samples as well, still just gut"; the infant catalog must be reproducible by filtering to the
 # infant category. This pack defines the per-sample fields, their vocabularies, the routes that may commit them, and the
 # tables the scope ships. The infant curated tables (sample_determinations / sample_metadata_wide / …) are NOT changed:
 # their rows are copied into the gut tables verbatim (source infant_catalog) and win over archive-only values.
 pack_id: gut_all
-label: Human gut shotgun metagenomes, all ages
+label: Human-associated shotgun metagenomes and metatranscriptomes, every body site and age
 release_first: R2026.7
 package_version_first: "1.8.0"
-study_rule: registry_studies.host_human in {yes, mixed} and assay in {shotgun_dna, mixed} and gut_stool in body_sites, OR in_infant_catalog == include
-sample_rule: registry_biosamples of those studies (all body sites kept; body_site_class marks non-gut samples) + the curated infant samples
+study_rule: "projects admitted by the scope classification (human-associated communities sequenced by shotgun DNA or RNA, any body site; mock / standard communities as benchmarks), plus the projects of earlier releases that still meet the registry rule"
+sample_rule: "every sample of a catalog project with at least one in-scope data set (amplicon and single-cell runs excluded run by run); body_site_class = primary when a human site is stated, unknown when none is"
 age_categories:            # from age_at_collection_days when known, else the sample's life stage, else the study's life_stage_primary (basis recorded)
   neonate: [0, 28]
   infant: [29, 1100]
@@ -42,7 +43,7 @@ fields:                    # field_name → vocabulary / type; routes R1 (archiv
   smoking_status: {type: vocab, vocab: config/vocab/smoking.yaml, routes: [R1, R2, R3, R4], note: "never | former | current"}
   medication: {type: vocab_list, vocab: config/vocab/medication.yaml, routes: [R1, R2, R3, R4], detail_field: medication_detail, note: "';'-joined sorted codes; antibiotics are antibiotic_exposure, not here"}
   medication_detail: {type: text, max_len: 160, routes: [R1, R2, R3, R4]}
-  intervention: {type: vocab_list, vocab: config/vocab/interventions.yaml, routes: [R1, R2, R3, R4], detail_field: intervention_detail, note: "what this sample's subject had received IN THE STUDY at or before sampling (';'-joined sorted codes; placebo / no_intervention for control arms and pre-intervention baselines). Per-sample from archive attributes (R1); the study-level list of administered interventions is gut_studies.interventions (R4, abstracts) and is not copied onto samples — controls of an FMT trial are not FMT samples."}
+  intervention: {type: vocab_list, vocab: config/vocab/interventions.yaml, routes: [R1, R2, R3, R4], detail_field: intervention_detail, note: "what this sample's subject had received IN THE STUDY at or before sampling (';'-joined sorted codes; placebo / no_intervention for control arms and pre-intervention baselines). Per-sample from archive attributes (R1); the study-level list of administered interventions is catalog_studies.interventions (R4, abstracts) and is not copied onto samples — controls of an FMT trial are not FMT samples."}
   intervention_detail: {type: text, max_len: 160, routes: [R1, R2, R3, R4]}
   stool_consistency_bristol: {type: int, range: [1, 7], routes: [R1, R2], note: "Bristol stool form scale 1–7 as stated; textual forms (hard / normal / loose / watery) are mapped 2 / 4 / 6 / 7 with confidence 0.7"}
   # added 2026-10-10 (owner request: relatedness / transmission data) — release R2026.23 / package 1.19.0
@@ -71,8 +72,8 @@ derived_fields:
   nec_status: {type: enum, infant_only: true}
 future_fields: [ethnicity, alcohol, physical_activity]   # values exist in attributes; no vocabulary yet (ethnicity deliberately not curated)
 tables:
-  studies: gut_studies.parquet
-  samples_wide: gut_sample_metadata_wide.parquet
-  determinations: gut_sample_determinations.parquet
+  studies: catalog_studies.parquet
+  samples_wide: catalog_sample_metadata_wide.parquet
+  determinations: catalog_sample_determinations.parquet
 determination_schema: same columns as sample_determinations.parquet (sample_key, field_name, study_accession, field_value, value_normalized, confidence, evidence_source, evidence_locator, evidence_quote, evidence_limited_to_abstract, determined_by, route, scope, parse_note, group_audit, src_track, release_added, release_retired, package_added)
 evidence_rules: infant-curation-rules §"Per-sample extraction" — verbatim quote ≤ 12 words, labelled source, confidence tier by route (R1 0.9 / R2 0.85 / R3 ≤ 0.7 / R4 ≤ 0.5), R4 rows evidence_limited_to_abstract = 1

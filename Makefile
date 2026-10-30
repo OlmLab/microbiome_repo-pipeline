@@ -200,11 +200,15 @@ release:         ## stage 5 (R2026.n) — unpack → findings → assemble → b
 	@if [ -f "$(REGISTRY_UNIVERSE)" ]; then $(MAKE) registry-build REGISTRY_OUT=$(PKG_OUT) && rm -f $(PKG_OUT)/registry_studies_fixture.parquet; else echo "no registry universe at $(REGISTRY_UNIVERSE) (registry tables not built)"; fi
 	@if [ -f "$(REGISTRY_UNIVERSE)" ] && [ -f "$(REGISTRY_ATTRIBUTES)" ] && [ -f "$(REGISTRY_NORM)" ]; then $(MAKE) registry-biosamples REGISTRY_OUT=$(PKG_OUT); else echo "no registry sample tier inputs (REGISTRY_ATTRIBUTES / REGISTRY_NORM) — registry_biosamples not built"; fi
 	@if [ -f "$(GUT_STUDIES)" ] && [ -f "$(PKG_OUT)/registry_biosamples.parquet" ]; then $(MAKE) gut-build GUT_OUT=$(PKG_OUT); else echo "no gut scope inputs ($(GUT_STUDIES)) — gut_* tables not built"; fi
-	@if [ -f "$(PKG_OUT)/gut_sample_metadata_wide.parquet" ]; then $(PY) scripts/check_unharvested.py --wide $(PKG_OUT)/gut_sample_metadata_wide.parquet --studies $(PKG_OUT)/gut_studies.parquet --runs $(REGISTRY_RUNS) --attributes $(REGISTRY_ATTRIBUTES) --exclusions config/sample_exclusions.csv --out $(BUILD)/gut/unharvested_biosamples.csv; fi
-	@if [ -f "$(PKG_OUT)/gut_studies.parquet" ]; then $(PY) scripts/check_pass_coverage.py --gut-dir $(GUT_DIR) --studies $(PKG_OUT)/gut_studies.parquet --out $(PKG_OUT)/gut_pass_coverage.csv --max $(PASS_COVERAGE_MAX); fi
+	# R2026.31: one catalog — tables of the previous package under their pre-1.26.0 names are not carried forward
+	@if [ -f "$(PKG_OUT)/catalog_studies.parquet" ]; then cd $(PKG_OUT) && rm -f $(LEGACY_TABLES) && echo "legacy-named tables removed from $(PKG_OUT)"; fi
+	@if [ -f "$(PKG_OUT)/catalog_sample_metadata_wide.parquet" ]; then $(PY) scripts/check_unharvested.py --wide $(PKG_OUT)/catalog_sample_metadata_wide.parquet --studies $(PKG_OUT)/catalog_studies.parquet --runs $(REGISTRY_RUNS) --attributes $(REGISTRY_ATTRIBUTES) --exclusions config/sample_exclusions.csv --out $(BUILD)/gut/unharvested_biosamples.csv; fi
+	@if [ -f "$(PKG_OUT)/catalog_studies.parquet" ]; then $(PY) scripts/check_pass_coverage.py --gut-dir $(GUT_DIR) --studies $(PKG_OUT)/catalog_studies.parquet --out $(PKG_OUT)/catalog_pass_coverage.csv --max $(PASS_COVERAGE_MAX); fi
 	@if [ -f "$(REGISTRY_UNIVERSE)" ] && [ -n "$(wildcard $(REGISTRY_EXTRA))" ]; then $(PY) -m catalog.registry.add_registry_tables --package $(PKG_OUT) --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC) $(wildcard $(REGISTRY_EXTRA)); else echo "no extra registry tables ($(REGISTRY_EXTRA))"; fi
-	@if [ -d "$(GUT_SANDPIPER_DIR)" ]; then cp $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_scores.parquet $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_loadings.parquet $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_variance.csv $(GUT_SANDPIPER_DIR)/gut_sandpiper_study_coverage.csv $(PKG_OUT)/ && cp $(GUT_SANDPIPER_DIR)/GUT_SANDPIPER_REPORT.md $(PKG_OUT)/ && $(PY) scripts/gut_sandpiper_panels.py --genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet --summary $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet --wide $(PKG_OUT)/gut_sample_metadata_wide.parquet --out $(PKG_OUT)/gut_sandpiper_study_panels.parquet; else echo "no gut Sandpiper tables ($(GUT_SANDPIPER_DIR))"; fi
+	@if [ -d "$(GUT_SANDPIPER_DIR)" ]; then for f in sample_summary.parquet pca_scores.parquet pca_loadings.parquet pca_variance.csv study_coverage.csv; do cp $(GUT_SANDPIPER_DIR)/gut_sandpiper_$$f $(PKG_OUT)/catalog_sandpiper_$$f; done && cp $(GUT_SANDPIPER_DIR)/GUT_SANDPIPER_REPORT.md $(PKG_OUT)/CATALOG_SANDPIPER_REPORT.md && $(PY) scripts/gut_sandpiper_panels.py --genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet --summary $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet --wide $(PKG_OUT)/catalog_sample_metadata_wide.parquet --out $(PKG_OUT)/catalog_sandpiper_study_panels.parquet; else echo "no catalog Sandpiper tables ($(GUT_SANDPIPER_DIR))"; fi
+	$(PY) scripts/public_history.py $(PKG_OUT)
 	$(MAKE) package-docs
+	$(PY) scripts/public_history.py $(PKG_OUT) --after-docs
 	# VERSION.json must carry the NEW version before the notes are generated (release_notes reads it for the header);
 	# the second make_version run re-hashes the package with RELEASE_NOTES included, the third checks (R1-11)
 	$(PY) -m catalog.make_version --package $(PKG_OUT) --build-date $(BUILD_DATE) --zip $(PKG_ZIP_OUT)
@@ -225,6 +229,11 @@ check-reports:   ## fail when a report the site links to is missing from $(REPOR
 
 plot-coverage:   ## regenerate field_coverage.png from the package's field_coverage_summary.csv (deterministic)
 	$(PY) scripts/plot_field_coverage.py --summary $(PKG_OUT)/field_coverage_summary.csv --out $(REPORTS)/field_coverage.png
+
+# R2026.31: the separate human_all scope (build_human_scope.py, R2026.30) is folded into gut-build (one catalog).
+LARGE_UPDATE ?= $(CACHE_DIR)/large_update
+READ_CHECKS ?= $(CACHE_DIR)/read_check/r16_conflicts.csv,$(CACHE_DIR)/read_check/r16_scope.csv,$(CACHE_DIR)/read_check/r16_s4.csv,$(CACHE_DIR)/read_check/r16_all.csv
+
 
 site:            ## stage 6 — build the static site from the package (deterministic build date from VERSION.json)
 	@test -n "$(BASE_URL)" && test "$(BASE_URL)" != "$(PLACEHOLDER_URL)" || { echo "config/site.yaml base_url is the placeholder ($(PLACEHOLDER_URL))"; exit 1; }
@@ -293,7 +302,7 @@ GUT_ABX_MAP  ?= $(GUT_DIR)/gut_antibiotic_map.parquet
 # 1.12.0 (R2026.12): route R1 for the new pack fields (collection_date, location_*, latitude/longitude, lifestyle) — output of gut-newfields-r1
 GUT_R1_NEWFIELDS ?= $(GUT_DIR)/gut_r1_newfields_determinations.parquet
 # data-quality corrections (retire / recode) from the adjudication leaf — optional
-GUT_CORRECTIONS ?= $(GUT_DIR)/dq_corrections.parquet
+GUT_CORRECTIONS ?= $(GUT_DIR)/dq_corrections.parquet $(GUT_DIR)/curated_supp_corrections.parquet
 # harvested BioSample attribute rows of the catalog studies (artifact; bootstrap materialises it) — input of gut-newfields-r1
 GUT_ATTRIBUTES   ?= $(GUT_DIR)/gut_biosample_attributes.parquet
 # 1.13.0 (R2026.13): route R1 for the new fields v2 (diet, smoking_status, medication, stool_consistency_bristol) — output of gut-newfields-r1-v2
@@ -303,7 +312,7 @@ GUT_R1_INTERVENTIONS ?= $(GUT_DIR)/interventions/gut_r1_intervention_determinati
 GUT_R1_INFANT ?= $(GUT_DIR)/r1_infant/gut_r1_infant_determinations.parquet
 GUT_SAMPLE_EXCLUSIONS ?= config/sample_exclusions.csv
 GUT_SAMPLE_TYPES ?= config/sample_types.csv
-GUT_METADATA_ACCESS ?= config/metadata_access.csv
+GUT_METADATA_ACCESS ?= config/metadata_access.csv config/metadata_access_manual.csv
 # R2026.25: deep-pass rows that disagreed with a published value (not ingested; feed the contradiction table)
 # R2026.25: per-sample offsets from the visit-code timing pass (scripts/stage_timing_maps.py)
 GUT_TIMING_SAMPLES ?= $(GUT_DIR)/timing/timing_samples.parquet
@@ -315,10 +324,22 @@ RUN_BASES_NCBI ?= $(DATA)/registry/run_bases_ncbi.parquet
 # attribute rows whose keys match diet / smoking / medication / stool / alcohol / activity patterns (artifact gut_biosample_attributes_newfields_v2) — input of gut-newfields-r1-v2
 GUT_ATTRIBUTES_V2   ?= $(GUT_DIR)/gut_biosample_attributes_newfields_v2.parquet
 GUT_OUT      ?= $(BUILD)/gut
+# R2026.31: inputs of the projects added by the scope classification + the per-project run refetch (scripts/prepare_catalog_inputs.py)
+CATALOG_IN   ?= $(DATA)/catalog
+PKG_SRC_WIDE  = $(firstword $(wildcard $(PKG_SRC)/catalog_sample_metadata_wide.parquet) $(PKG_SRC)/gut_sample_metadata_wide.parquet)
+PKG_SRC_RUNS  = $(firstword $(wildcard $(PKG_SRC)/catalog_runs.parquet) $(PKG_SRC)/gut_runs.parquet)
+CATALOG_RUNS ?= $(CATALOG_IN)/runs_source.parquet
+# tables of packages before 1.26.0 that the unified catalog replaces (removed from PKG_OUT after the catalog build)
+LEGACY_TABLES := gut_studies.parquet gut_sample_metadata_wide.parquet gut_sample_determinations.parquet gut_sample_determinations_conflicts.parquet \
+  gut_runs.parquet gut_relatedness.parquet gut_relations.parquet gut_metadata_contradictions.parquet gut_pass_coverage.csv \
+  gut_sandpiper_sample_summary.parquet gut_sandpiper_pca_scores.parquet gut_sandpiper_pca_loadings.parquet gut_sandpiper_pca_variance.csv \
+  gut_sandpiper_study_coverage.csv gut_sandpiper_study_panels.parquet GUT_SANDPIPER_REPORT.md human_studies.parquet human_samples.parquet \
+  human_runs.parquet human_exposure_items.parquet
 # release check: project-passes never attempted that are allowed (0 = every applicable pass must have run; exceptions in config/pass_coverage_exceptions.csv)
 PASS_COVERAGE_MAX ?= 0
 # whole-catalog Sandpiper tables (leaf outputs; filter_gut.py + build_gut_tables.py regenerate them from the bulk snapshot)
-GUT_SANDPIPER_DIR ?= $(GUT_DIR)/sandpiper
+# R2026.31: data/inputs/catalog/sandpiper = the same tables extended to every catalog sample (scripts/extend_sandpiper.py)
+GUT_SANDPIPER_DIR ?= $(if $(wildcard $(DATA)/catalog/sandpiper/gut_sandpiper_sample_summary.parquet),$(DATA)/catalog/sandpiper,$(GUT_DIR)/sandpiper)
 # precomputed Atlas payload (taxa.json, matrix_*.bin, observations.json, obs/) — pages/atlas.py precompute + scripts/atlas_observations.py
 ATLAS_DATA   ?= $(GUT_DIR)/atlas
 
@@ -326,26 +347,29 @@ atlas-observations: ## recompute the Atlas observation cards (obs/*.png + obs/*.
 	@test -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" || { echo "Sandpiper genus table missing: $(GUT_SANDPIPER_DIR)"; exit 1; }
 	$(PY) scripts/atlas_observations.py --genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet --species $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_species.parquet \
 	  --summary $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet --pca $(GUT_SANDPIPER_DIR)/gut_sandpiper_pca_scores.parquet \
-	  --wide $(PKG_SRC)/gut_sample_metadata_wide.parquet --out $(ATLAS_DATA) --generated-from "package $(VERSION) wide table + Sandpiper genus/species tables"
+	  --wide $(PKG_SRC_WIDE) --out $(ATLAS_DATA) --generated-from "package $(VERSION) wide table + Sandpiper genus/species tables"
 
 gut-build:       ## curated scope gut_all — gut_studies / gut_sample_metadata_wide / gut_sample_determinations / gut_runs from registry_biosamples + registry_runs + R1/R2/R3/R4 leaf outputs + the infant tables
 	mkdir -p $(GUT_OUT) $(BUILD)/gut
 	$(PY) -m catalog.scopes.build_gut_scope --studies $(GUT_STUDIES) --registry-studies $(PKG_OUT)/registry_studies.parquet --biosamples $(PKG_OUT)/registry_biosamples.parquet \
 	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --r1-infant "$(GUT_R1_INFANT)" --sample-exclusions "$(GUT_SAMPLE_EXCLUSIONS)" --sample-types "$(GUT_SAMPLE_TYPES)" --metadata-access "$(GUT_METADATA_ACCESS)" --deep-glob "$(GUT_DEEP_GLOB)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --contradiction-extra "$(GUT_CONTRA_EXTRA)" --timing-samples "$(GUT_TIMING_SAMPLES)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
-	  --registry-runs $(REGISTRY_RUNS) --registry-sandpiper $(REGISTRY_SANDPIPER) \
+	  --registry-runs $(firstword $(wildcard $(CATALOG_RUNS)) $(REGISTRY_RUNS)) --registry-sandpiper $(REGISTRY_SANDPIPER) --read-checks "$(READ_CHECKS)" \
+	  $(if $(wildcard $(CATALOG_IN)/extra_studies.parquet),--extra-studies $(CATALOG_IN)/extra_studies.parquet --extra-biosamples $(CATALOG_IN)/extra_biosamples.parquet --extra-determinations $(CATALOG_IN)/extra_determinations.parquet --study-facts $(CATALOG_IN)/study_facts.parquet --short-descriptions-extra $(CATALOG_IN)/short_descriptions_extra.parquet,) \
 	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC)
+	@if [ -f "$(CATALOG_IN)/exposure_items.parquet" ]; then cp $(CATALOG_IN)/exposure_items.parquet $(GUT_OUT)/catalog_exposure_items.parquet; fi
+	@if [ -f "$(CATALOG_IN)/study_papers.parquet" ]; then cp $(CATALOG_IN)/study_papers.parquet $(GUT_OUT)/catalog_study_papers.parquet; fi
 
 gut-newfields-r1: ## stage 8 leaf (Claude session for the utility-model steps; ≈ 0.3 M tokens) — R1 rows for collection_date / location_* / latitude+longitude / lifestyle from the BioSample attributes → $(GUT_R1_NEWFIELDS) + gut_location_map / gut_lifestyle_map / rejects / conflicts
 	@test -f "$(GUT_ATTRIBUTES)" || { echo "attribute rows missing: $(GUT_ATTRIBUTES) (artifact gut_biosample_attributes; bootstrap.py)"; exit 1; }
-	$(PY) -m catalog.scopes.newfields_r1 --attributes $(GUT_ATTRIBUTES) --wide $(PKG_SRC)/gut_sample_metadata_wide.parquet --gut-studies $(GUT_STUDIES) \
+	$(PY) -m catalog.scopes.newfields_r1 --attributes $(GUT_ATTRIBUTES) --wide $(PKG_SRC_WIDE) --gut-studies $(GUT_STUDIES) \
 	  --registry-runs $(REGISTRY_RUNS) --registry-sandpiper $(REGISTRY_SANDPIPER) --out-dir $(GUT_DIR) --release-id $(RELEASE_ID) --package-version $(VERSION) \
 	  $(if $(GUT_LOCATION_MAP),--location-map $(GUT_LOCATION_MAP),) $(if $(GUT_LIFESTYLE_MAP),--lifestyle-map $(GUT_LIFESTYLE_MAP),) $(if $(NO_LLM),--no-llm,) $(if $(REVERSE_GEOCODE),--reverse-geocode,)
-	@rm -f $(GUT_OUT)/gut_sample_determinations_conflicts.parquet 2>/dev/null; true
+	@rm -f $(GUT_OUT)/catalog_sample_determinations_conflicts.parquet 2>/dev/null; true
 
 gut-newfields-r1-v2: ## stage 8 leaf (Claude session for the utility-model steps; ≈ 0.1 M tokens) — R1 rows for diet / smoking_status / medication / stool_consistency_bristol from the BioSample attributes → $(GUT_R1_NEWFIELDS_V2) + gut_diet_map / gut_smoking_map / gut_medication_map / rejects / conflicts
 	@test -f "$(GUT_ATTRIBUTES_V2)" || { echo "attribute rows missing: $(GUT_ATTRIBUTES_V2) (artifact gut_biosample_attributes_newfields_v2; bootstrap.py)"; exit 1; }
-	$(PY) -m catalog.scopes.newfields_r1_v2 --attributes $(GUT_ATTRIBUTES_V2) --wide $(PKG_SRC)/gut_sample_metadata_wide.parquet --gut-studies $(GUT_STUDIES) \
-	  --gut-runs $(PKG_SRC)/gut_runs.parquet --registry-runs $(REGISTRY_RUNS) --registry-sandpiper $(REGISTRY_SANDPIPER) --out-dir $(GUT_DIR) --release-id $(RELEASE_ID) --package-version $(VERSION) \
+	$(PY) -m catalog.scopes.newfields_r1_v2 --attributes $(GUT_ATTRIBUTES_V2) --wide $(PKG_SRC_WIDE) --gut-studies $(GUT_STUDIES) \
+	  --gut-runs $(PKG_SRC_RUNS) --registry-runs $(REGISTRY_RUNS) --registry-sandpiper $(REGISTRY_SANDPIPER) --out-dir $(GUT_DIR) --release-id $(RELEASE_ID) --package-version $(VERSION) \
 	  $(if $(GUT_DIET_MAP),--diet-map $(GUT_DIET_MAP),) $(if $(GUT_MEDICATION_MAP),--medication-map $(GUT_MEDICATION_MAP),) $(if $(NO_LLM),--no-llm,)
 
 # REGISTRY_UNIVERSE: enumeration track output (frozen columns: audit/registry_schema.json)

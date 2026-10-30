@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Cohorts — {{ site.title }}{% endblock %}
-{% block desc %}{{ cohorts|length|fmt }} multi-study cohorts of the catalog: groups of human gut shotgun-metagenome studies (all ages) that share a publication or a curated cohort record.{% endblock %}
+{% block desc %}{{ cohorts|length|fmt }} multi-study cohorts of the catalog: groups of catalog projects that share a publication or a curated cohort record.{% endblock %}
 {% block content %}
 <h1>Cohorts ({{ cohorts|length|fmt }})</h1>
 <p class="lead">A cohort groups catalog studies that belong together: BioProjects linked to the <b>same publication</b> (registry paper links: a paper that describes the data of 2–4 catalog studies, or a paper citing 2–4 studies that were all submitted by the same centre) or listed in the same <b>curated cohort record</b> (the infant-extension cohort resolution, which also supplies the cohort name).</p>

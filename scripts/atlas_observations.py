@@ -3,12 +3,12 @@
 
 Inputs (all shipped with the data release / the Sandpiper leaf outputs):
 
-* ``--genus``   gut_sandpiper_sample_genus.parquet   (sample_key, genus, lineage, relabund)
-* ``--species`` gut_sandpiper_sample_species.parquet (sample_key, species, relabund) - released at relabund >= 1e-3
-* ``--summary`` gut_sandpiper_sample_summary.parquet (sample_key, study_accession, body_site_class, qc_*, age_category,
+* ``--genus``   catalog_sandpiper_sample_genus.parquet   (sample_key, genus, lineage, relabund)
+* ``--species`` catalog_sandpiper_sample_species.parquet (sample_key, species, relabund) - released at relabund >= 1e-3
+* ``--summary`` catalog_sandpiper_sample_summary.parquet (sample_key, study_accession, body_site_class, qc_*, age_category,
                 richness_genus, shannon_genus, root_coverage_sum)
-* ``--pca``     gut_sandpiper_pca_scores.parquet (sample_key, pc1..pc5) - optional, used by the variance card
-* ``--wide``    gut_sample_metadata_wide.parquet (country, health_condition, delivery_mode, feeding_mode, lifestyle,
+* ``--pca``     catalog_sandpiper_pca_scores.parquet (sample_key, pc1..pc5) - optional, used by the variance card
+* ``--wide``    catalog_sample_metadata_wide.parquet (country, health_condition, delivery_mode, feeding_mode, lifestyle,
                 collection_year, location_site, ...)
 * ``--hdi``     the official UNDP HDI table (iso2, hdi_2023); default = the copy shipped with the site generator
 

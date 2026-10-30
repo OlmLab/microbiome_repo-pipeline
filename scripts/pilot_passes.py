@@ -87,6 +87,140 @@ LINK_TOOL = tool("link_audit", {"papers": {"type": "array", "items": {"type": "o
     "reason": {"type": "string"}}, "required": ["paper_id", "relation"]}}}, ["papers"])
 
 NULLSTR = {"type": ["string", "null"]}
+import yaml as _yaml
+LIFESTYLES = list((_yaml.safe_load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config", "vocab", "lifestyle.yaml"))) or {}).get("codes", {}).keys()) or [
+    "hunter_gatherer", "pastoralist", "traditional_agriculturalist", "rural_non_industrialized", "urban_industrialized", "transitional_or_migrant",
+    "isolated_religious_community", "indigenous_community", "nomadic", "vegetarian_or_vegan", "athlete", "military", "spaceflight_or_analog",
+    "institutionalized", "extreme_environment", "other_lifestyle", "unknown"]
+RECRUIT = ["community_household", "school_or_daycare", "outpatient_clinic", "hospital_inpatient", "intensive_care", "maternity_or_birth_hospital",
+           "care_home", "workplace", "other", "not_stated"]
+SETTLE = ["urban", "peri_urban", "rural", "village", "informal_settlement", "refugee_or_camp", "remote_or_isolated", "mixed", "not_stated"]
+PLACE_LEVELS = ["admin1", "district_or_county", "city_or_town", "village_or_community", "facility"]
+EXPOSURE = ["sanitation", "drinking_water", "handwashing", "floor_or_housing", "household_size_or_crowding", "siblings", "daycare",
+            "livestock_or_animals", "pets", "farm_living", "socioeconomic", "breastfeeding", "diarrhoea", "parasite_or_pathogen_testing",
+            "deworming", "travel", "wash_intervention"]
+SETTING_SCHEMA = {"type": "object", "properties": {
+    "recruitment_setting": {"type": "array", "items": {"type": "string", "enum": RECRUIT}},
+    "settlement_type": {"type": "array", "items": {"type": "string", "enum": SETTLE}},
+    "places": {"type": "array", "items": {"type": "object", "properties": {
+        "name": {"type": "string"}, "level": {"type": "string", "enum": PLACE_LEVELS}, "country": NULLSTR,
+        "is_residence": {"type": "string", "enum": ["participants_live_here", "study_site_only", "unclear"]}}, "required": ["name", "level"]}},
+    "lifestyle": {"type": "string", "enum": LIFESTYLES},
+    "exposure_variables": {"type": "array", "items": {"type": "object", "properties": {
+        "concept": {"type": "string", "enum": EXPOSURE},
+        "scale": {"type": "string", "enum": ["per_person", "per_group", "whole_cohort"]},
+        "where": {"type": "string", "enum": ["methods_text", "paper_table", "supplementary_table", "results_text"]},
+        "summary": {"type": "string", "description": "what is recorded, e.g. 'number of older siblings per child' or 'all households used pit latrines'"},
+        "quote": {"type": "string"}}, "required": ["concept", "scale", "summary", "quote"]}}},
+    "required": ["recruitment_setting", "settlement_type", "places", "lifestyle", "exposure_variables"]}
+SETTING_RULES = (" setting describes where and how participants live and were recruited, from the text only. recruitment_setting: where people "
+    "were enrolled (community_household = from homes/communities; maternity_or_birth_hospital = recruited at birth). settlement_type: only when "
+    "the text says so (e.g. 'rural villages', 'urban slum', 'urban vs rural residence'); not_stated otherwise, never inferred from the country. "
+    "places: named places below country level (region, district, city, village, or a facility); is_residence = participants_live_here when the "
+    "text says participants live there, study_site_only for a hospital or lab location. lifestyle: a code only when the text describes the "
+    "population's way of life (e.g. hunter-gatherers, rural subsistence farmers, industrialized urban residents); unknown otherwise. "
+    "exposure_variables: MOST PAPERS RECORD NONE — then return an empty list. Never add an item to say something is not reported, not "
+    "applicable or absent. Add an item only when the paper records, for its human participants, one of these exact concepts: "
+    "sanitation = toilet, latrine or sewage facilities; drinking_water = water source or treatment; handwashing = handwashing or hygiene practice "
+    "as an exposure (not instructions before sampling); floor_or_housing = floor, wall or roof material, housing type; household_size_or_crowding "
+    "= people or children per household or room, residence type (home, care home); siblings = siblings or birth order; daycare = daycare or "
+    "nursery attendance; livestock_or_animals = contact with livestock or other animals; pets = pet ownership or contact; farm_living = living or "
+    "working on a farm; socioeconomic = education, income, occupation, wealth or asset index, low-income area (NOT race or ethnicity); "
+    "breastfeeding; diarrhoea = diarrhoea episodes, symptoms or an exclusion based on diarrhoea; parasite_or_pathogen_testing = testing "
+    "participants for enteric parasites or enteric pathogens (helminths, protozoa such as Giardia or Cryptosporidium, enteric bacteria or "
+    "viruses), not other infections; deworming = anthelmintic drugs only (NOT antibiotics); travel = travel only (NOT antibiotics); "
+    "wash_intervention = a water, sanitation or hygiene intervention given to participants. Antibiotic use is recorded elsewhere — never list it "
+    "here. scale: per_person (a value for each participant, e.g. a questionnaire item or a column), per_group (summary by arm/group, e.g. "
+    "Table 1 percentages), whole_cohort (applies to everyone, e.g. an inclusion or exclusion criterion). Do not list laboratory uses of these "
+    "words or statements about other studies. Animal or non-human studies: empty list. Each item needs a verbatim quote from the text.")
+PLACEHOLDER = re.compile(r"(?i)^\s*(not[ _]?(reported|applicable|stated|recorded)|n/?a|none|no (explicit|exposure|data))")
+
+
+_LS_TERMS = {k: [t.lower() for t in (c or {}).get("match_terms", [])] for k, c in ((_yaml.safe_load(open(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "config", "vocab", "lifestyle.yaml"))) or {}).get("codes", {}) or {}).items()}
+
+
+def coerce_setting(st):
+    """the model sometimes returns list items as plain strings: places 'Kampala' -> {'name': 'Kampala'}; non-dict exposure items dropped."""
+    if not isinstance(st, dict):
+        return st
+    st = dict(st)
+    st["places"] = [x if isinstance(x, dict) else {"name": str(x), "level": None} for x in (st.get("places") or []) if x]
+    st["exposure_variables"] = [x for x in (st.get("exposure_variables") or []) if isinstance(x, dict)]
+    for k in ("recruitment_setting", "settlement_type"):
+        if isinstance(st.get(k), str):
+            st[k] = [st[k]]
+    return st
+
+
+def guard_setting(st, text, countries=()):
+    """Deterministic checks on a setting block against the paper text it was read from.
+    lifestyle: kept only when one of the code's match terms (config/vocab/lifestyle.yaml) occurs in the text, else 'unknown'.
+    places: names that are a country (or equal the place's own country field) are dropped.
+    Returns (guarded copy, list of changes)."""
+    if not isinstance(st, dict):
+        return st, []
+    st, changes, low = coerce_setting(json.loads(json.dumps(st))), [], (text or "").lower()
+    ls = st.get("lifestyle")
+    terms = [t for t in _LS_TERMS.get(ls, []) if not (ls == "urban_industrialized" and t == "urban")]   # 'urban' alone also describes informal settlements
+    if ls and ls not in ("unknown", "other_lifestyle") and not any(re.search(r"\b" + re.escape(t) + r"\b", low) for t in terms):
+        changes.append(f"lifestyle {ls} -> unknown (no match term in text)"); st["lifestyle"] = "unknown"
+    cn = {c.lower() for c in countries}
+    keep = []
+    for x in st.get("places") or []:
+        n = str(x.get("name") or "").strip().lower()
+        if n in cn or (x.get("country") and n == str(x["country"]).strip().lower()):
+            changes.append(f"place '{x.get('name')}' dropped (a country)")
+        else:
+            keep.append(x)
+    st["places"] = keep
+    ev = []
+    for x in st.get("exposure_variables") or []:
+        rx = EXPOSURE_TERMS.get(x.get("concept"))
+        if rx and not re.search(rx, str(x.get("quote") or ""), re.I):
+            changes.append(f"exposure {x.get('concept')} dropped (quote lacks a {x.get('concept')} term)")
+        else:
+            ev.append(x)
+    st["exposure_variables"] = ev
+    return st, changes
+
+
+# an exposure item is kept only when its quote contains a term of its concept (pilot round 2: removed exactly the 4 wrong of 13 items)
+EXPOSURE_TERMS = {
+    "sanitation": r"latrine|toilet|sanitation|defecat|sewer|sewage|septic",
+    "drinking_water": r"drinking|water source|source of water|tap water|well water|borehole|piped|bottled|boil|water treatment|surface water|river",
+    "handwashing": r"hand ?wash|hand hygiene|wash(?:ing)? hands|soap",
+    "floor_or_housing": r"floor|roof|wall|housing|house type|dwelling",
+    "household_size_or_crowding": r"household|crowd|per room|rooms|resid|living arrangement|lives? with|care home|nursing home|assisted living",
+    "siblings": r"sibling|brother|sister|birth order",
+    "daycare": r"day ?care|childcare|child care|nursery|kindergarten|cr[eè]che|preschool",
+    "livestock_or_animals": r"livestock|cattle|cow|poultry|chicken|goat|sheep|pig|animal",
+    "pets": r"\bpets?\b|dog|\bcats?\b",
+    "farm_living": r"farm|agricultur|rural",
+    "socioeconomic": r"socio|income|wealth|asset|poverty|educat|school|occupation|employ|social class|deprivation|students?\b",
+    "breastfeeding": r"breast|human milk|formula",
+    "diarrhoea": r"diarrh|loose|watery stool|gastroenteritis",
+    "parasite_or_pathogen_testing": r"helminth|ascaris|trichuris|hookworm|schistosom|giardia|cryptospor|entamoeba|blastocystis|parasit|\bova\b|kato|enteric|rotavirus|norovirus|salmonella|shigella|campylobacter|e\.? coli|clostridi|stool (?:culture|test|microscopy)",
+    "deworming": r"deworm|albendazole|mebendazole|anthelmint|praziquantel|ivermectin",
+    "travel": r"travel",
+    "wash_intervention": r"\bWASH\b|water, sanitation|sanitation|handwashing|water treatment",
+}
+
+
+def clean_setting(v):
+    """drop placeholder exposure items the model sometimes adds despite the instructions."""
+    st = (v or {}).get("setting") if isinstance(v, dict) else None
+    if isinstance(st, str):                      # the model occasionally returns the object JSON-encoded as a string
+        try:
+            st = v["setting"] = json.loads(st)
+        except ValueError:
+            st = None
+    if isinstance(st, dict) and isinstance(st.get("exposure_variables"), list):
+        keep = [x for x in st["exposure_variables"] if isinstance(x, dict) and x.get("quote") and not PLACEHOLDER.search(str(x.get("quote")))
+                and not PLACEHOLDER.search(str(x.get("summary") or ""))]
+        st["n_dropped_placeholders"] = len(st["exposure_variables"]) - len(keep)
+        st["exposure_variables"] = keep
+    return v
 FULLTEXT_TOOL = tool("fulltext", {
     "paper_describes_project": {"type": "string", "enum": ["yes", "no", "unclear"]},
     "nucleic_acids_sequenced": {"type": "string", "enum": ["dna", "rna", "both", "unclear"],
@@ -104,8 +238,9 @@ FULLTEXT_TOOL = tool("fulltext", {
         "countries": {"type": "array", "items": {"type": "string"}}, "age_description": NULLSTR,
         "health_conditions": {"type": "array", "items": {"type": "string"}}, "study_shape": {"type": "string", "enum": SHAPES},
         "arms": {"type": "array", "items": {"type": "string"}}, "n_participants": {"type": ["integer", "null"]}}},
+    "setting": SETTING_SCHEMA,
     "quotes": {"type": "object", "description": "field -> verbatim quote of <= 25 words supporting it"}},
-    ["paper_describes_project", "sequencing", "metadata_access", "cohort"])
+    ["paper_describes_project", "sequencing", "metadata_access", "cohort", "setting"])
 
 SAMPLE_PROPS = {k: NULLSTR for k in ["sample", "body_site_detail", "age", "age_unit", "sex", "health_condition", "country",
                                      "subject_id", "timepoint"]} | {
@@ -259,34 +394,43 @@ def run(projects, dossier_dir, out, budget, passes, host=None):
             res[p]["link_audit"] = r["tool_use"] if r["status"] in ("ok", "cached") else {"status": r.get("status_original") or r["status"]}
         stats["link_audit"] = llm.summary()
 
-    if "fulltext" in passes:
+    for rep, pname in ((1, "fulltext"), (2, "fulltext2")):
+      if pname not in passes:
+        continue
+      if True:
         llm = rubric("fulltext", budget * share["fulltext"])
         reqs, keys = [], []
         for p, d in D.items():
             la = res[p].get("link_audit") or {}
-            gen = [x["paper_id"] for x in la.get("papers", []) if x.get("relation") == "generated"]
-            if la.get("papers"):                       # audited: read only a paper judged to have generated the data
+            raw_papers = la.get("papers") or []
+            if not isinstance(raw_papers, list):       # whole answer unusable (e.g. a string instead of an array)
+                raw_papers = []
+            la_papers = [x for x in raw_papers if isinstance(x, dict)]   # schema-violating entries carry no relation: drop, never repair
+            if len(la_papers) < len(la.get("papers") or []) or not isinstance(la.get("papers") or [], list):
+                stats["link_unusable_projects"] = stats.get("link_unusable_projects", 0) + 1
+            gen = [x["paper_id"] for x in la_papers if x.get("relation") == "generated" and x.get("paper_id")]
+            if la_papers:                              # audited: read only a paper judged to have generated the data
                 order = [x for x in d["papers"] if x.get("paper_id") in gen]
-            else:                                      # not audited (no candidates / refused): direct links only
+            else:                                      # not audited (no candidates / refused / unusable shape): direct links only
                 order = [x for x in d["papers"] if x.get("methods") != "title_similar"]
             paper = next((x for x in order if jats_file(x.get("pmcid"))), None)
             if not paper:
-                res[p]["fulltext"] = {"status": "no_generating_paper_text" if (la.get("papers") or order) else "no_paper"}
+                res[p][pname] = {"status": "no_generating_paper_text" if (la_papers or order) else "no_paper"}
                 continue
             text = paper_sections(paper["pmcid"])
             if not text:
-                res[p]["fulltext"] = {"status": "unparsable"}; continue
-            reqs.append({"system": "You read the methods of the paper that generated a human microbiome sequencing project and record how the samples were collected and sequenced, and what the paper states about the cohort. Record only what the text states; use null or 'not_reported' otherwise. Quotes verbatim, at most 25 words. rna_methods only for RNA libraries (metatranscriptomes, RNA viromes, RNA mNGS); null for DNA-only studies. metadata_access describes the PARTICIPANT METADATA (not the reads): application_required = a formal application or data-access agreement (dbGaP, EGA, a cohort's data access committee, a named restricted-access procedure); on_request = 'available from the authors on (reasonable) request' only; partly_application = some participant data public and some behind an application; open = metadata stated to be public (in the archive or supplements); not_stated otherwise. sequencing.host_depletion_wetlab = a kit or step that removes human cells/DNA before library preparation (null if none; VLP filtration / nuclease steps and cell sorting are not host depletion); sequencing.host_read_removal_insilico = computational removal of human reads. rna_methods.target: whole_community, virus_enriched, dual_host_microbe (host and microbial transcripts analysed together) or targeted_amplicon.",
+                res[p][pname] = {"status": "unparsable"}; continue
+            reqs.append({"system": "You read the methods of the paper that generated a human microbiome sequencing project and record how the samples were collected and sequenced, and what the paper states about the cohort. Record only what the text states; use null or 'not_reported' otherwise. Quotes verbatim, at most 25 words. rna_methods only for RNA libraries (metatranscriptomes, RNA viromes, RNA mNGS); null for DNA-only studies. metadata_access describes the PARTICIPANT METADATA (not the reads): application_required = a formal application or data-access agreement (dbGaP, EGA, a cohort's data access committee, a named restricted-access procedure); on_request = 'available from the authors on (reasonable) request' only; partly_application = some participant data public and some behind an application; open = metadata stated to be public (in the archive or supplements); not_stated otherwise. sequencing.host_depletion_wetlab = a kit or step that removes human cells/DNA before library preparation (null if none; VLP filtration / nuclease steps and cell sorting are not host depletion); sequencing.host_read_removal_insilico = computational removal of human reads. rna_methods.target: whole_community, virus_enriched, dual_host_microbe (host and microbial transcripts analysed together) or targeted_amplicon." + SETTING_RULES + ("" if rep == 1 else " (reading 2)"),
                          "prompt": f"Project: {d['study_accession']} — {d['archive'].get('study_title')}\nLibrary source/strategy: {d['archive'].get('library_sources')} / {d['archive'].get('library_strategies')}\n\nPAPER {paper.get('pmcid')}:\n{text}",
-                         "tools": [FULLTEXT_TOOL], "tool_choice": {"type": "tool", "name": "fulltext"}, "max_tokens": 3000, "thinking": NOTHINK})
+                         "tools": [FULLTEXT_TOOL], "tool_choice": {"type": "tool", "name": "fulltext"}, "max_tokens": 6000, "thinking": NOTHINK})
             keys.append((p, paper["paper_id"]))
         try:
             out_ = llm(reqs)
         except BudgetExceeded as e:
             out_ = []; stats["fulltext_budget"] = str(e)
         for (p, pid), r in zip(keys, out_):
-            res[p]["fulltext"] = (r["tool_use"] | {"paper_id": pid}) if r["status"] in ("ok", "cached") and r["tool_use"] else {"status": r.get("status_original") or r["status"], "paper_id": pid}
-        stats["fulltext"] = llm.summary()
+            res[p][pname] = clean_setting(r["tool_use"] | {"paper_id": pid}) if r["status"] in ("ok", "cached") and r["tool_use"] else {"status": r.get("status_original") or r["status"], "paper_id": pid}
+        stats[pname] = llm.summary()
 
     if "samples" in passes:
         llm = rubric("samples", budget * share["samples"])

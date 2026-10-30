@@ -1,0 +1,7 @@
+reason,sampled,wrongly_excluded,rate,population,est_recoverable
+virus_genome_surveillance,40,7,0.175,154,27
+human_tissue_rna,40,2,0.05,310,16
+culture_enriched,40,3,0.075,82,6
+animal_host,40,0,0.0,646,0
+human_genome,40,0,0.0,278,0
+single_cell,40,0,0.0,269,0
