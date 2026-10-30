@@ -265,7 +265,11 @@ def classify_runs(runs: pd.DataFrame, read_checks, extra_acc: set):
     r["rrna_read_share"] = r.run_accession.map(share)
     if "run_origin" in r.columns:
         ref = r.run_origin.eq("refetch") & ~r.study_accession.isin(extra_acc)
-        bad = ref & ~(r.nucleic_acid.eq("rna") & r.sample_key.notna())
+        # a refetched run is also taken when it is the only data set of a catalogued specimen (no registry run keyed to it)
+        keyed_other = set(r.loc[~ref & r.sample_key.notna(), "sample_key"])
+        sole = ref & r.sample_key.notna() & ~r.sample_key.isin(keyed_other)
+        rep_["refetch_runs_taken_sole_data_set"] = int((sole & ~r.nucleic_acid.eq("rna")).sum())
+        bad = ref & ~((r.nucleic_acid.eq("rna") & r.sample_key.notna()) | sole)
         rep_["refetch_runs_not_taken"] = int(bad.sum())
         rep_["refetch_rna_runs_taken"] = int((ref & ~bad).sum())
         r = r[~bad]

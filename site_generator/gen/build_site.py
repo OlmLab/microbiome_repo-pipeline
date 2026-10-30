@@ -305,7 +305,9 @@ def relnet_svg(cl, uid):
     """One cluster as an SVG graph. cl = dict(nodes=[{id, label, role, n}], edges=[(a, b, kind)], hub=None | {label, more}).
     Layout: directed edges (donor -> recipient, parent -> child) run top -> bottom; undirected links (twins, partners,
     siblings, roommates) join nodes in a row; a hub (shared setting, or a family without known roles) sits on top with spokes."""
-    nodes = {n['id']: n for n in cl['nodes']}
+    _bad = ('nan', 'None', '<NA>', '')
+    nodes = {n['id']: dict(n, label=(n['label'] if str(n['label']) not in _bad else ('' if str(n['id']) in _bad else n['id'])))
+             for n in cl['nodes'] if str(n['id']) not in _bad}   # people without a subject id carry no label
     edges = [e for e in cl['edges'] if e[0] in nodes and e[1] in nodes]
     lvl = {k: 0 for k in nodes}
     directed = [(a, b) for a, b, k in edges if REL_EDGE.get(k, ('', '', False))[2]]
@@ -455,7 +457,7 @@ def relnet_clusters(acc, rel_rows, fam_rows, set_groups, n_by_subject, n_by_pers
     if fam_rows is not None and len(fam_rows):
         fams = []
         for fid, x in fam_rows.groupby('family_id', sort=True):
-            p = x.drop_duplicates('person_key')
+            p = x.dropna(subset=['person_key']).drop_duplicates('person_key')
             if len(p) < 2:
                 continue
             labels = [label_by_person.get(k, k) for k in p.person_key]
@@ -1392,8 +1394,9 @@ def main():
     if (pkg / 'catalog_exposure_items.parquet').exists():
         _ex = pd.read_parquet(pkg / 'catalog_exposure_items.parquet')
         for acc_, e_ in _ex.groupby('study_accession'):
-            exposure_by_study[acc_] = [dict(concept=str(x.get('concept') or ''), scale=str(x.get('scale') or ''), summary=str(x.get('summary') or '')[:200],
-                                            quote=str(x.get('quote') or '')[:300]) for x in e_.head(12).to_dict('records')]
+            _t = lambda v: '' if v is None or (isinstance(v, float) and math.isnan(v)) or str(v) in ('nan', 'None', '<NA>') else str(v)
+            exposure_by_study[acc_] = [dict(concept=_t(x.get('concept')), scale=_t(x.get('scale')), summary=_t(x.get('summary'))[:200],
+                                            quote=_t(x.get('quote'))[:300]) for x in e_.head(12).to_dict('records')]
     papers_by_study = {}
     for r in papers.sort_values(['study_accession', 'relation', 'paper_id'], kind='mergesort').itertuples(index=False):
         papers_by_study.setdefault(r.study_accession, []).append(dict(
