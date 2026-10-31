@@ -794,16 +794,17 @@ def registry_summary(rgr, site_labels, stage_labels_short, assay_labels):
     host = {'yes': 'human', 'mixed': 'human and non-human (mixed)', 'no': 'non-human', 'unknown': 'unknown-host'}.get(str(rgr.get('host_human')), str(rgr.get('host_human') or 'unclassified'))
     lc = lambda s: (s[:1].lower() + s[1:]) if s else s   # vocabulary labels start with a capital; the sentence runs on
     sites = [lc(site_labels.get(b, b)) for b in split_list(rgr.get('body_sites'))]
-    assay = lc(assay_labels.get(str(rgr.get('assay')), str(rgr.get('assay') or '')))
+    a_ = str(rgr.get('assay') or '')
+    assay = lc(assay_labels.get(a_, a_)) if a_ in ('shotgun_dna', 'rna', 'mixed') else ''   # archive-only assay codes other than these say nothing about the catalogued runs
     stages = [lc(stage_labels_short.get(b, b)) for b in split_list(rgr.get('life_stages'))]
-    parts = [f'Classified as {host} ' + (' / '.join(sites) if sites else 'body site unknown') + (f' {assay}' if assay else '')]
+    parts = [f'The registry (archive-only classification) lists it as {host} ' + (' / '.join(sites) if sites else 'body site unknown') + (f' {assay}' if assay else '')]
     if stages:
         parts.append('of ' + ' and '.join(stages))
     stage = rgr.get('classification_stage')
-    if stage:
+    if stage and str(stage) != 'pending':   # a pending row carries no classification yet: no stage / confidence clause
         parts.append(f'by {stage}')
-    if not isnull(rgr.get('classification_confidence')):
-        parts.append(f"with confidence {float(rgr['classification_confidence']):.2f}")
+        if not isnull(rgr.get('classification_confidence')) and float(rgr['classification_confidence']) > 0:
+            parts.append(f"with confidence {float(rgr['classification_confidence']):.2f}")
     return ' '.join(parts) + '.'
 
 
@@ -1224,7 +1225,8 @@ def main():
     papers['title'] = papers.title.map(strip_frame_tokens).map(lambda t: None if isnull(t) else re.sub(r'<[^>]+>', '', str(t)))
     authors, authors_possible = load_site_authors(pkg, inc_set, Path(a.config).parent / 'author_overrides.csv', RR)
     authors['pmid'] = authors.pmid.astype(str)
-    authors['author_display'] = authors.author_display.astype(str)
+    authors['author_display'] = (authors.author_display.astype(str).str.replace(r'(?<![\w-])(?:None|nan)(?![\w-])', '', regex=True)   # empty name parts
+                                 .str.replace(r'\s+', ' ', regex=True).str.strip(' ,'))
     leaks = [v for v in authors.author_display if ORG_LEAK_RE.search(v)]
     assert not leaks, f'F1: author strings leak submission ids or e-mail addresses: {leaks[:3]}'
 

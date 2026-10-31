@@ -11,17 +11,17 @@ codes:
   hunter_gatherer: {label: Hunter-gatherer, match_terms: [hunter-gatherer, hunter gatherer, forager, Hadza, BaAka, Baka, Batwa, Agta, Matses, Tsimane, Yanomami]}
   pastoralist: {label: Pastoralist / herder, match_terms: [pastoralist, herder, nomadic herding, Maasai, Fulani, Mongolian herder, Tibetan nomad, herdsmen, herdsman, herding]}
   traditional_agriculturalist: {label: Traditional / subsistence agriculturalist, match_terms: [subsistence farm, agriculturalist, horticulturalist, smallholder, traditional farming, Bantu farmers, Amerindian]}
-  rural_non_industrialized: {label: Rural, non-industrialized (unspecified subsistence), match_terms: [rural, non-industrialized, non-industrialised, nonindustrialized, traditional lifestyle, remote village, "isolated villages", villages, "highland villages"]}
+  rural_non_industrialized: {label: "Rural, non-industrialized (unspecified subsistence)", match_terms: [rural, non-industrialized, non-industrialised, nonindustrialized, traditional lifestyle, remote village, "isolated villages", villages, "highland villages"]}
   urban_industrialized: {label: Urban / industrialized (only when stated by the source), match_terms: [industrialized, industrialised, urban, westernized, westernised]}
   transitional_or_migrant: {label: Transitional lifestyle / recent migrants / urbanising population, match_terms: [transitional, urbanization, urbanisation, migrant, immigrant, recently moved, acculturation]}
-  isolated_religious_community: {label: Isolated religious / communal society (Hutterite, Amish, Old Order Mennonite …), match_terms: [Hutterite, Amish, Mennonite, Old Order, communal living, religious community]}
+  isolated_religious_community: {label: "Isolated religious / communal society (Hutterite, Amish, Old Order Mennonite …)", match_terms: [Hutterite, Amish, Mennonite, Old Order, communal living, religious community]}
   indigenous_community: {label: Indigenous community (subsistence not specified), match_terms: [indigenous, aboriginal, First Nations, Native American, Inuit, tribal, tribe, Orang Asli]}
   nomadic: {label: Nomadic (non-herding or unspecified), match_terms: [nomad, nomadic]}
   vegetarian_or_vegan: {label: Vegetarian / vegan (cohort defined by this diet), match_terms: [vegan, vegetarian, plant-based]}
   athlete: {label: Athletes / elite sport, match_terms: [athlete, elite sport, rugby, marathon, cyclist, rower, olympic, ultramarathon, marathoner, runner, "soccer player", "water polo", competing, elite]}
   military: {label: Military personnel / training, match_terms: [military, soldier, army, navy, cadet, deployment, servicemembers, "service members", deployed, veterans]}
   spaceflight_or_analog: {label: Spaceflight / space-analog isolation, match_terms: [astronaut, spaceflight, ISS, space station, Mars analog, Antarctic station, "space capsule", "simulated space", "isolation chamber"]}
-  institutionalized: {label: Institutionalized (nursing home, long-term care, prison), match_terms: [nursing home, long-term care, care home, residential care, prison, inmate, institutionalized, "long-term acute care", LTACH, "care facility"]}
-  extreme_environment: {label: Extreme-environment residents / expeditions (high altitude, polar, deep sea), match_terms: [high altitude, highland, Tibetan plateau, Antarctic, Arctic, expedition, submarine, mountaineer]}
+  institutionalized: {label: "Institutionalized (nursing home, long-term care, prison)", match_terms: [nursing home, long-term care, care home, residential care, prison, inmate, institutionalized, "long-term acute care", LTACH, "care facility"]}
+  extreme_environment: {label: "Extreme-environment residents / expeditions (high altitude, polar, deep sea)", match_terms: [high altitude, highland, Tibetan plateau, Antarctic, Arctic, expedition, submarine, mountaineer]}
   other_lifestyle: {label: Other stated lifestyle (see lifestyle_detail), match_terms: []}
   unknown: {label: Unknown / not stated, match_terms: []}

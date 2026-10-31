@@ -301,6 +301,12 @@ def study_nucleic_acid(runs: pd.DataFrame, facts_path=None) -> pd.DataFrame:
     def resolve(acc, arch_s):
         arch = set(arch_s.split(";")) - {""}
         pp = paper.get(acc, "")
+        # the badge describes the catalogued data sets: runs labelled DNA and RNA in the archive make the project "both";
+        # a paper describing both while only one kind was deposited gives the deposited kind
+        if arch >= {"dna", "rna"}:
+            return "both", False
+        if pp == "both" and arch in ({"dna"}, {"rna"}):
+            return next(iter(arch)), False
         if pp in ("dna", "rna") and arch and arch != {pp} and arch != {"unclear"}:
             if pp in arch:
                 return pp, False
@@ -1058,6 +1064,18 @@ def build(a):
                     w = carry_release_columns(w, prev, key, rid)
                 else:
                     gs = carry_release_columns(gs, prev, key, rid)
+        # package 1.25.0 also published projects / samples in its human_* tables: a row first published there keeps that release
+        for df_ref, legacy, key in (("w", "human_samples.parquet", "sample_key"), ("gs", "human_studies.parquet", "study_accession")):
+            lp = os.path.join(a.previous_dir, legacy)
+            if not os.path.exists(lp):
+                continue
+            lg = pd.read_parquet(lp, columns=[key, "release_added", "release_retired", "package_added"])
+            lg = lg[lg.release_retired.isna()].drop_duplicates(key).set_index(key)
+            df_ = w if df_ref == "w" else gs
+            m_ = df_.release_added.eq(rid) & df_.release_retired.isna() & df_[key].isin(lg.index)
+            df_.loc[m_, "release_added"] = df_.loc[m_, key].map(lg.release_added)
+            df_.loc[m_, "package_added"] = df_.loc[m_, key].map(lg.package_added)
+            print(f"release_added carried from {legacy}: {int(m_.sum())} rows", file=sys.stderr)
     if gut_runs is not None:
         gs["n_runs_total"] = pd.to_numeric(gs.n_runs_total, errors="coerce").fillna(0).astype(int)
         gut_runs = gut_runs[gut_runs.study_accession.isin(set(gs.study_accession))]

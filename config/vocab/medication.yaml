@@ -7,13 +7,13 @@ note: |
 codes:
   ppi: {label: Proton-pump inhibitor, match_terms: [PPI, "proton pump", omeprazole, pantoprazole, esomeprazole, lansoprazole, rabeprazole]}
   metformin: {label: Metformin, match_terms: [metformin, glucophage]}
-  antidiabetic_other: {label: Other antidiabetic (insulin, SGLT2, GLP-1, sulfonylurea), match_terms: [insulin, SGLT2, empagliflozin, dapagliflozin, GLP-1, semaglutide, liraglutide, sulfonylurea, gliclazide, sitagliptin, DPP-4]}
+  antidiabetic_other: {label: "Other antidiabetic (insulin, SGLT2, GLP-1, sulfonylurea)", match_terms: [insulin, SGLT2, empagliflozin, dapagliflozin, GLP-1, semaglutide, liraglutide, sulfonylurea, gliclazide, sitagliptin, DPP-4]}
   statin: {label: Statin, match_terms: [statin, atorvastatin, simvastatin, rosuvastatin]}
   antihypertensive: {label: Antihypertensive, match_terms: [antihypertensive, "ACE inhibitor", "beta blocker", "beta-blocker", "calcium channel", ARB, losartan, amlodipine]}
   nsaid_or_aspirin: {label: NSAID / aspirin, match_terms: [NSAID, aspirin, ibuprofen, naproxen, diclofenac, "anti-inflammatory drug"]}
   laxative: {label: Laxative, match_terms: [laxative, "bowel prep", polyethylene glycol, lactulose]}
   corticosteroid: {label: Corticosteroid, match_terms: [steroid, prednisone, prednisolone, budesonide, dexamethasone, hydrocortisone]}
-  immunosuppressant_or_biologic: {label: Immunosuppressant / biologic (incl. anti-TNF, checkpoint inhibitors), match_terms: [immunosuppress, azathioprine, methotrexate, tacrolimus, cyclosporine, infliximab, adalimumab, vedolizumab, ustekinumab, "anti-TNF", nivolumab, pembrolizumab, ipilimumab, "checkpoint"]}
+  immunosuppressant_or_biologic: {label: "Immunosuppressant / biologic (incl. anti-TNF, checkpoint inhibitors)", match_terms: [immunosuppress, azathioprine, methotrexate, tacrolimus, cyclosporine, infliximab, adalimumab, vedolizumab, ustekinumab, "anti-TNF", nivolumab, pembrolizumab, ipilimumab, "checkpoint"]}
   chemotherapy: {label: Chemotherapy, match_terms: [chemotherap, chemo, FOLFOX, cisplatin, capecitabine]}
   antiretroviral: {label: Antiretroviral therapy, match_terms: [antiretroviral, ART, HAART]}
   antidepressant_or_antipsychotic: {label: Antidepressant / antipsychotic, match_terms: [antidepressant, SSRI, sertraline, fluoxetine, antipsychotic, olanzapine, risperidone, clozapine]}

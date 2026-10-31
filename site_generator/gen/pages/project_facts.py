@@ -41,13 +41,13 @@ def body_figure(site_counts: dict, total: int) -> str:
         items.append(f'<li><svg class="bs-dot" viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="3.5" '
                      f'fill="#A88B4A"/></svg><span class="bs-name">{E(SPOTS[c][2])}</span>'
                      f'<span class="bs-det">{n:,} sample{"s" if n != 1 else ""}'
-                     f'{f" · {100 * n / total:.0f} %" if total else ""}</span></li>')
+                     f'{f" · {100 * n / total:.0f}&#160;%" if total else ""}</span></li>')
     for c, lab in OTHER_SITES.items():
         n = site_counts.get(c)
         if n:
             items.append(f'<li><svg class="bs-dot" viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="3.5" '
                          f'fill="#C9C4B4"/></svg><span class="bs-name">{E(lab)}</span>'
-                         f'<span class="bs-det">{n:,} sample{"s" if n != 1 else ""}</span></li>')
+                         f'<span class="bs-det">{n:,} sample{"s" if n != 1 else ""}{f" · {100 * n / total:.0f}&#160;%" if total else ""}</span></li>')
     return f'<div class="bs">{"".join(fig)}<ul class="bs-list">{"".join(items)}</ul></div>'
 
 
