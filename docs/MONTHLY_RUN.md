@@ -28,13 +28,14 @@ Set `L=~/catalog/cache/large_update` and run from the pipeline root.
 | 18 | Inputs of the catalog build | `PYTHONPATH=src python scripts/prepare_catalog_inputs.py --extra-facts-dirs <summarised pass prefixes>` → `data/inputs/catalog/` (study rows, samples, determinations, paper facts, exposure items, papers, short descriptions, `runs_source.parquet` with `run_origin`) | none |
 | 18b | Short descriptions of projects that have none | sub-agents running `scripts/write_short_descriptions.py` (rubric tier; refused projects once more with `SHORT_DESC_ROLE=adjudicate`) | ≈ $0.01 / project |
 | 18c | Community profiles of new samples | `python scripts/extend_sandpiper.py --bulk <sandpiper bulk> --old-dir data/inputs/gut/sandpiper --catalog-dir <catalog build> --work <dir> --out data/inputs/catalog/sandpiper` | none |
-| 18d | Package, site, verify | `make release` → `make site` → `make verify` | none |
+| 18d | Package, site, verify | `make release` → `make site` → `make verify` (fails when the site passes 950 MB — GitHub Pages refuses sites above 1 GB) | none |
+| 18e | Visual and wording review | an Opus 5 sub-agent renders the system pages and a spread of project pages (one per body site, RNA, DNA + RNA) and reports by page and element only | ≈ $5 |
 | 19 | Publish | `make check-credential`, `make publish-branch`, then push the two release branches, the two tags and the `release-assets` branch | none |
 
 There is one catalog build (`gut-build`, called by `release`): it reads the original study list, the projects admitted by
 the scope classification and every sample / determination / run input from `data/inputs/catalog/`, applies the run-level
 scope (amplicon and single-cell runs out; refetched runs of earlier projects only when they are RNA libraries of a catalogued
-sample), and writes the `catalog_*` tables with their bitemporal release columns. `scripts/public_history.py` (also called
+sample or the only data set of a catalogued sample), and writes the `catalog_*` tables with their bitemporal release columns. `scripts/public_history.py` (also called
 by `release`) keeps the package's release notes and changelog to the releases from `public_history_from` in
 `config/releases.yaml`.
 
@@ -55,6 +56,17 @@ by `release`) keeps the package's release notes and changelog to the releases fr
   R2026.31: 124 classified, 107 admitted); check the study-rule drop list each month for new ones.
 * **Pass coverage is a release gate.** A project that entered a scope after that scope's annotation passes ran must be
   recorded in `config/pass_coverage_exceptions.csv` with a reason, and run first next month.
+
+* **The project badge describes the catalogued data sets.** DNA and RNA runs in the archive make a project "DNA and RNA";
+  a paper describing both while only one kind was deposited gives the deposited kind.
+* **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
+  page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
+
+## Next run: carried over from R2026.31
+
+* 12,845 project-passes for the ~2,300 projects admitted in R2026.30/31 (deep per-sample, design, abstract, interventions,
+  subject, full text, supplementary) are listed in `config/pass_coverage_exceptions.csv`; run them first.
+* 4 projects have no short description (refused twice) and 4 have unresolved DNA / RNA labels.
 
 ## What to watch
 
