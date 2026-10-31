@@ -790,6 +790,21 @@ def read_collections(cfg_path):
 
 
 
+
+_VERBATIM = re.compile(r'(“[^”]*”|<td class="quote">.*?</td>|<details><summary>Archive description</summary>.*?</details>|<script.*?</script>)', re.S)
+_ONE = re.compile(r'(?<![\d.,])\b1 (samples|runs|people|projects|studies)\b')
+_SING = {'samples': 'sample', 'runs': 'run', 'people': 'person', 'projects': 'project', 'studies': 'study'}
+
+
+def singular_counts(html):
+    """'1 samples' → '1 sample' (and runs / people / projects / studies) in the site's own wording; verbatim quotes, archive
+    descriptions and scripts are left untouched."""
+    parts = _VERBATIM.split(html)
+    for i in range(0, len(parts), 2):
+        parts[i] = _ONE.sub(lambda m: '1 ' + _SING[m.group(1)], parts[i])
+    return ''.join(parts)
+
+
 def write_compact_parquet(df, path):
     """Per-project parquet download: populated columns only (keys always kept), zstd, no pandas metadata or column statistics —
     the GitHub Pages site must stay below 1 GB; the csv.gz twin keeps the full column set."""
@@ -1322,7 +1337,7 @@ def main():
     written = []
 
     def render(tpl, path, root, nav=None, crumbs=None, **ctx):
-        html = env.get_template(tpl).render(root=root, nav=nav, crumbs=crumbs, page_path=path, **ctx)
+        html = singular_counts(env.get_template(tpl).render(root=root, nav=nav, crumbs=crumbs, page_path=path, **ctx))
         (out / path).parent.mkdir(parents=True, exist_ok=True)
         (out / path).write_text(html, encoding='utf-8')
         written.append(path)
@@ -1866,10 +1881,10 @@ def main():
                 [dict(f=f, label=SHORT_LABELS.get(f, f.replace('_', ' ')), empty=True) for f in empty_cols]
         group_rows = dg[dg.scope == 'study_all'].drop_duplicates(['field_name', 'value_normalized']).sort_values(['route', 'field_name'], kind='mergesort') if len(dg) else dg
         _loc = lambda v: v.replace('[nan]', '') if isinstance(v, str) else v   # an unparsed sub-sheet slot in supplementary locators
-        group_rows = group_rows.assign(evidence_locator=group_rows.evidence_locator.map(_loc))
+        group_rows = group_rows.assign(evidence_locator=group_rows.evidence_locator.map(_loc), evidence_source=group_rows.evidence_source.map(_loc))
         group_stmts = [clean(x) for x in group_rows[['field_name', 'value_normalized', 'route', 'confidence', 'evidence_source', 'evidence_locator', 'evidence_quote']].head(40).to_dict('records')]
         ev_sample = dg[dg.scope != 'study_all'].assign(_src=lambda d: d.evidence_source.astype(str).str.split('.').str[:2].str.join('.')).drop_duplicates(['field_name', 'route', '_src']).sort_values(['field_name', 'route'], kind='mergesort').head(40) if len(dg) else dg
-        ev_sample = ev_sample.assign(evidence_locator=ev_sample.evidence_locator.map(_loc))
+        ev_sample = ev_sample.assign(evidence_locator=ev_sample.evidence_locator.map(_loc), evidence_source=ev_sample.evidence_source.map(_loc))
         ev_rows_study = [clean(x) for x in ev_sample[['sample_key', 'field_name', 'value_normalized', 'route', 'confidence', 'evidence_source', 'evidence_locator', 'evidence_quote']].to_dict('records')]
         ages = counts_sorted(g.age_category.fillna('unknown'))
         sites = counts_sorted(g.body_site_code.where(g.body_site_code.notna() & (g.body_site_code != 'unknown_site')).dropna().map(lambda c: (vocabs['body_site'].get(c) or c.replace('_', ' ')) if isinstance(vocabs['body_site'].get(c), str) else c.replace('_', ' '))) if 'body_site_code' in g.columns else []
