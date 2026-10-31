@@ -247,6 +247,8 @@ verify:          ## local subset of .github/workflows/verify.yml (link check + d
 	$(PY) site_generator/gen/check_links.py $(SITE_OUT)
 	$(PY) -c "import duckdb,glob;[print(duckdb.sql(f\"select count(*) from read_parquet('{f}')\").fetchone()[0], f) for f in glob.glob('$(SITE_OUT)/data/**/*.parquet', recursive=True)]"
 	$(PY) -m catalog.make_version --package $(PKG_OUT) --check --zip $(PKG_ZIP_OUT)
+	@# GitHub Pages refuses sites above 1 GB: stop at 950 MB so a release never fails at deploy time
+	$(PY) -c "import os,sys;n=sum(os.path.getsize(os.path.join(d,f)) for d,_,fs in os.walk('$(SITE_OUT)') for f in fs);print(f'site size {n/1e6:.0f} MB');sys.exit(n>950e6)"
 
 check-credential: ## stage 7 precondition — resolve the github credential through GIT_ASKPASS and `git ls-remote` both repos (R1-15; run in a Claude cell with credentials=["GitHub"])
 	$(PY) scripts/git_askpass.py --check $(SITE_CLONE) $(DATA_CLONE)

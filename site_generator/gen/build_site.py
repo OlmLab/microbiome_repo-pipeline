@@ -789,6 +789,18 @@ def read_collections(cfg_path):
     return out
 
 
+
+def write_compact_parquet(df, path):
+    """Per-project parquet download: populated columns only (keys always kept), zstd, no pandas metadata or column statistics —
+    the GitHub Pages site must stay below 1 GB; the csv.gz twin keeps the full column set."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq_
+    t = pa.Table.from_pandas(df, preserve_index=False)
+    if t.num_rows:
+        t = t.select([c for c in t.column_names if c in ('sample_key', 'study_accession') or t.column(c).null_count < t.num_rows])
+    pq_.write_table(t.replace_schema_metadata(None), path, compression='zstd', write_statistics=False)
+
+
 def registry_summary(rgr, site_labels, stage_labels_short, assay_labels):
     """Item 9: one plain-language sentence from the registry classification row (labels from the vocabularies; nothing invented)."""
     host = {'yes': 'human', 'mixed': 'human and non-human (mixed)', 'no': 'non-human', 'unknown': 'unknown-host'}.get(str(rgr.get('host_human')), str(rgr.get('host_human') or 'unclassified'))
@@ -1342,7 +1354,7 @@ def main():
     study_dl = {}
     for acc, g in cw_sorted.groupby('study_accession', sort=True):
         write_csv_gz(g, out / 'data' / 'studies' / f'{acc}.csv.gz')
-        g.to_parquet(out / 'data' / 'studies' / f'{acc}.parquet', index=False)
+        write_compact_parquet(g, out / 'data' / 'studies' / f'{acc}.parquet')
         study_dl[acc] = dict(csv_size=human((out / 'data' / 'studies' / f'{acc}.csv.gz').stat().st_size), parquet_size=human((out / 'data' / 'studies' / f'{acc}.parquet').stat().st_size))
     cd_sorted = cd.sort_values(['study_accession', 'sample_key', 'field_name'], kind='mergesort')
     for acc, g in cd_sorted.groupby('study_accession', sort=True):
