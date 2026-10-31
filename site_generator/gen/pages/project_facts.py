@@ -57,7 +57,7 @@ RECRUIT = {"community": "community / population sample", "outpatient_clinic": "o
            "blood_donors": "blood donors", "not_stated": "not stated"}
 SETTLEMENT = {"urban": "urban", "peri_urban": "peri-urban", "rural": "rural", "mixed": "urban and rural",
               "not_stated": "not stated"}
-NA_LABEL = {"dna": "DNA", "rna": "RNA", "both": "DNA and RNA", "conflict": "sources disagree", "unclear": "unclear"}
+NA_LABEL = {"dna": "DNA", "rna": "RNA", "both": "DNA and RNA", "conflict": "DNA or RNA unresolved", "unclear": "not recorded"}
 
 
 def _present(v):

@@ -39,7 +39,7 @@
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="false" aria-label="Study details" tabindex="-1"><button class="close" id="detail-close" title="close (Escape)" aria-label="close study details">×</button><div id="detail-body"></div></div>
 <h2 id="scopes">Scopes</h2>
-<p class="small">Scope memberships derive deterministically from (host, body sites, life stages, assay) — see <span class="mono">config/scope.yaml</span>. A study can belong to several scopes. Click a scope for its definition, counts and largest studies.</p>
+<p class="small">Scope memberships derive deterministically from (host, body sites, life stages, assay) — see <span class="mono">config/scope.yaml</span>. A study can belong to several scopes. Scopes are curation units of differing granularity (the gut is split by age because its age groups are curated separately), not a taxonomy of body sites. Click a scope for its definition, counts and largest studies.</p>
 <table class="tbl" style="max-width:900px"><thead><tr><th>scope</th><th>definition</th><th class="num">studies</th><th class="num">runs</th><th class="num">BioSamples</th><th></th></tr></thead><tbody>
 {% for s in scopes %}<tr><td><a href="scopes/{{ s.id }}.html">{{ s.label }}</a>{% if s.curated %} <span class="tag included">curated</span>{% endif %}</td><td class="small">{{ s.definition }}</td><td class="num">{{ s.n_studies|fmt }}</td><td class="num">{{ s.n_runs|fmt }}</td><td class="num">{{ s.n_biosamples|fmt }}</td><td><a class="small" href="index.html?scope={{ s.id }}#explorer">explore</a></td></tr>{% endfor %}
 </tbody></table>

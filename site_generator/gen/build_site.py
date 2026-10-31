@@ -1766,7 +1766,7 @@ def main():
         return [k for k, _ in sorted(d_.items(), key=lambda kv: (-kv[1], kv[0]))] if d_ else [c for c in split_list(s_.get('body_sites')) if c != 'unknown_site']
     sidx_rows = [dict(**study_filters(s['study_accession']), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
-                      bs=_sites_of(s), na=(s.get('nucleic_acid') or '') if not isnull(s.get('nucleic_acid')) else '',
+                      bs=_sites_of(s), na=(s.get('nucleic_acid') or 'unclear') if not isnull(s.get('nucleic_acid')) else 'unclear',
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
                       iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
                       src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
@@ -1806,8 +1806,8 @@ def main():
            hc_opts=[(c, hc_labels.get(c, '')) for c in _hcs if c not in ('unknown',)], iv_opts=[(c, (iv_voc.get(c) or {}).get('label', c), _ivc[c]) for c in iv_voc if c in _ivc],
            design_opts=[d for d in ('randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure') if any(r_['dz'] == d for r_ in sidx_rows)],
            age_opts=[c for c in age_cats if c != 'unknown'],
-           site_opts=[(c, _site_label(c), n) for c, n in sorted(Counter(c for r_ in sidx_rows for c in r_['bs']).items(), key=lambda kv: -kv[1])],
-           na_opts=[(k, PF.NA_LABEL[k]) for k in ('dna', 'rna', 'both') if any(r_['na'] == k for r_ in sidx_rows)],
+           site_opts=[(c, _site_label(c), n) for c, n in sorted(Counter(c for r_ in sidx_rows for c in r_['bs'] if c != 'multi_site').items(), key=lambda kv: -kv[1])],   # multi_site is a study-level marker; a project is listed under each of its sites
+           na_opts=[(k, PF.NA_LABEL[k]) for k in ('dna', 'rna', 'both', 'conflict', 'unclear') if any(r_['na'] == k for r_ in sidx_rows)],
            site_label_map={c: _site_label(c) for r_ in sidx_rows for c in r_['bs']},
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies')])
     for s in studies:
@@ -2417,7 +2417,7 @@ def main():
     # items 5/6: old URLs keep working as redirects to their new homes
     for old_, new_ in REDIRECTS.items():
         (out / old_).parent.mkdir(parents=True, exist_ok=True)
-        (out / old_).write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={new_}"><link rel="canonical" href="{base_url}{posixpath.normpath(posixpath.join(posixpath.dirname(old_), new_))}"><title>moved</title><p>This page moved to <a href="{new_}">{new_}</a>.</p>', encoding='utf-8')
+        (out / old_).write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={new_}"><link rel="canonical" href="{base_url}{posixpath.normpath(posixpath.join(posixpath.dirname(old_), new_))}"><title>moved</title><p>This page moved to <a href="{new_}">{new_}</a>.</p>', encoding='utf-8')
     urls = ''.join(f'<url><loc>{base_url}{p}</loc></url>' for p in sorted(written))
     (out / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + '</urlset>', encoding='utf-8')
     (out / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {base_url}sitemap.xml\n', encoding='utf-8')

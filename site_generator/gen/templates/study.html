@@ -7,7 +7,7 @@
 <div class="pg">
 <header class="pg-head">
 <div class="pg-acc"><span class="mono">{{ s.study_accession }}</span>{% if s.secondary_study_accession %} <span class="mono muted">{{ s.secondary_study_accession }}</span>{% endif %}
-{% if s.nucleic_acid %}<span class="nab {{ s.nucleic_acid }}" title="Nucleic acid of this project's data sets, from the archive's library source with the paper's methods as tie-breaker">{{ na_label.get(s.nucleic_acid, s.nucleic_acid) }}</span>{% endif %}</div>
+{% if s.nucleic_acid %}<span class="nab {{ s.nucleic_acid }}" title="Nucleic acid of this project's data sets, from the archive's library source with the paper's methods as tie-breaker">{{ na_label.get(s.nucleic_acid, s.nucleic_acid) }}</span>{% else %}<span class="nab unclear" title="No catalogued run of this project records its library source">{{ na_label.get('unclear') }}</span>{% endif %}</div>
 <h1 class="pg-title">{{ s.short_title if s.short_title else (s.study_title or '(no title in the archive record)') }}</h1>
 {% if s.short_title and s.study_title %}<div class="pg-origtitle muted" title="Title in the archive record">{{ s.study_title }}</div>{% endif %}
 {% if s.short_description %}<p class="pg-desc">{{ s.short_description }} <span class="mlabel" title="Written by a language model ({{ s.short_description_model or 'Sonnet-class' }}) from {{ s.short_description_sources or 'the archive record, the linked abstract and the curated sample facts' }}; check the sources below">machine-written summary</span></p>{% endif %}

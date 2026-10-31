@@ -5,8 +5,8 @@
 {% block content %}
 <div class="sheet-top"><div id="pglobe" class="globe-box" title="Projects per country for the current filters — drag to rotate"></div><div class="sheet-head"><h1>Project sheet</h1><p class="sheet-sub">{{ n_rows|fmt }} projects of human-associated microbial communities sequenced by shotgun DNA or RNA sequencing, from every body site (INSDC BioProjects in ENA, NCBI SRA or DDBJ). Hover any cell for details; click an accession for its page. <a href="../data/catalog_studies.parquet" download>Download (parquet)</a> · <a href="../samples/index.html">Sample sheet</a></p></div></div>
 <form class="pfilters" id="pfilters" onsubmit="return false">
-<label>Body site <select id="pf-site"><option value="">any</option>{% for c, l, n in site_opts %}<option value="{{ c }}">{{ l }} ({{ n|fmt }})</option>{% endfor %}</select></label>
-<label title="Nucleic acid of the project's data sets: DNA (metagenomes), RNA (metatranscriptomes and RNA viromes) or both">Data <select id="pf-na"><option value="">DNA or RNA</option><option value="dna">DNA data sets</option><option value="rna">RNA data sets</option><option value="both">both DNA and RNA</option></select></label>
+<label title="A project with samples from several body sites is listed under each of them, so the counts add up to more than the number of projects">Body site <select id="pf-site"><option value="">any</option>{% for c, l, n in site_opts %}<option value="{{ c }}">{{ l }} ({{ n|fmt }})</option>{% endfor %}</select></label>
+<label title="Nucleic acid of the project's data sets: DNA (metagenomes), RNA (metatranscriptomes and RNA viromes) or both">Data <select id="pf-na"><option value="">DNA or RNA</option><option value="dna">DNA data sets</option><option value="rna">RNA data sets</option><option value="both">both DNA and RNA</option>{% for k, l in na_opts if k in ('conflict', 'unclear') %}<option value="{{ k }}">{{ l }}</option>{% endfor %}</select></label>
 <label>Health condition <select id="pf-condition"><option value="">any</option>{% for c, l in hc_opts %}<option value="{{ c }}">{{ l or c }}</option>{% endfor %}</select></label>
 <label>Intervention <select id="pf-intervention"><option value="">any</option><option value="__any__">any intervention</option>{% for c, l, n in iv_opts %}<option value="{{ c }}">{{ l }} ({{ n }})</option>{% endfor %}<option value="__none__">none administered</option></select></label>
 <label>Design <select id="pf-design"><option value="">any</option><option value="__controlled__">any controlled design (RCT, crossover, controlled)</option>{% for d in design_opts %}<option value="{{ d }}">{{ d|replace('_', ' ') }}</option>{% endfor %}</select></label>
@@ -41,7 +41,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
     const co = $('pf-country').value.trim().toLowerCase(), mn = $('pf-min_samples').value;
     const ivs = (r.iv || '').split(';').filter(Boolean);
     const si = $('pf-site').value; if (si && !(r.bs || []).includes(si)) return false;
-    const nv = $('pf-na').value; if (nv === 'dna' && !['dna', 'both'].includes(r.na)) return false; if (nv === 'rna' && !['rna', 'both'].includes(r.na)) return false; if (nv === 'both' && r.na !== 'both') return false;
+    const nv = $('pf-na').value; if (nv === 'dna' && !['dna', 'both'].includes(r.na)) return false; if (nv === 'rna' && !['rna', 'both'].includes(r.na)) return false; if (nv === 'both' && r.na !== 'both') return false; if ((nv === 'conflict' || nv === 'unclear') && r.na !== nv) return false;
     if (c && !(r.hcs || []).includes(c) && r.pc !== c) return false;
     if (iv === '__any__' && !ivs.length) return false; if (iv === '__none__' && ivs.length) return false;
     if (iv && !iv.startsWith('__') && !ivs.includes(iv) && !(r.arms || []).includes(iv)) return false;

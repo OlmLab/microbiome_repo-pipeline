@@ -177,10 +177,20 @@ def build(prev: str, new: str, cfg: dict | None = None, cycle_log: str | None = 
         n_runs_new = _n_current(grn)
         ndp = _n_current(_prev_table("catalog_sample_determinations.parquet"))
         ndn = _n_current(os.path.join(new, "catalog_sample_determinations.parquet"))
+        # values added / retired in this release (release columns) — the same numbers the site's Changes page shows
+        _dp = os.path.join(new, "catalog_sample_determinations.parquet")
+        _dn = pq.ParquetFile(_dp).schema.names
+        if {"release_added", "release_retired"} <= set(_dn):
+            _t = pd.read_parquet(_dp, columns=["release_added", "release_retired"])
+            nd_add = f"{int((_t.release_added.astype(str).eq(rid) & _t.release_retired.isna()).sum()):,}"
+            nd_ret = f"{int(_t.release_retired.astype(str).eq(rid).sum()):,}"
+            del _t
+        else:
+            nd_add, nd_ret = f"{ndn - ndp:+,}", ""
         L += ["## Catalog (`catalog_*` tables)", "",
               _md_table([["catalog studies", _fmt(len(gsp)), _fmt(len(gsn)), _fmt(len(gsn - gsp)), _fmt(len(gsp - gsn))],
                          ["catalog samples", _fmt(len(gwp)), _fmt(len(gwn)), _fmt(len(set(gwn.sample_key) - set(gwp.sample_key))), _fmt(len(set(gwp.sample_key) - set(gwn.sample_key)))],
-                         ["sample × field values (current)", _fmt(ndp), _fmt(ndn), f"{ndn - ndp:+,}", ""],
+                         ["sample × field values (current)", _fmt(ndp), _fmt(ndn), nd_add, nd_ret],
                          ["catalog runs (`catalog_runs`)", _fmt(n_runs_prev), _fmt(n_runs_new), f"{n_runs_new - n_runs_prev:+,}", ""]],
                         ["entity", pv_prev, pv_new, "added", "removed"]), ""]
         rows = []

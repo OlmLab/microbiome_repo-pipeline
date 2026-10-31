@@ -141,6 +141,9 @@ def main(pkg, after_docs=False):
             d = d.replace("Historical\nrows carry only the counts the CHANGELOGs state (empty otherwise — never invented).",
                           f"Counts are over the current rows of\nthe catalog tables: projects (`n_studies_included`), samples (`n_samples`), samples with `infant_scope` (`n_catalog_scope`) and\n"
                           f"sample × field values (`n_determinations_current`). Rows of releases before {first} carry identifiers only (tags, DOI); those\npackages are archived with their own releases.")
+            # the infant extension tables use their own body_site_class vocabulary: say so where it is defined
+            d = d.replace("| `body_site_class` | str | vocabulary: `primary` — infant gut", "| `body_site_class` | str | infant extension tables only — vocabulary: `primary` — infant gut")
+            d = d.replace("| `body_site_class` | str | body-site scope class — vocabulary: `primary` (infant gut", "| `body_site_class` | str | infant extension tables only — body-site scope class — vocabulary: `primary` (infant gut")
             if "\n## Catalog tier" not in d and "\n### catalog_" in d:
                 i = d.index("\n### catalog_")
                 d = d[:i] + "\n## Catalog tier\nOne row per project / sample / sample × field / run of the catalog (every body site, all ages, DNA and RNA data sets).\n" + d[i:]
