@@ -1007,6 +1007,13 @@ def build(a):
         gs["interventions"] = gs["interventions"].fillna("")
     # ---- study sequencing summary (runs built above)
     if gut_runs is not None:
+        # a run of a catalogued sample filed under a project that is not itself in the catalog (its samples are catalogued under
+        # another BioProject) belongs to the sample's project, so the project's DNA / RNA label and run counts see it;
+        # run_study_accession keeps the archive's study
+        _ws = dict(zip(w.sample_key, w.study_accession))
+        _off = gut_runs.sample_key.notna() & ~gut_runs.study_accession.isin(gs.index) & gut_runs.sample_key.map(_ws).isin(gs.index)
+        gut_runs.loc[_off, "study_accession"] = gut_runs.loc[_off, "sample_key"].map(_ws)
+        print(f"runs re-attached to their sample's project: {int(_off.sum())}", file=sys.stderr)
         gs = gs.join(sequencing_summary(gut_runs), how="left")
         gs = gs.join(study_nucleic_acid(gut_runs, getattr(a, "study_facts", None)), how="left")
         from catalog.scopes.newfields_r1 import sample_depth

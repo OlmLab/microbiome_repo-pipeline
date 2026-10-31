@@ -611,10 +611,10 @@ def depth_svg(proj, repo, median, width=260, height=40):
     for i in range(nb):
         if rm:
             hr = height * repo[i] / rm
-            out.append(f'<rect class="repo" x="{i * bw + 0.5:.1f}" y="{height - hr:.1f}" width="{bw - 1:.1f}" height="{hr:.1f}"><title>all projects, {lab(i)}: {repo[i]:,} samples ({100 * repo[i] / max(1, sum(repo)):.0f} %)</title></rect>')
+            out.append(f'<rect class="repo" x="{i * bw + 0.5:.1f}" y="{height - hr:.1f}" width="{bw - 1:.1f}" height="{hr:.1f}"><title>all projects, {lab(i)}: {repo[i]:,} sample{'s' if repo[i] != 1 else ''} ({100 * repo[i] / max(1, sum(repo)):.0f} %)</title></rect>')
         if proj[i]:
             hp = max(2.0, height * proj[i] / pm)
-            out.append(f'<rect class="proj" x="{i * bw + 0.5:.1f}" y="{height - hp:.1f}" width="{bw - 1:.1f}" height="{hp:.1f}"><title>this project, {lab(i)}: {proj[i]:,} samples</title></rect>')
+            out.append(f'<rect class="proj" x="{i * bw + 0.5:.1f}" y="{height - hp:.1f}" width="{bw - 1:.1f}" height="{hp:.1f}"><title>this project, {lab(i)}: {proj[i]:,} sample{'s' if proj[i] != 1 else ''}</title></rect>')
     import math
     if median > 0:
         i = next(k for k in range(nb) if DEPTH_EDGES[k] <= median < DEPTH_EDGES[k + 1])
@@ -801,6 +801,11 @@ def write_compact_parquet(df, path):
     pq_.write_table(t.replace_schema_metadata(None), path, compression='zstd', write_statistics=False)
 
 
+REG_STAGE_PHRASE = {'deterministic_prior': 'from the archive labels (deterministic rule, carried from an earlier release)',
+                    'deterministic_rule': 'by a deterministic rule on the archive labels', 'sonnet_x2': 'by two independent model readings',
+                    'opus_adjudicated': 'by two model readings and a tie-break', 'owner_decision': 'by a curator decision',
+                    'curator_audit': 'after a curator audit'}
+
 def registry_summary(rgr, site_labels, stage_labels_short, assay_labels):
     """Item 9: one plain-language sentence from the registry classification row (labels from the vocabularies; nothing invented)."""
     host = {'yes': 'human', 'mixed': 'human and non-human (mixed)', 'no': 'non-human', 'unknown': 'unknown-host'}.get(str(rgr.get('host_human')), str(rgr.get('host_human') or 'unclassified'))
@@ -814,7 +819,7 @@ def registry_summary(rgr, site_labels, stage_labels_short, assay_labels):
         parts.append('of ' + ' and '.join(stages))
     stage = rgr.get('classification_stage')
     if stage and str(stage) != 'pending':   # a pending row carries no classification yet: no stage / confidence clause
-        parts.append(f'by {stage}')
+        parts.append(REG_STAGE_PHRASE.get(str(stage), f'by {stage}'))
         if not isnull(rgr.get('classification_confidence')) and float(rgr['classification_confidence']) > 0:
             parts.append(f"with confidence {float(rgr['classification_confidence']):.2f}")
     return ' '.join(parts) + '.'
@@ -1234,6 +1239,16 @@ def main():
         papers = pd.concat([papers, cpl], ignore_index=True)
     papers['paper_id'] = papers.paper_id.astype(str)
     papers = papers[papers.study_accession.isin(inc_set)].drop_duplicates(['study_accession', 'paper_id']).reset_index(drop=True)
+    # the same paper reaches a project by several link routes under different paper ids: one entry per PMID / DOI, then per
+    # title + year, keeping the entry with the most identifiers
+    _nt = lambda t: '' if isnull(t) else re.sub(r'[^a-z0-9]+', ' ', str(t).lower()).strip()
+    papers['_nid'] = sum(papers[c].notna().astype(int) for c in ('pmid', 'pmcid', 'doi')) if len(papers) else 0
+    papers['_tk'] = pd.Series([f'{_nt(t)}|{str(y)[:4]}' for t, y in zip(papers.title, papers.year)], index=papers.index, dtype=object)
+    papers['_k'] = [('p' + str(pm).split('.')[0]) if not isnull(pm) else (('d' + str(do).lower()) if not isnull(do) else ('t' + tk))
+                    for pm, do, tk in zip(papers.pmid, papers.doi, papers._tk)]
+    papers = papers.sort_values(['study_accession', '_nid'], ascending=[True, False], kind='mergesort').drop_duplicates(['study_accession', '_k'])
+    papers = papers[papers._tk.map(len).le(6) | ~papers.duplicated(['study_accession', '_tk'])]
+    papers = papers.drop(columns=['_nid', '_tk', '_k']).sort_values(['study_accession', 'paper_id'], kind='mergesort').reset_index(drop=True)
     papers['title'] = papers.title.map(strip_frame_tokens).map(lambda t: None if isnull(t) else re.sub(r'<[^>]+>', '', str(t)))
     authors, authors_possible = load_site_authors(pkg, inc_set, Path(a.config).parent / 'author_overrides.csv', RR)
     authors['pmid'] = authors.pmid.astype(str)
@@ -1850,8 +1865,11 @@ def main():
         tcols = [dict(f=f, label=SHORT_LABELS.get(f, f.replace('_', ' ')), empty=False) for f in have_cols] + \
                 [dict(f=f, label=SHORT_LABELS.get(f, f.replace('_', ' ')), empty=True) for f in empty_cols]
         group_rows = dg[dg.scope == 'study_all'].drop_duplicates(['field_name', 'value_normalized']).sort_values(['route', 'field_name'], kind='mergesort') if len(dg) else dg
+        _loc = lambda v: v.replace('[nan]', '') if isinstance(v, str) else v   # an unparsed sub-sheet slot in supplementary locators
+        group_rows = group_rows.assign(evidence_locator=group_rows.evidence_locator.map(_loc))
         group_stmts = [clean(x) for x in group_rows[['field_name', 'value_normalized', 'route', 'confidence', 'evidence_source', 'evidence_locator', 'evidence_quote']].head(40).to_dict('records')]
         ev_sample = dg[dg.scope != 'study_all'].assign(_src=lambda d: d.evidence_source.astype(str).str.split('.').str[:2].str.join('.')).drop_duplicates(['field_name', 'route', '_src']).sort_values(['field_name', 'route'], kind='mergesort').head(40) if len(dg) else dg
+        ev_sample = ev_sample.assign(evidence_locator=ev_sample.evidence_locator.map(_loc))
         ev_rows_study = [clean(x) for x in ev_sample[['sample_key', 'field_name', 'value_normalized', 'route', 'confidence', 'evidence_source', 'evidence_locator', 'evidence_quote']].to_dict('records')]
         ages = counts_sorted(g.age_category.fillna('unknown'))
         sites = counts_sorted(g.body_site_code.where(g.body_site_code.notna() & (g.body_site_code != 'unknown_site')).dropna().map(lambda c: (vocabs['body_site'].get(c) or c.replace('_', ' ')) if isinstance(vocabs['body_site'].get(c), str) else c.replace('_', ' '))) if 'body_site_code' in g.columns else []

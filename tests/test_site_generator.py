@@ -225,7 +225,7 @@ def test_study_page_sections(site_new):
     t = _html(site_new, 'studies/PRJTEST000001.html')
     # R2026.18 redesign: registry entry in a collapsed Details section; coverage = core fields always, then every field with values
     assert 'How this project entered the catalog' in t and 'Registry classification</h2>' not in t
-    assert 'The registry (archive-only classification) lists it as human' in t and 'by deterministic_rule with confidence 0.90' in t
+    assert 'The registry (archive-only classification) lists it as human' in t and 'by a deterministic rule on the archive labels with confidence 0.90' in t
     assert 'sample.attr.host' in t and '“Homo sapiens”' in t
     assert 'registry/index.html?study=PRJTEST000001' in t
     cov_rows = re.findall(r'<tr( class="core")?><td><a class="mono" href="../fields/index.html#([a-z_]+)"', t)

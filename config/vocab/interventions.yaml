@@ -25,6 +25,6 @@ codes:
   vaccine: {label: Vaccination as the study intervention, match_terms: [vaccine, vaccination, immunization]}
   phage_therapy: {label: Bacteriophage therapy, match_terms: ["phage therapy", bacteriophage cocktail]}
   other_intervention: {label: Other administered intervention (see intervention_detail), match_terms: []}
-  placebo: {label: "Placebo / sham arm (sample level only), sample_level_only: true", match_terms: [placebo, sham]}
-  no_intervention: {label: "Control / pre-intervention baseline (sample level only), sample_level_only: true", match_terms: [baseline, "pre-treatment", control, untreated]}
+  placebo: {label: "Placebo / sham arm (sample level only)", sample_level_only: true, match_terms: [placebo, sham]}
+  no_intervention: {label: "Control / pre-intervention baseline (sample level only)", sample_level_only: true, match_terms: [baseline, "pre-treatment", control, untreated]}
 designs: [randomized_controlled_trial, non_randomized_controlled, single_arm_before_after, crossover, observational_with_procedure, none]
