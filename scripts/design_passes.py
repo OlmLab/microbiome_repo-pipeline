@@ -20,7 +20,8 @@ Merging (deterministic):
                    kind class and intervention codes, and the same unique health_condition code, or shared label words, or
                    the only group of its kind). Technical-control values / labels are dropped. The proposal stands when the
                    agreed values cover >= 70 % of the specimens with >= 2 groups, no group is a body site, time-point-only
-                   keys occur only in single-arm / crossover interventions, and no group holds more people (or, without
+                   keys occur only in single-arm / crossover interventions, place-only keys only when the readings agree on
+                   cross_sectional_groups and a group quote is verbatim (G1), and no group holds more people (or, without
                    person ids and repeated sampling, specimens) than 1.25x (1.5x) the number both readings state for it.
   Opus check       every proposed value -> group map is checked by the `adjudicate` role (Opus 5) with the same text; only
                    values it confirms are written, and a health_condition code only when it confirms the code. Each kept
@@ -89,7 +90,8 @@ Record, with the `record` tool:
 
 1. study_shape: how participants were selected and sampled. Take the FIRST that applies:
    1 method_or_benchmark: the aim is a method, protocol, sequencing or diagnostic performance (kit comparisons, mock
-     communities, clinical mNGS diagnostic yield), not a biological comparison of people;
+     communities, clinical mNGS diagnostic yield: 'compared mNGS with culture', 'detection rate', 'diagnostic performance',
+     'sensitivity'), not a biological comparison of people; a patient-group contrast inside such a study does not override it;
    2 rct / crossover / single_arm_intervention / non_randomised_intervention: the study assigns an intervention (randomised
      parallel arms / randomised sequence / everyone receives it, before vs after / non-random intervention vs control groups);
    3 cohort_longitudinal: the same people sampled repeatedly over time, no assigned intervention;
@@ -98,15 +100,19 @@ Record, with the `record` tool:
      answer is case_control (e.g. healthy controls vs three stages of cirrhosis = case_control);
    5 cross_sectional_groups: other groups compared at one time (lifestyle, diet, geography, age, exposure; also strata of ONE
      disease such as severity or exacerbation vs stable);
-   6 case_series: people with a condition only, no comparison group;
+   6 case_series: people with a condition only, no comparison group. A comparison between tissues, sites or specimen types
+     taken from the same people (tumour vs adjacent normal, sputum vs stool) is never case_control: when every group comes
+     from one condition cohort the shape is case_series (cohort_longitudinal when they are sampled repeatedly);
    7 population_survey: one population, no comparison groups;
    8 unclear: the text does not say. When the prose (title, description, abstract, methods) names no design and the only
      evidence is sample names or attribute values, answer unclear, unless those values themselves name the arms or periods
      of an intervention the prose states. You may still give the groups and the group key in that case.
    Give a verbatim quote (at most 25 words) that shows it, and its source section.
 2. design_statement: ONE factual sentence (at most 40 words) a reader can rely on: who was sampled, the groups or arms
-   compared, and the sampling scheme (how often, which body sites). Only facts stated in the text, numbers as stated; a
-   number of samples is never a number of participants; no results, no interpretation. Plain English.
+   compared, and the sampling scheme (how often, which body sites). Only facts stated in the PROSE of the text (title,
+   description, abstract, methods), numbers as stated; a number of samples is never a number of participants, and when the
+   text gives no participant count give none; name only groups and comparisons the prose names (not ones that appear only
+   in sample names or attribute values); no results, no interpretation. Plain English.
 3. groups: the groups the study compares, as the text names them (at most 8; empty for a single-group study). For each:
    label (short, the source's own name), kind, health_condition, intervention_codes, n_people_stated (people in THIS group,
    null if not stated) and a verbatim quote (at most 25 words) that defines the group.
@@ -278,7 +284,7 @@ def _same_group(ga, gb, ctx):
     if hca == hcb and hca != "none" and ha.get(hca, 0) == 1 and hb.get(hcb, 0) == 1:
         return True
     ta, tb = _tokens(ga.get("label")), _tokens(gb.get("label"))
-    if ta and tb and len(ta & tb) / len(ta | tb) >= 0.34:
+    if ta and tb and (len(ta & tb) / len(ta | tb) >= 0.34 or ta <= tb or tb <= ta):   # containment: 'Y' vs 'Y (year follow-up)'
         return True
     return ca.get(canon(ga), 0) == 1 and cb.get(canon(gb), 0) == 1
 
@@ -346,6 +352,13 @@ def merge_project(acc, tx, reps, cand, specimens, existing, subj=None):
     if "body_site" in kinds or (kinds <= {"time_point", "other"} and s1 not in ("single_arm_intervention", "crossover")):
         row["status"] = "done_key_not_a_comparison"
         return row, None
+    # G1 (production audit R2026.33): a place is a compared group only when the study compares places, i.e. the readings agree
+    # on cross_sectional_groups and at least one of the assigned groups' defining quotes is verbatim in the text
+    if kinds <= {"geography"}:
+        labs = {agreed[v].get("label") for v in assigned.unique()}
+        if not (shape == "cross_sectional_groups" and any(CP.find_quote(g1[l].get("quote") or "", segs) for l in labs if l in g1)):
+            row["status"] = "done_geography_not_a_comparison"
+            return row, None
     # group sizes: a group holding more people (or specimens) than both readings state for it loses its values
     dropped = []
     for lab in sorted({agreed[v].get("label") for v in assigned.unique()}):
@@ -482,7 +495,7 @@ def run(projects, out, budget, shard, host=None, verify_budget=None):
         spec = spec_by.get(acc, [])
         lines, cand = candidate_variables(attrs_by.get(acc, attrs.iloc[0:0]), spec)
         T[acc], C[acc], S[acc] = tx, cand, spec
-        P[acc] = tx["prompt"] + "\n\nCANDIDATE GROUP VARIABLES (key [samples with a value]: every distinct value x samples):\n" + (
+        P[acc] = tx["prompt"] + f"\n\nSPECIMENS DEPOSITED IN THIS PROJECT: {len(spec)}" + "\n\nCANDIDATE GROUP VARIABLES (key [samples with a value]: every distinct value x samples):\n" + (
             "\n".join(lines) if lines else "  (none: no sample attribute or name stem has 2-40 distinct values)")
         for rep in (1, 2):
             reqs.append({"system": SYSTEM + ("" if rep == 1 else "\n(second, independent reading)"), "prompt": P[acc],

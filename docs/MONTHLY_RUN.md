@@ -28,7 +28,7 @@ Set `L=~/catalog/cache/large_update` and run from the pipeline root.
 | 17b | Study-level passes for the newly admitted projects (R3 / R4 cohort statements, interventions, study design, generated subjects) | sub-agents running `scripts/catchup_passes.py --shard K --nshards N --budget 4 --projects <new projects>` (two readings per project of the generating paper's full text, else its abstracts, plus the archive record), then `python scripts/catchup_passes.py --merge` | ≈ $0.05 / project |
 | 17b+ | Verify and filter the catch-up outputs before the build | an Opus 5 audit of a random sample; then `scripts/verify_catchup_rows.py --shard K --nshards 8` (sub-agents; a third reading, role `adjudicate`, of every committed statement and kinship call against the passage around its quote) → `--apply`; then `python scripts/apply_catchup_filters.py` (generated subjects only where stated participants ≥ specimens; study-level intervention codes only in trial designs) | ≈ $0.02 / statement |
 | 17c | Credit the per-sample passes the large-update stages ran | `python scripts/write_large_update_pass_log.py --projects <new projects>` → `data/inputs/gut/large_update_pass_log.csv` (read by `check_pass_coverage.py`) | none |
-| 17d | Study-design reading (design type, one-sentence design statement, compared groups, per-sample comparison_group) for projects without a design statement, projects whose paper compares groups the samples do not separate, and trials whose arms are not per sample | targets from the built site's design checks → `data/inputs/gut/design/design_targets_<release>.csv`; sub-agents running `scripts/design_passes.py --projects <targets> --shard K --nshards 48 --budget 5 --verify-budget 4` (two Sonnet-class readings + an Opus 5 check of every proposed value → group map), then `scripts/design_passes.py --merge` → `design/design_reading_all.parquet` (read by build_gut_scope) and `deep/deep_determinations_shard_GRPD*.parquet` (per-sample rows) | pilot with an Opus 5 audit of every assigned project before the full run (R2026.33 pilot 2: 1,082 of 1,086 assigned specimens correct) |
+| 17d | Study-design reading (design type, one-sentence design statement, compared groups, per-sample comparison_group) for projects without a design statement, projects whose paper compares groups the samples do not separate, and trials whose arms are not per sample | targets from the built site's design checks → `data/inputs/gut/design/design_targets_<release>.csv`; sub-agents running `scripts/design_passes.py --projects <targets> --shard K --nshards 48 --budget 5 --verify-budget 4` (two Sonnet-class readings + an Opus 5 check of every proposed value → group map), then `scripts/design_passes.py --merge`, `scripts/design_statement_check.py --shard K --nshards 12` (Opus 5 check of every design statement) and `--apply` → `design/design_reading_all.parquet` (read by build_gut_scope) and `deep/deep_determinations_shard_GRPD*.parquet` (per-sample rows) | pilot with an Opus 5 audit of every assigned project before the full run (R2026.33 pilot 2: 1,082 of 1,086 assigned specimens correct) |
 | 18 | Inputs of the catalog build | `PYTHONPATH=src python scripts/prepare_catalog_inputs.py --extra-facts-dirs <summarised pass prefixes>` → `data/inputs/catalog/` (study rows, samples, determinations, paper facts, exposure items, papers, short descriptions, `runs_source.parquet` with `run_origin`) | none |
 | 18b | Short descriptions of projects that have none | sub-agents running `scripts/write_short_descriptions.py` (rubric tier; refused projects once more with `SHORT_DESC_ROLE=adjudicate`) | ≈ $0.01 / project |
 | 18c | Community profiles of new samples | `python scripts/extend_sandpiper.py --bulk <sandpiper bulk> --old-dir data/inputs/gut/sandpiper --catalog-dir <catalog build> --work <dir> --out data/inputs/catalog/sandpiper` | none |
@@ -68,11 +68,16 @@ by `release`) keeps the package's release notes and changelog to the releases fr
 * **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
   page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
 
-## Next run: carried over from R2026.31
+## Next run: carried over from R2026.33
 
-* 12,845 project-passes for the ~2,300 projects admitted in R2026.30/31 (deep per-sample, design, abstract, interventions,
-  subject, full text, supplementary) are listed in `config/pass_coverage_exceptions.csv`; run them first.
-* 4 projects have no short description (refused twice) and 4 have unresolved DNA / RNA labels.
+* The R2026.31 catch-up list (`config/pass_coverage_exceptions.csv`) was run in R2026.32; 18 project-passes in 6 projects
+  remain (both readings refused). 4 projects have no short description and 4 have unresolved DNA / RNA labels.
+* Study design (R2026.33 project-page checks): ~1,015 projects whose source compares groups that no sample variable
+  separates; ~770 whose source describes repeated sampling that the person identifiers do not show; ~220 with related people
+  not linked to samples; ~200 trials whose arms are not per sample. The design pass prompt now carries the audit's fixes
+  (diagnostic-yield studies are method_or_benchmark; tissue / site contrasts within one patient group are case_series; no
+  participant counts or groups that only attribute values show; specimen count in the prompt; label containment in group
+  matching); re-run it on the projects whose design type the readings disagreed on (~500) and on newly admitted projects.
 
 ## What to watch
 

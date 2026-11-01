@@ -1078,7 +1078,7 @@ def build(a):
         dr = pd.read_parquet(dr_p).drop_duplicates("study_accession", keep="last").set_index("study_accession")
         ren = {"study_shape": "design_shape_reading", "text_mode": "design_text_mode", "design_statement": "design_statement",
                "groups_json": "design_groups", "group_key": "design_group_key", "n_participants_stated": "design_n_participants_stated",
-               "status": "design_reading_status"}
+               "status": "design_reading_status", "statement_check": "design_statement_check"}
         dr = dr[[c for c in ren if c in dr.columns]].rename(columns=ren)
         gs = gs.join(dr[[c for c in dr.columns if c not in gs.columns]], how="left")
     gs["release_added"], gs["release_retired"], gs["package_added"] = rid, None, pv

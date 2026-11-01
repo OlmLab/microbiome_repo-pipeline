@@ -510,8 +510,10 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
         checks = ('<div class="ds-checks-h">Paper and data checks</div><ul class="ds-checks">' +
                   ''.join(f'<li><span class="ds-ck {k}">{sym[k]}</span><span>{t}</span></li>' for k, t in ck) + '</ul>')
     stmt = s.get('design_statement')
+    chk = s.get('design_statement_check')
+    chk_txt = {'supported': '; an Opus 5 check found every fact in the text', 'revised': '; an Opus 5 check removed details the text does not state'}.get(chk, '')
     stmt_html = (f'<p class="ds-stmt">{E(str(stmt))} <span class="mlabel" title="Written by a language model from the {E(str(s.get("design_text_mode") or "source"))} text; '
-                 f'two independent readings agreed on the design type">machine-written from the source</span></p>') if not _null(stmt) else ''
+                 f'two independent readings agreed on the design type{chk_txt}">machine-written{", checked" if chk_txt else ""}</span></p>') if not _null(stmt) else ''
     head = (f'<div class="ds-head"><span class="ds-type">{E(label)}</span>' + (f'<span class="ds-src" title="Where the design type comes from">{E(src)}</span>' if src else '') + '</div>'
             + (f'<div class="ds-help">{E(help_)}</div>' if help_ else ''))
     if fig and checks:
