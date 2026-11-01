@@ -459,6 +459,7 @@ svg.gchart .halo{fill:#fff;stroke:#fff}
 .ds-type{font-size:1.22rem;font-weight:700;color:#222}.ds-src{font-size:.72rem;color:#7a6a3a;border:1px solid #e0d5b2;border-radius:999px;padding:0 .45rem;background:#fff}
 .ds-help{font-size:.8rem;color:#5f6365}
 .ds-sent{font-size:.95rem;line-height:1.5;margin:.35rem 0 .2rem;color:#222}
+.ds-stmt{font-size:.95rem;line-height:1.5;margin:.45rem 0 .1rem;color:#222}.ds-grp{font-size:.88rem;margin:.15rem 0 .1rem;color:#333}.ds-inlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#7a6a3a;font-weight:600}
 .ds-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.1rem 1.6rem;margin-top:.6rem;align-items:start}
 @media (max-width:900px){.ds-grid{grid-template-columns:1fr}}
 .ds-fig svg{display:block;max-width:100%;height:auto}

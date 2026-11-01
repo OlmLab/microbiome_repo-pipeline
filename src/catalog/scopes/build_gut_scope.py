@@ -1071,6 +1071,16 @@ def build(a):
     if sd_parts:
         sd = pd.concat(sd_parts, ignore_index=True).drop_duplicates("study_accession", keep="first").set_index("study_accession")
         gs = gs.join(sd[[c for c in ("short_title", "short_description", "short_description_model", "short_description_sources") if c in sd.columns]], how="left")
+    # study-design reading (R2026.33, scripts/design_passes.py; data/inputs/gut/design/design_reading_all.parquet): the design type,
+    # a one-sentence design statement and the compared groups, from two readings of the paper / abstract / archive record
+    dr_p = os.path.join(os.path.dirname(os.path.abspath(a.studies)), "design", "design_reading_all.parquet")
+    if os.path.exists(dr_p):
+        dr = pd.read_parquet(dr_p).drop_duplicates("study_accession", keep="last").set_index("study_accession")
+        ren = {"study_shape": "design_shape_reading", "text_mode": "design_text_mode", "design_statement": "design_statement",
+               "groups_json": "design_groups", "group_key": "design_group_key", "n_participants_stated": "design_n_participants_stated",
+               "status": "design_reading_status"}
+        dr = dr[[c for c in ren if c in dr.columns]].rename(columns=ren)
+        gs = gs.join(dr[[c for c in dr.columns if c not in gs.columns]], how="left")
     gs["release_added"], gs["release_retired"], gs["package_added"] = rid, None, pv
     gs = gs.reset_index()
 

@@ -342,8 +342,17 @@ releases:
     previous_release_id: R2026.31
     notes_file: RELEASE_NOTES_R2026.32.md
     data_tag: data-v1.27.0
-    site_tag: site-v1.27.0
+    doi: 10.5281/zenodo.23862733
+    site_tag: site-v1.27.0.1
     label: "study-level passes for the 2,318 projects added in R2026.30–31 (cohort statements from full text and abstracts, interventions, study design, one-sample-per-person subjects; two readings each), supplementary tables for 146 more projects, full archive descriptions; body site becomes a core field; project pages state DNA / RNA and the sequencing platform for every project, with redesigned collection-year and linear sequencing-depth charts"
+  - release_id: R2026.33
+    package_version: '1.28.0'
+    previous_package_version: '1.27.0'
+    previous_release_id: R2026.32
+    notes_file: RELEASE_NOTES_R2026.33.md
+    data_tag: data-v1.28.0
+    site_tag: site-v1.28.0
+    label: "study design: a study-design reading of 3,067 projects (design type, one-sentence design statement, the compared groups and the sample variable that separates them, checked by Opus 5), per-sample comparison_group, design block on every project page, C / S project markers"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:

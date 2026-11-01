@@ -55,6 +55,7 @@ CSS = """
 .ds-type{font-size:1.22rem;font-weight:700;color:#222}.ds-src{font-size:.72rem;color:#7a6a3a;border:1px solid #e0d5b2;border-radius:999px;padding:0 .45rem;background:#fff}
 .ds-help{font-size:.8rem;color:#5f6365}
 .ds-sent{font-size:.95rem;line-height:1.5;margin:.35rem 0 .2rem;color:#222}
+.ds-stmt{font-size:.95rem;line-height:1.5;margin:.45rem 0 .1rem;color:#222}.ds-grp{font-size:.88rem;margin:.15rem 0 .1rem;color:#333}.ds-inlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#7a6a3a;font-weight:600}
 .ds-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.1rem 1.6rem;margin-top:.6rem;align-items:start}
 @media (max-width:900px){.ds-grid{grid-template-columns:1fr}}
 .ds-fig svg{display:block;max-width:100%;height:auto}
@@ -149,7 +150,14 @@ def _shape(s):
     sh = s.get('study_shape')
     if not _null(sh) and sh != 'unclear':
         return sh, SHAPE_LABEL.get(sh, sh.replace('_', ' ')), 'read from the paper', SHAPE_HELP.get(sh, ''), []
+    dr = s.get('design_shape_reading')
+    mode = {'fulltext': 'read from the paper (design reading)', 'abstract': 'read from the abstract (design reading)',
+            'archive': 'read from the archive description (design reading)'}.get(s.get('design_text_mode'), 'design reading')
+    if not _null(dr) and dr != 'unclear' and not str(dr).startswith('suggested:'):
+        return dr, SHAPE_LABEL.get(dr, dr.replace('_', ' ')), mode, SHAPE_HELP.get(dr, ''), []
     sc = s.get('study_shape_classification')
+    if _null(sc) or sc == 'unclear':
+        sc = dr   # the design reading's two readings disagreed: show both
     if not _null(sc) and sc != 'unclear':
         if sc.startswith('suggested:'):
             a = [c for c in sc.split(':', 1)[1].split('|') if c]
@@ -169,6 +177,11 @@ def _groups(g, ivarms, hc_labels, iv_labels):
             lab = ' + '.join(iv_labels.get(c, c.replace('_', ' ')) for c in str(v).split(';') if c)
             out.append((str(v), lab, (a == v).fillna(False).to_numpy(dtype=bool)))
         return 'intervention', out
+    if 'comparison_group' in g.columns:
+        cg = g.comparison_group.astype('string')
+        vc = cg.dropna().value_counts()
+        if len(vc) >= 2 and cg.notna().mean() >= 0.5:
+            return 'comparison_group', [(str(v), str(v), (cg == v).fillna(False).to_numpy(dtype=bool)) for v in vc.index]
     if 'health_condition' in g.columns:
         h = g.health_condition.astype('string')
         vc = h[h.notna() & (h != 'unknown')].value_counts()
@@ -288,7 +301,7 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
             stage = a.index[0]
     # groups
     gfield, groups = _groups(spec, ivarms, hc_labels, iv_labels)
-    multi_group = gfield in ('intervention', 'health_condition') and len(groups) >= 2
+    multi_group = gfield in ('intervention', 'health_condition', 'comparison_group') and len(groups) >= 2
     hc_codes = set(spec.health_condition.dropna().astype(str)) if 'health_condition' in spec.columns else set()
     hcn = spec.health_condition.astype('string').value_counts() if 'health_condition' in spec.columns else pd.Series(dtype=int)
     has_cc = int(hcn.get('healthy_control', 0)) >= 3 and int(hcn[[c for c in hcn.index if c not in NON_DISEASE]].sum()) >= 3
@@ -378,7 +391,7 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
                 p = _people(sub, mm)
                 ns = int(mm.sum())
                 cell[(r, c_)] = (p if people_ok else ns, p, ns)
-        rf = {'intervention': 'intervention (arm)', 'health_condition': 'health_condition'}.get(gfield, 'all samples')
+        rf = {'intervention': 'intervention (arm)', 'health_condition': 'health_condition', 'comparison_group': 'comparison_group'}.get(gfield, 'all samples')
         fig = matrix_svg(rows, cols, cell, tot, unit, rf, 'body_site_code')
         cap = (f'Each circle: {unit} in one group at one body site (area ∝ count; hover for people and samples)'
                + ('; dashed circles: samples without a person identifier (“s.” = samples)' if people_ok and any(p == 0 and ns > 0 for _, p, ns in cell.values()) else '') + '. '
@@ -403,6 +416,9 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
 
     srcs, tip = _sources(dg, 'subject_id')
     row('Person', 'subject_id', srcs, tip, n_sub_s, None if n_sub_s else 'no variable names the person')
+    if 'comparison_group' in spec.columns and spec.comparison_group.notna().any():
+        srcs, tip = _sources(dg, 'comparison_group')
+        row("Study's comparison group", 'comparison_group', srcs, tip, int(spec.comparison_group.notna().sum()))
     if gfield == 'intervention':
         srcs, tip = _sources(dg, 'intervention')
         row('Arm', 'intervention', srcs, tip, int(spec.intervention.notna().sum()))
@@ -430,6 +446,8 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
     # ---------------------------------------------------------------- checks
     ck = []
     npart = s.get('n_participants')
+    if _null(npart):
+        npart = s.get('design_n_participants_stated')
     if not _null(npart):
         npart = int(round(float(npart)))
         if npart == 1:
@@ -470,7 +488,7 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
             else:
                 ck.append(('warn', 'The source compares groups, but no sample variable says which group each sample belongs to' + (f' (every sample with a value reads “{E(short_label(groups[0][1]))}”)' if groups else '') + '.'))
         else:
-            ck.append(('ok', f'Groups are told apart by each sample’s {"intervention arm" if gfield == "intervention" else "health_condition"} ({len(groups)} groups).'))
+            ck.append(('ok', f'Groups are told apart by each sample’s {"intervention arm" if gfield == "intervention" else gfield} ({len(groups)} groups).'))
     if not inferred and code == 'case_series' and has_cc:
         ck.append(('warn', f'Classified as a single-group study, but {_fmt(int(hcn.get("healthy_control", 0)))} samples are labelled healthy controls.'))
     dz = s.get('intervention_design')
@@ -491,6 +509,9 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
         sym = {'ok': '✓', 'warn': '!', 'info': 'i'}
         checks = ('<div class="ds-checks-h">Paper and data checks</div><ul class="ds-checks">' +
                   ''.join(f'<li><span class="ds-ck {k}">{sym[k]}</span><span>{t}</span></li>' for k, t in ck) + '</ul>')
+    stmt = s.get('design_statement')
+    stmt_html = (f'<p class="ds-stmt">{E(str(stmt))} <span class="mlabel" title="Written by a language model from the {E(str(s.get("design_text_mode") or "source"))} text; '
+                 f'two independent readings agreed on the design type">machine-written from the source</span></p>') if not _null(stmt) else ''
     head = (f'<div class="ds-head"><span class="ds-type">{E(label)}</span>' + (f'<span class="ds-src" title="Where the design type comes from">{E(src)}</span>' if src else '') + '</div>'
             + (f'<div class="ds-help">{E(help_)}</div>' if help_ else ''))
     if fig and checks:
@@ -499,7 +520,20 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
         top_ = fig or checks
     more = (f'<details class="ds-more" open><summary>Which variables the design is drawn from</summary>{table}</details>')
     link = '<p class="small muted" style="margin:.5rem 0 0"><a href="../about/value_sources.html#design-block">How this block is assembled</a></p>'
-    return f'<div class="ds-card">{head}<p class="ds-sent">{sentence}</p>{top_}{more}{link}</div>'
+    grp_html = ''
+    dgj = s.get('design_groups')
+    if not _null(dgj) and not _null(stmt):
+        try:
+            import json as _json
+            dgl = [x for x in _json.loads(dgj) if isinstance(x, dict) and x.get('label')][:8]
+        except ValueError:
+            dgl = []
+        if len(dgl) >= 2:
+            grp_html = ('<p class="ds-grp"><span class="ds-inlab">Groups the source compares:</span> ' +
+                        ' · '.join(E(str(x['label'])[:60]) + (f' <span class="muted">(n = {int(x["n_people_stated"]):,})</span>' if isinstance(x.get('n_people_stated'), int) else '') for x in dgl) + '</p>')
+    stmt_html += grp_html
+    data_lab = '<span class="ds-inlab">In the data:</span> ' if stmt_html else ''
+    return f'<div class="ds-card">{head}{stmt_html}<p class="ds-sent">{data_lab}{sentence}</p>{top_}{more}{link}</div>'
 
 
 def letters(s, g, ivarms=None):

@@ -34,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 ROUTES = ['R1', 'R2', 'R3', 'R4']
 ROUTE_LABELS = {'R1': 'archive attribute', 'R2': 'supplementary table', 'R3': 'paper full text', 'R4': 'abstract / description'}
 LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life stage)', 'age_at_collection_days': 'Age at collection (days, exact)', 'intervention': 'Intervention (sample arm)', 'interventions': 'Interventions (study)', 'sex': 'Sex', 'bmi': 'BMI', 'country': 'Country', 'health_condition': 'Health condition',
-          'health_condition_detail': 'Health condition (detail)', 'antibiotic_exposure': 'Antibiotic exposure', 'subject_id': 'Subject id', 'timepoint_label': 'Timepoint label',
+          'health_condition_detail': 'Health condition (detail)', 'antibiotic_exposure': 'Antibiotic exposure', 'subject_id': 'Subject id', 'timepoint_label': 'Timepoint label', 'comparison_group': 'Comparison group (study design)',
           'delivery_mode': 'Delivery mode', 'feeding_mode': 'Feeding mode', 'preterm_status': 'Preterm status', 'gestational_age_weeks': 'Gestational age (weeks)',
           'birth_weight_grams': 'Birth weight (g)', 'maternal_antibiotics': 'Maternal antibiotics', 'probiotic_exposure': 'Probiotic exposure',
           'hmo_supplementation': 'HMO supplementation', 'nec_status': 'NEC status',
@@ -58,6 +58,7 @@ FIELD_CAVEATS = {
     'antibiotic_exposure': '"yes"/"no". "no" from a source that documents no exposure (attribute, table, or an exclusion window ≥ 1 month in the Methods), never from "no mention".',
     'subject_id': 'Submitter identifier of the individual (host_subject_id, participant, donor …); never a sample id. Not evaluated.',
     'timepoint_label': 'Compact tokens (D6, M4, baseline) are labels, not ages, unless the study confirms the unit.',
+    'comparison_group': "The group of the study's own comparison, in the paper's wording; assigned from a sample attribute or name stem only where two independent readings of the paper agreed on every value's group.",
     'delivery_mode': 'Infant field: vaginal / caesarean; categories as stated by the source.', 'feeding_mode': 'Infant field: breast / mixed / formula as stated; boolean feeding columns never become a value.',
     'preterm_status': 'Infant field: term requires ≥ 37 weeks when derived from a criterion.', 'gestational_age_weeks': 'Infant field: completed weeks at birth.',
     'birth_weight_grams': 'Infant field; no external truth set.', 'maternal_antibiotics': 'Infant field: intrapartum or pregnancy antibiotics to the mother.',
@@ -1629,7 +1630,7 @@ def main():
     _pf = list(pack['fields'].keys()) + [f for f in DERIVED if f not in pack['fields']]
     PAGE_FIELDS = list(dict.fromkeys(CORE_FIELDS + KEY_FIELDS + [f for f in _pf if f not in ('collection_year',)] + infant_fields))
     SHORT_LABELS = {'body_site_code': 'body site', 'age_category': 'age cat.', 'age_at_collection_days': 'age (d)', 'health_condition': 'condition', 'health_condition_detail': 'condition detail',
-                    'antibiotic_exposure': 'antibiotics', 'subject_id': 'subject', 'timepoint_label': 'timepoint', 'collection_date': 'date', 'location_region': 'region',
+                    'antibiotic_exposure': 'antibiotics', 'subject_id': 'subject', 'timepoint_label': 'timepoint', 'comparison_group': 'group', 'collection_date': 'date', 'location_region': 'region',
                     'location_locality': 'locality', 'location_site': 'site', 'detailed_location': 'location', 'latitude': 'lat', 'longitude': 'lon',
                     'lifestyle_detail': 'lifestyle detail', 'diet_detail': 'diet detail', 'smoking_status': 'smoking', 'medication_detail': 'medication detail',
                     'intervention_detail': 'intervention detail', 'stool_consistency_bristol': 'Bristol', 'delivery_mode': 'delivery', 'feeding_mode': 'feeding',
@@ -2367,7 +2368,7 @@ def main():
                    ('Health condition', ['health_condition', 'health_condition_detail'], 'host'), ('Antibiotics', ['antibiotic_exposure'], 'host'),
                    ('Medication', ['medication', 'medication_detail'], 'host'), ('Intervention / arm', ['intervention', 'intervention_detail'], 'host'),
                    ('Diet', ['diet', 'diet_detail'], 'host'), ('Lifestyle', ['lifestyle', 'lifestyle_detail'], 'host'), ('Smoking', ['smoking_status'], 'host'),
-                   ('Stool consistency', ['stool_consistency_bristol'], 'host'), ('Timepoint', ['timepoint_label'], 'design'),
+                   ('Stool consistency', ['stool_consistency_bristol'], 'host'), ('Timepoint', ['timepoint_label'], 'design'), ('Comparison group', ['comparison_group'], 'design'),
                    ('Family membership', ['family_role', 'family_id'], 'design'), ('Shared setting', ['shared_setting_type', 'shared_setting_id'], 'design'),
                    ('Prematurity', ['preterm_status', 'gestational_age_weeks'], 'infant'), ('Birth weight', ['birth_weight_grams'], 'infant'),
                    ('Delivery mode', ['delivery_mode'], 'infant'), ('Feeding', ['feeding_mode', 'hmo_supplementation'], 'infant'),

@@ -28,6 +28,8 @@ fields:                    # field_name → vocabulary / type; routes R1 (archiv
   antibiotic_exposure: {type: enum, values: ["yes", "no", unknown], routes: [R1, R2, R3, R4], note: "yes = antibiotics at or shortly before sampling per the source's own window"}
   subject_id: {type: text, routes: [R1, R2]}
   timepoint_label: {type: text, routes: [R1, R2]}
+  # added R2026.33 (owner: "understand the overall design of each study"): the study's own comparison group of the sample
+  comparison_group: {type: text, max_len: 80, routes: [R1, R2], note: "the group of the study's own comparison this sample belongs to, in the paper's wording (e.g. 'Crohn's disease', 'healthy controls', 'probiotic arm', 'vegans'); from a sample attribute or sample-name stem whose value -> group map two independent readings of the paper agreed on (scripts/design_passes.py)"}
   # added 2026-09-29 (owner request): collection date, detailed location, lifestyle — release R2026.12 / package 1.12.0
   collection_date: {type: iso8601_partial, routes: [R1, R2, R3, R4], note: "as specific as the source gives it: YYYY, YYYY-MM, YYYY-MM-DD, or an ISO interval YYYY[-MM[-DD]]/YYYY[-MM[-DD]] for a stated sampling period; never a placeholder (missing / not collected / restricted access stay unknown); dates before 1980 or after the run's first_public year are rejected"}
   location_region: {type: text, max_len: 80, routes: [R1, R2, R3, R4], note: "first-level administrative region below the country (state, province, prefecture, canton, county for the UK/Ireland); English exonym, no country name"}
@@ -56,7 +58,7 @@ fields:                    # field_name → vocabulary / type; routes R1 (archiv
 # establishes e.g. that the subjects are adults); the exact age moves to key fields together with sex.
 # owner review 2026-10-31: body site (where on the body the sample was taken) is a core field too; 'unknown_site' = not covered.
 core_fields: [body_site_code, age_category, country, health_condition, subject_id]
-key_fields: [age_at_collection_days, sex, detailed_location, lifestyle, collection_date, intervention, antibiotic_exposure, bmi, timepoint_label, diet, smoking_status, medication, stool_consistency_bristol]
+key_fields: [age_at_collection_days, sex, detailed_location, lifestyle, collection_date, intervention, antibiotic_exposure, bmi, timepoint_label, comparison_group, diet, smoking_status, medication, stool_consistency_bristol]
 derived_fields:
   body_site_code: {body_site: true, values: [gut_stool, oral, skin, nasal_nasopharyngeal, respiratory_lower, vaginal_urogenital, milk, blood_tissue, eye_ear, other_site, multi_site], missing_values: [unknown_site], note: "where on the body the sample was taken: from the sample's own archive attribute (route R1) or, when the project sampled a single site, the project's site from the scope classification of the archive description and abstract (route R4); 'unknown_site' = not covered"}
   age_category: {life_stage: true, values: [neonate, infant, child, adolescent, adult, elderly], note: "age at collection at the level of a life stage: from the exact age when known (age_at_collection_days, bins above), else the sample's own life-stage attribute, else a cohort statement in the paper (R3) or abstract (R4), else the study's single registry life stage; the basis is recorded per sample in age_category_basis. 'unknown' = not covered."}
