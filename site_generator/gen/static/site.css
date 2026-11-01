@@ -440,14 +440,46 @@ footer .site-policies{margin-bottom:.5rem}
 .nab.both{border-color:#4b5f8a;color:#4b5f8a;background:#f3f5fa}
 .nab.unclear{border-color:#8c8f91;color:#565a5c;background:#f6f6f4}
 
-/* R2026.32 glance charts: labelled columns, linear depth axis */
+/* R2026.32 glance charts: labelled columns, linear depth axis. Class names are gc-* only: a bare .bar rule elsewhere in
+   site.css sets width/height, which browsers apply to SVG <rect> elements (SVG 2 geometry properties). */
 .sparks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,320px));gap:1.2rem 2.4rem;margin-top:.8rem}
 svg.gchart{display:block;max-width:100%;height:auto;overflow:visible}
-svg.gchart rect.bar{fill:var(--cu-gold,#CFB87C)}svg.gchart rect.bar:hover{fill:#7A6A3C}
-svg.gchart rect.bar.over{fill:#e6dcc0}svg.gchart rect.zero{fill:#d6d6d6}
-svg.gchart line.base{stroke:#bdbdbd;stroke-width:1}svg.gchart line.tick{stroke:#9a9a9a;stroke-width:1}
-svg.gchart line.med{stroke:#333;stroke-width:1.4;stroke-dasharray:3 2}
+svg.gchart rect.gc-bar{fill:var(--cu-gold,#CFB87C)}svg.gchart rect.gc-bar:hover{fill:#7A6A3C}
+svg.gchart rect.gc-bar.gc-over{fill:#e6dcc0}svg.gchart rect.gc-zero{fill:#d6d6d6}
+svg.gchart line.gc-base{stroke:#bdbdbd;stroke-width:1}svg.gchart line.gc-tick{stroke:#9a9a9a;stroke-width:1}
+svg.gchart line.gc-med{stroke:#333;stroke-width:1.4;stroke-dasharray:3 2}
 svg.gchart text{font-family:inherit;fill:#4a4a4a}svg.gchart .gc-x{font-size:10px;fill:#5f6365}
 svg.gchart .gc-n{font-size:9.5px;fill:#5f6365;font-variant-numeric:tabular-nums}svg.gchart .gc-m{font-size:10px;font-weight:600;fill:#333}
+svg.gchart .halo{fill:#fff;stroke:#fff}
 .gc-cap{font-size:.74rem;color:#5f6365;margin-top:.15rem;max-width:320px;line-height:1.35}
 .glance-one{font-size:.82rem;margin:.1rem 0 .1rem}
+/* R2026.32 study-design block (site 1.27.1) */
+.ds-card{border:1.5px solid var(--cu-gold,#CFB87C);border-radius:12px;padding:.9rem 1.1rem 1rem;background:#fffdf7;margin-top:.4rem}
+.ds-head{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.ds-type{font-size:1.22rem;font-weight:700;color:#222}.ds-src{font-size:.72rem;color:#7a6a3a;border:1px solid #e0d5b2;border-radius:999px;padding:0 .45rem;background:#fff}
+.ds-help{font-size:.8rem;color:#5f6365}
+.ds-sent{font-size:.95rem;line-height:1.5;margin:.35rem 0 .2rem;color:#222}
+.ds-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.1rem 1.6rem;margin-top:.6rem;align-items:start}
+@media (max-width:900px){.ds-grid{grid-template-columns:1fr}}
+.ds-fig svg{display:block;max-width:100%;height:auto}
+.ds-fig .ds-cap{font-size:.74rem;color:#5f6365;margin-top:.2rem;max-width:560px}
+svg.ds-mat text{font-family:inherit}svg.ds-mat .ds-rl{font-size:11px;fill:#333}svg.ds-mat .ds-cl{font-size:10.5px;fill:#333}
+svg.ds-mat .ds-ax{font-size:9.5px;fill:#7a6a3a;font-family:ui-monospace,Menlo,monospace}svg.ds-mat .ds-num{font-size:10px;fill:#333;font-variant-numeric:tabular-nums}
+svg.ds-mat .ds-tot{font-size:10px;fill:#5f6365;font-variant-numeric:tabular-nums}
+svg.ds-mat circle.ds-dot{fill:#CFB87C;fill-opacity:.8;stroke:#A88B4A;stroke-width:.8}svg.ds-mat circle.ds-dot:hover{fill:#A88B4A}
+svg.ds-mat line.ds-grid-l{stroke:#eee6cf;stroke-width:1}
+table.ds-el{width:100%;border-collapse:collapse;font-size:.8rem}
+table.ds-el th{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#5f6365;text-align:left;padding:.15rem .3rem;border-bottom:1px solid #e6e1d0;font-weight:600}
+table.ds-el td{padding:.25rem .3rem;border-bottom:1px solid #f0ece0;vertical-align:top}
+.ds-var{font-family:ui-monospace,Menlo,monospace;font-size:.76rem;background:#f4efdf;border:1px solid #e0d5b2;border-radius:4px;padding:0 .28rem;cursor:help;white-space:nowrap}
+.ds-from{color:#444}.ds-none{color:#a0522d;font-style:italic}
+.ds-cov{display:inline-block;width:2.8rem;height:6px;background:#eee;border-radius:3px;vertical-align:middle;margin-right:.3rem;position:relative;overflow:hidden}
+.ds-cov i{position:absolute;left:0;top:0;bottom:0;background:#A88B4A}
+ul.ds-checks{margin:.7rem 0 0;padding:0;list-style:none;font-size:.82rem}
+ul.ds-checks li{display:flex;gap:.45rem;margin:.25rem 0;line-height:1.38}
+.ds-ck{flex:none;width:1.05rem;height:1.05rem;border-radius:50%;font-size:.68rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;color:#fff;margin-top:.08rem}
+.ds-ck.ok{background:#3f7d4e}.ds-ck.warn{background:#c88a12}.ds-ck.info{background:#8a8f93}
+.ds-checks-h{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#5f6365;margin-top:.3rem;font-weight:600}
+details.ds-more{margin-top:.7rem}details.ds-more>summary{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#5f6365;font-weight:600;cursor:pointer}
+details.ds-more table.ds-el{margin-top:.3rem}
+.tag.cct{background:#e6f1e8;color:#24502f;border-color:#7fa98a}.tag.mst{background:#efe7f4;color:#4a2a5a;border-color:#a58bb5}

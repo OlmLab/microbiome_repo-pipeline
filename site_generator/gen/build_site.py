@@ -28,6 +28,7 @@ import markdown
 import yaml
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))) if os.path.dirname(os.path.abspath(__file__)) not in sys.path else None
 from pages import glance_charts as GC  # noqa: E402 — R2026.32 project-page charts
+from pages import study_design as SD  # noqa: E402 — site 1.27.1 study-design block
 
 HERE = Path(__file__).resolve().parent
 ROUTES = ['R1', 'R2', 'R3', 'R4']
@@ -1831,7 +1832,9 @@ def main():
     def _sites_of(s_):   # body-site codes of a project's samples, most samples first (catalog_studies.sample_body_sites)
         d_ = jl(s_.get('sample_body_sites'))
         return [k for k, _ in sorted(d_.items(), key=lambda kv: (-kv[1], kv[0]))] if d_ else [c for c in split_list(s_.get('body_sites')) if c != 'unknown_site']
-    sidx_rows = [dict(**study_filters(s['study_accession']), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
+    _ivlab = {c: (v or {}).get('label', c) for c, v in iv_voc.items()}
+    _letters = {s['study_accession']: SD.letters(s, cw_by_study.get(s['study_accession'], cw.iloc[0:0])) for s in studies}   # C / S markers
+    sidx_rows = [dict(**study_filters(s['study_accession']), **_letters.get(s['study_accession'], {}), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
                       bs=_sites_of(s), na=(s.get('nucleic_acid') or 'unclear') if not isnull(s.get('nucleic_acid')) else 'unclear',
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
@@ -1940,6 +1943,7 @@ def main():
                na_label=PF.NA_LABEL, methods=PF.methods_strip(PF.facts_of(s)), body=PF.body_figure(site_counts, n_total),
                living=PF.living_table(PF.living_of(s)), exposure=exposure_by_study.get(acc, []), n_subjects=n_subjects,
                n_timepoints=n_timepoints, has_dna=has_dna, has_rna=has_rna,
+               design_card=SD.build(s, g, dg, iv_by_study.get(acc), design_by_study.get(acc), hc_labels, vocabs['body_site'], _ivlab),
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)
 

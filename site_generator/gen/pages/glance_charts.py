@@ -64,15 +64,15 @@ def year_chart(years, n_total: int, width: int = 300, height: int = 54) -> str:
         w = max(1.0, bw - gap)
         if n:
             h = max(2.0, height * n / m)
-            out.append(f'<rect class="bar" fill="#CFB87C" x="{x:.1f}" y="{top + height - h:.1f}" width="{w:.1f}" height="{h:.1f}"><title>{y}: {n:,} sample{"s" if n != 1 else ""}</title></rect>')
+            out.append(f'<rect class="gc-bar" fill="#CFB87C" x="{x:.1f}" y="{top + height - h:.1f}" width="{w:.1f}" height="{h:.1f}"><title>{y}: {n:,} sample{"s" if n != 1 else ""}</title></rect>')
             if show_counts or n == m:
                 out.append(f'<text class="gc-n halo" font-size="9.5" fill="#5F6365" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" aria-hidden="true" x="{x + w / 2:.1f}" y="{top + height - h - 3:.1f}" text-anchor="middle">{_compact(n)}</text>')
                 out.append(f'<text class="gc-n" font-size="9.5" fill="#5F6365" x="{x + w / 2:.1f}" y="{top + height - h - 3:.1f}" text-anchor="middle">{_compact(n)}</text>')
         else:
-            out.append(f'<rect class="zero" fill="#D6D6D6" x="{x:.1f}" y="{top + height - 1:.1f}" width="{w:.1f}" height="1"><title>{y}: no samples</title></rect>')
+            out.append(f'<rect class="gc-zero" fill="#D6D6D6" x="{x:.1f}" y="{top + height - 1:.1f}" width="{w:.1f}" height="1"><title>{y}: no samples</title></rect>')
         if y % k == 0 or k == 1:
             out.append(f'<text class="gc-x" font-size="10" fill="#5F6365" x="{x + w / 2:.1f}" y="{top + height + 12:.1f}" text-anchor="middle">{("’" + str(y)[2:]) if short else y}</text>')
-    out.append(f'<line class="base" stroke="#BDBDBD" stroke-width="1" x1="0" x2="{width}" y1="{top + height + 0.5}" y2="{top + height + 0.5}"/></svg>')
+    out.append(f'<line class="gc-base" stroke="#BDBDBD" stroke-width="1" x1="0" x2="{width}" y1="{top + height + 0.5}" y2="{top + height + 0.5}"/></svg>')
     return "".join(out) + _dated_note(dated, n_total)
 
 
@@ -148,7 +148,7 @@ def depth_chart(gbp, repo_sorted=None, width: int = 300, height: int = 54) -> st
         h = max(2.0, height * c / m)
         x = i * bw + gap / 2
         lo, up = i * step, (i + 1) * step
-        out.append(f'<rect class="bar" fill="#CFB87C" x="{x:.1f}" y="{top + height - h:.1f}" width="{max(1.0, bw - gap):.1f}" height="{h:.1f}"><title>{_num(lo)}–{_num(up)} {unit}: '
+        out.append(f'<rect class="gc-bar" fill="#CFB87C" x="{x:.1f}" y="{top + height - h:.1f}" width="{max(1.0, bw - gap):.1f}" height="{h:.1f}"><title>{_num(lo)}–{_num(up)} {unit}: '
                    f'{c:,} sample{"s" if c != 1 else ""}</title></rect>')
         if c == m or bw >= 22:
             out.append(f'<text class="gc-n halo" font-size="9.5" fill="#5F6365" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" aria-hidden="true" x="{x + (bw - gap) / 2:.1f}" y="{top + height - h - 3:.1f}" text-anchor="middle">{_compact(c)}</text>')
@@ -156,7 +156,7 @@ def depth_chart(gbp, repo_sorted=None, width: int = 300, height: int = 54) -> st
     if over:
         h = max(2.0, height * over / m)
         x = width - ow
-        out.append(f'<rect class="bar over" fill="#E6DCC0" x="{x:.1f}" y="{top + height - h:.1f}" width="{ow - 1:.1f}" height="{h:.1f}"><title>deeper than {_num(upper)} {unit}: '
+        out.append(f'<rect class="gc-bar gc-over" fill="#E6DCC0" x="{x:.1f}" y="{top + height - h:.1f}" width="{ow - 1:.1f}" height="{h:.1f}"><title>deeper than {_num(upper)} {unit}: '
                    f'{over:,} sample{"s" if over != 1 else ""} (up to {_num(v[-1])} {unit})</title></rect>')
         out.append(f'<text class="gc-n halo" font-size="9.5" fill="#5F6365" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" aria-hidden="true" x="{x + (ow - 1) / 2:.1f}" y="{top + height - h - 3:.1f}" text-anchor="middle">{_compact(over)}</text>')
         out.append(f'<text class="gc-n" font-size="9.5" fill="#5F6365" x="{x + (ow - 1) / 2:.1f}" y="{top + height - h - 3:.1f}" text-anchor="middle">{_compact(over)}</text>')
@@ -171,27 +171,29 @@ def depth_chart(gbp, repo_sorted=None, width: int = 300, height: int = 54) -> st
     for t in ticks:
         anchor = "start" if t == 0 else ("end" if t == upper else "middle")
         out.append(f'<text class="gc-x" font-size="10" fill="#5F6365" x="{sx(t):.1f}" y="{top + height + 12:.1f}" text-anchor="{anchor}">{_num(t)}</text>')
-        out.append(f'<line class="tick" stroke="#9A9A9A" stroke-width="1" x1="{sx(t):.1f}" x2="{sx(t):.1f}" y1="{top + height}" y2="{top + height + 3}"/>')
+        out.append(f'<line class="gc-tick" stroke="#9A9A9A" stroke-width="1" x1="{sx(t):.1f}" x2="{sx(t):.1f}" y1="{top + height}" y2="{top + height + 3}"/>')
     mx = sx(min(med * f, upper))
     anchor = "start" if mx < 40 else ("end" if mx > pw - 40 else "middle")
-    out.append(f'<line class="med" stroke="#333333" stroke-width="1.4" stroke-dasharray="3 2" x1="{mx:.1f}" x2="{mx:.1f}" y1="13" y2="{top + height}"><title>median {med_txt} per sample</title></line>')
+    out.append(f'<line class="gc-med" stroke="#333333" stroke-width="1.4" stroke-dasharray="3 2" x1="{mx:.1f}" x2="{mx:.1f}" y1="13" y2="{top + height}"><title>median {med_txt} per sample</title></line>')
     out.append(f'<text class="gc-m halo" font-size="10" font-weight="600" fill="#333333" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" aria-hidden="true" x="{mx + (3 if anchor == "start" else -3 if anchor == "end" else 0):.1f}" y="10" text-anchor="{anchor}">median {med_txt}</text>')
     out.append(f'<text class="gc-m" font-size="10" font-weight="600" fill="#333333" x="{mx + (3 if anchor == "start" else -3 if anchor == "end" else 0):.1f}" y="10" text-anchor="{anchor}">median {med_txt}</text>')
-    out.append(f'<line class="base" stroke="#BDBDBD" stroke-width="1" x1="0" x2="{width}" y1="{top + height + 0.5}" y2="{top + height + 0.5}"/></svg>')
+    out.append(f'<line class="gc-base" stroke="#BDBDBD" stroke-width="1" x1="0" x2="{width}" y1="{top + height + 0.5}" y2="{top + height + 0.5}"/></svg>')
     over_txt = f" · last column: {over:,} sample{'s' if over != 1 else ''} deeper than {_num(upper)} {unit}" if over else ""
     return "".join(out) + f'<div class="gc-cap">{n:,} samples · linear axis in {unit}{over_txt}{cmp_txt}</div>'
 
 
 CSS = """
-/* R2026.32 glance charts: labelled columns, linear depth axis */
+/* R2026.32 glance charts: labelled columns, linear depth axis. Class names are gc-* only: a bare .bar rule elsewhere in
+   site.css sets width/height, which browsers apply to SVG <rect> elements (SVG 2 geometry properties). */
 .sparks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,320px));gap:1.2rem 2.4rem;margin-top:.8rem}
 svg.gchart{display:block;max-width:100%;height:auto;overflow:visible}
-svg.gchart rect.bar{fill:var(--cu-gold,#CFB87C)}svg.gchart rect.bar:hover{fill:#7A6A3C}
-svg.gchart rect.bar.over{fill:#e6dcc0}svg.gchart rect.zero{fill:#d6d6d6}
-svg.gchart line.base{stroke:#bdbdbd;stroke-width:1}svg.gchart line.tick{stroke:#9a9a9a;stroke-width:1}
-svg.gchart line.med{stroke:#333;stroke-width:1.4;stroke-dasharray:3 2}
+svg.gchart rect.gc-bar{fill:var(--cu-gold,#CFB87C)}svg.gchart rect.gc-bar:hover{fill:#7A6A3C}
+svg.gchart rect.gc-bar.gc-over{fill:#e6dcc0}svg.gchart rect.gc-zero{fill:#d6d6d6}
+svg.gchart line.gc-base{stroke:#bdbdbd;stroke-width:1}svg.gchart line.gc-tick{stroke:#9a9a9a;stroke-width:1}
+svg.gchart line.gc-med{stroke:#333;stroke-width:1.4;stroke-dasharray:3 2}
 svg.gchart text{font-family:inherit;fill:#4a4a4a}svg.gchart .gc-x{font-size:10px;fill:#5f6365}
 svg.gchart .gc-n{font-size:9.5px;fill:#5f6365;font-variant-numeric:tabular-nums}svg.gchart .gc-m{font-size:10px;font-weight:600;fill:#333}
+svg.gchart .halo{fill:#fff;stroke:#fff}
 .gc-cap{font-size:.74rem;color:#5f6365;margin-top:.15rem;max-width:320px;line-height:1.35}
 .glance-one{font-size:.82rem;margin:.1rem 0 .1rem}
 """
