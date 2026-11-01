@@ -25,6 +25,9 @@ Set `L=~/catalog/cache/large_update` and run from the pipeline root.
 | 15 | Summarise the paper passes | `python scripts/summarise_paper_passes.py --out-dirs <pass out dirs> --out-prefix <dir>/ --merge-into <previous three parquets>` | none |
 | 16 | Release check: recall by exclusion reason | `scripts/blind_audit_scope.py` on a 40-project sample of EACH `out_reason`, then a full recheck only of the reasons whose error rate is material | ≈ $0.03 / project |
 | 17 | Apply recoveries | flip the recovered projects in `classify_all.parquet`, then repeat steps 10–15 for them | none |
+| 17b | Study-level passes for the newly admitted projects (R3 / R4 cohort statements, interventions, study design, generated subjects) | sub-agents running `scripts/catchup_passes.py --shard K --nshards N --budget 4 --projects <new projects>` (two readings per project of the generating paper's full text, else its abstracts, plus the archive record), then `python scripts/catchup_passes.py --merge` | ≈ $0.05 / project |
+| 17b+ | Verify and filter the catch-up outputs before the build | an Opus 5 audit of a random sample; then `scripts/verify_catchup_rows.py --shard K --nshards 8` (sub-agents; a third reading, role `adjudicate`, of every committed statement and kinship call against the passage around its quote) → `--apply`; then `python scripts/apply_catchup_filters.py` (generated subjects only where stated participants ≥ specimens; study-level intervention codes only in trial designs) | ≈ $0.02 / statement |
+| 17c | Credit the per-sample passes the large-update stages ran | `python scripts/write_large_update_pass_log.py --projects <new projects>` → `data/inputs/gut/large_update_pass_log.csv` (read by `check_pass_coverage.py`) | none |
 | 18 | Inputs of the catalog build | `PYTHONPATH=src python scripts/prepare_catalog_inputs.py --extra-facts-dirs <summarised pass prefixes>` → `data/inputs/catalog/` (study rows, samples, determinations, paper facts, exposure items, papers, short descriptions, `runs_source.parquet` with `run_origin`) | none |
 | 18b | Short descriptions of projects that have none | sub-agents running `scripts/write_short_descriptions.py` (rubric tier; refused projects once more with `SHORT_DESC_ROLE=adjudicate`) | ≈ $0.01 / project |
 | 18c | Community profiles of new samples | `python scripts/extend_sandpiper.py --bulk <sandpiper bulk> --old-dir data/inputs/gut/sandpiper --catalog-dir <catalog build> --work <dir> --out data/inputs/catalog/sandpiper` | none |
@@ -56,6 +59,8 @@ by `release`) keeps the package's release notes and changelog to the releases fr
   R2026.31: 124 classified, 107 admitted); check the study-rule drop list each month for new ones.
 * **Pass coverage is a release gate.** A project that entered a scope after that scope's annotation passes ran must be
   recorded in `config/pass_coverage_exceptions.csv` with a reason, and run first next month.
+  Stage 17b runs those passes for them; after it, only genuinely unrunnable project-passes (both readings refused, no
+  text of any kind) stay in the exceptions file.
 
 * **The project badge describes the catalogued data sets.** DNA and RNA runs in the archive make a project "DNA and RNA";
   a paper describing both while only one kind was deposited gives the deposited kind.

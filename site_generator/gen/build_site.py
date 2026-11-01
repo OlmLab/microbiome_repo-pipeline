@@ -26,11 +26,13 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import markdown
 import yaml
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))) if os.path.dirname(os.path.abspath(__file__)) not in sys.path else None
+from pages import glance_charts as GC  # noqa: E402 — R2026.32 project-page charts
 
 HERE = Path(__file__).resolve().parent
 ROUTES = ['R1', 'R2', 'R3', 'R4']
 ROUTE_LABELS = {'R1': 'archive attribute', 'R2': 'supplementary table', 'R3': 'paper full text', 'R4': 'abstract / description'}
-LABELS = {'age_category': 'Age (exact or life stage)', 'age_at_collection_days': 'Age at collection (days, exact)', 'intervention': 'Intervention (sample arm)', 'interventions': 'Interventions (study)', 'sex': 'Sex', 'bmi': 'BMI', 'country': 'Country', 'health_condition': 'Health condition',
+LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life stage)', 'age_at_collection_days': 'Age at collection (days, exact)', 'intervention': 'Intervention (sample arm)', 'interventions': 'Interventions (study)', 'sex': 'Sex', 'bmi': 'BMI', 'country': 'Country', 'health_condition': 'Health condition',
           'health_condition_detail': 'Health condition (detail)', 'antibiotic_exposure': 'Antibiotic exposure', 'subject_id': 'Subject id', 'timepoint_label': 'Timepoint label',
           'delivery_mode': 'Delivery mode', 'feeding_mode': 'Feeding mode', 'preterm_status': 'Preterm status', 'gestational_age_weeks': 'Gestational age (weeks)',
           'birth_weight_grams': 'Birth weight (g)', 'maternal_antibiotics': 'Maternal antibiotics', 'probiotic_exposure': 'Probiotic exposure',
@@ -38,6 +40,7 @@ LABELS = {'age_category': 'Age (exact or life stage)', 'age_at_collection_days':
           'collection_date': 'Collection date', 'location_region': 'Location (region)', 'location_locality': 'Location (locality)', 'location_site': 'Location (site)',
           'detailed_location': 'Detailed location', 'latitude': 'Latitude', 'longitude': 'Longitude', 'lifestyle': 'Lifestyle', 'lifestyle_detail': 'Lifestyle (detail)'}
 FIELD_CAVEATS = {
+    'body_site_code': "Where on the body the sample was taken (gut / stool, mouth, skin, nose, airway, urogenital, milk, blood / tissue, eye / ear, other, several sites). From the sample's own archive attribute (R1) or, when the project sampled a single site, the project's site from the scope classification of the archive description and abstract (R4). 'unknown_site' (no site stated) counts as not covered.",
     'collection_date': 'As specific as the source gives it (YYYY, YYYY-MM, YYYY-MM-DD or an ISO interval for a stated sampling period); placeholders (missing / not collected / restricted) stay unknown.',
     'location_region': 'First-level administrative region below the country (state, province, prefecture …); English exonym, no country name.',
     'location_locality': 'City, town, village or district where subjects were recruited — not where the laboratory is.',
@@ -127,7 +130,7 @@ FRAME_TOKEN_RE = re.compile(r'\s*\((?:frame|session)\s+[0-9a-f]{6,}[^)]*\)|\b(?:
 ORG_LEAK_RE = re.compile(r'SUB\d{6,}|@')
 # Field tiers are NOT hard-coded: config/packs/gut.yaml core_fields / key_fields / derived_fields (read_field_tiers). A study enters the
 # contribute worklist when >= CONTRIB_MIN_MISSING of the CORE fields are below the coverage threshold.
-CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 4 core fields (R2026.15: core age = life stage, sex is a key field; was 3 of 5)
+CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 5 core fields (R2026.32: body site joined the core; R2026.15: core age = life stage, sex is a key field)
 # Top navigation (owner reviews 2026-10-01 / 2026-10-08): Home · Sample sheet · Project sheet · Contribute, then two drop-downs that hold
 # everything else. Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
 # nav=<key>; a group is highlighted when the page's key is one of its children's keys.
@@ -177,6 +180,8 @@ def field_series(df, f, derived):
     if f in df.columns:
         if spec.get('life_stage'):   # age_category: 'unknown' means not covered
             return df[f].where(df[f].fillna('unknown') != 'unknown', None)
+        if spec.get('missing_values'):   # body_site_code: 'unknown_site' means not covered
+            return df[f].where(~df[f].isin(list(spec['missing_values'])), None)
         return df[f]
     parts = [p for p in (spec.get('compose') or []) if p in df.columns]
     if parts:
@@ -207,6 +212,25 @@ def mini_bars_svg(pairs, width=260, height=34, label_fmt=str, tip_unit='samples'
 
 DEPTH_EDGES = [0, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, float('inf')]
 DEPTH_REPO = {}
+
+
+def compose_summary(n_total, sites, countries, ages, na):
+    """One factual sentence for a project without a machine-written description (R2026.32): built only from the catalog's
+    own counts — body sites, countries, life stages and nucleic acid — so it can be shown with an honest label."""
+    parts = [f"{int(n_total):,} sample{'s' if n_total != 1 else ''}"]
+    if sites:
+        top = [str(k) for k, _ in sites[:2]]
+        parts.append("from " + " and ".join(top).lower() + (" and other sites" if len(sites) > 2 else ""))
+    if ages:
+        st_ = [str(k) for k, _ in ages[:2] if str(k) != "unknown"]
+        if st_:
+            parts.append("of " + " and ".join(st_) + (" participants" if len(st_) == 1 else " participants"))
+    if countries:
+        cs = [str(k) for k, _ in countries[:3]]
+        parts.append("collected in " + ", ".join(cs) + (" and other countries" if len(countries) > 3 else ""))
+    kind = {"dna": "shotgun metagenomes (DNA)", "rna": "metatranscriptomes (RNA)", "both": "metagenomes and metatranscriptomes (DNA and RNA)"}.get(na)
+    s = " ".join(parts) + (f", sequenced as {kind}" if kind else "") + "."
+    return s[0].upper() + s[1:]
 
 
 def depth_bin_counts(gb):
@@ -652,9 +676,10 @@ def study_glance(g):
         gb = pd.to_numeric(g['seq_gbp'], errors='coerce')
         gb = gb[gb > 0]
         if len(gb):
-            depth = depth_svg(depth_bin_counts(gb), DEPTH_REPO.get('counts') or [], float(gb.median()))
+            depth = GC.depth_chart(gb.tolist(), DEPTH_REPO.get('sorted'))   # R2026.32: linear axis, catalog comparison as text
     return dict(globe=dict(countries=countries, points=pts) if (countries or pts) else None,
-                timeline=mini_bars_svg(years) if len(years) >= 2 else '', years=(years[0][0], years[-1][0]) if years else None,
+                timeline=GC.year_chart(years, int(g['sample_type'].eq('specimen').sum()) if 'sample_type' in g.columns else len(g)) if years else '',
+                years=(years[0][0], years[-1][0]) if years else None,
                 depth=depth)
 
 AU_COLS = ['study_accession', 'pmid', 'position', 'author_display', 'author_key', 'is_first', 'is_last']
@@ -1596,13 +1621,13 @@ def main():
     det_by_study = {acc: g for acc, g in cd_sorted.groupby('study_accession', sort=True)}
     cw_by_study = {acc: g for acc, g in cw_sorted.groupby('study_accession', sort=True)}
     if 'seq_gbp' in cw.columns:
-        _gb = pd.to_numeric(cw['seq_gbp'], errors='coerce'); DEPTH_REPO['counts'] = depth_bin_counts(_gb[_gb > 0])
+        _gb = pd.to_numeric(cw['seq_gbp'], errors='coerce'); DEPTH_REPO['counts'] = depth_bin_counts(_gb[_gb > 0]); DEPTH_REPO['sorted'] = sorted(_gb[_gb > 0].astype(float).tolist())
     SAMPLE_COLS = ['sample_key', 'biosample_accession', 'age_category', 'age_at_collection_days', 'age_at_collection_days__route', 'sex', 'bmi', 'country', 'health_condition',
                    'health_condition__route', 'intervention', 'antibiotic_exposure', 'subject_id', 'timepoint_label', 'body_site_class', 'seq_gbp', 'n_runs']
 
     _pf = list(pack['fields'].keys()) + [f for f in DERIVED if f not in pack['fields']]
     PAGE_FIELDS = list(dict.fromkeys(CORE_FIELDS + KEY_FIELDS + [f for f in _pf if f not in ('collection_year',)] + infant_fields))
-    SHORT_LABELS = {'age_category': 'age cat.', 'age_at_collection_days': 'age (d)', 'health_condition': 'condition', 'health_condition_detail': 'condition detail',
+    SHORT_LABELS = {'body_site_code': 'body site', 'age_category': 'age cat.', 'age_at_collection_days': 'age (d)', 'health_condition': 'condition', 'health_condition_detail': 'condition detail',
                     'antibiotic_exposure': 'antibiotics', 'subject_id': 'subject', 'timepoint_label': 'timepoint', 'collection_date': 'date', 'location_region': 'region',
                     'location_locality': 'locality', 'location_site': 'site', 'detailed_location': 'location', 'latitude': 'lat', 'longitude': 'lon',
                     'lifestyle_detail': 'lifestyle detail', 'diet_detail': 'diet detail', 'smoking_status': 'smoking', 'medication_detail': 'medication detail',
@@ -1872,6 +1897,9 @@ def main():
                 cov_missing.append(f)
                 continue
             rc = dg.loc[dg.field_name == f, 'route'].value_counts() if len(dg) else pd.Series(dtype=int)
+            if f == 'body_site_code' and 'body_site_basis' in g.columns:   # per-sample attribute (R1) or the project's single site (R4)
+                _b = g.loc[has, 'body_site_basis']
+                rc = pd.Series({'R1': int((_b == 'sample_attribute').sum()), 'R4': int((_b == 'study_single_site').sum())})
             cov.append(dict(field=f, label=LABELS.get(f, f), n=n_, frac=float(has.mean()) if n_total else 0.0, routes={r: int(rc.get(r, 0)) for r in ROUTES}, infant=tier == 'infant', tier=tier))
         cov = [c for c in cov if c['tier'] == 'core'] + sorted([c for c in cov if c['tier'] != 'core'], key=lambda c: (-c['n'], c['field']))
         # Sample table: every field with a value (core first, then by coverage), then the empty ones as thin strips
@@ -1905,6 +1933,7 @@ def main():
             c['num'] = c['f'] in ('age_at_collection_days', 'bmi', 'latitude', 'longitude', 'gestational_age_weeks', 'birth_weight_grams', 'stool_consistency_bristol')
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
                papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
+               facts_summary=(compose_summary(n_total, sites, countries, ages, s.get('nucleic_acid')) if isnull(s.get('short_description')) or not str(s.get('short_description') or '').strip() else ''),
                group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), contra=contra_by_study.get(acc), ivarms=iv_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
                controls=controls_by_study.get(acc, []), samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
                site_labels=vocabs['body_site'], stage_labels=vocabs['life_stage'],
@@ -2023,6 +2052,10 @@ def main():
             nR = {r: int((age_r == r).sum()) for r in ROUTES}
             nR['R1'] += int(bas.isin(['sample_life_stage', 'infant_catalog_age_scope']).sum()); nR['R3'] += int((bas == 'r3_fulltext_life_stage').sum())
             nR['R4'] += int(bas.isin(['r4_abstract_life_stage', 'study_life_stage']).sum())
+        if f == 'body_site_code' and 'body_site_basis' in cw.columns:   # derived: per-sample attribute (R1) or the project's single site (R4)
+            bas = cw.loc[has, 'body_site_basis']
+            nR = {r: 0 for r in ROUTES}
+            nR['R1'] = int((bas == 'sample_attribute').sum()); nR['R4'] = int((bas == 'study_single_site').sum())
         tot = max(1, sum(nR.values()))
         left, segs = 0.0, []
         for r in ROUTES:
@@ -2167,7 +2200,7 @@ def main():
                repo=cspec['issue_form']['repo'], issues_list_url=f"https://github.com/{cspec['issue_form']['repo']}/issues?q=is%3Aissue+label%3A{cspec['issue_form']['label']}")
     cs_['core_fields'] = CORE_FIELDS
     cs_['repo'] = cspec['issue_form']['repo']
-    render('contribute.html', site['contribute_page'], '../', nav='contribute', rows=wl_rows, cs=cs_, stats=stats, field_labels={'age_category': 'age', 'health_condition': 'health condition', 'subject_id': 'subject', 'country': 'country'},
+    render('contribute.html', site['contribute_page'], '../', nav='contribute', rows=wl_rows, cs=cs_, stats=stats, field_labels={'body_site_code': 'body site', 'age_category': 'age', 'health_condition': 'health condition', 'subject_id': 'subject', 'country': 'country'},
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Contribute')])
     (out / 'data' / 'contribute_worklist.json').write_text(dumps([dict(rank=r['rank'], acc=r['acc'], title=r['title'], n=r['n'], missing=r['missing'], coverage=r['coverage'], type=r['ctype'], papers=r['papers'], issue_url=r['issue_url']) for r in wl_rows]), encoding='utf-8')
     assert (out / site['contribute_page']).stat().st_size < 3_000_000, 'contribute/index.html over the 3 MB budget'

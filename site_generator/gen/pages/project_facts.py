@@ -5,6 +5,7 @@ has no facts for it.
 from __future__ import annotations
 
 import html
+import json
 
 import pandas as pd
 
@@ -67,17 +68,61 @@ def _present(v):
         return v is not None
 
 
+NA_SUB = {"dna": "shotgun metagenomes", "rna": "metatranscriptomes", "both": "metagenomes and metatranscriptomes",
+          "conflict": "archive and paper disagree", "unclear": "no run records its library source"}
+LAYOUT = {"PAIRED": "paired-end", "SINGLE": "single-end"}
+
+
+def _jdict(v) -> dict:
+    """'{"Illumina HiSeq 2500": 12}' (archive run summary) -> dict; a ';'-joined string -> {item: None}."""
+    if v is None:
+        return {}
+    if isinstance(v, dict):
+        return v
+    s = str(v).strip()
+    if not s:
+        return {}
+    try:
+        d = json.loads(s)
+        return d if isinstance(d, dict) else {}
+    except ValueError:
+        return {x.strip(): None for x in s.split(";") if x.strip()}
+
+
+def _int(v):
+    try:
+        return int(float(v))
+    except (TypeError, ValueError):
+        return 0
+
+
 def facts_of(row) -> dict:
-    """The methods strip: three core fields plus chips for everything else the paper states."""
+    """The methods strip: nucleic acid, extraction, library preparation, sequencing — plus chips for everything else.
+    Sequencing comes from the archive run records (instrument model and read layout of the catalogued runs), with the paper's
+    platform only when the archive names no model; extraction and library kits come from the paper's methods."""
     g = lambda k: row.get(k) if _present(row.get(k)) else None
-    f = {"platform": g("platform") or g("platform_paper"), "extraction_kit": g("extraction_kit"), "library_kit": g("library_kit")}
-    layout = g("library_layouts") or g("library_layout")
-    if layout:
-        f["seq_note"] = str(layout).replace(";", ", ")
+    models = {k: v for k, v in _jdict(g("instrument_models_top")).items() if k and str(k).lower() not in ("unspecified", "not specified", "none")}
+    layouts = _jdict(g("library_layouts") or g("library_layout"))
+    f = {"extraction_kit": g("extraction_kit"), "library_kit": g("library_kit"), "has_paper": bool(g("paper_ids_generated"))}
+    if models:
+        ranked = sorted(models.items(), key=lambda kv: -(_int(kv[1])))
+        f["platform"] = ranked[0][0] + (f" + {len(ranked) - 1} more" if len(ranked) > 1 else "")
+        f["platform_quote"] = "archive run records: " + "; ".join(f"{k} ({_int(v):,} run{'s' if _int(v) != 1 else ''})" if v is not None else k for k, v in ranked)
+    elif g("platform"):
+        f["platform"], f["platform_quote"] = g("platform"), "from the paper's methods (the archive names no instrument model)"
+    elif g("instrument_platforms"):
+        f["platform"] = str(g("instrument_platforms")).split(";")[0].replace("_", " ").title() + " (model not stated)"
+    parts = []
+    for k, v in sorted(layouts.items(), key=lambda kv: -(_int(kv[1]))):
+        lab = LAYOUT.get(str(k).upper(), str(k).lower())
+        parts.append(f"{lab} · {_int(v):,} run{'s' if _int(v) != 1 else ''}" if v is not None else lab)
+    if parts:
+        f["seq_note"] = "; ".join(parts)
+    na = g("nucleic_acid") or "unclear"
+    f["nucleic_acid"] = na
+    nd, nr = _int(g("n_runs_dna")), _int(g("n_runs_rna"))
+    f["na_note"] = NA_SUB.get(na, "") + (f" · {nd:,} DNA / {nr:,} RNA runs" if na == "both" and (nd or nr) else "")
     extras = []
-    na = g("nucleic_acid")
-    if na in ("rna", "both"):
-        extras.append(("RNA data set" if na == "rna" else "DNA and RNA data sets", False, None))
     if g("rna_methods"):
         extras.append(("RNA methods stated in the paper", False, "rRNA depletion / DNase / strandedness"))
     for code in str(g("processing") or "").split(";"):
@@ -122,16 +167,18 @@ def living_of(row):
 
 
 def methods_strip(f: dict) -> str:
-    """Three core fields — extraction, library prep, sequencing — with everything else as chips."""
+    """Four cells — nucleic acid, extraction, library preparation, sequencing — with everything else as chips."""
     if not f:
         return ""
-    core = [("DNA / RNA extraction", f.get("extraction_kit"), f.get("extraction_note"), f.get("extraction_quote")),
-            ("Library preparation", f.get("library_kit"), f.get("library_note"), f.get("library_quote")),
+    na = f.get("nucleic_acid") or "unclear"
+    na_val = NA_LABEL.get(na, na) if na not in ("conflict", "unclear") else ("unresolved" if na == "conflict" else None)
+    miss = "not found in the paper's open-access text" if f.get("has_paper") else "no paper describes these data"
+    core = [("Nucleic acid sequenced", na_val, f.get("na_note"), "DNA or RNA of the catalogued data sets: the archive's library source of each run, with the paper's methods as tie-breaker"),
+            ("Extraction", f.get("extraction_kit"), "paper methods" if f.get("extraction_kit") else miss, f.get("extraction_quote")),
+            ("Library preparation", f.get("library_kit"), "paper methods" if f.get("library_kit") else miss, f.get("library_quote")),
             ("Sequencing", f.get("platform"), f.get("seq_note"), f.get("platform_quote"))]
-    if not any(v for _, v, _, _ in core):
-        return ""
     cells = "".join(
-        f'<div><div class="k">{E(k)}</div><div class="v{"" if v else " nr"}"'
+        f'<div><div class="k">{E(k)}</div><div class="v{"" if v else " nr"}{" na-" + na if k.startswith("Nucleic") and v else ""}"'
         f'{f" title={chr(34)}{E(str(q))}{chr(34)}" if q else ""}>{E(str(v)) if v else "not reported"}</div>'
         f'<div class="s">{E(str(s)) if s else ""}</div></div>' for k, v, s, q in core)
     chips = "".join(f'<span class="x{" warn" if w else ""}" title="{E(str(t2 or ""))}">{E(str(t))}</span>'
@@ -153,11 +200,13 @@ def living_table(rows) -> str:
 
 
 CSS = """
-.mstrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
+.mstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
 .mstrip>div{padding:.5rem .8rem;border-left:1px solid #eee}.mstrip>div:first-child{border-left:0}
 .mstrip .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:#5f6365;font-weight:600}
 .mstrip .v{font-size:.92rem;font-weight:600;margin-top:.1rem}.mstrip .v.nr{color:#9a9a9a;font-weight:400;font-style:italic}
 .mstrip .s{font-size:.76rem;color:#5f6365;margin-top:.1rem}
+.mstrip .v.na-dna{color:#2f6b3f}.mstrip .v.na-rna{color:#8a4b8a}.mstrip .v.na-both{color:#4b4b8a}.mstrip .v.na-conflict{color:#b3261e}
+@media (max-width:760px){.mstrip{grid-template-columns:repeat(2,minmax(0,1fr))}.mstrip>div:nth-child(3){border-left:0}.mstrip>div:nth-child(n+3){border-top:1px solid #eee}}
 .mextra{font-size:.78rem;color:#444;margin:.1rem 0 .3rem}
 .mextra .x{display:inline-block;padding:.05rem .5rem;margin:.1rem .25rem .1rem 0;border-radius:999px;background:#efe4c4;border:1px solid #d9c896;color:#4a3c14}
 .mextra .x.warn{background:#fff6e5;border-color:#e0b25b;color:#7a4b00}
@@ -177,4 +226,5 @@ CSS = """
 .nab{display:inline-block;font-size:.7rem;padding:.04rem .5rem;border-radius:999px;border:1px solid #bbb;margin-left:.35rem;vertical-align:middle}
 .nab.dna{border-color:#2f6b3f;color:#2f6b3f;background:#f2f8f3}.nab.rna{border-color:#8a4b8a;color:#8a4b8a;background:#faf3fa}
 .nab.conflict{border-color:#b3261e;color:#b3261e;background:#fdf3f2}
+.nab.both{border-color:#4b4b8a;color:#4b4b8a;background:#f4f4fb}
 """

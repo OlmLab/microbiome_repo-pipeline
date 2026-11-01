@@ -128,6 +128,16 @@ def main():
     st["is_infant_curated"] = False
     if "description" not in st.columns or st["description"].isna().all():
         st["description"] = st.get("description_short")
+    # R2026.32: the registry study table carries description_short (cut at 300 characters); the archive's full project
+    # description is in registry_universe_studies — use it whenever it is longer
+    uni_p = os.path.join(PIPE, "data", "inputs", "registry", "registry_universe_studies.parquet")
+    if os.path.exists(uni_p):
+        u = pd.read_parquet(uni_p, columns=["study_accession", "description"]).dropna().drop_duplicates("study_accession").set_index("study_accession").description
+        full = st.study_accession.map(u)
+        cur = st["description"].fillna("").astype(str)
+        longer = full.notna() & (full.fillna("").astype(str).str.len() > cur.str.len())
+        st.loc[longer, "description"] = full[longer]
+        stats["descriptions_from_full_archive_text"] = int(longer.sum())
     for c in gut_in.columns:
         if c not in st.columns:
             st[c] = None
@@ -202,6 +212,11 @@ def main():
             dets.append(row(r.sample_key, "timepoint_label", r.study_accession, r.timepoint_label, r.timepoint_label, 0.85,
                             f"sample.attr.{r.timepoint_label_key}", "biosample_attr", "R1", "registry_attr_v1:timepoint"))
     sp = pd.read_parquet(os.path.join(L, "supp_sample_values_all.parquet"))
+    _s7c = os.path.join(L, "stage7c", "supp_sample_values.parquet")   # R2026.32 supplementary catch-up (146 projects)
+    if os.path.exists(_s7c):
+        _c = pd.read_parquet(_s7c)
+        sp = pd.concat([sp, _c[~_c.study_accession.isin(set(sp.study_accession))]], ignore_index=True)
+        stats["supp_catchup_values"] = len(_c)
     sp = sp[sp.study_accession.isin(new_acc)]
     fmap = {"sex": "sex", "age_days": "age_at_collection_days", "condition_code": "health_condition",
             "country_iso2": "country", "subject_id": "subject_id", "timepoint_label": "timepoint_label", "bmi": "bmi"}

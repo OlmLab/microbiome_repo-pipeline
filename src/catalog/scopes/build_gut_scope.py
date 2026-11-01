@@ -860,6 +860,8 @@ def build(a):
     _tc = w[tier_cols].copy()
     if "age_category" in _tc.columns:
         _tc["age_category"] = _tc["age_category"].where(_tc["age_category"].fillna("unknown") != "unknown")
+    if "body_site_code" in _tc.columns:   # core body site: 'unknown_site' = not covered
+        _tc["body_site_code"] = _tc["body_site_code"].where(_tc["body_site_code"] != "unknown_site")
     w["n_fields_with_value"] = _tc.notna().sum(axis=1)
     w["release_added"], w["release_retired"], w["package_added"] = rid, None, pv
     w = w.reset_index()
@@ -917,6 +919,8 @@ def build(a):
     gc = (w[w.sample_type.eq("specimen")] if "sample_type" in w.columns else w).groupby("study_accession")
     cov = pd.DataFrame({f"cov_{f}": gc[f].apply(lambda s: round(float(s.notna().mean()), 3)) for f in PACK_FIELDS})
     cov["cov_age_category"] = gc.age_category.apply(lambda s: round(float((s.fillna("unknown") != "unknown").mean()), 3))   # core age (life stage)
+    if "body_site_code" in w.columns:   # core body site (R2026.32): 'unknown_site' = not covered
+        cov["cov_body_site_code"] = gc.body_site_code.apply(lambda s: round(float((s.notna() & (s != "unknown_site")).mean()), 3))
     # R2026.22 (owner audit): a catalog project must have at least one catalog sample. Projects left empty after the sample
     # filters are dropped and logged: umbrella children whose BioSamples are catalogued under the parent BioProject (e.g. the
     # MetaHIT single-subject projects under PRJNA33049), projects whose every sample was excluded (PRJEB39960: mouse recipients
@@ -1021,7 +1025,23 @@ def build(a):
         for c in sd.columns:   # per-sample depth on the wide table (R2026.16: every sample shows a depth)
             w[c] = w.sample_key.map(sd[c])
         w["n_runs"] = w["n_runs"].fillna(0).astype(int)
-        _na = gut_runs[gut_runs.sample_key.notna()].groupby("sample_key").nucleic_acid.agg(lambda v: set(v))
+        # R2026.32: the per-sample DNA / RNA flags follow the project's resolved nucleic acid — (a) only the sample's own
+        # project's runs count (a BioSample shared with another project keeps that project's RNA runs there), and (b) where the
+        # project resolution overrode a single archive label (paper says RNA over DNA-labelled runs, decided by the rRNA share),
+        # the runs count as the resolved kind, so the badge, the run counts and the per-sample flags agree
+        _eff = gut_runs.nucleic_acid.copy()
+        _res = gs.nucleic_acid.dropna() if "nucleic_acid" in gs.columns else pd.Series(dtype=str)
+        _arch = gs.nucleic_acid_archive.dropna() if "nucleic_acid_archive" in gs.columns else pd.Series(dtype=str)
+        _flip = {acc: r for acc, r in _res.items() if r in ("dna", "rna") and _arch.get(acc) in ("dna", "rna") and _arch.get(acc) != r}
+        if _flip:
+            _m = gut_runs.study_accession.isin(_flip) & gut_runs.nucleic_acid.isin(["dna", "rna"])
+            _eff[_m] = gut_runs.loc[_m, "study_accession"].map(_flip)
+            for acc, r in _flip.items():
+                n_ = int((gut_runs.study_accession == acc).sum())
+                gs.loc[acc, "n_runs_dna"], gs.loc[acc, "n_runs_rna"] = (n_, 0) if r == "dna" else (0, n_)
+            print(f"projects whose runs count as the resolved nucleic acid: {len(_flip)}", file=sys.stderr)
+        _own = gut_runs.sample_key.notna() & (gut_runs.study_accession == gut_runs.sample_key.map(_ws))
+        _na = _eff[_own].groupby(gut_runs.loc[_own, "sample_key"]).agg(lambda v: set(v))
         w["has_dna"] = w.sample_key.map(lambda k: "dna" in _na.get(k, set())).astype(bool)
         w["has_rna"] = w.sample_key.map(lambda k: "rna" in _na.get(k, set())).astype(bool)
         gs["n_runs_total"] = gs.n_runs_total.fillna(0).astype(int)

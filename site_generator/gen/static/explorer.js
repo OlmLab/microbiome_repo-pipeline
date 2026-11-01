@@ -7,10 +7,10 @@ const CFG = window.CATALOG_CFG;
 const PAGE = 50;
 // core + key fields come from the field pack through CATALOG_CFG (item 7); detailed_location is derived from location_site/locality/region
 const FIELDS = [...(CFG.coreFields || ['age_at_collection_days', 'sex', 'country', 'health_condition', 'subject_id']), ...(CFG.keyFields || ['detailed_location', 'lifestyle', 'collection_date', 'antibiotic_exposure', 'bmi', 'timepoint_label'])];
-// R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel
-const SHOW = ['sample_key', 'archive', 'study_accession', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
+// R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel; R2026.32: body site (core field) is a column
+const SHOW = ['sample_key', 'archive', 'study_accession', 'body_site_code', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
 const LOC_PARTS = ['location_site', 'location_locality', 'location_region'];
-const HDR = {seq_gbp: 'Gbp', archive: 'archive', age_category: 'age cat.', age_at_collection_days: 'age (d)', health_condition: 'condition', antibiotic_exposure: 'abx', subject_id: 'subject', intervention: 'interv.', study_accession: 'project', sample_key: 'sample'};
+const HDR = {seq_gbp: 'Gbp', archive: 'archive', body_site_code: 'body site', age_category: 'age cat.', age_at_collection_days: 'age (d)', health_condition: 'condition', antibiotic_exposure: 'abx', subject_id: 'subject', intervention: 'interv.', study_accession: 'project', sample_key: 'sample'};
 let COLS = new Set();   // columns present in the wide table (filled at boot); absent columns are omitted, never rendered as empty
 const archiveUrl = acc => { if (!acc) return null; const a = String(acc); if (/^[SED]RR\d+$/.test(a)) return CFG.archive.RUN + a; return (CFG.archive[a.slice(0, 4)] || CFG.archive.SAME) + a; };
 const archiveLink = (acc, label) => { const u = archiveUrl(acc); return u ? `<a class="small" href="${u}">${h(label || 'archive')}</a>` : ''; };

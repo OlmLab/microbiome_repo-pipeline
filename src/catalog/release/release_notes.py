@@ -168,6 +168,8 @@ def build(prev: str, new: str, cfg: dict | None = None, cycle_log: str | None = 
         for _d in (gwp, gwn):   # age_category: 'unknown' = not covered
             if "age_category" in _d.columns:
                 _d["age_category"] = _d["age_category"].where(_d["age_category"].fillna("unknown") != "unknown")
+            if "body_site_code" in _d.columns:   # body site (core since R2026.32): 'unknown_site' = not covered
+                _d["body_site_code"] = _d["body_site_code"].where(_d["body_site_code"] != "unknown_site")
         grp, grn = _prev_table("catalog_runs.parquet"), os.path.join(new, "catalog_runs.parquet")
         if _prev_second("catalog_runs.parquet") and os.path.exists(grp):
             _rk = set(_current(grp, ["run_accession"]).run_accession.astype(str)) | set(_current(_prev_second("catalog_runs.parquet"), ["run_accession"]).run_accession.astype(str))

@@ -72,13 +72,15 @@ def checked_sets(gut_dir: str) -> dict:
     chk = {k: set() for k in SOURCES}
     pm = {}
     r4 = _read_all(os.path.join(gut_dir, "r4", "gut_r4_study_summary_shard_*.parquet"))
+    r4c = _read_all(os.path.join(gut_dir, "r4c", "gut_r4c_study_summary_shard_*.parquet"))   # R2026.32 catch-up pass
+    r4 = pd.concat([x for x in (r4, r4c) if len(x)], ignore_index=True) if len(r4) or len(r4c) else r4
     if len(r4):
         m = pd.Series(False, index=r4.index)
         for c in ("abstract_available", "has_description"):
             if c in r4:
                 m |= _truthy(r4[c])
         chk["abstract"] |= set(r4.loc[m, "study_accession"])
-    for p in ("r3/gut_r3_study_summary_all.parquet", "r3b/gut_r3b_study_summary_all.parquet"):
+    for p in ("r3/gut_r3_study_summary_all.parquet", "r3b/gut_r3b_study_summary_all.parquet", "r3c/gut_r3c_study_summary_all.parquet"):
         f = os.path.join(gut_dir, p)
         if os.path.exists(f):
             d = pd.read_parquet(f)

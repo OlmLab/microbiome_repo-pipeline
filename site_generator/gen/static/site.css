@@ -409,11 +409,13 @@ footer .site-policies{margin-bottom:.5rem}
 .tag.ctl{background:#fff;border:1px dashed var(--cu-dark-gray);color:var(--cu-black)}
 
 /* R2026.30 — project page: methods strip, body figure, living conditions, DNA/RNA badges */
-.mstrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
+.mstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
 .mstrip>div{padding:.5rem .8rem;border-left:1px solid #eee}.mstrip>div:first-child{border-left:0}
 .mstrip .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:#5f6365;font-weight:600}
 .mstrip .v{font-size:.92rem;font-weight:600;margin-top:.1rem}.mstrip .v.nr{color:#9a9a9a;font-weight:400;font-style:italic}
 .mstrip .s{font-size:.76rem;color:#5f6365;margin-top:.1rem}
+.mstrip .v.na-dna{color:#2f6b3f}.mstrip .v.na-rna{color:#8a4b8a}.mstrip .v.na-both{color:#4b4b8a}.mstrip .v.na-conflict{color:#b3261e}
+@media (max-width:760px){.mstrip{grid-template-columns:repeat(2,minmax(0,1fr))}.mstrip>div:nth-child(3){border-left:0}.mstrip>div:nth-child(n+3){border-top:1px solid #eee}}
 .mextra{font-size:.78rem;color:#444;margin:.1rem 0 .3rem}
 .mextra .x{display:inline-block;padding:.05rem .5rem;margin:.1rem .25rem .1rem 0;border-radius:999px;background:#efe4c4;border:1px solid #d9c896;color:#4a3c14}
 .mextra .x.warn{background:#fff6e5;border-color:#e0b25b;color:#7a4b00}
@@ -437,3 +439,15 @@ footer .site-policies{margin-bottom:.5rem}
 .glance-body{flex:none;min-width:200px;max-width:260px}
 .nab.both{border-color:#4b5f8a;color:#4b5f8a;background:#f3f5fa}
 .nab.unclear{border-color:#8c8f91;color:#565a5c;background:#f6f6f4}
+
+/* R2026.32 glance charts: labelled columns, linear depth axis */
+.sparks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,320px));gap:1.2rem 2.4rem;margin-top:.8rem}
+svg.gchart{display:block;max-width:100%;height:auto;overflow:visible}
+svg.gchart rect.bar{fill:var(--cu-gold,#CFB87C)}svg.gchart rect.bar:hover{fill:#7A6A3C}
+svg.gchart rect.bar.over{fill:#e6dcc0}svg.gchart rect.zero{fill:#d6d6d6}
+svg.gchart line.base{stroke:#bdbdbd;stroke-width:1}svg.gchart line.tick{stroke:#9a9a9a;stroke-width:1}
+svg.gchart line.med{stroke:#333;stroke-width:1.4;stroke-dasharray:3 2}
+svg.gchart text{font-family:inherit;fill:#4a4a4a}svg.gchart .gc-x{font-size:10px;fill:#5f6365}
+svg.gchart .gc-n{font-size:9.5px;fill:#5f6365;font-variant-numeric:tabular-nums}svg.gchart .gc-m{font-size:10px;font-weight:600;fill:#333}
+.gc-cap{font-size:.74rem;color:#5f6365;margin-top:.15rem;max-width:320px;line-height:1.35}
+.glance-one{font-size:.82rem;margin:.1rem 0 .1rem}

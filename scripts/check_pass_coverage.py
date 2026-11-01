@@ -4,9 +4,11 @@ record whether each annotation pass that applies to it was attempted, and fail t
 Passes and where their per-project logs live (data/inputs/gut/...):
   fulltext      R3 / R3b study summaries (r3*/gut_r3*_study_summary_all.parquet, r3*/shards/*study_summary*gap*), deep_sources pmcids_tried
                 applies when the project has an uncontested linked paper with a PMCID
-  abstract      R4 / R4b study summaries (r4/gut_r4_study_summary_shard_*.parquet, r4b/shards/gut_r4b_study_summary_shard_*.parquet)
+  abstract      R4 / R4b / R4c study summaries (r4/gut_r4_study_summary_shard_*.parquet, r4b/shards/gut_r4b_study_summary_shard_*.parquet,
+                r4c/gut_r4c_study_summary_shard_*.parquet — the R2026.32 catch-up pass)
   interventions interventions/gut_intervention_studies_shard_*.parquet
-  deep          deep/deep_sources_shard_*.parquet (per-sample archive + paper-table pass)
+  deep          deep/deep_sources_shard_*.parquet (per-sample archive + paper-table pass); large_update_pass_log.csv for
+                the projects the large update admitted (its own attribute harvest + mapping stages)
   supplementary r2/gut_r2_gate_shard_*.parquet or a deep_sources row with supp_files_found recorded; applies with a PMCID
   subject       design/logs/subject_log_shard_*.parquet + external logs; applies when subject_id coverage < 95 %
   design        design/study_design_shard_*.parquet (relatedness + longitudinal design)
@@ -62,12 +64,18 @@ def coverage(gut_dir, studies, papers, exceptions=None):
         ft_try |= set(ds.study_accession[tried].astype(str))
         ft_ok |= set(ds.study_accession[_truthy(ds.fulltext_available)].astype(str))
     T["fulltext"] = ["not_applicable" if not p else ("done" if a in ft_ok else ("attempted_failed" if a in ft_try else "missing")) for a, p in zip(T.index, T.has_pmcid)]
-    ab = _set(j("r4", "gut_r4_study_summary_shard_*.parquet")) | _set(j("r4b", "shards", "gut_r4b_study_summary_shard_*.parquet"))
+    ab = _set(j("r4", "gut_r4_study_summary_shard_*.parquet")) | _set(j("r4b", "shards", "gut_r4b_study_summary_shard_*.parquet")) \
+        | _set(j("r4c", "gut_r4c_study_summary_shard_*.parquet"))   # R2026.32 catch-up pass
     T["abstract"] = ["done" if a in ab else "missing" for a in T.index]
     iv = _set(j("interventions", "gut_intervention_studies_shard_*.parquet"))
     T["interventions"] = ["done" if a in iv else "missing" for a in T.index]
     dp = set(ds.study_accession.astype(str)) if len(ds) else set()
     T["deep"] = ["done" if a in dp else "missing" for a in T.index]
+    # R2026.32: projects admitted by the large update had their per-sample passes run by its own stages (archive attribute
+    # harvest + mapping, supplementary join ladder); data/inputs/gut/large_update_pass_log.csv credits them with the basis
+    lu = pd.read_csv(j("large_update_pass_log.csv"), dtype=str) if os.path.exists(j("large_update_pass_log.csv")) else pd.DataFrame(columns=["study_accession", "pass", "status", "basis"])
+    lu_status = {(r.study_accession, r[1]): r.status for r in lu.itertuples(index=False)} if len(lu) else {}
+    T["deep"] = [lu_status.get((a, "deep"), v) if v == "missing" else v for a, v in zip(T.index, T["deep"])]
     su = _set(j("r2", "gut_r2_gate_shard_*.parquet"))
     su_fail = set()
     if len(ds) and "supp_files_found" in ds.columns:
@@ -81,6 +89,7 @@ def coverage(gut_dir, studies, papers, exceptions=None):
         su |= set(ds.study_accession[ok].astype(str))
         su_fail = set(ds.study_accession[errored].astype(str)) - su
     T["supplementary"] = ["not_applicable" if not p else ("done" if a in su else ("attempted_failed" if a in su_fail else "missing")) for a, p in zip(T.index, T.has_pmcid)]
+    T["supplementary"] = [lu_status.get((a, "supplementary"), v) if v == "missing" else v for a, v in zip(T.index, T["supplementary"])]
     sj = _set(j("design", "logs", "subject_log_shard_*.parquet")) | _set(j("design", "logs", "external", "*subject_log*.csv")) | _set(j("design", "logs", "external", "v*", "subject_log.csv"))
     cov = st.set_index("study_accession").get("cov_subject_id")
     need = (pd.to_numeric(cov, errors="coerce").reindex(T.index).fillna(0) < 0.95) if cov is not None else pd.Series(True, index=T.index)
