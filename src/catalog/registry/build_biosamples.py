@@ -69,6 +69,7 @@ def build_biosamples(att: pd.DataFrame, norm: pd.DataFrame) -> pd.DataFrame:
         has_any = set(f["sample_acc"])
         if code_col in UNKNOWN:
             mask = out[code_col].isna() & out["sample_accession"].isin(has_any)
+            out[code_col] = out[code_col].astype(object)   # an all-missing column comes back float64 (R2026.34)
             out.loc[mask, code_col] = UNKNOWN[code_col]
     # collection date: deterministic (first non-placeholder value; year extracted)
     cd = tgt[tgt["field"] == "collection_date"].drop_duplicates("sample_acc").set_index("sample_acc")["attr_value"]

@@ -94,7 +94,7 @@ def load_rows():
     return rows
 
 
-def run(shard, nshards, budget, host=None, hc=False):
+def run(shard, nshards, budget, host=None, hc=False, projects=None, tag=""):
     if host is not None:
         M.set_host(host)
     os.makedirs(OUT, exist_ok=True)
@@ -102,8 +102,9 @@ def run(shard, nshards, budget, host=None, hc=False):
     if hc:   # code-choice check: one more independent reading of every health_condition row (the confirm check missed wrong codes)
         rows = rows[rows.field_name == "health_condition"].copy()
         rows["row_id"] = "hc:" + rows.row_id
-    projects = sorted(set(rows.study_accession))
-    mine = [p for i, p in enumerate(projects) if i % nshards == shard]
+    sel = sorted(set(rows.study_accession) & set(projects)) if projects else sorted(set(rows.study_accession))   # R2026.34: --projects
+    mine = [p for i, p in enumerate(sel) if i % nshards == shard]
+    shard = f"{tag}{shard}"
     st = pd.read_parquet(os.path.join(CP.PKG, "catalog_studies.parquet"))
     st = st[st.release_retired.isna()].set_index("study_accession") if "release_retired" in st.columns else st.set_index("study_accession")
     papers = pd.read_parquet(os.path.join(ROOT, "data", "inputs", "catalog", "study_papers.parquet"))
@@ -126,7 +127,7 @@ def run(shard, nshards, budget, host=None, hc=False):
             ctx = window(segs.get(seg or src or "", "") or " ".join(segs.values()), r.evidence_quote)
             head = f"ITEM {i}: field={r.field_name}" + ("" if hc else f" value={r.value_normalized}")
             items.append(f"{head}\nQUOTE: {r.evidence_quote}\nPASSAGE: {ctx}")
-        prompt = (f"PROJECT {acc}; archive title: {st.loc[acc].get('study_title')}; catalog samples: {int(st.loc[acc].get('n_samples') or 0)}\n\n" + "\n\n".join(items))
+        prompt = (f"PROJECT {acc}; archive title: {st.loc[acc].get('study_title')}; catalog samples: {CP.n_catalog_samples(st.loc[acc])}\n\n" + "\n\n".join(items))
         if hc:
             reqs.append({"system": HC_SYSTEM, "prompt": prompt, "tools": [HC_TOOL],
                          "tool_choice": {"type": "tool", "name": "choose"}, "max_tokens": 800, "thinking": NOTHINK})
@@ -220,10 +221,13 @@ def main(argv=None):
     ap.add_argument("--budget", type=float, default=10)
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--hc", action="store_true", help="health_condition code-choice check")
+    ap.add_argument("--projects", help="file of accessions: verify only these projects' rows (R2026.34 monthly runs)")
+    ap.add_argument("--tag", default="", help="verdict shard name prefix, e.g. R34_")
     a = ap.parse_args(argv)
     if a.apply:
         return apply()
-    return run(a.shard, a.nshards, a.budget, host=globals().get("host"), hc=a.hc)
+    pr = sorted({l.strip().split(",")[0] for l in open(a.projects) if l.strip() and not l.startswith("study_accession")}) if a.projects else None
+    return run(a.shard, a.nshards, a.budget, host=globals().get("host"), hc=a.hc, projects=pr, tag=a.tag)
 
 
 if __name__ == "__main__":

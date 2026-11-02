@@ -53,11 +53,15 @@ TOOL = DP.PP.tool("check", {
     "revised_statement": {"type": "string"}}, ["supported", "unsupported_parts", "revised_statement"])
 
 
-def run(shard, nshards, budget, host=None):
+def run(shard, nshards, budget, host=None, projects=None, tag=""):
     if host is not None:
         M.set_host(host)
-    R = pd.read_parquet(os.path.join(GUT, "design", "design_reading_all.parquet"))
+    # R2026.34: statements are checked in their unchecked form (the backup), so a re-run's new statements can be checked alone
+    src = os.path.join(GUT, "design", "backup_pre_statement_check", "design_reading_all.parquet")
+    R = pd.read_parquet(src if os.path.exists(src) else os.path.join(GUT, "design", "design_reading_all.parquet"))
     R = R[R.design_statement.notna() & (R.design_statement.astype(str).str.strip() != "")]
+    if projects:
+        R = R[R.study_accession.isin(set(projects))]
     ids = sorted(R.study_accession)
     mine = [p for i, p in enumerate(ids) if i % nshards == shard]
     R = R.set_index("study_accession")
@@ -71,7 +75,7 @@ def run(shard, nshards, budget, host=None):
     nspec = w.groupby("study_accession").size().to_dict()
     llm = LLM("adjudicate", cache_dir=os.path.expanduser("~/catalog/cache/llm/design_statement_r2026_33"),
               ledger=os.path.join(GUT, "design", "logs", f"ledger_statement_S{shard}.csv"), budget_usd=budget,
-              pass_name="design_statement_r2026_33", max_concurrency=4)
+              pass_name="design_statement_r2026_33" + (f"_{tag.strip('_')}" if tag else ""), max_concurrency=4)
     reqs, keys = [], []
     for acc in mine:
         if acc not in st.index:
@@ -99,8 +103,10 @@ def run(shard, nshards, budget, host=None):
         rows.append(dict(study_accession=acc, statement_check="supported" if tu["supported"] == "yes" else ("revised" if len(rev) >= 15 else "dropped"),
                          revised_statement=rev if tu["supported"] == "no" and len(rev) >= 15 else None,
                          n_unsupported=len(tu.get("unsupported_parts") or [])))
-    df = pd.DataFrame(rows, columns=["study_accession", "statement_check", "revised_statement", "n_unsupported"])
-    df.to_parquet(os.path.join(GUT, "design", f"design_statement_check_shard_S{shard}.parquet"), index=False)
+    for r_ in rows:
+        r_["statement_checked"] = str(R.loc[r_["study_accession"], "design_statement"])
+    df = pd.DataFrame(rows, columns=["study_accession", "statement_check", "revised_statement", "n_unsupported", "statement_checked"])
+    df.to_parquet(os.path.join(GUT, "design", f"design_statement_check_shard_S{tag}{shard}.parquet"), index=False)
     summ = dict(shard=shard, statements=len(keys), llm_status=status, result=df.statement_check.value_counts().to_dict(), cost=llm.summary())
     print(json.dumps(summ, default=str))
     return summ
@@ -115,6 +121,16 @@ def apply():
     if not os.path.exists(os.path.join(bk, os.path.basename(p))):
         shutil.copy2(p, os.path.join(bk, os.path.basename(p)))
     R = pd.read_parquet(os.path.join(bk, os.path.basename(p)))   # always apply to the unchecked version
+    # R2026.34: a check applies only to the statement it checked (statement_checked); checks written before that column existed
+    # apply unless their project was re-read later (design/statement_check_void.txt)
+    void_p = os.path.join(GUT, "design", "statement_check_void.txt")
+    void = set(x.strip() for x in open(void_p) if x.strip()) if os.path.exists(void_p) else set()
+    C = C.reset_index()
+    cur = C.study_accession.map(R.set_index("study_accession").design_statement.astype(str))
+    if "statement_checked" not in C.columns:
+        C["statement_checked"] = None
+    ok = (C.statement_checked.notna() & (C.statement_checked == cur)) | (C.statement_checked.isna() & ~C.study_accession.isin(void))
+    C = C[ok].drop_duplicates("study_accession", keep="last").set_index("study_accession")
     R["design_statement_original"] = R.design_statement
     R["statement_check"] = R.study_accession.map(C.statement_check)
     rev = R.study_accession.map(C.revised_statement)
@@ -132,10 +148,13 @@ def main(argv=None):
     ap.add_argument("--nshards", type=int, default=1)
     ap.add_argument("--budget", type=float, default=5.0)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--projects", help="CSV with study_accession: check only these projects' statements (R2026.34 re-run)")
+    ap.add_argument("--tag", default="", help="shard name prefix (e.g. V2_)")
     a = ap.parse_args(argv)
     if a.apply:
         return apply()
-    return run(a.shard, a.nshards, a.budget, host=globals().get("host"))
+    pr = list(pd.read_csv(a.projects).study_accession.astype(str)) if a.projects else None
+    return run(a.shard, a.nshards, a.budget, host=globals().get("host"), projects=pr, tag=a.tag)
 
 
 if __name__ == "__main__":

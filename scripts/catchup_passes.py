@@ -60,8 +60,9 @@ from catalog.llm_backend import LLM, BudgetExceeded  # noqa: E402
 M.set_host(globals().get("host"))
 CACHE = os.path.expanduser(os.environ.get("CATALOG_CACHE_DIR", "~/catalog/cache"))
 LU = os.path.join(CACHE, "large_update")
-DOSSIER_DIRS = [os.path.join(LU, d) for d in ("dossiers_all", "dossiers_delta", "dossiers_relisted", "dossiers_gut")]
-PKG = os.path.join(ROOT, "build", "package")
+DOSSIER_DIRS = [os.path.join(LU, d) for d in ("dossiers_all", "dossiers_delta", "dossiers_relisted", "dossiers_gut")] + \
+    sorted(glob.glob(os.path.join(LU, "dossiers_delta?*")))   # R2026.34: one dossier directory per monthly intake
+PKG = os.environ.get("CATALOG_PKG") or os.path.join(ROOT, "build", "package")   # R2026.34: CATALOG_PKG = an intermediate build
 PASS = "catalog_catchup_v1"
 NOTE = "catch-up pass R2026.32 (two readings)"
 NOTHINK = {"type": "disabled"}
@@ -221,6 +222,15 @@ def quote_ok(q, text):
     return len(q.split()) >= 3 and q in text
 
 
+def n_catalog_samples(st):
+    """the study row's sample count; for projects the registry tables do not cover yet, the build's curated count (R2026.34)"""
+    for c in ("n_samples", "n_samples_curated"):
+        v = st.get(c)
+        if v is not None and pd.notna(v):
+            return int(v)
+    return 0
+
+
 def load_dossier(acc):
     for d in DOSSIER_DIRS:
         f = os.path.join(d, f"{acc}.json")
@@ -256,7 +266,7 @@ def project_texts(acc, d, st, papers):
     ft_paper = next((r for r in own.itertuples() if isinstance(r.pmcid, str) and PP.jats_file(r.pmcid)), None)
     out = dict(pmcid=None, pmids=[], n_abstracts=0, abstract_available=False, fulltext_available=False)
     head = (f"PROJECT {acc}\nARCHIVE TITLE: {title}\nARCHIVE DESCRIPTION: {desc}\n"
-            f"SAMPLES IN THE CATALOG: {int(st.get('n_samples') or 0)}\nSAMPLE ATTRIBUTES (key [samples, distinct values]: top values):\n{prof}\n")
+            f"SAMPLES IN THE CATALOG: {n_catalog_samples(st)}\nSAMPLE ATTRIBUTES (key [samples, distinct values]: top values):\n{prof}\n")
     if ft_paper is not None:
         body = PP.paper_sections(ft_paper.pmcid, max_chars=30000)
         if body:
@@ -695,6 +705,7 @@ def main(argv=None):
     ap.add_argument("--budget", type=float, default=5.0)
     ap.add_argument("--out", default=os.path.join(ROOT, "data", "inputs", "gut"))
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--tag", default="", help="shard name prefix (R2026.34: a monthly run's shards must not overwrite earlier ones, e.g. R34_)")
     a = ap.parse_args(argv)
     if a.merge:
         return merge(a.out)
@@ -702,7 +713,7 @@ def main(argv=None):
     mine = [p for i, p in enumerate(ids) if i % a.nshards == a.shard]
     if a.limit:
         mine = mine[:a.limit]
-    return run(mine, a.out, a.budget, a.shard if not a.limit else f"pilot{a.shard}", host=globals().get("host"))
+    return run(mine, a.out, a.budget, f"{a.tag}{a.shard}" if not a.limit else f"pilot{a.tag}{a.shard}", host=globals().get("host"))
 
 
 if __name__ == "__main__":

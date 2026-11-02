@@ -45,8 +45,8 @@ def main(argv=None):
     rows = []
     # ---- deep: harvested + mapped archive attributes
     seen = set()
-    for f in (f"{LU}/stage5/sample_values.parquet", f"{LU}/new_biosample_attributes.parquet", f"{LU}/stage16_delta_samples/sample_values.parquet",
-              f"{LU}/stage16_delta_samples/attrs_plain.parquet"):
+    for f in [f"{LU}/stage5/sample_values.parquet", f"{LU}/new_biosample_attributes.parquet"] + sorted(glob.glob(f"{LU}/stage16_delta_samples*/sample_values.parquet")) + \
+             sorted(glob.glob(f"{LU}/stage16_delta_samples*/attrs_plain.parquet")):
         if os.path.exists(f):
             seen |= set(pd.read_parquet(f, columns=["study_accession"]).study_accession.astype(str))
     reg = os.path.join(ROOT, "data", "inputs", "registry", "registry_biosample_attributes.parquet")
@@ -98,6 +98,8 @@ def main(argv=None):
                 rows.append(dict(study_accession=p, **{"pass": "supplementary"}, status="done",
                                  basis="the generating paper's full text lists no supplementary material"))
     out = pd.DataFrame(rows, columns=["study_accession", "pass", "status", "basis"])
+    if os.path.exists(a.out):   # R2026.34: keep the rows of earlier runs; a project-pass logged again takes the new row
+        out = pd.concat([pd.read_csv(a.out, dtype=str), out.astype(str)], ignore_index=True).drop_duplicates(['study_accession', 'pass'], keep='last')
     out.to_csv(a.out, index=False)
     print({"rows": len(out), **{f"{k}:{s}": int(v) for (k, s), v in out.groupby(["pass", "status"]).size().items()},
            "supplementary_not_logged": len(need["supplementary"] - set(out.loc[out["pass"] == "supplementary", "study_accession"]))})

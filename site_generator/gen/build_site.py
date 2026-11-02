@@ -2319,7 +2319,7 @@ def main():
     if 'curated_source' in cw.columns:
         for f in ('age_at_collection_days', 'subject_id', 'timepoint_label', 'sex', 'health_condition', 'antibiotic_exposure'):
             if f in cw.columns:
-                tier_cov.append(dict(field=f, **{src: round(100 * float(cw.loc[cw.curated_source == src, f].notna().mean()), 1) for src in ('infant_catalog', 'gut_all_v1')}))
+                tier_cov.append(dict(field=f, **{src: round(100 * float(cw.loc[cw.curated_source == src, f].notna().mean()), 1) for src in ('infant_catalog', 'catalog_v1')}))
     src_avail = []
     for k in SRC_ORDER:
         c_ = f'src_{k}'
@@ -2415,13 +2415,16 @@ def main():
             segs = [dict(source=s_, label=_SRC_LABELS.get(s_, s_), color=VS_COLOR[s_], n=int(row.get(s_, 0)), pct=round(100 * row.get(s_, 0) / tot, 1)) for s_ in VS_ORDER if row.get(s_, 0) > 0]
             vs_fields.append(dict(field=c, cols=fl, tier=tier, total=tot, n_samples=int(nsamp.get(c, 0)), cov=int(nsamp.get(c, 0)) / len(cw) if len(cw) else 0, segs=segs))
     _col = lambda c_: cs[c_] if c_ in cs.columns else pd.Series([None] * len(cs), index=cs.index)
-    _gen = int(((cd.field_name == 'subject_id') & cd.determined_by.astype(str).isin(['gut_subject_unique_v1', 'gut_subject_single_v1', 'gut_subject_single_case_v1'])).sum())
+    _gen = int(((cd.field_name == 'subject_id') & cd.determined_by.astype(str).str.replace(r'^gut_', 'catalog_', regex=True).isin(['catalog_subject_unique_v1', 'catalog_subject_single_v1', 'catalog_subject_single_case_v1'])).sum())   # R2026.34: published codes carry catalog_ since R2026.31
     dz_stats = dict(n_long=int(_col('longitudinal_status').eq('longitudinal').sum()), n_rep_unres=int(_col('longitudinal_status').eq('repeated_unresolved').sum()),
                     n_cross=int(_col('longitudinal_status').eq('cross_sectional').sum()), n_people_rep=int(pd.to_numeric(_col('n_subjects_repeated'), errors='coerce').fillna(0).sum()),
                     n_samples_rep=int(pd.to_numeric(_col('n_samples_repeated'), errors='coerce').fillna(0).sum()),
                     n_rel=int(_col('relatedness_designs').notna().sum()), n_fam=int(pd.to_numeric(_col('n_families'), errors='coerce').fillna(0).sum()),
                     n_mc=int(pd.to_numeric(_col('n_mother_child_families'), errors='coerce').fillna(0).sum()), n_set=int(pd.to_numeric(_col('n_shared_settings'), errors='coerce').fillna(0).sum()),
                     n_subj_gen=_gen, n_subj_real=int(cw.subject_id.notna().sum()) - _gen if 'subject_id' in cw.columns else 0,
+                    n_pt_subj=int(((cd.field_name == 'subject_id') & cd.determined_by.astype(str).str.startswith('catalog_persontime_v1')).sum()),
+                    n_pt_tp=int(((cd.field_name == 'timepoint_label') & cd.determined_by.astype(str).str.startswith('catalog_persontime_v1')).sum()),
+                    n_pt_proj=int(cd.loc[cd.determined_by.astype(str).str.startswith('catalog_persontime_v1'), 'study_accession'].nunique()) if 'study_accession' in cd.columns else 0,
                     axes=_col('time_axis').value_counts().to_dict(), rel_kinds=pd.Series([k_ for v_ in _col('relatedness_designs').dropna() for k_ in str(v_).split(';') if k_]).value_counts().to_dict())
     render('value_sources.html', 'about/value_sources.html', '../', nav='about', rows=vs_rows, extra=vs_extra, fields=vs_fields, dz=dz_stats)
     render('external.html', 'about/external.html', '../', nav='about', ext=ext_list, others=[r for r in src['related_efforts'] if r.get('ingestion') != 'used'],

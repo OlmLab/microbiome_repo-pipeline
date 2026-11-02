@@ -18,6 +18,7 @@ ENA = "https://www.ebi.ac.uk/ena/browser/api/xml/"
 EUT = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 norm = lambda k: re.sub(r"[^a-z0-9]+", "_", str(k).lower()).strip("_")
 S = requests.Session()
+RUN = time.strftime("%Y%m%d%H%M%S")
 
 
 def _rows(sample, pairs, source, study):
@@ -76,6 +77,29 @@ def ncbi_batch(accs, study_of):
     return out
 
 
+def ebi_biosamples(accs, study_of):
+    """R2026.34: EBI BioSamples JSON, one request per sample — for samples released so recently that neither the ENA browser
+    nor NCBI returns them yet (ENA answers 404 for a day or so after release)."""
+    out = []
+    for acc in accs:
+        try:
+            r = S.get(f"https://www.ebi.ac.uk/biosamples/samples/{acc}.json", timeout=60)
+            if r.status_code != 200:
+                continue
+            j = r.json()
+        except Exception:
+            continue
+        pairs = []
+        for k, vs in (j.get("characteristics") or {}).items():
+            for v in vs or []:
+                pairs.append((k, v.get("text"), v.get("unit")))
+        if j.get("name"):
+            pairs.append(("alias", j.get("name"), None))
+        out += _rows(acc, pairs, "ebi_biosamples_json", study_of.get(acc))
+        time.sleep(0.1)
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--samples", required=True); ap.add_argument("--out", required=True)
@@ -103,8 +127,12 @@ def main(argv=None):
             for j in range(0, len(missing), 100):
                 rows += ncbi_batch(missing[j:j + 100], study_of)
                 time.sleep(0.4)
-        if rows:
-            pd.DataFrame(rows).to_parquet(f"{a.out}/shard_{i:05d}.parquet", index=False)
+            have = {r["sample_key"] for r in rows}
+            still = [s for s in missing if s not in have]
+            if still:
+                rows += ebi_biosamples(still, study_of)
+        if rows:   # R2026.34: a run-stamped name, so a resumed run never overwrites an earlier run's shard
+            pd.DataFrame(rows).to_parquet(f"{a.out}/shard_{RUN}_{i:05d}.parquet", index=False)
         return len(rows), len({r['sample_key'] for r in rows})
 
     n_rows = n_s = 0

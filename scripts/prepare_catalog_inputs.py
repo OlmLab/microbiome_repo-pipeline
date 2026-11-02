@@ -64,7 +64,8 @@ def iso_date(raw):
 
 def load_dossier_archive(cache, ids):
     out = {}
-    for d in ("dossiers_all", "dossiers_recovered", "dossiers_delta"):
+    monthly = sorted(os.path.basename(x) for x in glob.glob(os.path.join(cache, "large_update", "dossiers_delta?*")))   # R2026.34: monthly intakes
+    for d in ["dossiers_all", "dossiers_recovered", "dossiers_delta"] + monthly:
         for acc in ids:
             if acc in out:
                 continue
@@ -163,15 +164,17 @@ def main():
         stats["rna_specimens_original_projects"] = len(sv2)
     # samples of the classified projects published without samples (stage 16): harvested attributes → values; a sample
     # with an in-scope run but no attribute record still enters, without values
-    s16 = os.path.join(L, "stage16_delta_samples")
-    if os.path.exists(os.path.join(s16, "sample_values.parquet")):
+    # R2026.34: one stage directory per monthly intake (stage16_delta_samples, stage16_delta_samples_<tag>)
+    for s16 in sorted(glob.glob(os.path.join(L, "stage16_delta_samples*"))):
+        if not os.path.exists(os.path.join(s16, "sample_values.parquet")):
+            continue
         sv3 = pd.read_parquet(os.path.join(s16, "sample_values.parquet"))
         sv3 = sv3[sv3.study_accession.isin(new_acc) & ~sv3.sample_accession.isin(set(sv.sample_accession))]
         todo = pd.read_csv(os.path.join(s16, "samples_todo.csv"), dtype=str)
         bare = todo[todo.study_accession.isin(new_acc) & ~todo.sample_accession.isin(set(sv.sample_accession) | set(sv3.sample_accession))]
         sv = pd.concat([sv, sv3, bare.assign(source="no_attribute_record")], ignore_index=True).drop_duplicates("sample_accession")
-        stats["delta_project_samples"] = len(sv3) + len(bare)
-        stats["delta_project_samples_without_attributes"] = len(bare)
+        stats["delta_project_samples"] = stats.get("delta_project_samples", 0) + len(sv3) + len(bare)
+        stats["delta_project_samples_without_attributes"] = stats.get("delta_project_samples_without_attributes", 0) + len(bare)
     rbio = pd.read_parquet(os.path.join(PIPE, "build", "package", "registry_biosamples.parquet"))
     rb_cols = rbio.columns
     if relisted:   # their samples are registry BioSamples (already harvested and normalised by the registry tier)
@@ -201,7 +204,7 @@ def main():
                             "biosample_attr", "R1", "registry_attr_v1:collection_date"))
     stp = pd.read_parquet(os.path.join(L, "stage5", "subject_timepoint.parquet"))
     stp = stp[stp.study_accession.isin(new_acc)]
-    for st_p in (os.path.join(L, "stage15_gutrna", "subject_timepoint.parquet"), os.path.join(L, "stage16_delta_samples", "subject_timepoint.parquet")):
+    for st_p in [os.path.join(L, "stage15_gutrna", "subject_timepoint.parquet")] + sorted(glob.glob(os.path.join(L, "stage16_delta_samples*", "subject_timepoint.parquet"))):
         if os.path.exists(st_p):
             stp = pd.concat([stp, pd.read_parquet(st_p)], ignore_index=True).drop_duplicates("sample_key")
     for r in stp.itertuples(index=False):
@@ -296,8 +299,9 @@ def main():
     # run_origin: registry = the enumeration's runs; refetch = the per-project ENA filereport of the original projects
     # (the builder takes only their RNA libraries); delta = runs of projects the scope classification added
     parts = [rr.assign(run_origin="registry")]
+    extra_delta = [(os.path.basename(f_), "delta") for f_ in sorted(glob.glob(os.path.join(L, "delta?*_runs_fetched.parquet")))]   # R2026.34: monthly intakes
     for p, origin in [("gut_all_runs_ena.parquet", "refetch"), ("relisted_runs_ena.parquet", "delta"), ("delta_runs_fetched.parquet", "delta"),
-                      ("delta_runs_recovered.parquet", "delta"), ("delta_runs_recovered2.parquet", "delta")]:
+                      ("delta_runs_recovered.parquet", "delta"), ("delta_runs_recovered2.parquet", "delta")] + extra_delta:
         fp = os.path.join(L, p)
         if os.path.exists(fp):
             parts.append(pd.read_parquet(fp).reindex(columns=rcols).assign(run_origin=origin))

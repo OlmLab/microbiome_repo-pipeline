@@ -522,6 +522,9 @@ def resolve(det: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     d = det[det.value_normalized.notna()].copy()
     d["_rank"] = d.route.map(ROUTE_RANK).fillna(9)
     d.loc[d.src_track == "infant_catalog", "_rank"] = 0
+    # person / time rows checked by Opus 5 (R2026.34) compete with the infant catalog's parser rows on confidence: they keep the
+    # stored code and add its stated meaning ("BL" -> "baseline")
+    d.loc[d.determined_by.astype(str).str.startswith("catalog_persontime_v1"), "_rank"] = 0
     d = d.sort_values(["sample_key", "field_name", "_rank", "confidence"], ascending=[True, True, True, False], kind="mergesort")
     keep = d.drop_duplicates(["sample_key", "field_name"], keep="first")
     lost = d.loc[d.index.difference(keep.index)]
@@ -908,6 +911,10 @@ def build(a):
     _mo = None
     if _tsp and os.path.exists(_tsp):
         _ts = pd.read_parquet(_tsp)
+        # R2026.34: the person / time pass writes its day offsets beside the visit-code timing table (timing_samples_pt_shard_*)
+        _pt = [f_ for f_ in sorted(glob.glob(os.path.join(os.path.dirname(_tsp), "timing_samples_pt_shard_*.parquet"))) if "pilot" not in os.path.basename(f_)]
+        if _pt:
+            _ts = pd.concat([_ts] + [pd.read_parquet(f_) for f_ in _pt], ignore_index=True)
         _mo = _ts.drop_duplicates("sample_key").set_index("sample_key").offset_days
     w = sample_longitudinal(w, gen_keys, _sched, _mo)
     long_study = study_longitudinal(w, gen_keys, design if len(design) else None)
@@ -1121,6 +1128,9 @@ def build(a):
         if f in w.columns:
             w[f] = pd.to_numeric(w[f], errors="coerce").astype("Int64")
     det_all, w, gs, conflicts, contra = (neutral_codes(x) for x in (det_all, w, gs, conflicts, contra))
+    for x_ in (det_all, conflicts, contra):   # R2026.34: shards write this flag as bool or float; one numeric type for the parquet writer
+        if x_ is not None and len(x_) and "evidence_limited_to_abstract" in x_.columns:
+            x_["evidence_limited_to_abstract"] = pd.to_numeric(x_["evidence_limited_to_abstract"].map(lambda v: float(v) if isinstance(v, (bool, int, float)) else v), errors="coerce")
     if "body_site_class" in w.columns:   # retired rows keep their site, under the R2026.31 classes
         w["body_site_class"] = w.body_site_class.replace({"excluded": "primary", "linked": "primary"})
     det_all.to_parquet(os.path.join(a.out, pack["tables"]["determinations"]), index=False)

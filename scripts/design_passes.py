@@ -13,8 +13,9 @@ Each reading returns
     n_participants_stated
 
 Merging (deterministic):
-  study_shape      both readings agree -> the shape; else 'suggested:a|b' (the site says "two readings differed")
-  design_statement reading 1's sentence, only when the shapes agree
+  study_shape      both readings agree -> the shape; else a tie-break by the `adjudicate` role (Opus 5; R2026.34) picks one
+                   reading's shape (shape_tiebreak first / second) or neither -> 'suggested:a|b' ("two readings differed")
+  design_statement reading 1's sentence when the shapes agree; the chosen reading's sentence after a tie-break
   readings         a reading missing a required field (or with an empty / placeholder statement) is re-asked once
   sample groups    both readings chose the same candidate key; a value is agreed when both map it to the same group (same
                    kind class and intervention codes, and the same unique health_condition code, or shared label words, or
@@ -66,7 +67,7 @@ M.set_host(globals().get("host"))
 PP = CP.PP
 _orig_sections = PP.paper_sections
 PP.paper_sections = lambda pmcid, max_chars=16000: _orig_sections(pmcid, max_chars=min(max_chars, 16000))   # design info is in methods
-PKG = os.path.join(ROOT, "build", "package")
+PKG = os.environ.get("CATALOG_PKG") or os.path.join(ROOT, "build", "package")   # R2026.34: CATALOG_PKG = an intermediate build
 ATTR = os.path.join(ROOT, "data", "inputs", "registry", "registry_biosample_attributes.parquet")
 PASS = "catalog_design_v1"
 NOTHINK = {"type": "disabled"}
@@ -165,6 +166,19 @@ VERIFY_TOOL = PP.tool("verify", {"items": {"type": "array", "items": {"type": "o
     "index": {"type": "integer"}, "value": {"type": "string"}, "value_ok": {"type": "string", "enum": ["yes", "no", "unsure"]},
     "code_ok": {"type": "string", "enum": ["yes", "no", "not_applicable"]}, "reason": {"type": "string"}},
     "required": ["value", "value_ok", "code_ok"]}}}, ["items"])
+
+TIE_SYSTEM = """Two independent readings of one sequencing project's text disagreed on its STUDY DESIGN type. You get the text
+(archive record and paper or abstract) and the two answers, each with its supporting quote. Decide which answer the text
+supports, using the same rules the readers had (take the FIRST that applies):
+  1 method_or_benchmark (aim is a method / protocol / kit / diagnostic performance; a patient-group contrast inside it does
+    not override); 2 rct / crossover / single_arm_intervention / non_randomised_intervention (an assigned intervention);
+  3 cohort_longitudinal (same people sampled repeatedly, no assigned intervention); 4 case_control (people with a condition
+    vs people without it or with a different condition); 5 cross_sectional_groups (other groups at one time, or strata of
+    one disease); 6 case_series (one condition, no comparison group; tissue / site contrasts within the same patients);
+  7 population_survey (one population, no groups); 8 unclear (the prose names no design).
+Answer `choice` = 'first', 'second' or 'neither' (neither when the text supports neither answer or does not say), with a
+verbatim quote (at most 25 words) from the text."""
+TIE_TOOL = PP.tool("tiebreak", {"choice": {"type": "string", "enum": ["first", "second", "neither"]}, "quote": NS, "reason": NS}, ["choice"])
 
 HARD_ADMIN = re.compile(r"^(ENA-|INSDC|BioSampleModel|NCBI submission|SAMPLE_NAME\.|center[ _]name$|organism$|Package$|Model$|"
                         r"lat_lon$|collection[ _]date$|geo_loc_name$|host$|.*accession|broker|submitter|.*date$|.*time$|latitude|longitude|"
@@ -527,6 +541,27 @@ def run(projects, out, budget, shard, host=None, verify_budget=None):
         ROWS[acc] = row
         if prop:
             PROPS[acc] = prop
+    # R2026.34: shape tie-break (role `adjudicate`) where the two readings gave different design types
+    treqs, tkeys = [], []
+    for acc, row in ROWS.items():
+        reps = R.get(acc, [None, None])
+        if row.get("shape_r1") and row.get("shape_r2") and row["shape_r1"] != row["shape_r2"] and all(reps):
+            ans = "\n".join(f"{nm} answer: {r_.get('study_shape')} (quote: {str(r_.get('shape_quote') or 'none')[:300]}); statement: {str(r_.get('design_statement') or '')[:400]}"
+                            for nm, r_ in (("first", reps[0]), ("second", reps[1])))
+            treqs.append({"system": TIE_SYSTEM, "prompt": T[acc]["prompt"][:24000] + "\n\nTHE TWO ANSWERS:\n" + ans, "tools": [TIE_TOOL],
+                          "tool_choice": {"type": "tool", "name": "tiebreak"}, "max_tokens": 800, "thinking": NOTHINK})
+            tkeys.append(acc)
+    tstatus = {}
+    for acc, r in zip(tkeys, _ask(ver, treqs, tstatus)):
+        tu = r.get("tool_use") if r.get("status") in ("ok", "cached") else None
+        ch = (tu or {}).get("choice") if isinstance(tu, dict) else None
+        ROWS[acc]["shape_tiebreak"] = ch or "missing"
+        reps = R[acc]
+        if ch in ("first", "second"):
+            rr = reps[0] if ch == "first" else reps[1]
+            ROWS[acc]["study_shape"] = rr.get("study_shape")
+            ROWS[acc]["design_statement"] = rr.get("design_statement")
+            ROWS[acc]["shape_tiebreak_quote"] = str((tu or {}).get("quote") or "")[:300]
     # Opus check of every proposed value -> group map
     vreqs, vkeys = [], []
     for acc, prop in PROPS.items():
@@ -561,7 +596,8 @@ def run(projects, out, budget, shard, host=None, verify_budget=None):
     pd.DataFrame(SROWS, columns=["study_accession", "sample_key", "group_key", "value", "group_label", "kind", "health_condition", "intervention"]).to_parquet(
         os.path.join(out, "design", f"design_sample_groups_shard_D{k}.parquet"), index=False)
     pd.DataFrame(DROWS, columns=DET_COLS).to_parquet(os.path.join(out, "deep", f"deep_determinations_shard_GRPD{k}.parquet"), index=False)
-    summ = dict(shard=k, projects=len(T), llm_status=status, verify_status=vstatus, modes=pd.Series([t_["mode"] for t_ in T.values()]).value_counts().to_dict(),
+    summ = dict(shard=k, projects=len(T), llm_status=status, verify_status=vstatus, tiebreak_status=tstatus,
+                tiebreak=df.shape_tiebreak.value_counts().to_dict() if "shape_tiebreak" in df.columns else {}, modes=pd.Series([t_["mode"] for t_ in T.values()]).value_counts().to_dict(),
                 status=df.status.value_counts().to_dict() if len(df) else {},
                 shapes_agree=int((df.shape_r1 == df.shape_r2).sum()) if len(df) else 0, retried_readings=len(retry),
                 projects_proposed=len(PROPS), projects_assigned=int((df.status == "done_assigned").sum()) if len(df) else 0,
@@ -598,6 +634,7 @@ def main(argv=None):
     ap.add_argument("--verify-budget", type=float, default=None, help="USD for the Opus check (default: same as --budget)")
     ap.add_argument("--out", default=os.path.join(ROOT, "data", "inputs", "gut"))
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--tag", default="", help="shard name prefix for a re-run (R2026.34: 'V2_' sorts after the first run's shards, so --merge keeps the re-run)")
     a = ap.parse_args(argv)
     if a.merge:
         return merge(a.out)
@@ -605,7 +642,7 @@ def main(argv=None):
     mine = [p for i, p in enumerate(ids) if i % a.nshards == a.shard]
     if a.limit:
         mine = mine[:a.limit]
-    return run(mine, a.out, a.budget, a.shard if not a.limit else f"pilot{a.shard}", host=globals().get("host"), verify_budget=a.verify_budget)
+    return run(mine, a.out, a.budget, (f"{a.tag}{a.shard}" if a.tag else a.shard) if not a.limit else f"pilot{a.tag}{a.shard}", host=globals().get("host"), verify_budget=a.verify_budget)
 
 
 if __name__ == "__main__":
