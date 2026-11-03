@@ -21,14 +21,19 @@
 </form>
 <p class="small srclegend muted">Markers next to a project: <span class="tag lgt">L</span> longitudinal · <span class="tag rdt">R</span> related or co-located people · <span class="tag ivt">I</span> intervention arms · <span class="tag cct">C</span> cases and healthy controls · <span class="tag mst">S</span> same people at several body sites · <span class="tag acc">A</span> metadata need an access application · <span class="tag cxt">!</span> self-contradictory metadata. Solid = resolved in the sample variables; dotted (<span class="tag lgt unres">L</span>) = described by the source but not yet resolved. Hover a marker for details.</p>
 <p class="small srclegend muted">Sources: <span class="srcmk u">✓</span> used · <span class="srcmk c">○</span> checked, nothing usable · <span class="srcmk n">–</span> not available. Hover a mark for details.</p>
+<p class="small srclegend muted" id="bs-legend"></p>
+<div class="sortbar" id="sortbar" role="group" aria-label="Order of the projects">
+<div class="sb-note" id="sb-note" aria-live="polite"></div>
+<div class="sb-btns"><span class="sb-lbl">Sort by</span><button type="button" class="sb" data-sort="random" title="A new random order of the matching projects">Random</button><button type="button" class="sb" data-sort="n">Most samples</button><button type="button" class="sb" data-sort="np" title="People with a subject identifier in the sample records">Most people</button><button type="button" class="sb" data-sort="gs" title="Median gigabases sequenced per sample">Deepest sequencing</button><button type="button" class="sb" data-sort="fu" title="Longest time between one person's first and last sample">Longest follow-up</button><button type="button" class="sb" data-sort="mc" title="Mean share of samples with a value, over the core fields">Most complete metadata</button><button type="button" class="sb" data-sort="y">Newest</button><button type="button" class="sb" data-sort="p">Most papers</button></div>
+</div>
 <div class="st-wrap"><table id="studies" class="tbl display compact ptbl" style="width:100%">
-<thead><tr><th>Project</th><th>Title</th><th class="num">Samples</th><th title="Nucleic acid of the project's data sets: DNA (shotgun metagenomes), RNA (metatranscriptomes) or both">DNA / RNA</th><th>Body site</th><th>Ages</th><th>Condition</th><th title="Interventions the study administered">Interv.</th><th>Country</th><th class="num" title="Linked papers">Papers</th><th title="First public">Year</th><th class="srch" title="Sequence archive records">Arch.</th><th class="srch" title="Paper abstract / archive description">Abs.</th><th class="srch" title="Open full text of the linked paper">Text</th><th class="srch" title="Supplementary tables of the linked paper">Supp.</th><th class="srch" title="External curated resources">Ext.</th><th class="srch" title="Metadata uploaded by a user">User</th><th class="srch" title="Human verified: a person checked the project against the web and confirmed the metadata is complete">Ver.</th>{% if has_seq %}<th class="num" title="Median Gbp per sample">Gbp</th>{% endif %}</tr></thead>
+<thead><tr><th>Project</th><th>Title</th><th class="num">Samples</th><th title="Nucleic acid of the project's data sets: DNA (shotgun metagenomes), RNA (metatranscriptomes) or both">DNA / RNA</th><th>Body site</th><th>Ages</th><th>Condition</th><th title="Interventions the study administered">Interv.</th><th>Country</th><th class="num" title="Linked papers">Papers</th><th title="First public">Year</th><th class="srch" title="Sequence archive records">Arch.</th><th class="srch" title="Paper abstract / archive description">Abs.</th><th class="srch" title="Open full text of the linked paper">Text</th><th class="srch" title="Supplementary tables of the linked paper">Supp.</th><th class="srch" title="External curated resources">Ext.</th><th class="srch" title="Metadata uploaded by a user">User</th><th class="srch" title="Human verified: a person checked the project against the web and confirmed the metadata is complete">Ver.</th>{% if has_seq %}<th class="num" title="Median Gbp per sample">Gbp</th>{% endif %}<th class="num" title="People with a subject identifier in the sample records">People</th><th class="num" title="Longest follow-up of one person: first to last sample">Follow-up</th><th class="num" title="Core metadata: mean share of samples with a value, over the core fields (body site, age, sex, country, condition, …)">Core metadata</th><th>order</th></tr></thead>
 <tbody></tbody></table></div>
 {% endblock %}
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
-<script>window.GLOBE_ROOT='../';</script><script src="../static/globe.js"></script>
+<script>window.GLOBE_ROOT='../';</script><script src="../static/globe.js"></script><script src="../static/bodysite_icons.js"></script>
 <script>
 fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const h = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -68,20 +73,22 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const SRCN = ['Sequence archive', 'Abstract / description', 'Full text', 'Supplementary tables', 'External resources', 'User contribution', 'Human verified'];
   const srcmk = (d, i, t) => { const c = (d || 'nnnnnnn')[i]; if (t !== 'display') return c === 'u' ? 2 : c === 'c' ? 1 : 0;
     return c === 'u' ? '<span class="srcmk u" title="' + SRCN[i] + ': values used">✓</span>' : c === 'c' ? '<span class="srcmk c" title="' + SRCN[i] + ': checked, nothing usable">○</span>' : '<span class="srcmk n" title="' + SRCN[i] + ': not available">–</span>'; };
-  const tbl = new DataTable('#studies', {
-    data: rows, autoWidth: false, layout: {topEnd: null}, search: {search: prm.get('q') || ''}, pageLength: 50, lengthMenu: [25, 50, 100, 500], order: [[2, 'desc']], deferRender: true,
-    columns: [
+  const shuffle = () => rows.forEach(r => { r.rk = Math.random(); });
+  shuffle();
+  const fmtDays = d => d < 60 ? Math.round(d) + ' d' : d < 730 ? Math.round(d / 30.44) + ' mo' : (d / 365.25).toFixed(1) + ' y';
+  const FU_MAX = 7300;   // 20 years: longer follow-ups (21 projects in R2026.34) come from age or date errors and are not ranked
+  const COLS = [
       {data: 'a', render: (d, t, r) => t === 'display' ? '<a class="mono" href="' + h(d) + '.html">' + h(d) + '</a>' + (r.ma ? ' <span class="tag acc' + (r.ma === 'controlled' ? '' : ' part') + '" title="' + (r.ma === 'controlled' ? 'Key metadata (age, condition) need an access application (dbGaP); the sequences are public' : 'Some metadata need an access application (dbGaP)') + '">A</span>' : '') + (r.grp ? ' <a class="tag grp" href="?group=' + h(r.grp) + '" title="One of ' + r.grpn + ' BioProjects of the same study — show them together">+' + (r.grpn - 1) + '</a>' : '') + (r.lg ? (r.lg === 2 ? ' <span class="tag lgt" title="Longitudinal, resolved: the same people were sampled more than once and the time between their samples is known (timeline on the project page)">L</span>' : ' <span class="tag lgt unres" title="Longitudinal, not resolved: the same people were sampled repeatedly, but the time between samples (or which samples belong to the same person) is not known yet">L</span>') : '') + (r.rd ? (r.rr ? ' <span class="tag rdt" title="Related or co-located people, resolved: people are linked to their samples (relationship diagrams on the project page): ' + h(r.rd.replaceAll(';', ', ').replaceAll('_', ' ')) + '">R</span>' : ' <span class="tag rdt unres" title="Related or co-located people described by the source, not resolved: which samples belong to which family / setting is not known yet: ' + h(r.rd.replaceAll(';', ', ').replaceAll('_', ' ')) + '">R</span>') : '') + (r.ivr ? (r.ivr === 2 ? ' <span class="tag ivt" title="Intervention study, arms resolved: every sample is assigned to an arm (arm diagram on the project page)">I</span>' : ' <span class="tag ivt unres" title="Intervention study, arms not resolved: which samples belong to which arm is not known yet">I</span>') : '') + (r.cc ? (r.cc === 2 ? ' <span class="tag cct" title="Cases and healthy controls, resolved: each sample says whether it comes from a case (a disease code) or a healthy control, at least 3 of each">C</span>' : ' <span class="tag cct unres" title="Case–control study described by the source, not resolved: the samples do not say which are cases and which are healthy controls">C</span>') : '') + (r.ms ? (r.ms === 2 ? ' <span class="tag mst" title="Same people at several body sites, resolved: ' + r.msn + ' people have samples from two or more body sites (matrix on the project page)">S</span>' : ' <span class="tag mst unres" title="Several body sites, not resolved: which samples come from the same person is not recorded">S</span>') : '') + (r.cx ? ' <span class="tag cxt" title="Self-contradictory metadata (' + r.cx + ' samples): ' + h(r.cxs || '') + '. Contradicted values are withheld.">!</span>' : '') : d + ' ' + (r.grp || '') + (r.cx ? ' contradictory' : '')},
       {data: 't', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1" title="' + h(r.tf || d) + '">' + h(d) + '</span>' : d + ' ' + (r.tf || '')},
-      {data: 'n', className: 'num', render: (d, t) => t === 'display' ? Number(d).toLocaleString() : d},
+      {data: 'n', name: 'n', className: 'num', render: (d, t) => t === 'display' ? Number(d).toLocaleString() : d},
       {data: 'na', defaultContent: '', render: (d, t) => t === 'display' ? (NAL_ALL[d] ? '<span class="nab ' + d + '" title="Data sets of this project: ' + NAL_ALL[d] + '">' + NAL_ALL[d] + '</span>' : '<span class="muted" title="No catalogued run records its library source">–</span>') : (NAL_ALL[d] || '')},
-      {data: 'bs', defaultContent: '', className: 'clipc', render: (d, t) => { const l = (d || []).map(c => SITE[c] || c.replaceAll('_', ' ')); return t === 'display' ? '<span class="clip1" title="' + h(l.join(', ')) + '">' + h(l[0] || '') + (l.length > 1 ? ' <span class="muted">+' + (l.length - 1) + '</span>' : '') + '</span>' : l.join(' '); }},
+      {data: 'bs', defaultContent: '', className: 'bsc', render: (d, t) => { const cs = d || [], l = cs.map(c => SITE[c] || c.replaceAll('_', ' ')); return t === 'display' ? (cs.length ? '<span class="bsis" title="' + h(l.join(', ')) + '">' + cs.slice(0, 3).map((c, i) => window.BSI ? BSI.icon(c, l[i]) : h(l[i])).join('') + (cs.length > 3 ? '<span class="muted bsmore">+' + (cs.length - 3) + '</span>' : '') + '</span>' : '') : l.join(' '); }},
       {data: 'ag', className: 'clipc', render: (d, t) => t === 'display' ? '<span class="clip1 mono" title="Age categories (samples): ' + h(d) + '">' + h((d || '').split(' ')[0].split(':')[0]) + '</span>' : d},
       {data: 'hc', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1 mono" title="Conditions present: ' + h((r.hcs || []).join(', ') || d) + '">' + h(d) + '</span>' : d},
       {data: 'iv', defaultContent: '', className: 'clipc', render: (d, t, r) => t === 'display' ? '<span class="clip1 mono" title="' + h((d || '').replaceAll(';', ', ') + (r.dz ? ' · design: ' + r.dz : '')) + '">' + h((d || '').replaceAll(';', ' · ')) + '</span>' : d},
       {data: 'co', className: 'mono'},
-      {data: 'p', className: 'num'},
-      {data: 'y', className: 'mono'},
+      {data: 'p', name: 'p', className: 'num'},
+      {data: 'y', name: 'y', className: 'mono'},
       {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 0, t)},
       {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 1, t)},
       {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 2, t)},
@@ -89,9 +96,46 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
       {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 4, t)},
       {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 5, t)},
       {data: 'sf', className: 'srcc', render: (d, t) => srcmk(d, 6, t)}{% if has_seq %},
-      {data: 'gs', className: 'num', render: (d, t) => t === 'display' ? (d === null || d === undefined ? '' : Number(d).toFixed(1)) : d}{% endif %}
-    ]
+      {data: 'gs', name: 'gs', className: 'num', render: (d, t) => t === 'display' ? (d === null || d === undefined ? '' : Number(d).toFixed(1)) : (d === null || d === undefined ? -1 : d)}{% endif %},
+      {data: 'np', name: 'np', className: 'num', visible: false, defaultContent: 0, render: (d, t) => t === 'display' ? (d ? Number(d).toLocaleString() : '<span class="muted">–</span>') : (d || 0)},
+      {data: 'fu', name: 'fu', className: 'num', visible: false, defaultContent: '', render: (d, t) => d > FU_MAX ? (t === 'display' ? '<span class="muted" title="' + fmtDays(d) + ' between one person\'s first and last sample — longer than 20 years, so probably an age or date error in the source records; under review">?</span>' : -1) : (t === 'display' ? (d ? fmtDays(d) : '<span class="muted">–</span>') : (d || -1))},
+      {data: 'mc', name: 'mc', className: 'num', visible: false, defaultContent: 0, render: (d, t) => t === 'display' ? (d || 0) + '&#160;%' : (d || 0)},
+      {data: 'rk', name: 'rk', visible: false, searchable: false}
+  ];
+  // order of the sheet (R2026.34): a random draw on arrival, or one of the sort buttons; columns People / Follow-up / Core metadata show while sorted by them
+  const ci = nm => COLS.findIndex(c => c.name === nm);
+  const SORTS = {n: 'most samples first', np: 'most people first', gs: 'deepest sequencing first (median gigabases per sample; set Min samples above to skip one-sample projects)', fu: 'longest follow-up first', mc: 'most complete core metadata first', y: 'newest first', p: 'most linked papers first'};
+  const HIDDEN = ['np', 'fu', 'mc'];
+  const mode0 = (prm.get('sort') in SORTS) ? prm.get('sort') : 'random';
+  const tbl = new DataTable('#studies', {
+    data: rows, autoWidth: false, layout: {topEnd: null}, search: {search: prm.get('q') || ''}, pageLength: 50, lengthMenu: [25, 50, 100, 500], deferRender: true,
+    order: mode0 === 'random' ? [[ci('rk'), 'asc']] : [[ci(mode0), 'desc'], [ci('n'), 'desc']], columns: COLS
   });
+  if (HIDDEN.includes(mode0)) tbl.column(ci(mode0)).visible(true);
+  const N_ALL = rows.length;
+  const note = () => {
+    const o = tbl.order()[0] || [], m = tbl.rows({search: 'applied'}).count(), filt = m < N_ALL, pl = tbl.page.len();
+    const cur = o[0] === ci('rk') ? 'random' : (Object.keys(SORTS).find(k => ci(k) === o[0] && o[1] === 'desc') || '');
+    for (const b of document.querySelectorAll('#sortbar .sb')) { const on = b.dataset.sort === cur; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+    const pool = filt ? 'the ' + m.toLocaleString() + ' projects that match your filters' : 'all ' + N_ALL.toLocaleString() + ' projects';
+    $('sb-note').innerHTML = cur === 'random'
+      ? (m > pl ? '<b>' + pl + ' projects picked at random</b> from ' + pool + ' — a new draw on every visit. <button type="button" class="sb-link" id="sb-shuffle">Shuffle again</button>, page on for more, or sort them:'
+                : '<b>' + (filt ? 'All ' + m.toLocaleString() + ' matching projects' : 'All projects') + '</b>, in random order.')
+      : '<b>' + (filt ? m.toLocaleString() + ' matching projects' : 'All ' + N_ALL.toLocaleString() + ' projects') + '</b>, ' + (SORTS[cur] || 'ordered by the column you chose') + '.';
+    const sh = $('sb-shuffle'); if (sh) sh.onclick = () => { shuffle(); tbl.rows().invalidate('data'); tbl.order([[ci('rk'), 'asc']]).draw(); };
+    const u = new URLSearchParams(location.search); if (cur && cur !== 'random') u.set('sort', cur); else u.delete('sort');
+    history.replaceState(null, '', location.pathname + (u.toString() ? '?' + u : '') + location.hash);
+  };
+  tbl.on('draw', note);
+  for (const b of document.querySelectorAll('#sortbar .sb')) b.addEventListener('click', () => {
+    const k = b.dataset.sort;
+    for (const x of HIDDEN) tbl.column(ci(x)).visible(x === k, false);
+    tbl.columns.adjust();
+    if (k === 'random') { shuffle(); tbl.rows().invalidate('data'); tbl.order([[ci('rk'), 'asc']]); } else tbl.order([[ci(k), 'desc'], [ci('n'), 'desc']]);
+    tbl.draw();
+  });
+  const SITE_N = {}; rows.forEach(r => (r.bs || []).forEach(c => { SITE_N[c] = (SITE_N[c] || 0) + 1; }));
+  if (window.BSI && $('bs-legend')) $('bs-legend').innerHTML = 'Body sites: ' + Object.keys(SITE_N).sort((a, b) => SITE_N[b] - SITE_N[a]).map(c => '<span class="bsleg">' + BSI.icon(c, SITE[c] || c) + h(SITE[c] || c.replaceAll('_', ' ')) + '</span>').join(' · ') + '. Hover a symbol for its name; up to three per project, then +n.';
   const sync = () => { const q = new URLSearchParams(); for (const k of P) { const el = $('pf-' + k); if (!el) continue; const v = el.type === 'checkbox' ? (el.checked ? '1' : '') : el.value.trim(); if (v) q.set(k, v); }
     history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); tbl.draw();
     $('pf-count').textContent = tbl.rows({search: 'applied'}).count().toLocaleString() + ' projects match';

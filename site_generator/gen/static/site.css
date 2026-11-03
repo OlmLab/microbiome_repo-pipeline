@@ -484,3 +484,16 @@ ul.ds-checks li{display:flex;gap:.45rem;margin:.25rem 0;line-height:1.38}
 details.ds-more{margin-top:.7rem}details.ds-more>summary{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#5f6365;font-weight:600;cursor:pointer}
 details.ds-more table.ds-el{margin-top:.3rem}
 .tag.cct{background:#e6f1e8;color:#24502f;border-color:#7fa98a}.tag.mst{background:#efe7f4;color:#4a2a5a;border-color:#a58bb5}
+/* body-site symbols (R2026.34) */
+.bsi{width:18px;height:18px;vertical-align:-4px;color:var(--cu-dark-gray);margin-right:2px;flex:none}
+.bsis{white-space:nowrap;cursor:default}.bsmore{font-size:.75rem;margin-left:1px}
+.ptbl td.bsc{min-width:3.2rem}
+.bsleg{white-space:nowrap}.bsleg .bsi{width:16px;height:16px;margin-right:3px;vertical-align:-3px}
+/* project sheet order bar (R2026.34) */
+.sortbar{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem 1.2rem;margin:.5rem 0 .7rem;padding:.6rem .9rem;background:var(--cu-pale-gold);border-left:5px solid var(--cu-gold);border-radius:8px}
+.sb-note{font-size:1rem;color:var(--ink)}
+.sb-btns{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem}
+.sb-lbl{font-size:.85rem;color:var(--cu-dark-gray);margin-right:.15rem}
+.sb{font:inherit;font-size:.85rem;border:1px solid #c9bd94;background:#fff;color:var(--ink);border-radius:999px;padding:.22rem .75rem;cursor:pointer}
+.sb:hover{border-color:var(--cu-black)}.sb.on{background:var(--cu-black);border-color:var(--cu-black);color:#fff}
+.sb-link{font:inherit;background:none;border:0;padding:0;color:var(--accent-text);text-decoration:underline;text-decoration-color:var(--cu-gold);text-underline-offset:2px;cursor:pointer}

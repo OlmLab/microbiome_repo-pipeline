@@ -19,6 +19,13 @@
 <p class="pg-links"><a href="https://www.ebi.ac.uk/ena/browser/view/{{ s.study_accession }}">ENA</a><a href="https://www.ncbi.nlm.nih.gov/bioproject/{{ s.study_accession }}">BioProject</a><a href="../samples/index.html?q={{ s.study_accession }}">Sample sheet</a><a href="../registry/index.html?study={{ s.study_accession }}">Registry</a><a href="#downloads">Download</a><a class="flag" href="{{ flag_url }}">Flag an issue</a></p>
 </header>
 
+<section class="pg-sec" id="sources">
+<div class="pg-label">Sources</div>
+<div class="srcrow">{% for x in s.sources %}<span class="srcitem {{ x.status }}" title="{{ x.label }}: {{ x.text }}{% if x.extra %} · {{ x.extra }}{% endif %}"><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span>{{ x.label }}{% if x.status == 'used' %} <span class="muted">{{ x.text.split(' sample values')[0] }}</span>{% endif %}</span>{% endfor %}</div>
+<p class="small muted">Checked this project's papers and archive records yourself? <a href="{{ verify_url }}">Mark it human-verified</a>.</p>
+<details class="pg-more"><summary>what each source gave</summary><table class="tbl small compact">{% for x in s.sources %}<tr><td><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span> {{ x.label }}</td><td>{{ x.text }}{% if x.links %} · from {% for r in x.links %}{% if r.id %}<a href="../about/external.html#{{ r.id }}">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}{% elif x.extra %} · <span class="mono">{{ x.extra }}</span>{% endif %}{% if x.key == 'contribution' and x.status != 'used' and help %} · <a href="{{ help.issue_url }}">share metadata</a>{% endif %}{% if x.key == 'verified' %} · <a href="{{ verify_url }}">{% if x.status == 'used' %}add your check{% else %}I checked this project — verify it{% endif %}</a>{% endif %}</td></tr>{% endfor %}</table></details>
+</section>
+
 <section class="pg-sec" id="study-design">
 <div class="pg-label">Study design</div>
 {% if design_card %}{{ design_card|safe }}{% else %}<p class="small muted">No specimens with sample records in this project.</p>{% endif %}
@@ -50,13 +57,6 @@
 <p class="small muted"><a href="../about/value_sources.html#design">How longitudinal and relatedness information is derived</a></p>
 </section>
 {% endif %}
-
-<section class="pg-sec" id="sources">
-<div class="pg-label">Sources</div>
-<div class="srcrow">{% for x in s.sources %}<span class="srcitem {{ x.status }}" title="{{ x.label }}: {{ x.text }}{% if x.extra %} · {{ x.extra }}{% endif %}"><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span>{{ x.label }}{% if x.status == 'used' %} <span class="muted">{{ x.text.split(' sample values')[0] }}</span>{% endif %}</span>{% endfor %}</div>
-<p class="small muted">Checked this project's papers and archive records yourself? <a href="{{ verify_url }}">Mark it human-verified</a>.</p>
-<details class="pg-more"><summary>what each source gave</summary><table class="tbl small compact">{% for x in s.sources %}<tr><td><span class="srcmk {{ x.status[0] }}">{% if x.status == 'used' %}✓{% elif x.status == 'checked' %}○{% else %}–{% endif %}</span> {{ x.label }}</td><td>{{ x.text }}{% if x.links %} · from {% for r in x.links %}{% if r.id %}<a href="../about/external.html#{{ r.id }}">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}{% elif x.extra %} · <span class="mono">{{ x.extra }}</span>{% endif %}{% if x.key == 'contribution' and x.status != 'used' and help %} · <a href="{{ help.issue_url }}">share metadata</a>{% endif %}{% if x.key == 'verified' %} · <a href="{{ verify_url }}">{% if x.status == 'used' %}add your check{% else %}I checked this project — verify it{% endif %}</a>{% endif %}</td></tr>{% endfor %}</table></details>
-</section>
 
 
 <section class="pg-sec">

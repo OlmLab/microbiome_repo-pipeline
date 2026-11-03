@@ -1375,6 +1375,8 @@ def main():
             rel = f.relative_to(HERE / 'static')
             (out / 'static' / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(f, out / 'static' / rel)
+    if (HERE / 'static' / 'icons' / 'favicon.ico').exists():   # browsers ask for /favicon.ico when a page names no icon
+        shutil.copyfile(HERE / 'static' / 'icons' / 'favicon.ico', out / 'favicon.ico')
     (out / '.nojekyll').write_text('')
     rep = Path(a.reports) if a.reports else None
 
@@ -1835,7 +1837,17 @@ def main():
         return [k for k, _ in sorted(d_.items(), key=lambda kv: (-kv[1], kv[0]))] if d_ else [c for c in split_list(s_.get('body_sites')) if c != 'unknown_site']
     _ivlab = {c: (v or {}).get('label', c) for c, v in iv_voc.items()}
     _letters = {s['study_accession']: SD.letters(s, cw_by_study.get(s['study_accession'], cw.iloc[0:0])) for s in studies}   # C / S markers
-    sidx_rows = [dict(**study_filters(s['study_accession']), **_letters.get(s['study_accession'], {}), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
+    # sort buttons of the project sheet (R2026.34): metadata completeness = mean share of samples with a value over the core fields
+    _mc, _hs = {}, []
+    for f_ in CORE_FIELDS:
+        ser_ = field_series(cw, f_, DERIVED) if len(cw) else None
+        if ser_ is not None:
+            _hs.append((ser_.notna() & (ser_.astype(str) != 'unknown')).groupby(cw['study_accession']).mean())
+    if _hs:
+        _mc = (pd.concat(_hs, axis=1).fillna(0).mean(axis=1) * 100).round(0).astype(int).to_dict()
+    _num = lambda v: None if isnull(v) else float(v)
+    sidx_rows = [dict(**study_filters(s['study_accession']), np=int(_num(s.get('n_subjects')) or 0), fu=(round(_num(s.get('followup_days_max'))) if _num(s.get('followup_days_max')) else None),
+                      mc=int(_mc.get(s['study_accession'], 0)), **_letters.get(s['study_accession'], {}), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
                       bs=_sites_of(s), na=(s.get('nucleic_acid') or 'unclear') if not isnull(s.get('nucleic_acid')) else 'unclear',
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],

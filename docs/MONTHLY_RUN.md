@@ -81,6 +81,12 @@ by `release`) keeps the package's release notes and changelog to the releases fr
   (`S01_stool` vs `S01_saliva`); (5) archive attribute names as a hint for the time variable (PRJNA385009); (6) a gate
   for collection dates used as time axes when the source states study days; (7) aligning a stated visit schedule
   (weeks 0, 4, 12) with ordinal codes 1, 2, 3 — Opus check required for every alignment.
+* Follow-up over 20 years (found while adding the project sheet's sort buttons): 21 projects, which the sheet does not rank
+  ("?") — PRJEB55648, PRJEB38909, PRJNA1169096, PRJEB50408, PRJEB27661, PRJEB74322, PRJEB83236, PRJNA419524, PRJEB42155,
+  PRJEB101630, PRJEB59450, PRJEB1220, PRJEB29373, PRJEB22863, PRJNA1300398, PRJEB39813 (age axis) and PRJEB91718,
+  PRJNA928758, PRJNA785545, PRJEB32762, PRJNA1031616 (date axis). Likely causes: subject ids that group different people,
+  ages misread (PRJEB38909: `age_of_first_use_tos`), placeholder dates. Give them to an Opus check of subject ids and
+  time values, then add a plausibility gate (follow-up ≤ 20 years unless the source states it) in the timing build.
 * Study design: 12 projects still carry "two readings differed"; ~1,015 projects whose source compares groups that no
   sample variable separates and ~200 trials whose arms are not per sample remain (R2026.33 page checks).
 * Machine pauses: the final build in R2026.34 stopped for hours while the machine slept; the build is restartable
