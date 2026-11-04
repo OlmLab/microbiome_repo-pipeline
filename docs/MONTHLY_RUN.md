@@ -1,5 +1,11 @@
 # The monthly run
 
+> **Frozen benchmark version — do not alter.** The owner benchmarks Microbiome Repo against hand-curated metadata at
+> release **R2026.35 / package 1.29.1** (DOI 10.5281/zenodo.23938350; site build `0bf5ec2`, package generator `6d77bb5`,
+> pipeline tag `benchmark-R2026.35`). Never re-tag or force-push `data-v1.29.1` or `site-v1.29.1`, and never edit or delete
+> `~/catalog/frozen_releases/R2026.35_package_1.29.1/` (complete copy: published release files with checksums, the deployed
+> site, the data repository, the pipeline source and history; see its `MANIFEST.md`). Later releases get new versions.
+
 One command per stage, in order. Every stage is resumable: it skips what is already in the cache, so a stage that
 stops halfway can simply be run again. Model calls are capped per stage and recorded in that stage's `ledger.csv`;
 refusals are stored and never re-sent.
