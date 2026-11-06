@@ -381,6 +381,7 @@ releases:
     previous_release_id: R2026.35
     notes_file: RELEASE_NOTES_R2026.36.md
     data_tag: data-v1.30.0
+    doi: 10.5281/zenodo.24023463
     site_tag: site-v1.30.0
     label: "integrity release: Sandpiper 2.0.1 tables rebuilt for current samples with full QC flags, release integrity checks, value gates, per-person sex / country, filter I2 audit"
 
