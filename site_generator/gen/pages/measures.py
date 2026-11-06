@@ -21,9 +21,12 @@ def _pct(x, d=1):
 
 def build(render, ctx, out_dir):
     src = Path(ctx["measures_dir"])
-    if not (src / "measures.json").exists():
-        return None
     out_dir = Path(out_dir)
+    if not (src / "measures.json").exists():   # build without the payload: keep the Atlas nav link resolvable
+        render("atlas_measures_missing.html", "atlas/measures.html", "../", nav="atlas", sub="measures",
+               crumbs=[dict(label="Home", href="../index.html"), dict(label="Atlas", href="index.html"), dict(label="Profile measures")])
+        return dict(page="atlas/measures.html", placeholder=True)
+    study_pages = {q.stem for q in (out_dir / "studies").glob("*.html")}   # link only projects with a page in this build
     dst = out_dir / "data" / "measures"
     if dst.exists():
         shutil.rmtree(dst)
@@ -45,6 +48,6 @@ def build(render, ctx, out_dir):
     spf.sort(key=lambda r: -r["median"])
     render("atlas_measures.html", "atlas/measures.html", "../", nav="atlas", sub="measures", use_datatables=True, M=M,
            head=dict(n_current=n_cur, n_profiled=n_prof, share=_pct(n_prof / n_cur)), reasons=reasons, per_site=per_site,
-           by_site=by_site, spf=spf, kn_big=kn_big, stats=ctx.get("stats", {}),
+           by_site=by_site, spf=spf, kn_big=kn_big, stats=ctx.get("stats", {}), study_pages=study_pages,
            crumbs=[dict(label="Home", href="../index.html"), dict(label="Atlas", href="index.html"), dict(label="Profile measures")])
     return dict(page="atlas/measures.html", n_current=n_cur, n_profiled=n_prof)

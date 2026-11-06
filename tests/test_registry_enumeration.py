@@ -80,8 +80,12 @@ def test_candidate_class_prior_nonhuman():
 
 
 def test_slice_queries_exclude_metatranscriptomic():
+    # DNA slices S1-S3 never pull metatranscriptomes; RNA projects come only from their own slice (S4, kept apart from DNA since R2026.31)
     for sid, tag, q, parts in ER.build_slices():
-        assert "METATRANSCRIPTOMIC" not in q
+        if sid == "S4":
+            assert tag == "rna_human" and 'library_source="METATRANSCRIPTOMIC"' in q
+        else:
+            assert "METATRANSCRIPTOMIC" not in q
     s1 = [s for s in ER.build_slices() if s[0] == "S1"][0]
     assert s1[3] and s1[3][0][0] == "y2010"
     assert 'library_source="METAGENOMIC"' in s1[2]

@@ -15,7 +15,7 @@ from catalog import models  # noqa: E402
 
 class FakeHost:
     def list_models(self):
-        return ["claude-haiku-4-5", "claude-sonnet-4-5", "claude-opus-4-1", "claude-sonnet-5"]
+        return ["claude-haiku-4-5", "claude-sonnet-4-5", "claude-opus-4-1", "claude-opus-5", "claude-sonnet-5"]
 
     def reasoning_model(self):
         return "claude-sonnet-5"
@@ -38,7 +38,7 @@ def test_set_host_explicit():
     models.set_host(FakeHost())
     assert models.resolve_model("rubric") == "claude-sonnet-5"
     assert models.resolve_model("screen") == "claude-haiku-4-5"
-    assert models.resolve_model("adjudicate") == "claude-opus-4-1"
+    assert models.resolve_model("adjudicate") == "claude-opus-5"   # config/models.yaml pins adjudicate to Opus 5 (owner, 2026-10-28)
 
 
 def test_header_under_kernel_like_namespace():

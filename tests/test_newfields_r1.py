@@ -195,7 +195,7 @@ def test_pack_fields_from_config():
         assert f in pf["fields"]
     assert "detailed_location" in pf["compose"] and pf["compose"]["detailed_location"]["compose"] == ["location_site", "location_locality", "location_region"]
     assert pf["year_of"] == {"collection_year": "collection_date"}
-    assert pf["core"] == ["age_category", "country", "health_condition", "subject_id"]   # R2026.15: core age = life stage
+    assert pf["core"] == ["body_site_code", "age_category", "country", "health_condition", "subject_id"]   # R2026.15: core age = life stage; 2026-10-31: body site core
     assert "detailed_location" in pf["key"] and "lifestyle" in pf["key"] and "collection_date" in pf["key"]
     assert set(pf["infant_only"]) >= {"delivery_mode", "feeding_mode", "nec_status"}
     # 1.13.0: the pack also declares diet / smoking_status (vocab), medication (vocab_list) and stool_consistency_bristol (int 1-7)
