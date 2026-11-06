@@ -1,0 +1,3 @@
+study_accession,field,rule_id,why
+PRJEB1220,age_at_collection_days,P36_age_contradictory,confidence 0.6 < 0.7
+PRJEB29373,age_at_collection_days,P36_age_table_rows,confidence 0.6 < 0.7

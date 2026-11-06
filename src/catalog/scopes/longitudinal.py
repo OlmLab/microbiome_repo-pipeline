@@ -282,3 +282,72 @@ def relatedness(w: pd.DataFrame, design: pd.DataFrame | None = None, relations: 
     S = pd.DataFrame(rows, columns=["study_accession", "n_families", "n_related_people", "n_mother_child_families", "n_twin_sets", "n_shared_settings", "family_motifs",
                                     "shared_setting_types", "relatedness_designs", "relatedness_summary"]).set_index("study_accession")
     return G, S
+
+
+INVARIANT_FIELDS = ("sex", "country")
+
+
+def propagate_person_invariants(w: pd.DataFrame, det: pd.DataFrame, release_id: str, package_version: str,
+                                fields=INVARIANT_FIELDS, exclude_projects: dict | None = None):
+    """R2026.36: copy a person's sex / country to that person's samples that lack it.
+
+    A person is a (study_accession, person_key) pair — person_key is the project's subject id and is unique only within a
+    project (9,577 ids recur across projects in 1.29.1). Only real people are used (person_key not 'sample:…'), only specimen
+    samples receive values, and only when every sample of the person that has the field agrees on one value. People whose
+    samples disagree are reported, never overwritten. exclude_projects: {field: set(study_accession)} where the person grouping
+    was found unreliable for that field. Each filled value gets a determination row that copies the donor row's evidence
+    (highest confidence among the person's samples), names the donor sample in parse_note, and carries the donor's
+    confidence × 0.95 and route; determined_by = 'person_invariant_v1'.
+    Returns (w, new determination rows, report dict)."""
+    w = w.copy()
+    real = w.person_key.notna() & ~w.person_key.astype(str).str.startswith("sample:")
+    spec = w.sample_type.eq("specimen") if "sample_type" in w.columns else pd.Series(True, index=w.index)
+    key = w.study_accession.astype(str) + "\x1f" + w.person_key.astype(str)
+    cur = det[det.release_retired.isna()] if "release_retired" in det.columns else det
+    new_rows, report = [], {}
+    for f in fields:
+        if f not in w.columns:
+            continue
+        has = real & w[f].notna()
+        nun = w.loc[has, f].astype(str).groupby(key[has]).nunique()
+        conflict_keys = set(nun[nun > 1].index)
+        one = nun[nun == 1].index
+        excl = set((exclude_projects or {}).get(f, set()))
+        tgt = real & spec & w[f].isna() & key.isin(set(one)) & ~w.study_accession.isin(excl)
+        if not tgt.any():
+            report[f] = {"filled": 0, "projects": 0, "conflicting_people": len(conflict_keys)}
+            continue
+        # donor determination row per person: highest confidence, then route rank, then sample_key
+        donors = w.loc[has & key.isin(set(key[tgt])), ["sample_key"]].assign(k=key)
+        d = cur[(cur.field_name == f) & cur.sample_key.isin(set(donors.sample_key))].merge(donors, on="sample_key")
+        d = d.assign(_rr=d.route.map({"R1": 1, "R2": 2, "R3": 3, "R4": 4}).fillna(9)).sort_values(
+            ["k", "confidence", "_rr", "sample_key"], ascending=[True, False, True, True]).drop_duplicates("k")
+        nd = has.groupby(key).sum()
+        d = d.set_index("k")
+        t = w.loc[tgt, ["sample_key", "study_accession"]].assign(k=key[tgt])
+        t = t[t.k.isin(d.index)]
+        rows = d.loc[t.k].reset_index(drop=True).drop(columns=["_rr"])
+        rows["sample_key"] = t.sample_key.to_numpy()
+        rows["confidence"] = (pd.to_numeric(rows.confidence, errors="coerce") * 0.95).round(3)
+        donor = d.loc[t.k, "sample_key"].to_numpy()
+        rows["parse_note"] = [f"same person ({k_.split(chr(31), 1)[1]}) as {ds}; value carried by {int(nd[k_])} sample(s) of this person, none disagree"
+                              for ds, k_ in zip(donor, t.k)]
+        rows["determined_by"] = "person_invariant_v1"
+        rows["src_track"] = "person_invariant"
+        rows["scope"] = "sample"
+        rows["release_added"], rows["release_retired"], rows["package_added"] = release_id, None, package_version
+        val = rows.set_index("sample_key").value_normalized
+        conf = rows.set_index("sample_key").confidence
+        route = rows.set_index("sample_key").route
+        idx = w.index[tgt & w.sample_key.isin(set(rows.sample_key))]
+        sk = w.loc[idx, "sample_key"]
+        w.loc[idx, f] = sk.map(val).to_numpy()
+        if f"{f}__confidence" in w.columns:
+            w.loc[idx, f"{f}__confidence"] = sk.map(conf).to_numpy()
+        if f"{f}__route" in w.columns:
+            w.loc[idx, f"{f}__route"] = sk.map(route).to_numpy()
+        new_rows.append(rows[det.columns.intersection(rows.columns)])
+        report[f] = {"filled": int(len(idx)), "projects": int(w.loc[idx, "study_accession"].nunique()),
+                     "conflicting_people": len(conflict_keys), "excluded_projects": sorted(excl)}
+    out = pd.concat(new_rows, ignore_index=True) if new_rows else det.iloc[0:0].copy()
+    return w, out, report

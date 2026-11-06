@@ -17,3 +17,4 @@ PRJNA1063190,design,R2026.32: both readings of the catch-up pass were refused by
 PRJNA1119711,design,R2026.32: both readings of the catch-up pass were refused by the model's content filter (pathogen / infection subject)
 PRJNA281532,design,R2026.32: both readings of the catch-up pass were refused by the model's content filter (pathogen / infection subject)
 PRJNA933944,design,R2026.32: both readings of the catch-up pass were refused by the model's content filter (pathogen / infection subject)
+PRJNA1157371,subject,"R2026.36: subject ids withdrawn — the archive participant_ID is a leaked spreadsheet row reference (=A100) reused at every site (Opus reading, data/inputs/gut/verify_r2026_36/Country_conflicts.json); the archive has no per-person identifier"

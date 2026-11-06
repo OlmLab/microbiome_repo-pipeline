@@ -30,6 +30,12 @@ import re as _re
 FRAME_TOKEN_RE = re.compile(r'\s*\((?:frame|session)\s+[0-9a-f]{6,}[^)]*\)|\b(?:frame|session)\s+[0-9a-f]{8,}\b')
 
 
+
+DESCRIPTION_UPDATES = [
+    ("| `person_key` | string | person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key> |",
+     "| `person_key` | string | person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key>. Unique only WITHIN a project (the same subject id recurs across projects): identify a person by (`study_accession`, `person_key`) |"),
+]
+
 def sanitise_session_tokens(package: str) -> dict:
     """F7: strip session/frame identifiers from free-text columns of published tables (note, evidence, validator_msg)."""
     out = {}
@@ -326,7 +332,7 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
                   "catalog_metadata_contradictions.parquet": "**Self-contradictory metadata (R2026.25)**: one row per withheld sample × field — two sample-level sources with incompatible values (sex, country, antibiotics yes/no, age > max(30 d, 20 %), BMI > 2, healthy_control vs a disease) or one subject id whose samples disagree on sex; value_a / source_a / quote_a and value_b / source_b / quote_b, handling (the value is not published) and a note. Project pages show a red ! badge",
                   "catalog_pass_coverage.csv": "**Annotation pass coverage (R2026.25)**: one row per catalog project — whether each applicable pass ran (full text, abstract, interventions, deep per-sample, supplementary tables, subject_id, study design); the release fails when a pass never ran without a recorded exception",
                   "catalog_runs.parquet": "**Catalog runs (R2026.12)**: one row per sequencing run of a catalog sample — nucleic_acid (dna / rna) and rrna_read_share where measured, accessions, library strategy / source / layout, instrument, read and base counts, first_public, sandpiper_profiled and the catalog sample_key (run-unit samples keyed by run accession)",
-                  "catalog_sandpiper_sample_summary.parquet": "**Sandpiper community profiles for the whole catalog (R2026.12)**: one row per catalog sample with a SingleM/Sandpiper 2.0.0 profile (GTDB R232) — profiled runs, depth proxy, genus richness, Shannon, top genus, QC flags; the genus- and species-level long tables (catalog_sandpiper_sample_genus / _species) ship as release assets in parts",
+                  "catalog_sandpiper_sample_summary.parquet": "**Sandpiper community profiles for the whole catalog (R2026.12)**: one row per current catalog sample with a SingleM/Sandpiper profile (GTDB R232; version in `sandpiper_version`, 2.0.1 from package 1.30.0) — profiled runs, depth proxy, genus richness, Shannon, top genus, QC flags; the genus- and species-level long tables (catalog_sandpiper_sample_genus / _species) ship as release assets in parts",
                   "catalog_sandpiper_pca_scores.parquet": "Genus-level CLR-PCA scores (pc1-pc5) of every profiled sample with root coverage >= 2 — the data behind Atlas › PCA",
                   "catalog_sandpiper_pca_loadings.parquet": "Genus loadings of the same PCA", "catalog_sandpiper_pca_variance.csv": "Explained variance ratio per component", "catalog_sandpiper_study_coverage.csv": "Sandpiper join coverage per catalog study",
                   "registry_biosamples.parquet": "**Registry sample tier (R2026.5)**: one row per harvested BioSample of the human_all registry studies outside the curated infant catalog — body site, life stage / age_days, sex, country, collection year normalised to the vocabularies (utility-model pass over distinct attribute pairs, docs/REGISTRY_S2_PILOT.md), raw key/value provenance, disease text unnormalised",
@@ -340,7 +346,8 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
     # catalog files outside the frozen schema (documented in the generated column reference) still get a Files row
     for fn, desc in [("catalog_sample_determinations_conflicts.parquet", "Competing values not committed: one row per sample × field × alternative value where sources disagree, with its evidence (the committed value is in `catalog_sample_determinations`)"),
                      ("catalog_sandpiper_study_panels.parquet", "Composition panel per project: mean relative abundance of the top genera / phyla over the profiled samples of the project's most-profiled body site (`panel_body_site`)"),
-                     ("CATALOG_SANDPIPER_REPORT.md", "How the catalog samples were joined to Sandpiper profiles: streaming pass, join coverage, QC flags, tables, PCA")]:
+                     ("CATALOG_SANDPIPER_REPORT.md", "How the catalog samples were joined to Sandpiper profiles: streaming pass, join coverage, QC flags, tables, PCA"),
+                     ("catalog_rejected_values.parquet", "Values taken out by the plausibility gates and checked corrections (R2026.36): the original determination row with `rejection_rule` and `rejection_reason` (ages below 0 or above 122 years; Opus-checked corrections in data/inputs/gut/plausibility_corrections.csv of the pipeline)")]:
         if os.path.exists(os.path.join(pkg, fn)) and f"| `{fn}`" not in s:
             readme_rows.append(f"| `{fn}` | {(f'{_rows(os.path.join(pkg, fn)):,}' if fn.endswith('.parquet') else '')} | {desc} |")
     if readme_rows:
@@ -350,6 +357,11 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
         open(rp, "w", encoding="utf-8").write(s)
     dp = os.path.join(pkg, "DATA_DICTIONARY.md")
     d = open(dp, encoding="utf-8").read()
+    # R2026.36: column descriptions corrected in place (the dictionary is carried from release to release); idempotent
+    for old_, new_ in DESCRIPTION_UPDATES:
+        if old_ in d and new_ not in d:
+            d = d.replace(old_, new_)
+    open(dp, "w", encoding="utf-8").write(d)
     if "## Registry tier" in d:  # section exists from an earlier release: append blocks for tables documented since (R2026.5 side tables)
         blocks = []
         for fn in [f for f in schema if f != "registry_runs.parquet" and os.path.exists(os.path.join(pkg, f)) and f"### {f}" not in d]:

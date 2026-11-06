@@ -205,6 +205,10 @@ release:         ## stage 5 (R2026.n) — unpack → findings → assemble → b
 	@if [ -f "$(PKG_OUT)/catalog_sample_metadata_wide.parquet" ]; then $(PY) scripts/check_unharvested.py --wide $(PKG_OUT)/catalog_sample_metadata_wide.parquet --studies $(PKG_OUT)/catalog_studies.parquet --runs $(REGISTRY_RUNS) --attributes $(REGISTRY_ATTRIBUTES) --exclusions config/sample_exclusions.csv --out $(BUILD)/gut/unharvested_biosamples.csv; fi
 	@if [ -f "$(PKG_OUT)/catalog_studies.parquet" ]; then $(PY) scripts/check_pass_coverage.py --gut-dir $(GUT_DIR) --studies $(PKG_OUT)/catalog_studies.parquet --out $(PKG_OUT)/catalog_pass_coverage.csv --max $(PASS_COVERAGE_MAX); fi
 	@if [ -f "$(REGISTRY_UNIVERSE)" ] && [ -n "$(wildcard $(REGISTRY_EXTRA))" ]; then $(PY) -m catalog.registry.add_registry_tables --package $(PKG_OUT) --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC) $(wildcard $(REGISTRY_EXTRA)); else echo "no extra registry tables ($(REGISTRY_EXTRA))"; fi
+	@# R2026.36: Sandpiper tables rebuilt for THIS package's current samples before they are copied in (≈ 5 min; skipped when the bulk file is absent)
+	@if [ -f "$(SP_REFRESH_BULK)" ]; then $(PY) scripts/refresh_sandpiper.py --bulk $(SP_REFRESH_BULK) --per-acc $(SP_REFRESH_PER_ACC) --version $(SP_REFRESH_VERSION) --record $(SP_REFRESH_RECORD) \
+	  --catalog-dir $(PKG_OUT) --work $(BUILD)/sandpiper_refresh --out $(DATA)/catalog/sandpiper --previous $(DATA)/catalog/sandpiper --registry-runs $(REGISTRY_SANDPIPER) --update-package; \
+	  else echo "no Sandpiper bulk file at $(SP_REFRESH_BULK) — Sandpiper tables not rebuilt"; fi
 	@if [ -d "$(GUT_SANDPIPER_DIR)" ]; then for f in sample_summary.parquet pca_scores.parquet pca_loadings.parquet pca_variance.csv study_coverage.csv; do cp $(GUT_SANDPIPER_DIR)/gut_sandpiper_$$f $(PKG_OUT)/catalog_sandpiper_$$f; done && cp $(GUT_SANDPIPER_DIR)/GUT_SANDPIPER_REPORT.md $(PKG_OUT)/CATALOG_SANDPIPER_REPORT.md && $(PY) scripts/gut_sandpiper_panels.py --genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet --summary $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet --wide $(PKG_OUT)/catalog_sample_metadata_wide.parquet --out $(PKG_OUT)/catalog_sandpiper_study_panels.parquet; else echo "no catalog Sandpiper tables ($(GUT_SANDPIPER_DIR))"; fi
 	$(PY) scripts/public_history.py $(PKG_OUT)
 	$(MAKE) package-docs
@@ -243,7 +247,12 @@ site:            ## stage 6 — build the static site from the package (determin
 	  --base-url $(BASE_URL) --build-date $$($(PY) -c "import json;print(json.load(open('$(PKG_OUT)/VERSION.json'))['build_date'])")
 	cp $(PKG_OUT)/VERSION.json $(SITE_OUT)/data/VERSION.json
 
+measures:        ## R2026.36: Atlas › Profile measures payload (scripts/sandpiper_measures.py) from the built package + Sandpiper tables; run after `make release`, before `make site` (≈ 2 min, ≈ 11 GB RAM)
+	$(PY) scripts/sandpiper_measures.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --countries $(ATLAS_DATA)/countries.json \
+	  --basemap site_generator/gen/static/vendor/countries-110m.json --cutoff $(SANDPIPER_CUTOFF) --out $(DATA)/site/measures
+
 verify:          ## local subset of .github/workflows/verify.yml (link check + duckdb read + manifest/zip check); Playwright runs in Actions
+	$(PY) -m catalog.release.integrity_checks --package $(PKG_OUT) --out $(BUILD)/integrity_checks.json --sandpiper-genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet
 	$(PY) site_generator/gen/check_links.py $(SITE_OUT)
 	$(PY) -c "import duckdb,glob;[print(duckdb.sql(f\"select count(*) from read_parquet('{f}')\").fetchone()[0], f) for f in glob.glob('$(SITE_OUT)/data/**/*.parquet', recursive=True)]"
 	$(PY) -m catalog.make_version --package $(PKG_OUT) --check --zip $(PKG_ZIP_OUT)
@@ -340,10 +349,21 @@ LEGACY_TABLES := gut_studies.parquet gut_sample_metadata_wide.parquet gut_sample
 # release check: project-passes never attempted that are allowed (0 = every applicable pass must have run; exceptions in config/pass_coverage_exceptions.csv)
 PASS_COVERAGE_MAX ?= 0
 # whole-catalog Sandpiper tables (leaf outputs; filter_gut.py + build_gut_tables.py regenerate them from the bulk snapshot)
-# R2026.31: data/inputs/catalog/sandpiper = the same tables extended to every catalog sample (scripts/extend_sandpiper.py)
+# R2026.36: data/inputs/catalog/sandpiper = every table rebuilt for the current catalog samples (scripts/refresh_sandpiper.py; R2026.31 extended them with scripts/extend_sandpiper.py)
 GUT_SANDPIPER_DIR ?= $(if $(wildcard $(DATA)/catalog/sandpiper/gut_sandpiper_sample_summary.parquet),$(DATA)/catalog/sandpiper,$(GUT_DIR)/sandpiper)
 # precomputed Atlas payload (taxa.json, matrix_*.bin, observations.json, obs/) — pages/atlas.py precompute + scripts/atlas_observations.py
 ATLAS_DATA   ?= $(GUT_DIR)/atlas
+# R2026.36: projects where sex / country are not propagated within people (study_accession,field,reason)
+PERSON_INVARIANT_EXCLUSIONS ?= $(GUT_DIR)/person_invariant_exclusions.csv
+# R2026.36: Sandpiper snapshot the release rebuilds its tables from (scripts/refresh_sandpiper.py)
+SP_REFRESH_VERSION ?= 2.0.1
+SP_REFRESH_RECORD  ?= 21287531
+SP_REFRESH_BULK    ?= $(CACHE_DIR)/sandpiper_bulk/v$(SP_REFRESH_VERSION)/sp/sandpiper$(SP_REFRESH_VERSION).gtdb.csv.gz
+SP_REFRESH_PER_ACC ?= $(CACHE_DIR)/sandpiper_bulk/v2.1.0/sandpiper2.0.1.per_acc_summary.csv.gz
+# Sandpiper screening cut-off of the bulk snapshot in use (2.0.x: raw metagenomes public up to 3 March 2026)
+SANDPIPER_CUTOFF ?= 2026-03-03
+# R2026.36: checked value corrections (study_accession,field,sample_keys,action,rule_id,reason,evidence_source,evidence_quote)
+PLAUSIBILITY_CORRECTIONS ?= $(GUT_DIR)/plausibility_corrections.csv
 
 atlas-observations: ## recompute the Atlas observation cards (obs/*.png + obs/*.csv + observations.json) from the Sandpiper tables + the released wide table → $(ATLAS_DATA); HDI = site_generator/gen/data/undp_hdr2025_hdi_2023.csv
 	@test -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" || { echo "Sandpiper genus table missing: $(GUT_SANDPIPER_DIR)"; exit 1; }
@@ -357,7 +377,8 @@ gut-build:       ## curated scope gut_all — gut_studies / gut_sample_metadata_
 	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --r1-infant "$(GUT_R1_INFANT)" --sample-exclusions "$(GUT_SAMPLE_EXCLUSIONS)" --sample-types "$(GUT_SAMPLE_TYPES)" --metadata-access "$(GUT_METADATA_ACCESS)" --deep-glob "$(GUT_DEEP_GLOB)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --contradiction-extra "$(GUT_CONTRA_EXTRA)" --timing-samples "$(GUT_TIMING_SAMPLES)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
 	  --registry-runs $(firstword $(wildcard $(CATALOG_RUNS)) $(REGISTRY_RUNS)) --registry-sandpiper $(REGISTRY_SANDPIPER) --read-checks "$(READ_CHECKS)" \
 	  $(if $(wildcard $(CATALOG_IN)/extra_studies.parquet),--extra-studies $(CATALOG_IN)/extra_studies.parquet --extra-biosamples $(CATALOG_IN)/extra_biosamples.parquet --extra-determinations $(CATALOG_IN)/extra_determinations.parquet --study-facts $(CATALOG_IN)/study_facts.parquet --short-descriptions-extra $(CATALOG_IN)/short_descriptions_extra.parquet,) \
-	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC)
+	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC) \
+	  $(if $(wildcard $(PERSON_INVARIANT_EXCLUSIONS)),--person-invariant-exclusions $(PERSON_INVARIANT_EXCLUSIONS),) $(if $(wildcard $(PLAUSIBILITY_CORRECTIONS)),--plausibility-corrections $(PLAUSIBILITY_CORRECTIONS),)
 	@if [ -f "$(CATALOG_IN)/exposure_items.parquet" ]; then cp $(CATALOG_IN)/exposure_items.parquet $(GUT_OUT)/catalog_exposure_items.parquet; fi
 	@if [ -f "$(CATALOG_IN)/study_papers.parquet" ]; then cp $(CATALOG_IN)/study_papers.parquet $(GUT_OUT)/catalog_study_papers.parquet; fi
 

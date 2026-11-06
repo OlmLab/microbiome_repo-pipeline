@@ -1,0 +1,606 @@
+{
+ "reading": "I2_audit_3",
+ "projects": [
+  {
+   "study_accession": "PRJNA1018443",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After treatment with empiric antibiotics, his inflammatory parameters decreased without significant relief of abdominal pain.",
+     "evidence_source": "Europe PMC abstract PMID 37808911",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Empirical then pathogen-targeted antibiotics given as clinical care to one cirrhotic patient with spontaneous bacterial peritonitis; ascites sampled diagnostically for mNGS.",
+   "note": "Single-patient diagnostic case report; the antibiotics were prescribed by the treating team, not by a research protocol."
+  },
+  {
+   "study_accession": "PRJNA1178429",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Treatment involved oral oseltamivir and fluid replacement for headache/intracranial pressure.",
+     "evidence_source": "Europe PMC abstract PMID 41605063",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Oral oseltamivir plus fluid replacement given clinically to a 51-year-old woman with influenza B-associated encephalitis; CSF sampled for mNGS.",
+   "note": "Diagnostic case report; treatment decisions were clinical."
+  },
+  {
+   "study_accession": "PRJEB101296",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "In ten healthy women undergoing COH for oocyte donation, paired saliva and subgingival plaque samples were collected before stimulation and at peak systemic E2.",
+     "evidence_source": "ENA study description PRJEB101296",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Controlled ovarian hyperstimulation given as part of an oocyte-donation programme; saliva and subgingival plaque sampled before stimulation and at peak estradiol.",
+   "note": "No linked paper found in Europe PMC; judged from the ENA study description. Women were already undergoing COH for oocyte donation and the study used that as an in vivo estradiol model."
+  },
+  {
+   "study_accession": "PRJNA1178822",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Related study aims to investigate microbiome change and microbial interactions in airway before and following elexacaftor/tezacaftor/ivacaftor (ETI) in adults with CF and advanced lung disease.",
+     "evidence_source": "ENA study description PRJNA1178822",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Airway sampling before and after clinically prescribed elexacaftor/tezacaftor/ivacaftor in adults with CF and advanced lung disease.",
+   "note": "No linked paper confirmed in Europe PMC (accession not indexed); judged from the ENA study description. ETI is a licensed, clinic-prescribed therapy and the archive record describes observation around its initiation, so provisional."
+  },
+  {
+   "study_accession": "PRJNA821973",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Following antibiotic treatment, the ulcers subsided significantly, but a high fever persisted.",
+     "evidence_source": "Europe PMC abstract PMID 35736664",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antibiotic therapy given clinically to an AIDS patient with Bartonella vinsonii bacillary angiomatosis; plasma sampled for mNGS.",
+   "note": "Single-patient diagnostic case report."
+  },
+  {
+   "study_accession": "PRJNA1154608",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Empirical treatment with moxifloxacin and trimethoprim-sulfamethoxazole (TMP-SMZ) was initiated.",
+     "evidence_source": "Europe PMC abstract PMID 39568747",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Empirical moxifloxacin/TMP-SMZ then TMP-SMZ plus imipenem, later doxycycline, all prescribed clinically; BALF sampled for mNGS.",
+   "note": "Single-patient diagnostic case report."
+  },
+  {
+   "study_accession": "PRJNA1225502",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Participants with T2D were patients hospitalized to receive a standardized 2-week intensive glycemic control program at Osaka University Hospital between 2017 and 2019, which was not limited to severely uncontrolled cases.",
+     "evidence_source": "Europe PMC full text PMC12849494",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Hospital admission for a standardized 2-week intensive glycemic control programme following national diabetes guidelines; plasma, saliva and plaque sampled on days 2 and 14.",
+   "note": "Patients were hospitalized to receive the programme as clinical care; the study also compares them with 30 normoglycemic controls, so the design is not purely single-arm."
+  },
+  {
+   "study_accession": "PRJNA488682",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Single patient observation A 75-year-old dominant dystrophic EB (DDEB) patient ( COL7A1 , c.6127 G > A) volunteered to participate in an observation study involving topical application of a low-dose calcipotriol ointment.",
+     "evidence_source": "Europe PMC full text PMC6128832",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Investigator-compounded low-dose calcipotriol ointment (0.05 ug/g) applied daily for four weeks to a chronic leg wound of one 75-year-old DDEB patient.",
+   "note": "n=1 single-patient observation study run by the authors (ethics approval 415-E/2043/9-2016); the ointment was made by their in-house pharmacy, so this is study-administered. Patient is DDEB, not RDEB as the reading recorded."
+  },
+  {
+   "study_accession": "PRJNA849374",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient recovered rapidly following a change of appropriate antifungal treatment and was discharged.",
+     "evidence_source": "Europe PMC abstract PMID 36568318",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antifungal therapy changed clinically after mNGS of BALF identified Aspergillus fumigatus in an infant with chronic granulomatous disease.",
+   "note": "Single-patient diagnostic case report."
+  },
+  {
+   "study_accession": "PRJNA704545",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Metagenomic Next-Generation Sequencing in Diagnosis of leptospirosis Presenting as severe Diffuse Alveolar Hemorrhage",
+     "evidence_source": "ENA study title PRJNA704545",
+     "confidence": 0.55
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Metagenomic Next-Generation Sequencing in Diagnosis of leptospirosis Presenting as severe Diffuse Alveolar Hemorrhage",
+     "evidence_source": "ENA study title PRJNA704545",
+     "confidence": 0.55
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Antibiotics and corticosteroid therapy given clinically after mNGS diagnosis of leptospirosis in a patient with diffuse alveolar hemorrhage.",
+   "note": "No linked paper found in Europe PMC (accession not indexed; several unrelated leptospirosis case reports returned); ENA description is only 'mNGS data'. Verdicts rest on the diagnostic-case-report framing in the archive title and are provisional."
+  },
+  {
+   "study_accession": "PRJNA1155131",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Methods Fifteen adolescents (12-15 years old) with Invisalign appliances were recruited.",
+     "evidence_source": "Europe PMC abstract PMID 39676101",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Fifteen adolescents already receiving Invisalign clear-aligner orthodontic therapy; supragingival plaque sampled before treatment and three months later.",
+   "note": "The aligner therapy is orthodontic care the adolescents were having anyway; the study recruited them and sampled around it rather than providing the appliances as a research intervention."
+  },
+  {
+   "study_accession": "PRJNA1274531",
+   "codes": [
+    {
+     "code": "exercise",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Design We collected saliva samples from 10 soldiers with good oral health and hygiene habits before and after training.",
+     "evidence_source": "Europe PMC abstract PMID 40644733",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "One month of routine high-intensity army physical training; saliva sampled before and after the training period.",
+   "note": "The training is the soldiers' military programme, not an exercise regimen designed or delivered by the investigators; the study only sampled around it. Paper reports 10 soldiers / 20 samples where the ENA record says 13 / 26."
+  },
+  {
+   "study_accession": "PRJNA850821",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After targeted treatment for visceral leishmaniasis in the patients, mNGS reported a decrease in the reads number of Leishmania sequence.",
+     "evidence_source": "Europe PMC abstract PMID 36714105",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Pathogen-targeted antileishmanial treatment given clinically to two patients; peripheral blood sampled by mNGS before and after treatment for efficacy evaluation.",
+   "note": "Two-patient diagnostic case report."
+  },
+  {
+   "study_accession": "PRJEB3085",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient (a 68-year-old man) was admitted to the Department for Internal Medicine at the University Hospital Kiel (Germany) due to an infected cardiac pacemaker.",
+     "evidence_source": "Europe PMC full text PMC3812899",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Ampicillin/sulbactam plus cefazolin given clinically for 14 days to one 68-year-old man with an infected cardiac pacemaker; stool sampled at multiple time points.",
+   "note": "The reading recorded a 'single healthy individual'; the full text shows a hospitalized patient treated for a pacemaker infection, so the antibiotics are observed clinical care."
+  },
+  {
+   "study_accession": "PRJNA1283503",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "A semi-trained panel of 20 participants completed taste evaluations using visual analogue scales for nine tastants, both before and during a 5-day urea supplementation regimen.",
+     "evidence_source": "Europe PMC abstract PMID 42365026",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Five-day urea supplementation regimen (three USP-grade urea tablets each morning) given to a semi-trained panel of 20 participants; saliva sampled before and during supplementation.",
+   "note": "Supplement given by the investigators as the study intervention."
+  },
+  {
+   "study_accession": "PRJNA396064",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "unclear",
+     "evidence_quote": "Survey of single and double stranded DNA non-enveloped viruses on the skin of WHIM patients, healthy controls and other immune compromised patients",
+     "evidence_source": "ENA study title PRJNA396064",
+     "confidence": 0.4
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Skin virome survey of WHIM patients, healthy controls and other immunocompromised patients; some WHIM patients were on plerixafor given under separate clinical protocols.",
+   "note": "The archive record describes a cross-sectional virome survey with control groups, not a treatment protocol; the two papers that cite this accession (PMID 32014111, 39839678) are virus-discovery papers. A 2026 WHIM skin-microbiome paper (PMID 42264215) reports shifts in patients receiving plerixafor but does not cite this accession, so whether plerixafor was administered within this deposit is unresolved."
+  },
+  {
+   "study_accession": "PRJNA673633",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We collected 39 sputum samples from 11 tuberculosis patients in Pretoria, South Africa, between June and October 2019 to determine the changes in their sputum microbiota from baseline (before taking antibiotics) to the a week after beginning antibiotic chemotherapy.",
+     "evidence_source": "ENA study description PRJNA673633",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Standard anti-tuberculosis chemotherapy started clinically in 11 newly diagnosed TB patients; sputum sampled at days 0, 1, 2 and 7 of treatment.",
+   "note": "No linked paper found in Europe PMC; judged from the ENA study description. TB treatment is national-programme care that the study sampled around."
+  },
+  {
+   "study_accession": "PRJEB64657",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "During the patient’s course, two 10-day courses (from D68 and D129) empiric piperacillin-tazobactam were administered for febrile episodes.",
+     "evidence_source": "Europe PMC full text PMC12415407",
+     "confidence": 0.75
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Results Successive oseltamivir and zanamivir monotherapies failed to control both infections, with positive results persisting for over 110 days each.",
+     "evidence_source": "Europe PMC abstract PMID 39047913",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antibacterial prophylaxis and empiric piperacillin-tazobactam plus successive oseltamivir, zanamivir and zanamivir+baloxavir antiviral regimens, all given as clinical management of one HSCT recipient.",
+   "note": "Single-patient case report of clinical and virological evolution under treatments chosen by the care team; the 'antibiotic' code is supported by antibacterial courses documented in the full text, not by the antivirals."
+  },
+  {
+   "study_accession": "PRJNA736203",
+   "codes": [
+    {
+     "code": "prebiotic_or_fibre",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Prebiotic Palavigor Malt. Gel can be used to make maltose gel as a new non-antibiotic agent for the treatment of BV.",
+     "evidence_source": "ENA study description PRJNA736203",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Prebiotic Palavigor maltose gel applied vaginally to women with BV-related dysbiosis; vaginal samples taken before and after the gel.",
+   "note": "ENA samples are Homo sapiens (host) with titles of the form Y1_1_before_drug / Y1_2_after_drug (10 subjects, 20 samples), i.e. gel administered and sampled around it. The paper found by title search (PMID 33240248) is the matching randomized maltose-vs-placebo trial in rhesus macaques, so it documents the product but not this human cohort; the human arm has no located publication."
+  },
+  {
+   "study_accession": "PRJEB38148",
+   "codes": [
+    {
+     "code": "diet_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "We used these snacks to supplement controlled diets that were consumed by adult individuals with obesity or who were overweight.",
+     "evidence_source": "Europe PMC abstract PMID 34163075",
+     "confidence": 0.85
+    },
+    {
+     "code": "prebiotic_or_fibre",
+     "verdict": "administered_by_study",
+     "evidence_quote": "We used these snacks to supplement controlled diets that were consumed by adult individuals with obesity or who were overweight.",
+     "evidence_source": "Europe PMC abstract PMID 34163075",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Fibre snack prototypes (pea, orange, barley bran and other plant fibres) fed as supplements to a controlled HiSF-LoFV background diet in overweight/obese adults.",
+   "note": "Both the background diet and the fibre snacks were provided by the investigators. The human arm ran as sequential within-participant snack-treatment periods; full text was not retrievable (PMC8324079 returned no body), so the single-arm design label is provisional and a crossover-style reading is possible."
+  },
+  {
+   "study_accession": "PRJNA1424208",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Parabolic flight was conducted one afternoon in August 2024 at the Flight Research Laboratory, National Research Council of Canada, in Ottawa, using a modified Falcon-20 aircraft.",
+     "evidence_source": "Europe PMC full text PMC13243427",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Research parabolic flight (modified Falcon-20, Flight Research Laboratory, National Research Council of Canada, August 2024); vaginal and oral samples taken pre- and post-flight.",
+   "note": "Participants consented to the parabolic flight as part of the study, so the microgravity exposure is a study-performed procedure rather than observed routine activity. Full text reports n=4 women; the ENA record and reading describe the cohort only as healthy reproductive-age women."
+  },
+  {
+   "study_accession": "PRJNA1081394",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We collected sinus swab samples from the middle meatus in an observational study of 38 adults with CF and chronic rhinosinusitis (CRS) from 2017 to 2021 and captured the initiation of ETI therapy.",
+     "evidence_source": "Europe PMC abstract PMID 38916354",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Clinically prescribed elexacaftor/tezacaftor/ivacaftor; sinus swabs from the middle meatus collected before and after ETI initiation in 38 adults with CF and chronic rhinosinusitis.",
+   "note": "Explicitly described as an observational study that captured ETI initiation."
+  },
+  {
+   "study_accession": "PRJNA1101448",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Methods In this prospective observational study, we included pwCF aged 12-20 years with at least one F508del mutation, who collected oropharyngeal swabs before and after initiation of ETI therapy twice per week to biweekly over three months.",
+     "evidence_source": "Europe PMC abstract PMID 39406574",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Clinically prescribed ETI in 20 adolescents with CF (>=1 F508del); oropharyngeal swabs collected before and for three months after therapy start.",
+   "note": "Prospective observational study around a clinically indicated therapy."
+  },
+  {
+   "study_accession": "PRJNA784288",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Asymptomatic, sexually transmitted infection–free women with a Nugent score ≥7 were provided a 1-week course of oral metronidazole and returned 1 month after treatment initiation.",
+     "evidence_source": "Europe PMC full text PMC9887266",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Metronidazole given per protocol: 5-day topical course in the US LACTIN-V trial cohort and a 1-week oral course in the Kenyan cohort; vaginal swabs before, within 48 h of completing, and 1 month after treatment.",
+   "note": "Metronidazole was administered within the study protocols in both cohorts. The sequenced US participants were randomized to placebo after metronidazole, so no live_biotherapeutic code is warranted for this deposit even though the parent trial (NCT02766023) tested LACTIN-V."
+  },
+  {
+   "study_accession": "PRJNA803513",
+   "codes": [
+    {
+     "code": "bowel_preparation",
+     "verdict": "administered_by_study",
+     "evidence_quote": "All patients meeting study enrollment criteria received standard PEG based colonoscopy bowel preparation and FMF material was delivered in the terminal ileum.",
+     "evidence_source": "Europe PMC full text PMC6885004",
+     "confidence": 0.85
+    },
+    {
+     "code": "fmt",
+     "verdict": "administered_by_study",
+     "evidence_quote": "To this end, we performed total nucleic acid sequencing to detect the viral community in 20 individuals with active UC prior to and 4 weeks after receiving FMT ( Figure 7A ).",
+     "evidence_source": "Europe PMC full text PMC6885004",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Two-donor OpenBiome FMT material delivered into the terminal ileum at colonoscopy after standard PEG bowel preparation in 20 patients with active ulcerative colitis; stool sampled before and 4 weeks after FMT.",
+   "note": "Bowel preparation was required by the study's own FMT delivery procedure, so it is study-administered rather than observed colonoscopy prep."
+  },
+  {
+   "study_accession": "PRJDB38635",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Despite initial empirical broad-spectrum antibiotic therapy (cefazolin/ceftazidime protocol), clinical symptoms persisted.",
+     "evidence_source": "Europe PMC abstract PMID 41484707",
+     "confidence": 0.9
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The treatment was transitioned to doxycycline and hydroxychloroquine resulted in clinical improvement and normalization of inflammatory markers.",
+     "evidence_source": "Europe PMC abstract PMID 41484707",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Empirical cefazolin/ceftazidime then doxycycline plus hydroxychloroquine given clinically to one peritoneal-dialysis patient with Coxiella burnetii peritonitis; PD effluent sampled for mNGS.",
+   "note": "Single-patient diagnostic case report; mirrored from GSA PRJCA039772."
+  },
+  {
+   "study_accession": "PRJNA1182815",
+   "codes": [
+    {
+     "code": "phage_therapy",
+     "verdict": "administered_by_study",
+     "evidence_quote": "The individuals received a nebulized cocktail or single-phage therapy without adverse events.",
+     "evidence_source": "Europe PMC abstract PMID 40301561",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Personalized nebulized bacteriophage therapy (single phage or cocktail) given on a compassionate basis to nine adults with CF and multidrug-resistant Pseudomonas aeruginosa; sputum sampled before and after.",
+   "note": "Phages were selected and administered by the investigators under a compassionate-use protocol, i.e. study-administered despite the open-label single-arm design."
+  },
+  {
+   "study_accession": "PRJNA388263",
+   "codes": [
+    {
+     "code": "bowel_preparation",
+     "verdict": "administered_by_study",
+     "evidence_quote": "The cleanout was identical to a common bowel preparation procedure prior to colonoscopy, involving the consumption of up to 4L of a polyethylene glycol-electrolyte solution until diarrhea was clear and watery.",
+     "evidence_source": "ENA study description PRJNA388263",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Investigator-induced one-day iso-osmotic colon cleanout (up to 4 L polyethylene glycol-electrolyte solution) in eight healthy adults, with daily/weekly stool sampling over ~22 weeks around the perturbation.",
+   "note": "The cleanout was performed as the study's experimental perturbation, not as preparation for a clinically indicated colonoscopy."
+  },
+  {
+   "study_accession": "PRJNA738295",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Daignosis of anti-IgLON5 encephalopathy with concomitant herpes virus encephalitis, a case report",
+     "evidence_source": "ENA study description PRJNA738295",
+     "confidence": 0.55
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antivirals, intravenous immunoglobulin, methylprednisolone and protein A immunoadsorption given clinically to one patient with anti-IgLON5 encephalopathy and herpes virus encephalitis; CSF sampled for mNGS.",
+   "note": "No linked paper found in Europe PMC (accession not indexed, targeted IgLON5 searches returned unrelated reports); the verdict rests on the archive record describing a diagnostic case report and is provisional."
+  },
+  {
+   "study_accession": "PRJNA853129",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "All patients underwent cardiac surgery.",
+     "evidence_source": "Europe PMC abstract PMID 36498724",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Clinically indicated cardiac valve surgery in 23 retrospectively enrolled patients with culture-negative endocarditis; excised valve tissue and blood used for mNGS. Oral doxycycline was added clinically for >=1.5 years.",
+   "note": "Retrospective study of patients identified from hospital records; the valve surgery and the antibiotic regimen were clinical care, so no antibiotic/drug_therapy code is warranted either."
+  },
+  {
+   "study_accession": "PRJNA935276",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We characterized the diversity and composition of the gut microbiota in CM patients at diagnosis and healthy controls (HCs) using metagenomic sequencing and determined the effects of anti-fungal drugs.",
+     "evidence_source": "Europe PMC abstract PMID 36909846",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Standard antifungal treatment (amphotericin B plus flucytosine induction, fluconazole consolidation) given clinically to cryptococcal meningitis patients; stool sampled at diagnosis and after treatment, with healthy controls for comparison.",
+   "note": "Treatment is clinical care that the study characterized. The code is also a poor fit: the drugs are antifungals, which would map to drug_therapy rather than antibiotic; no antibacterial course is described in the abstract."
+  },
+  {
+   "study_accession": "PRJEB96177",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "This prospective, post-approval study investigated the impact of 15-week ETI therapy on sinonasal microbiota of pwCF aged 12 years and older.",
+     "evidence_source": "Europe PMC abstract PMID 42439510",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Clinically prescribed ETI (median 109 days) in pwCF aged 12 and older; 24 paired nasal lavage samples before and after therapy.",
+   "note": "Described as a prospective post-approval study of a licensed therapy, i.e. observation around clinically delivered treatment."
+  },
+  {
+   "study_accession": "PRJNA738659",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Treatment with voriconazole and metronidazole successfully eliminated these pathogens and relieved the clinical symptoms.",
+     "evidence_source": "Europe PMC abstract PMID 34416850",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Voriconazole and metronidazole given clinically to a 16-year-old with pyopneumothorax from Trichomonas tenax and Geotrichum capitatum coinfection; pleural effusion and BALF sampled.",
+   "note": "Single-patient diagnostic case report."
+  },
+  {
+   "study_accession": "PRJNA935688",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "administered_by_study",
+     "evidence_quote": "All patients were treated with 0.5 mg/kg/day of isotretinoin for the first month and then the dose was increased to 1 mg/kg/day for the duration of the treatment course.",
+     "evidence_source": "Europe PMC full text PMC11107415",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Protocol dosing of oral isotretinoin (0.5 mg/kg/day for month 1, then 1 mg/kg/day) in 20 acne patients recruited under an IRB protocol at the Penn State Dermatology Clinic; follicular casts sampled before, during and after treatment.",
+   "note": "Participants were recruited into a prospective study with a protocol-specified dose escalation and response assessment at 20 weeks, so the drug exposure is study-directed; it is also standard acne care, so the verdict carries some residual ambiguity. Prior topical/oral acne treatments listed were standard of care before enrolment and are not study-administered."
+  },
+  {
+   "study_accession": "PRJEB104438",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Therefore, in this study, we investigated ear swabs of COM patients before and after 14 days of oral administration of 1,8-Cineol (CNL-1976 ® ) for DNA isolation and sequencing analysis of the existing bacterial and fungal communities of the ear.",
+     "evidence_source": "Europe PMC full text PMC13570884",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Oral 1,8-Cineol (Soledum forte, 3 x 200 mg/day for 14 days) given to chronic otitis media patients; ear-canal swabs taken before and after the 14-day course.",
+   "note": "The investigators administered the 14-day cineol course and sampled around it, then split patients into responders and non-responders."
+  }
+ ],
+ "declared_limitations": [
+  "6 of 35 projects had no locatable linked paper in Europe PMC (PRJEB101296, PRJNA1178822, PRJNA704545, PRJNA673633, PRJNA738295, and the human cohort of PRJNA736203); their verdicts rest on the ENA study record alone and are flagged provisional in each note (confidence 0.55-0.75).",
+  "PRJNA396064 left 'unclear': the plerixafor claim could not be tied to this accession (the two papers citing it are virus-discovery papers; the 2026 WHIM skin-microbiome paper does not cite it).",
+  "Two full texts were unretrievable: PMC8324079 (PRJEB38148) returned no body, so its single_arm_before_after design label is provisional; PMC13420004 (WHIM) likewise returned no body.",
+  "Design labels follow a rule I applied consistently and stated in notes (study-administered exposure keeps its structural design; clinically delivered treatment/procedure with before/after sampling -> observational_with_procedure), so they differ from the input's single_arm_before_after label for 24 of 35 projects."
+ ]
+}

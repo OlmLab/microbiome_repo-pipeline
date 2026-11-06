@@ -46,6 +46,7 @@ FIELDS = [
 ]
 TOP_LOADINGS = 12
 MAX_TOTAL_BYTES = 15 * 1024 * 1024
+MAX_POINTS = 330_000   # R2026.36: above this a seeded random subset is drawn (payload cap); the package holds every score
 
 
 def _read_inputs(ctx):
@@ -84,6 +85,9 @@ def build(env, render, ctx, out_dir):
     pts = pts.merge(w, on='sample_key', how='left')
     if 'top_genus' in summ.columns:
         pts = pts.merge(summ[['sample_key', 'top_genus']].drop_duplicates('sample_key'), on='sample_key', how='left')
+    n_scored = len(pts)
+    if n_scored > MAX_POINTS:
+        pts = pts.sample(n=MAX_POINTS, random_state=0).sort_index().reset_index(drop=True)
     n = len(pts)
     # points
     arr = np.ascontiguousarray(pts[pc_cols].to_numpy(dtype=np.float32))
@@ -118,7 +122,7 @@ def build(env, render, ctx, out_dir):
             s = loadings.set_index('genus')[c].astype(float)
             load[c.upper()] = dict(pos=[(g, round(float(v), 4)) for g, v in s.nlargest(TOP_LOADINGS).items()],
                                   neg=[(g, round(float(v), 4)) for g, v in s.nsmallest(TOP_LOADINGS).items()])
-    meta = dict(n_points=int(n), n_pcs=len(pc_cols), pcs=pcs, fields=fields, keys='\n'.join(pts['sample_key'].astype(str)),
+    meta = dict(n_points=int(n), n_scored=int(n_scored), n_pcs=len(pc_cols), pcs=pcs, fields=fields, keys='\n'.join(pts['sample_key'].astype(str)),
                 study_titles=titles, loadings=load,
                 generated_from=dict(scores='catalog_sandpiper_pca_scores.parquet', loadings='catalog_sandpiper_pca_loadings.parquet',
                                     metadata='catalog_sample_metadata_wide.parquet', summary='catalog_sandpiper_sample_summary.parquet'),
@@ -135,7 +139,7 @@ def build(env, render, ctx, out_dir):
     field_names = [f['field'] for f in fields]
     render('atlas_pca.html', PAGE_PATH, '../', nav='atlas',
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Atlas', href='index.html'), dict(label='PCA')],
-           n_points=n, n_studies=n_studies, pcs=pcs, fields=fields, field_names=field_names, loadings=load,
+           n_points=n, n_scored=n_scored, n_studies=n_studies, pcs=pcs, fields=fields, field_names=field_names, loadings=load,
            sizes={k: v for k, v in sizes.items()}, total_bytes=total, total_mb=round(total / 1048576, 1),
            n_genera=int(loadings['genus'].nunique()) if 'genus' in loadings.columns else None,
            n_samples_catalog=int(wide['sample_key'].nunique()), method=ctx.get('pca_method', {}))

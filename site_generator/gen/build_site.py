@@ -143,7 +143,7 @@ NAV = [('home', 'Home', 'index.html', None),
        ('explore', 'Explore', None, [('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
                                      ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html'),
                                      ('atlas', 'Insights', None), ('atlas', 'Atlas: taxon map', 'atlas/index.html'),
-                                     ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Figures (resource paper)', 'atlas/figures.html')]),
+                                     ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Atlas: profile measures', 'atlas/measures.html'), ('atlas', 'Figures (resource paper)', 'atlas/figures.html')]),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
@@ -2039,6 +2039,9 @@ def main():
     if atlas_dir and (atlas_dir / 'taxa.json').exists():   # precomputed taxon-map payload + observation cards (data/inputs/gut/atlas; make atlas-precompute)
         _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs, figures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'figures')), out)
         print(f'[{time.time()-t0:.0f}s] atlas/index + observations from {atlas_dir}', file=sys.stderr)
+    from pages import measures as _measures   # R2026.36: Atlas › Profile measures (scripts/sandpiper_measures.py payload)
+    _ms = _measures.build(render, dict(measures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'measures'), stats=stats), out)
+    print(f'[{time.time()-t0:.0f}s] atlas/measures: {_ms}', file=sys.stderr)
     if (pkg / 'catalog_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)
         print(f'[{time.time()-t0:.0f}s] atlas/pca: {pca_stats.get("n_points") if isinstance(pca_stats, dict) else pca_stats}', file=sys.stderr)

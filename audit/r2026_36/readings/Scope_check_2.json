@@ -1,0 +1,206 @@
+{
+ "reading": "Scope_check_2",
+ "projects": [
+  {
+   "study_accession": "PRJNA857715",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Environmental and arthropod samples run through a Francisella-capture enrichment protocol: 43 air-filter samples and 3 dust samples (organism 'air metagenome') plus 3 whole ticks (organism 'tick metagenome'). The 9 unflagged samples in this project are the only human material (human lymph aspirate and blood, organism 'human metagenome', host Homo sapiens).",
+   "exclude_rule": "Exclude all flagged samples (sample scientific_name in {'air metagenome','tick metagenome'}); keep only samples with scientific_name 'human metagenome' / host Homo sapiens.",
+   "reason_code": "environmental",
+   "evidence_quote": "Data from air samples enriched with a Francisella bait system",
+   "evidence_source": "ENA study description, PRJNA857715 (ERP…/ENA portal 'study' result, description field)",
+   "confidence": 0.97,
+   "note": "Mixed reason within the exclusion: 46 are environmental (air filters SAMN29756879 'air filter metagenome', dust), 3 are host_nonhuman (ticks, SAMN29756905 title 'tick metagenome', Dermacentor sample IDs 'D.v.####'). All 49 leave the catalog either way."
+  },
+  {
+   "study_accession": "PRJEB56784",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Built-environment surface swabs sequenced as part of a nucleic-acid extraction pipeline validation: 24 keyboard swabs and 24 floor swabs (BioSample description 'surface_swab_keyboard' / 'surface_swab_floor', organism 'indoor metagenome', environmental_medium 'anthropogenic environmental material', host_body_site 'not applicable').",
+   "exclude_rule": "Exclude flagged samples with scientific_name 'indoor metagenome' (BioSample description starting 'surface_swab_'); keep the human skin/oral/gut samples (host Homo sapiens). Note the project also contains 48 mouse-feces and 41 sterile-water blank samples that are not in this flagged set but are equally out of scope.",
+   "reason_code": "environmental",
+   "evidence_quote": "surface_swab_floor",
+   "evidence_source": "ENA sample XML, SAMEA111486622 (DESCRIPTION element; same record has empo_1 'Free-living', empo_3 'Surface (non-saline)', env_feature 'building')",
+   "confidence": 0.97,
+   "note": "Qiita study 14332. The catalog's body-site code for these is 'skin', which is wrong — they are surface swabs of a keyboard and a floor, not of a person."
+  },
+  {
+   "study_accession": "PRJNA1081843",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Non-human reference sample types in a target-enriched long-read sequencing (TELSeq) benchmarking study: 24 pristine prairie soil samples (organism 'soil metagenome', isolation_source 'pristine prairie soil') and 24 bovine fecal samples (organism 'bovine gut metagenome', host Bos taurus, isolation_source 'bovine feces'). The human FMT material in the same project is not flagged.",
+   "exclude_rule": "Exclude flagged samples with scientific_name in {'soil metagenome','bovine gut metagenome'} (equivalently isolation_source in {'pristine prairie soil','bovine feces'}); keep the human fecal microbial transplant replicates.",
+   "reason_code": "host_nonhuman",
+   "evidence_quote": "Replicates of four diverse sample types were used for the analysis (bovine feces, human fecal microbial transplant materials, pristine prairie soil, and a commercially available mock community).",
+   "evidence_source": "ENA study description, PRJNA1081843 (ENA portal 'study' result, description field)",
+   "confidence": 0.97,
+   "note": "Exact 24/24 split of reason: bovine feces = host_nonhuman, prairie soil = environmental. reason_code set to host_nonhuman by tie-break; both halves are excluded. A mock community is also present in the project but is not in the flagged set."
+  },
+  {
+   "study_accession": "PRJNA473225",
+   "verdict": "unclear",
+   "what_the_flagged_samples_are": "In vitro anaerobic bioreactor (batch fermentation) cultures inoculated with human faeces and dosed with sub-inhibitory ampicillin. All 40 flagged BioSamples carry env_broad_scale 'Anaerobic bioreactor', env_local_scale 'Anaerobic', env_medium 'Feces', host 'Homo sapiens', and every run is described as an in vitro metagenome. The organism name 'mouse gut metagenome' is a clerical error — nothing in the project involves mice.",
+   "exclude_rule": "Policy decision, not a data rule. If ex vivo cultures of human faeces count as human specimens, keep all 40 and correct the organism name to a human gut/feces metagenome. If they are treated like other non-body propagations of human microbiota (e.g. humanised mice), exclude all 40 — the whole project is in vitro, including the five 't0' baseline vessels.",
+   "reason_code": "not_applicable",
+   "evidence_quote": "Illumina HiSeq 2500 sequencing: In vitro metagenome",
+   "evidence_source": "ENA read_run description field for all 40 runs of PRJNA473225 (study title: 'Effect of subinhibitory concentration of ampicillin on human gut microbiota in vitro'); BioSample SAMN09269096 env_broad_scale 'Anaerobic bioreactor'",
+   "confidence": 0.6,
+   "note": "The identification is certain; the verdict is not, because the catalog rule for in vitro fermentations of human stool is a scope question rather than an archive-metadata question. No publication links to PRJNA473225 in Europe PMC, so no paper resolves it either. Samples were submitted from Reading, UK, collected 2017-10."
+  },
+  {
+   "study_accession": "PRJNA590026",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Mouse intestinal samples from a Lactobacillus plantarum HNU082 intervention run alongside a human arm: organism 'mouse metagenome', host 'mouse', isolation_source 'mouse intestine sample<N>', sample aliases M1-…–M6-… . The 42 unflagged samples are the human arm (organism 'human metagenome', host Homo sapiens, isolation_source 'homo sapiens intestine sample<N>').",
+   "exclude_rule": "Exclude flagged samples with scientific_name 'mouse metagenome' / host 'mouse' / isolation_source beginning 'mouse intestine'; keep samples with host Homo sapiens.",
+   "reason_code": "host_nonhuman",
+   "evidence_quote": "We sequenced the metagenome of different species, including C57 mouse and human after taking the Lactobacillus plantarum HNU082.",
+   "evidence_source": "ENA study description, PRJNA590026 (ENA portal 'study' result, description field)",
+   "confidence": 0.97,
+   "note": ""
+  },
+  {
+   "study_accession": "PRJEB63360",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Poultry-house built-environment samples: 12 wall swabs, 9 vent swabs and 3 'House environment' pooled samples (organism 'indoor metagenome') plus 9 air samples taken inside poultry houses (organism 'air metagenome'). Human material in this project (worker stool, saliva, nasal, boot swabs) is not in the flagged set.",
+   "exclude_rule": "Exclude flagged samples with scientific_name in {'indoor metagenome','air metagenome'} (sample_title matching 'Wall within Poultry House', 'Air within Poultry House', 'Vent within Poultry House', 'House environment'); keep the human worker/household samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "Air within Poultry House",
+   "evidence_source": "ENA sample title / sample_description for SAMEA113907253 and 8 further flagged samples of PRJEB63360 (ENA portal read_run, sample_title field)",
+   "confidence": 0.96,
+   "note": "The project additionally holds 199 poultry-litter, 18 soil and 9 drinking-water samples that are already outside the flagged set but are equally non-human."
+  },
+  {
+   "study_accession": "PRJEB7112",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Mouse faecal samples from the diurnal-oscillation experiments (Per1/Per2 knockout and wild-type mice, several timepoints): organism 'mouse gut metagenome', host Mus musculus, environmental_medium 'feces (UBERON:0001988)'. The 20 unflagged samples are the human time-lapse arm (host Homo sapiens).",
+   "exclude_rule": "Exclude flagged samples with host/host_scientific_name 'Mus musculus' (scientific_name 'mouse gut metagenome'); keep samples with host Homo sapiens ('Human time lapse').",
+   "reason_code": "host_nonhuman",
+   "evidence_quote": "Knockout mice in several timepoints",
+   "evidence_source": "ENA sample description, SAMEA2734258 and 8 further flagged samples of PRJEB7112 (ENA portal read_run, sample_description field)",
+   "confidence": 0.98,
+   "note": "Six of the 32 flagged samples are 16S amplicon runs rather than shotgun, which is a separate issue from the scope error."
+  },
+  {
+   "study_accession": "PRJNA400259",
+   "verdict": "human_associated_keep",
+   "what_the_flagged_samples_are": "Human breast milk from a controlled maternal dietary-intervention study: organism 'milk metagenome' but host Homo sapiens, env_broad_scale 'human_microbiome', env_local_scale and env_medium 'human_milk', sample titles 'Subject_<letter>_<diet>', collected in Houston, USA.",
+   "exclude_rule": "No exclusion. Keep all 28; the organism name 'milk metagenome' should be read as human breast milk (host Homo sapiens, env_medium 'human_milk'), body site 'milk'.",
+   "reason_code": "not_applicable",
+   "evidence_quote": "In this project, rigorously controlled human dietary intervention studies were used to determine the impact of maternal diet on the human milk microbiome using WGS sequencing in association with human milk oligosaccharides.",
+   "evidence_source": "ENA study description, PRJNA400259 (ENA portal 'study' result, description field); BioSample SAMN07563221 env_medium 'human_milk', host 'Homo sapiens'",
+   "confidence": 0.98,
+   "note": "Each of the 28 samples has both a WGS run and a 16S-V4 run, so all 28 do have shotgun data."
+  },
+  {
+   "study_accession": "PRJNA1423428",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "Human stool metagenomes from a coronary-heart-disease case/control study (10 CHD patients and 10 healthy controls, Hunan, China). Every run is described as 'Human intestinal microbiota' and the BioProject title is 'Homo sapiens Raw sequence reads', but the BioSamples were filed under organism 'soil metagenome' with host 'not provided'.",
+   "exclude_rule": "No exclusion. Keep all 20; correct the organism from 'soil metagenome' to a human gut/feces metagenome (host Homo sapiens, body site gut_stool).",
+   "reason_code": "not_applicable",
+   "evidence_quote": "Illumina NovaSeq X Plus sequencing: Human intestinal microbiota",
+   "evidence_source": "ENA read_run description field for all 20 runs of PRJNA1423428; corroborated by PMID 41883806 / PMC13008861 (abstract: 'The study included 10 patients with clinically diagnosed CHD and 10 healthy controls.')",
+   "confidence": 0.96,
+   "note": "Study description is 'Metagenomic testing of patients with coronary heart disease'; sample aliases are 'human metagenome_1'…'human metagenome_20'. The soil organism assignment is plainly a submission error."
+  },
+  {
+   "study_accession": "PRJEB38099",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Bovine (cow) milk samples used as the animal comparator in a method-comparison study of host-DNA depletion for milk metagenomics: organism 'milk metagenome', BioSample description 'Shotgun reads from bovine milk…', aliases BM1–BM10 with kit suffixes (_NEB, _PS, _ML). 15 are plain bovine milk and 3 are bovine milk spiked with a mock community. The 18 unflagged human samples are aliases HM…, organism 'human milk metagenome'.",
+   "exclude_rule": "Exclude flagged samples whose BioSample description contains 'bovine milk' (equivalently sample_alias beginning 'BM'); keep samples with scientific_name 'human milk metagenome' (alias beginning 'HM').",
+   "reason_code": "host_nonhuman",
+   "evidence_quote": "Shotgun reads from bovine milk sequenced on Illumina NextSeq",
+   "evidence_source": "ENA sample XML, SAMEA6828622 (DESCRIPTION element)",
+   "confidence": 0.96,
+   "note": "'milk metagenome' is therefore not a safe keep signal on its own: in PRJNA400259 it is human breast milk, here it is cow milk. The discriminator is the BioSample description / alias prefix. reason_code could equally be food_or_product (dairy milk); host_nonhuman chosen to mirror the human-milk keep rule."
+  },
+  {
+   "study_accession": "PRJNA1134112",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Negative and environmental controls from the SpaceX Inspiration4 crew-swab collection: 9 nuclease-free water controls (sample titles ending '_H20', organism 'surface metagenome') and 3 open-air control swabs (titles ending '_OAC', organism 'air metagenome'). All 12 carry BioSample source_material_id '<crew-id> Control' or 'Communal Control'; no host attribute. The 316 real crew swabs carry host Homo sapiens.",
+   "exclude_rule": "Exclude flagged samples with scientific_name in {'surface metagenome','air metagenome'} — equivalently BioSample source_material_id containing 'Control', or sample_title ending '_H20' or '_OAC'; keep the swabs with host Homo sapiens.",
+   "reason_code": "environmental",
+   "evidence_quote": "Nuclease-free water samples were sequenced as controls.",
+   "evidence_source": "NCBI BioProject PRJNA1134112 description (efetch db=bioproject); BioSample SAMN42393214 source_material_id 'Communal Control'",
+   "confidence": 0.93,
+   "note": "The water controls are explicitly described in the BioProject record. 'OAC' is not expanded in any archive text; it is read as open-air control from the 'air metagenome' organism plus the 'Control' source_material_id, so those 3 rest on slightly weaker evidence than the 9 water blanks. One further sample, 'aerosol metagenome', sits outside this flagged set."
+  },
+  {
+   "study_accession": "PRJNA987158",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Non-human sampling arms of a swine-farm worker study: 10 pig skin samples (organism 'pig metagenome', host Sus scrofa, isolation_source 'EPIDERMAL PADDLE') and 2 barn air samples (organism 'air metagenome', isolation_source 'AIR PADDLE'). The 30 unflagged samples are worker skin (organism 'human skin metagenome', host Homo sapiens, isolation_source 'EPIDERMAL SWAB').",
+   "exclude_rule": "Exclude flagged samples with host Sus scrofa (scientific_name 'pig metagenome') and those with scientific_name 'air metagenome' / isolation_source 'AIR PADDLE'; keep samples with host Homo sapiens and isolation_source 'EPIDERMAL SWAB'.",
+   "reason_code": "host_nonhuman",
+   "evidence_quote": "EPIDERMAL PADDLE",
+   "evidence_source": "ENA/BioSample isolation_source for the 10 flagged swine samples of PRJNA987158 (host Sus scrofa); the 2 air samples carry isolation_source 'AIR PADDLE'",
+   "confidence": 0.96,
+   "note": "10 of 12 are host_nonhuman, 2 are environmental. 6 of the 12 flagged are 16S amplicon runs, a separate issue. The catalog currently codes the pig samples as body site 'skin'."
+  },
+  {
+   "study_accession": "PRJNA725597",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Kit/extraction negative-control blanks in a perinatal microbiome study: organism 'air metagenome', environmental_medium and env_material 'blank', sample aliases 'blk_…', run descriptions 'KitNeg blk_…'. Host is recorded as Homo sapiens only because the submitter carried the study-wide host value onto the blanks; no biological material from a person is in them.",
+   "exclude_rule": "Exclude flagged samples with scientific_name 'air metagenome' — equivalently environmental_medium 'blank' or sample_alias beginning 'blk_'; keep the 344 human oral/gut/vaginal/placenta samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "HiSeq X Ten sequencing: KitNeg blk_160027051_10",
+   "evidence_source": "ENA read_run description field, flagged samples of PRJNA725597 (e.g. SAMN18880492); environmental_medium attribute value 'blank' on all 11",
+   "confidence": 0.97,
+   "note": "This is the case where host Homo sapiens must NOT be treated as a keep signal — the discriminator is environmental_medium 'blank' / alias prefix 'blk_'."
+  },
+  {
+   "study_accession": "PRJEB20500",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Dust swabs taken from computer mice (object surfaces) in a forensic skin-microbiome matching experiment: organism 'indoor metagenome', BioSample description 'computer mouse', env_material 'dust', env_feature 'surface', env_package 'built environment', host 'Not applicable'. The 10 unflagged samples are the matching human right-palm skin swabs (host Homo sapiens, env_material 'sebum').",
+   "exclude_rule": "Exclude flagged samples with scientific_name 'indoor metagenome' (BioSample description 'computer mouse', env_material 'dust'); keep the samples with scientific_name 'human skin metagenome' / description 'right palm'.",
+   "reason_code": "environmental",
+   "evidence_quote": "computer mouse",
+   "evidence_source": "ENA sample XML, SAMEA103983632 (DESCRIPTION element 'computer mouse'; env_material 'dust', env_package 'built environment')",
+   "confidence": 0.97,
+   "note": "The study title 'Forensic identification using skin bacterial communities - mouse' refers to the computer mouse, not the animal — a likely source of the mis-scoping. Qiita study 393; these are 454 GS FLX+ runs."
+  },
+  {
+   "study_accession": "PRJNA575186",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "Human stool from Crohn's disease patients after autologous haematopoietic stem-cell transplantation: host Homo sapiens, isolation_source 'fecal content', run descriptions naming clinical states and technical replicates (e.g. 'Baseline-Active sample 27 technical replicate 1'), filed under organism 'mouse gut metagenome'. The project's actual mouse samples are a separate set of 18 (host 'Mouse', isolation_source 'colon content', descriptions '… humanised mouse sample …') that are not in the catalog.",
+   "exclude_rule": "No exclusion for the 10 catalogued samples. Keep flagged samples with host Homo sapiens and isolation_source 'fecal content' and correct the organism to a human gut/feces metagenome; the project's other 18 samples (host 'Mouse', isolation_source 'colon content', description containing 'humanised mouse') are humanised-mouse material and must stay out.",
+   "reason_code": "not_applicable",
+   "evidence_quote": "The project involves an integrative multi-omics analysis of 30 Crohn’s disease patients after autologous hematopoietic stem cell transplantation (HSCT), with stool samples longitudinally collected over 5 years.",
+   "evidence_source": "ENA study description, PRJNA575186 (ENA portal 'study' result, description field); flagged-sample host 'Homo sapiens' with isolation_source 'fecal content' vs unflagged host 'Mouse' with 'colon content'",
+   "confidence": 0.94,
+   "note": "ENA holds 28 samples for this project, the catalog holds the 10 human ones only, so the humanised-mouse half is already out. Linked paper PMID 32859898 / PMC7456324."
+  },
+  {
+   "study_accession": "PRJNA736108",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Air negative controls for a skin-cancer skin-microbiome study: organism 'air metagenome', sample_description 'negative control', run descriptions 'WGS of air control', aliases 'SCC.DE.0NN.CTL'. The 348 unflagged samples are human skin swabs (host Homo sapiens).",
+   "exclude_rule": "Exclude flagged samples with scientific_name 'air metagenome' (sample_description 'negative control'); keep samples with scientific_name 'human skin metagenome' / host Homo sapiens.",
+   "reason_code": "environmental",
+   "evidence_quote": "Illumina NovaSeq 6000 sequencing: WGS of air control",
+   "evidence_source": "ENA read_run description field, flagged samples of PRJNA736108 (e.g. SAMN19709024); sample_description 'negative control'",
+   "confidence": 0.97,
+   "note": "The catalog currently codes these as body site 'skin'. The project also contains 10 'synthetic metagenome' positive controls and 3 further 'metagenome' negative controls outside this flagged set."
+  },
+  {
+   "study_accession": "PRJEB106785",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Archaeological sediment controls for an ancient dental-calculus study: organism 'soil metagenome', isolation_source 'soil adhering to skeletal remains', titles 'Soil metagenome from Lucus Feroniae' (7) and 'Soil metagenome from Selvicciola' (1), host sex recorded as 'missing: control sample'. The 72 unflagged samples are human dental calculus (host Homo sapiens).",
+   "exclude_rule": "Exclude flagged samples with scientific_name 'soil metagenome' (isolation_source 'soil adhering to skeletal remains'); keep samples with scientific_name 'human oral metagenome' / isolation_source 'dental calculus'.",
+   "reason_code": "environmental",
+   "evidence_quote": "soil adhering to skeletal remains",
+   "evidence_source": "ENA sample XML, SAMEA121020510 (isolation_source attribute)",
+   "confidence": 0.97,
+   "note": "Burial-sediment controls are standard practice in ancient-DNA work; they are deliberately non-human. The catalog currently codes them as body site 'oral'. 16 extraction/library blanks in the project are outside this flagged set."
+  },
+  {
+   "study_accession": "PRJNA595966",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "The human FMT donor stool samples for a mouse humanisation experiment: 7 samples titled 'DONOR1_DONOR_FMT_141' … 'DONOR5_DONOR_FMT_145', host Homo sapiens, isolation_source 'stool', filed under organism 'mouse gut metagenome'. The project's other 139 samples are the recipient C57BL/6 and NSG mice (host Mus musculus) and are not in the catalog.",
+   "exclude_rule": "No exclusion for the 7 catalogued samples. Keep flagged samples with host Homo sapiens and sample_title containing 'DONOR' and correct the organism to a human gut/feces metagenome; the 139 samples with host Mus musculus are the mouse recipients and must stay out.",
+   "reason_code": "not_applicable",
+   "evidence_quote": "Effect of antibiotics treatment and transplantation of human fecal microbes in C57BL6 and NSG mice.",
+   "evidence_source": "ENA study description, PRJNA595966 (ENA portal 'study' result, description field); flagged samples host 'Homo sapiens', sample_title 'DONOR5_DONOR_FMT_145'",
+   "confidence": 0.96,
+   "note": "Catalog currently holds 7 of the project's 146 samples, i.e. exactly the human donors, so the mouse recipients are already excluded. No Europe PMC record cites PRJNA595966."
+  }
+ ],
+ "declared_limitations": [
+  "none"
+ ]
+}

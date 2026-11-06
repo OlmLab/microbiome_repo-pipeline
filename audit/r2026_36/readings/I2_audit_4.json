@@ -1,0 +1,621 @@
+{
+ "reading": "I2_audit_4",
+ "projects": [
+  {
+   "study_accession": "PRJNA580503",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Here, a multi-omics-informed clinical treatment using clindamycin to target Gram-positive anaerobes offered an invaluable opportunity to test in vivo the CF keystone hypothesis.",
+     "evidence_source": "paper.fulltext PMID 34769481 / PMC8584531 (Introduction)",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Single CF patient followed across clinically given antibiotic periods: IV colistin/vancomycin/piperacillin-tazobactam/ceftazidime-avibactam while hospitalised, then no antibiotics, then oral clindamycin begun nine days after discharge.",
+   "note": "CF Rapid Response real-time multi-omics; the study's data informed the clinician's choice of clindamycin, but the drug was given as clinical treatment rather than on a research protocol, so this one is borderline."
+  },
+  {
+   "study_accession": "PRJNA989735",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After Legionella infection was confirmed by metagenomic next-generation sequencing, the patient was switched to omadacycline antibiotic therapy and eventually discharged.",
+     "evidence_source": "ENA study description PRJNA989735",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Single case: empirical moxifloxacin on admission, switched to omadacycline after mNGS identified Legionella; choice made clinically.",
+   "note": "Clinical case report; mNGS was diagnostic and the antibiotics were routine management. No linked paper in Europe PMC."
+  },
+  {
+   "study_accession": "PRJNA1134889",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Immediate treatment with Amphotericin B (Am B) and rifampin was initiated upon diagnosis.",
+     "evidence_source": "paper.abstract PMID 39606118 / PMC11599265",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Amphotericin B plus rifampin, with ECMO support, given clinically to a 6-year-old with N. fowleri fulminant myocarditis after mNGS diagnosis.",
+   "note": "Case report; therapy was emergency clinical care, not a study protocol."
+  },
+  {
+   "study_accession": "PRJNA1228522",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Following targeted antimicrobial and antiviral adjustments based on NGS findings, the patient exhibited complete resolution of post-dialysis fever and was discharged.",
+     "evidence_source": "paper.abstract PMID 40597897 / PMC12219980",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antimicrobial and antiviral therapy adjusted clinically in a 76-year-old haemodialysis patient with infective endocarditis after mNGS results.",
+   "note": "Case report; abstract records 'Clinical trial number: Not applicable'."
+  },
+  {
+   "study_accession": "PRJEB40239",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Here, we describe the case of a COVID-19 patient who developed recurring ventilator-associated pneumonia caused by Pseudomonas aeruginosa that acquired increasing levels of antimicrobial resistance (AMR) in response to treatment.",
+     "evidence_source": "paper.abstract PMID 33331820 / PMC7775105",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "ICU antibiotic treatment of recurrent ventilator-associated pneumonia in one COVID-19 patient; endotracheal aspirates sequenced through the course.",
+   "note": "Samples collected within the observational DISCOVER study; antibiotics were ICU clinical care."
+  },
+  {
+   "study_accession": "PRJEB97942",
+   "codes": [
+    {
+     "code": "diet_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "This study aims to systematically explore the effects of structured dietary phases on both the salivary microbiota and salivary cytokine profiles in a group of 11 participants over a 15-month period.",
+     "evidence_source": "ENA study description PRJEB97942",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Structured dietary phases (regular diet, elevated sucrose, elevated fibre, elevated dairy) imposed on 11 participants over 15 months, with saliva sampled through each phase.",
+   "note": "No linked paper found in Europe PMC; the archive description alone states the phases were imposed by the study design. 'Structured dietary phases' implies assignment rather than observation of habitual diet."
+  },
+  {
+   "study_accession": "PRJNA1027136",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Following the symptomatic therapy with voriconazole, the patient's disease prognosis was favorable.",
+     "evidence_source": "paper.abstract PMID 38144920 / PMC10739171",
+     "confidence": 0.8
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After treatment with surgery, an analysis of specimens collected from the patient was performed and was suggestive of Aspergillus infection.",
+     "evidence_source": "paper.abstract PMID 38144920 / PMC10739171",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Neurosurgical resection of an occipital lesion and voriconazole therapy, both delivered as clinical care to one ALL patient; specimens from the resection were sequenced.",
+   "note": "Case report; the operation was therapeutic neurosurgery the patient needed, and the specimens were a by-product."
+  },
+  {
+   "study_accession": "PRJNA1444215",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "a wash out phase with VDT usage limited to less than 3 hours daily (Week 0), followed by a period of over 8 hours daily VDT usage (Week 1, 2, and 3)",
+     "evidence_source": "ENA study description PRJNA1444215 (clause of a 43-word sentence, trimmed to stay under the 40-word cap)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Behavioural exposure protocol in 16 healthy adults: one washout week with visual-display-terminal use under 3 h/day, then three weeks of over 8 h/day VDT use; conjunctival swabs at baseline, 1 week and 3 weeks.",
+   "note": "The only Europe PMC record linked to this accession (PMID 40657968) is an unrelated reuse; the archive description is the primary source. Exposure duration was set by the protocol, so this is a study-imposed behavioural intervention."
+  },
+  {
+   "study_accession": "PRJNA295252",
+   "codes": [
+    {
+     "code": "diet_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "For four individuals, stool samples were collected and intestinal volume of gas was measured before and after a flatulogenic diet challenge of three days.",
+     "evidence_source": "paper.fulltext PMID 27211518 / PMC4876386 (Results)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Three days of habitual diet then three days of a prescribed diet rich in fermentable residues (whole-wheat/corn products, legumes and similar) in two healthy subjects and two patients with flatulence; stool sampled before and after.",
+   "note": "Methods state the subjects were instructed to follow the two diets, so the diet was assigned by the study."
+  },
+  {
+   "study_accession": "PRJNA1232950",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "A semi-trained panel (n = 20) completed sensory assessments using the generalised labelled visual analogue scale (glVAS) for nine tastants at baseline, during a five-day supplementation phase, and post-supplementation within a three-week protocol.",
+     "evidence_source": "paper.abstract PMID 41290715 / PMC12749309",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Oral L-proline 1000 mg each morning for five days given to a 20-person semi-trained sensory panel, with baseline, supplementation and post-supplementation sampling inside a three-week protocol.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA450443",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient was treated with intravenous ribavirin, which cleared the virus after 26 days.",
+     "evidence_source": "paper.abstract PMID 29977968 / PMC6016423",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Intravenous ribavirin for adenovirus B55 viraemia and antiviral therapy for HSV-1 encephalitis, both given as ICU clinical care to one patient while metagenomic sequencing monitored response.",
+   "note": "Real-time diagnostic metagenomics guided the clinicians, but the drugs themselves were clinical treatment rather than a protocol administration."
+  },
+  {
+   "study_accession": "PRJNA973018",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient was treated with piperacillin-tazobactam (TZP) plus doxycycline and improved dramatically after 7 days.",
+     "evidence_source": "paper.abstract PMID 37525113 / PMC10391985",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Piperacillin-tazobactam plus doxycycline given clinically for 7 days to a 63-year-old with severe leptospirosis and septic shock diagnosed by blood mNGS.",
+   "note": "Case report; antibiotics were routine treatment of the infection."
+  },
+  {
+   "study_accession": "PRJEB21816",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "At surgical revision, an infra-renal peri-aortic abscess was evident; post-operative antibiotic therapy with ciprofloxacin and doxycycline was started.",
+     "evidence_source": "paper.abstract PMID 30991963 / PMC6469050",
+     "confidence": 0.85
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Nine months after endovascular treatment of an abdominal aortic aneurysm (abdominal stent graft), a 76-year-old man was admitted for severe abdominal pain radiating to the back.",
+     "evidence_source": "paper.abstract PMID 30991963 / PMC6469050",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Surgical revision of an infected aortic endograft followed by ciprofloxacin plus doxycycline, then intravenous amoxicillin for 6 weeks; intraoperative samples were sequenced.",
+   "note": "Case report; the operation was therapeutic and the sequenced material came from intraoperative specimens."
+  },
+  {
+   "study_accession": "PRJEB51171",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Our prospective observational postapproval study (ClinicalTrials.gov Identifier: NCT04732910 ) was approved by the ethics committee of the Hannover Medical School (8922_BO_S_2020).",
+     "evidence_source": "paper.fulltext PMID 36154176 / PMC9602284 (Materials and Methods)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Elexacaftor/tezacaftor/ivacaftor prescribed as approved clinical therapy to pancreatic-insufficient CF patients aged 12+; airway secretions sampled pre-treatment and after 14 and 50 weeks.",
+   "note": "Self-described prospective observational post-approval study (NCT04732910): patients eligible for ELX/TEZ/IVA were followed as they started licensed therapy, so the drug was not allocated by the study. The pre/post sampling structure is what made the reading call it single_arm_before_after."
+  },
+  {
+   "study_accession": "PRJNA719067",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "A 3-month antibiotic treatment yielded a smaller bladder lesion but an enlarged allograft lesion, leading to a nephrectomy.",
+     "evidence_source": "paper.abstract PMID 34595189 / PMC8476786",
+     "confidence": 0.8
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "A 3-month antibiotic treatment yielded a smaller bladder lesion but an enlarged allograft lesion, leading to a nephrectomy.",
+     "evidence_source": "paper.abstract PMID 34595189 / PMC8476786",
+     "confidence": 0.8
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Fluconazole was given at 100 mg BID against cryptococcal infection while the anti-Escherichia coli as well as the anti-tuberculosis regimen was maintained, as described in Phase I.",
+     "evidence_source": "paper.fulltext PMID 34595189 / PMC8476786 (Case description, Phase II)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Three months of antibiotics, fluconazole/flucytosine antifungal therapy, graftectomy of the transplanted kidney and reduction of immunosuppression, all clinical management of one renal-transplant recipient; samples sequenced at three clinical phases.",
+   "note": "Case report; every treatment was clinical management of the infection and the sequencing was retrospective monitoring."
+  },
+  {
+   "study_accession": "PRJNA883024",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "She was treated with targeted antitumor drugs, and the CT scan after 20 days of targeted antitumor therapy showed obvious absorption of the lesions.",
+     "evidence_source": "paper.abstract PMID 36595850 / PMC9794315",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Expectorant and antibiotics, then targeted antitumour drugs, all given clinically to one woman with pneumonic-type lung adenocarcinoma; BALF was sequenced diagnostically.",
+   "note": "Case report; mNGS was used to flag tumour cells, and the drugs were oncological care."
+  },
+  {
+   "study_accession": "PRJNA660895",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The initiation of immunosuppression induced a bloom of the Anelloviridae that dominated the post-LT plasma virome.",
+     "evidence_source": "paper.abstract PMID 32979836 / PMC7519289",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Standard post-transplant immunosuppression (tacrolimus, mycophenolate mofetil, methylprednisolone) plus anti-HBV and antiviral prophylaxis in liver-transplant recipients; longitudinal plasma collected before and after transplantation.",
+   "note": "Observational virome cohort around clinically indicated transplantation and its standard drug regimen. The reading's own detail line already said 'not a' study-administered regimen."
+  },
+  {
+   "study_accession": "PRJNA1111075",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Blood virome composition, kinetics and associations with acute graft versus host disease after allogeneic hematopoietic stem cell transplantation",
+     "evidence_source": "ENA study description PRJNA1111075",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Allogeneic haematopoietic stem cell transplantation given as clinical treatment; blood virome followed over time and related to acute graft-versus-host disease.",
+   "note": "No linked paper found in Europe PMC and the archive record is one title-length sentence. Allogeneic HSCT is also not strictly surgery, so the code choice is questionable even though a procedure was received."
+  },
+  {
+   "study_accession": "PRJNA1021328",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We report a case of Spiroplasma bloodstream infection in a patient in China who developed pulmonary infection, acute respiratory distress syndrome, sepsis, and septic shock after emergency surgery for type A aortic dissection.",
+     "evidence_source": "paper.abstract PMID 38147505 / PMC10756377",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Emergency surgical repair of a type A aortic dissection, performed as life-saving clinical care; blood and lung specimens were sequenced after the patient became septic.",
+   "note": "Case report; the operation preceded and caused the clinical course that was sequenced, and was not done for research."
+  },
+  {
+   "study_accession": "PRJNA1160064",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Metagenomic sequencing data for analyses of the upper respiratory microbiome in a novel experimental human challenge model of SARS-CoV-2 infection.",
+     "evidence_source": "ENA study description PRJNA1160064",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Healthy volunteers deliberately inoculated with SARS-CoV-2 in a human challenge model; upper respiratory samples taken before and serially after inoculation.",
+   "note": "Deliberate experimental inoculation is the clearest possible study-administered exposure. The only Europe PMC links are reuse analyses, so the archive record is the source. other_intervention is the right code since no inoculation/challenge code exists."
+  },
+  {
+   "study_accession": "PRJNA1497083",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Sample sequences associated with the manuscript titled \"The fecal resistome of healthy dogs and their human household contacts from Portugal and the UK and the fecal resistome of dogs receiving antimicrobial drug treatment\"",
+     "evidence_source": "ENA study description PRJNA1497083",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Dogs under veterinary antimicrobial treatment sampled alongside healthy dogs and their human household contacts; the archive gives no indication the drugs were given for the study.",
+   "note": "No matching paper found in Europe PMC (searched by title phrase and by 'fecal resistome' + household contacts + Portugal). Verdict provisional on the archive record alone; the sampled animals received drugs clinically, i.e. 'receiving antimicrobial drug treatment', not assigned treatment."
+  },
+  {
+   "study_accession": "PRJNA396964",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Here we characterize the longitudinal gut virome in 44 recipients of HSCT using metagenomics.",
+     "evidence_source": "paper.abstract PMID 28759053",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Allogeneic haematopoietic stem cell transplantation delivered as clinical treatment; stool virome followed longitudinally before and after transplant and related to enteric GVHD.",
+   "note": "Observational cohort around clinically indicated HSCT. As with the other HSCT projects, 'surgery' is a loose code for a transplant that is an infusion after conditioning."
+  },
+  {
+   "study_accession": "PRJEB102317",
+   "codes": [
+    {
+     "code": "fmt",
+     "verdict": "unclear",
+     "evidence_quote": "FMT settembre 2025",
+     "evidence_source": "ENA study title and description PRJEB102317",
+     "confidence": 0.45
+    }
+   ],
+   "missing_codes": "",
+   "design": "unknown",
+   "intervention_detail": "Faecal microbiota transplantation implied by the study name; 24 human gut metagenomes from Policlinico Hospital Milan, sample aliases in paired T0/T1 form (e.g. TCT0/TCT1, PST0/PST1, MMFT0/MMFT1) and every sample described as 'Human gut metagenome of a patient with UC'.",
+   "note": "No paper, no protocol text, and a two-word description. The paired T0/T1 aliases and the ulcerative-colitis population make a pre/post FMT administration very likely, but nothing in the record states who gave the FMT, and FMT can also be clinical care that a study merely observed. Needs a human look or author contact."
+  },
+  {
+   "study_accession": "PRJEB32184",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Both groups received one large (60-65g) egg, 150 mL of cow’s milk and multiple micronutrients 6 days/week for 3 months, plus an anti-helminthic ( 16 ).",
+     "evidence_source": "paper.fulltext PMID 32706533 / PMC7289524 (Methods)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "drug_therapy",
+   "design": "single_arm_before_after",
+   "intervention_detail": "BEED study interventional phase: one large egg, 150 mL cow's milk, multiple micronutrients 6 days/week for 3 months plus an anti-helminthic, given to all enrolled stunted children; duodenal and faecal samples came from the non-responders who then underwent study endoscopy.",
+   "note": "Full text states the study has 'an interventional phase designed to test whether a nutritional intervention administered for 3 months would improve linear growth', so the supplement was given by this study, not observed. The anti-helminthic in the same package is a study-given drug (missing code). The endoscopy was performed for research ('we performed endoscopy in 80 children') but no catalog code fits it; 'surgery' would overstate an upper endoscopy."
+  },
+  {
+   "study_accession": "PRJNA1062559",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The aim of this study was to evaluate the clinical utility of metagenomic next-generation sequencing (mNGS) in sepsis patients receiving early empirical antibiotic treatment.",
+     "evidence_source": "ENA study description PRJNA1062559",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Sepsis patients already on early empirical antibiotics; mNGS evaluated as a diagnostic, with no treatment assigned by the study.",
+   "note": "Catalog links only two reuse preprints, no own-data paper; the archive description is explicit that patients were 'receiving' empirical antibiotics. The reading's own detail line already said 'observed, not study-administered'."
+  },
+  {
+   "study_accession": "PRJNA906500",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "As part of the yaws eradication campaign, 83% of Lihir Island inhabitants were given a single dose of oral azithromycin (30 mg/kg; max 2g) and were re-examined every six months for up to 48 months.",
+     "evidence_source": "paper.fulltext PMID 36534698 / PMC9810193 (Methods, Specimen collection)",
+     "confidence": 0.65
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Single oral dose of azithromycin 30 mg/kg (max 2 g) mass drug administration to 83% of Lihir Island inhabitants in a yaws eradication trial; ulcer swabs for this metagenomic analysis collected prospectively 36, 42 and 48 months post-MDA, with incident ulcer cases and household contacts also treated with azithromycin.",
+   "note": "Borderline. The azithromycin was given by the parent yaws-eradication campaign (which the authors call 'the trial') rather than by the sequencing analysis, but the sampled participants were treated inside that protocol and specimens were collected prospectively for microbiome analysis, so this is not ordinary observed clinical care. All sequenced specimens are post-MDA; there is no pre-treatment arm."
+  },
+  {
+   "study_accession": "PRJNA1198494",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We performed a pilot observational study, obtained retroauricular and forearm skin swabs from 12 adult patients before conditioning chemotherapy/radiation and at 1 week, 1 month, and 3 months after allogeneic HSCT, and performed shotgun metagenomic sequencing.",
+     "evidence_source": "paper.abstract PMID 39853270 / PMC12243047",
+     "confidence": 0.85
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We performed a pilot observational study, obtained retroauricular and forearm skin swabs from 12 adult patients before conditioning chemotherapy/radiation and at 1 week, 1 month, and 3 months after allogeneic HSCT, and performed shotgun metagenomic sequencing.",
+     "evidence_source": "paper.abstract PMID 39853270 / PMC12243047",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Conditioning chemotherapy/radiation and allogeneic HSCT delivered as clinical treatment to 12 adults; skin swabs taken before conditioning and at 1 week, 1 month and 3 months after transplant.",
+   "note": "The paper calls itself a pilot observational study. As elsewhere, 'surgery' is a loose code for HSCT."
+  },
+  {
+   "study_accession": "PRJNA768391",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "In this study, 16 consecutive patients from January 2020 to January 2021 at the Second Affiliated Hospital of Zhejiang University School of Medicine (SAHZU) were reviewed.",
+     "evidence_source": "paper.abstract PMID 34803987 / PMC8604023",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Cholesteatoma removal performed as clinical ear surgery in 16 consecutive patients; the excised tissue was used for metagenomic sequencing.",
+   "note": "Retrospective review of consecutive surgical patients; the operation was indicated treatment and the specimens were a by-product."
+  },
+  {
+   "study_accession": "PRJNA729919",
+   "codes": [
+    {
+     "code": "vaccine",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Despite the global use of rotavirus vaccines, vaccine breakthrough cases remain a pediatric health problem.",
+     "evidence_source": "paper.abstract PMID 34586890 / PMC8601229",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Infants who had already completed the two-dose Rotarix schedule through routine immunisation and then presented with gastroenteritis; stool investigated for breakthrough infection and coinfections.",
+   "note": "The vaccine was given by the national immunisation programme before enrolment; the study investigated suspected breakthrough cases and administered nothing."
+  },
+  {
+   "study_accession": "PRJNA504944",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We aimed to explore the effects of broad-spectrum combination antibiotic therapy on Pseudomonas aeruginosa populations in the lungs of cystic fibrosis patients.",
+     "evidence_source": "ENA study description PRJNA504944",
+     "confidence": 0.55
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Broad-spectrum combination antibiotic therapy for cystic fibrosis exacerbation, with daily sputum sampling to track Pseudomonas aeruginosa populations at high temporal resolution.",
+   "note": "Provisional: no linked paper in the catalog and no match found in Europe PMC, so this rests on the two-sentence archive description. That description says the study explored the effects of therapy the patients were receiving and does not state that the regimen was assigned; CF exacerbation antibiotics are normally clinical care. Dense daily sampling is a research protocol, but sampling is not an intervention."
+  },
+  {
+   "study_accession": "PRJNA1368994",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Using a multi-omics approach on resected aspergillomas, we defined the genomic, transcriptional, and metabolic adaptations of P. aeruginosa within this polymicrobial niche.",
+     "evidence_source": "paper.abstract PMID 41843749 / PMC13148400",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Pulmonary lobectomy/resection performed as clinical treatment of chronic pulmonary aspergillosis; 61 resected fungal balls were analysed by multi-omics.",
+   "note": "Specimens are surgical waste from therapeutic resections; the study did not perform the operations for research."
+  },
+  {
+   "study_accession": "PRJEB75454",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "unclear",
+     "evidence_quote": "Zirconia implants were used to treat ten patients who received vascularized bone flaps used for jaw reconstruction (six fibula and four DCIA flaps).",
+     "evidence_source": "ENA study description PRJEB75454",
+     "confidence": 0.5
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Zirconia dental implants placed in fibula free flaps and deep circumflex iliac artery flaps in ten reconstructed jaws; peri-implant microbiota sampled immediately after implant surgery and at 3 and 12 months.",
+   "note": "The companion clinical paper (PMID 39694985) describes a prospective 1.5-year follow-up of these implants, which reads like a prospective evaluation of a device the investigators placed, but neither record says whether the implant type was chosen for the study or as ordinary prosthetic rehabilitation. The implants were clinically needed either way; only the 'for research' part is unresolved."
+  },
+  {
+   "study_accession": "PRJNA998490",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Using instrumented spine surgery as a model of clean (class I) skin incision, we prospectively sampled preoperative microbiomes and postoperative SSI isolates in a cohort of 204 patients.",
+     "evidence_source": "paper.abstract PMID 38598612 / PMC11634388",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Instrumented spine surgery performed for clinical indications in 204 patients, with preoperative microbiome sampling and postoperative wound isolates collected prospectively; surgical antibiotic prophylaxis was standard perioperative care.",
+   "note": "Prospective observational cohort. The prophylactic antibiotic mentioned in the abstract is routine perioperative care, so it is not a missing administered code."
+  },
+  {
+   "study_accession": "PRJNA742538",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "In this retrospective study, we enrolled 51 LTx recipients who underwent lung transplantation between January 2020 and December 2020.",
+     "evidence_source": "paper.abstract PMID 34742287 / PMC8572506",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Lung transplantation performed as clinical treatment for end-stage lung disease; BALF collected post-transplant by bronchoscopy and tested by high-throughput sequencing for pathogens.",
+   "note": "Explicitly retrospective; the transplant and the bronchoscopies were clinical care."
+  },
+  {
+   "study_accession": "PRJEB55648",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "161 subjects from low exposure villages and 74 subjects from medium exposure village were recruited in 2016, after all villages received Ivermectin treatment (see Table S5 for details).",
+     "evidence_source": "ENA study description PRJEB55648 (second clause of a run-on sentence, trimmed to stay under the 40-word cap)",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Amerindian villagers sampled in 2015 before and in 2016 after an ivermectin mass-treatment programme reached their villages; one village additionally had a medical post supplying medicines, antibiotics, antiparasitics and vaccines.",
+   "note": "The ivermectin was a public-health programme the study sampled around, not an administration by the study; the wording 'started' and 'received' places the campaign outside the study. No paper matched in Europe PMC. If this were ever recoded as administered, drug_therapy would fit the agent better than other_intervention."
+  },
+  {
+   "study_accession": "PRJNA896362",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "To analyze the etiology and drug resistance of pulmonary infection after cardiac surgery",
+     "evidence_source": "ENA study description PRJNA896362",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Cardiac surgery performed for clinical indications; patients who developed fever afterwards were investigated for pulmonary infection and antimicrobial resistance genes.",
+   "note": "Provisional: no linked paper and no Europe PMC match, so this rests on a single-sentence archive description. Nothing suggests the operations were done for research."
+  }
+ ],
+ "declared_limitations": [
+  "Eight projects have no linked paper and none could be found in Europe PMC by accession, title or abstract phrase (PRJNA989735, PRJEB97942, PRJNA1111075, PRJNA1497083, PRJEB102317, PRJNA504944, PRJEB55648, PRJNA896362); their verdicts rest on the ENA study description alone and are provisional, as noted per project.",
+  "Full text was fetched only for the six projects whose abstract did not settle the question (PRJNA580503, PRJNA295252, PRJEB51171, PRJEB32184, PRJNA906500, PRJNA719067); the Europe PMC fullTextXML call for PRJNA998490/PMC11634388 returned no usable body, so that verdict rests on its abstract.",
+  "Two evidence quotes (PRJNA1444215, PRJEB55648) are exact clauses rather than whole sentences because the source sentences run 43 and 55 words, over the 40-word cap; this is flagged in each evidence_source string."
+ ]
+}

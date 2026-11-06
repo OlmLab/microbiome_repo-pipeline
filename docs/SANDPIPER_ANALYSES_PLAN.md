@@ -32,8 +32,8 @@ current samples that also carry the field):
 | antibiotic exposure (any value) | 66,660 / 526 (yes: 10,022 / 149) |
 | intervention arm | 27,951 / 278 |
 | delivery mode / feeding / preterm (infants) | 12,795 / 68 · 7,976 / 56 · 15,425 / 85 |
-| people with ≥ 2 profiled samples | 28,219 people (133,424 samples, 1,056 projects); with a time axis 16,223 people (73,123 samples) |
-| families with a mother and a child profiled | 2,462 |
+| people with ≥ 2 profiled samples | 35,115 people (124,113 samples, 909 projects); with a time axis 20,096 people (72,240 samples). People are (study_accession, person_key) pairs — person_key is unique only within a project |
+| families with a mother and a child profiled | 2,578 ((study_accession, family_id) pairs) |
 | sequencing depth (Gbp) | 368,675 / 2,809 · collection year 299,052 / 2,298 |
 
 Rules for every analysis: one value per person per stratum (or mixed models with person and project random effects); contrasts
@@ -91,7 +91,9 @@ adopting (the reader's 22 lessons, ranked):
 3. **Cross-route agreement**: flag samples where two routes give different values for one field and send conflicts to the Opus
    check; set route precedence per field from the benchmark, not one global order (cf. the person / time precedence fix in 1.29.1).
 4. **Subject invariants**: once sex, country or date of birth is known for a person, apply it to all that person's samples — direct
-   coverage gain for sex: +18,341 samples (29.3 % → 31.6 %); 1,819 people whose samples disagree on sex go to a check instead.
+   coverage gain, grouping by (study_accession, person_key): sex +2,125 samples (46 projects; no person has conflicting sex),
+   country +585 samples; 263 people in 9 projects whose samples disagree on country go to a check instead. (An earlier estimate
+   of +18,341 grouped by person_key alone and mixed people from different projects.)
 5. **Identifier columns**: UBERON for body site, MONDO / Disease Ontology for health condition, ISO 3166 for country, beside the
    current values.
 6. **Published validators and a rejection log** shipped with each release; **confidence calibration** per field from the gold set.

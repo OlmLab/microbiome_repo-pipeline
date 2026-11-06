@@ -1,0 +1,647 @@
+{
+ "reading": "I2_audit_1",
+ "projects": [
+  {
+   "study_accession": "PRJNA1477077",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "This case report aims to document a rare instance of severe community-acquired lobar pneumonia caused by the emerging opportunistic pathogen Elizabethkingia anophelis in an otherwise healthy, immunocompetent 53-year-old adult.",
+     "evidence_source": "ENA study description, PRJNA1477077",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Targeted doxycycline started after mNGS of BALF identified E. anophelis; given as clinical treatment of the patient's pneumonia, single case report.",
+   "note": "No linked paper found in Europe PMC (accession and topic searches returned nothing); verdict rests on the archive record alone."
+  },
+  {
+   "study_accession": "PRJNA709416",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After treatment with voriconazole, the patient's condition improved rapidly.",
+     "evidence_source": "Europe PMC abstract, PMID 34026787",
+     "confidence": 0.85
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient was in good condition after valve replacement surgery and 9 months of voriconazole therapy.",
+     "evidence_source": "ENA study description, PRJNA709416",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Clinically indicated valve replacement plus voriconazole for Aspergillus flavus endocarditis in one haemodialysis patient; mNGS performed on diagnostic blood samples.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA827932",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "With specific treatment for both leptospirosis and tuberculosis, and associated supportive care (e.g., hemodialysis), the patient showed a good prognosis.",
+     "evidence_source": "Europe PMC abstract, PMID 36268227",
+     "confidence": 0.85
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "With specific treatment for both leptospirosis and tuberculosis, and associated supportive care (e.g., hemodialysis), the patient showed a good prognosis.",
+     "evidence_source": "Europe PMC abstract, PMID 36268227",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Empirical sulperazone/moxifloxacin then anti-tuberculosis therapy in one patient; all treatment was clinical management recorded by the case report.",
+   "note": "drug_therapy largely duplicates antibiotic here (the anti-TB regimen is antibacterial)."
+  },
+  {
+   "study_accession": "PRJEB48725",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient was successfully treated with operation and piperacillin and tazobactam.",
+     "evidence_source": "ENA study description, PRJEB48725",
+     "confidence": 0.85
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "For the patient who failed conservative treatment and had abscess compression, we performed anterior cervical surgery to remove the lesion at an early stage and collected intraoperative specimens for culture and mNGS.",
+     "evidence_source": "Europe PMC full text, PMC8964782 (Case presentation)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Anterior cervical decompression performed because conservative treatment failed; intraoperative specimens used for mNGS, postoperative antibiotics by drug sensitivity.",
+   "note": "Surgery was clinically indicated treatment, not a research procedure, although the study used the intraoperative specimen."
+  },
+  {
+   "study_accession": "PRJEB56082",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The Objective of this project is to investigate the severity, the clinical course and the pathogenesis of conjunctivitis in AD patients treated with dupilumab in terms of quantification of pro-inflammatory cytokines and characterization of the ocular surface microbiome.",
+     "evidence_source": "ENA study description, PRJEB56082",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Ocular surface sampled at baseline (before/on the day of the dupilumab injection) and months later in four atopic dermatitis patients receiving dupilumab, an approved biologic.",
+   "note": "No linked paper; the archive record describes observation of patients already on dupilumab, but does not state who prescribed it, so administration by the study cannot be fully excluded."
+  },
+  {
+   "study_accession": "PRJNA1185004",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Two months of treatment with rifampicin, ethambutol, clarithromycin, and levofloxacin resulted in significant reduction and absorption of lung lesions.",
+     "evidence_source": "Europe PMC abstract, PMID 39676844",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Anti-mycobacterial combination therapy given clinically to one immunocompetent patient with M. gordonae pulmonary disease.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA1330259",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "A robot-assisted stereotactic puncture and drainage were used for abscess removal.",
+     "evidence_source": "Europe PMC abstract, PMID 41312456",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Therapeutic stereotactic drainage of brain abscesses; a portion of the aspirated pus was sent for mNGS.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA504035",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We conducted a prospective pilot study on a homogeneous patient cohort regarding the chemotherapy regimens that included 10 ASCT recipients.",
+     "evidence_source": "Europe PMC abstract, PMID 30441786",
+     "confidence": 0.75
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "It included four cycles of VTD (velcade, thalidomide, dexamethasone) for induction therapy; high-dose melphalan was used as a conditioning regimen, and, for maintenance therapy two VTD cycles were administered.",
+     "evidence_source": "Europe PMC full text, PMC6266913 (Methods)",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Prospective observational pilot in 10 myeloma patients receiving standard VTD induction, melphalan conditioning and autologous stem cell transplant; 108 plasma samples sequenced.",
+   "note": "Treatment was the department's standard myeloma pathway, observed by the study; 'surgery' is a poor code for an autologous stem cell transplant."
+  },
+  {
+   "study_accession": "PRJNA712952",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Fifty-three patients were enrolled in a longitudinal clinical intervention study with two arms, including 26 caries-active and 27 caries-free adults.",
+     "evidence_source": "Europe PMC abstract, PMID 36171634",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Study-supplied dentifrices used sequentially by all participants: 1450-ppm fluoride for 3 months, then 1450-ppm fluoride + 1.5% arginine for 6 months, after a 1-week washout.",
+   "note": "Real administration wrongly dropped by I2. The two 'arms' are caries-active vs caries-free subjects, not treatment arms. Product is a topical dentifrice; other_intervention (or prebiotic_or_fibre for arginine) fits better than dietary_supplement."
+  },
+  {
+   "study_accession": "PRJNA300602",
+   "codes": [
+    {
+     "code": "probiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Subjects were asked to orally intake four probiotic tablets consisting of a total of 10.6 Log10 CFU LcZ daily from Day 0 to 28.",
+     "evidence_source": "Europe PMC full text, PMC8249650 (Methods, Experimental design)",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Lactobacillus casei Zhang tablets, 10.6 log10 CFU/day for 28 days, given to 6 healthy adults; stool sampled on days 0, 14 and 28.",
+   "note": "Real administration wrongly dropped by I2. Paper identified via the data-availability accession SRP065752 (= PRJNA300602); this link is absent from catalog_study_papers."
+  },
+  {
+   "study_accession": "PRJEB22348",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Participants received 6 g sodium chloride per day (corresponding to 2.36 Na+ g/day) using slow-release NaCl tablets in addition to their accustomed diets.",
+     "evidence_source": "Europe PMC full text, PMC6070150 (Salt challenge in healthy humans)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Slow-release NaCl tablets, 6 g/day for 14 days, on top of habitual diet, in 12 healthy male volunteers; stool sampled before and after the challenge.",
+   "note": "Real administration wrongly dropped by I2 (human arm of a mostly-mouse paper)."
+  },
+  {
+   "study_accession": "PRJNA836298",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "According to the results, of which the profiles of the resistance genes were detected by mNGS, drugs designed to control infection were adjusted, namely to polymyxin B (500,000 U/12 h), azithromycin (0.5 g/24 h) and ganciclovir (0.25 g/12 h).",
+     "evidence_source": "Europe PMC abstract, PMID 35949316",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "ICU antimicrobial therapy adjusted on clinical/mNGS grounds in one patient with ARDS after neurosurgery.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA1167654",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Consequently, linezolid was discontinued, and 800 mg of oral contezolid was administered every 12 hours as an alternative treatment.",
+     "evidence_source": "Europe PMC full text, PMC11740585 (Case presentation)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Clinical switch from linezolid to contezolid after drug-induced thrombocytopenia in one patient with S. aureus lung abscess.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJEB51894",
+   "codes": [
+    {
+     "code": "diet_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "During each phase, the individuals ate their habitual diet, except for the last three days when a flatulogenic diet (61% carbohydrates, 25% proteins and 14% fat, 27 g of fiber per day) was administered.",
+     "evidence_source": "Europe PMC full text, PMC9014321 (Methods)",
+     "confidence": 0.95
+    },
+    {
+     "code": "probiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "During the 28-day FMP administration phase, individuals consumed 1 pot (125 g) of the study product at breakfast and 1 pot at dinner.",
+     "evidence_source": "Europe PMC full text, PMC9014321 (Methods)",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Fermented milk product with B. animalis subsp. lactis CNCM I-2494 plus lactic acid bacteria, 2 x 125 g pots/day for 28 days, with a study-administered 3-day flatulogenic challenge diet before and after; no placebo arm described.",
+   "note": "Real administration wrongly dropped by I2."
+  },
+  {
+   "study_accession": "PRJNA976639",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Based on the identification results, appropriate antifungal treatment was administered, followed by a second-stage surgical intervention.",
+     "evidence_source": "ENA study description, PRJNA976639",
+     "confidence": 0.8
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Based on the identification results, appropriate antifungal treatment was administered, followed by a second-stage surgical intervention.",
+     "evidence_source": "ENA study description, PRJNA976639",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Two-stage revision arthroplasty and antifungal therapy for Candida tropicalis prosthetic joint infection in one patient; intraoperative samples used for mNGS.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA1390448",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The present case report described a 55-year-old female presenting with community-acquired pneumonia (CAP), who received empirical treatment with moxifloxacin, ultimately diagnosed through mNGS performed on bronchoalveolar lavage fluid.",
+     "evidence_source": "Europe PMC abstract, PMID 41623309",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Empirical then continued moxifloxacin for T. whipplei pneumonia in one patient, as clinical care.",
+   "note": "Europe PMC full text (PMC12856819) returned HTTP 500; abstract used."
+  },
+  {
+   "study_accession": "PRJNA916750",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Diagnosis of pulmonary infection was considered, and combined meropenem and levofloxacin treatment was administered.",
+     "evidence_source": "Europe PMC full text, PMC9901563 (Case presentation)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Clinical antibiotic therapy (meropenem/levofloxacin, later moxifloxacin) plus intravenous immunoglobulin for C. psittaci pneumonia with Guillain-Barre syndrome in one patient.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA977254",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Oral minocycline 50 mg was administered twice daily for 6 weeks.",
+     "evidence_source": "Europe PMC abstract, PMID 37787419",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Single-arm trial: oral minocycline 50 mg twice daily for 6 weeks in 36 rosacea patients; cheek and nose lesions sampled at baseline, 3 and 6 weeks.",
+   "note": "Real administration wrongly dropped by I2. Trial was ethics-approved at Shanghai Skin Disease Hospital and explicitly described as a single-arm trial."
+  },
+  {
+   "study_accession": "PRJEB41945",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "All patients were treated with rituximab and followed the HLH‐94 protocol.",
+     "evidence_source": "Europe PMC full text, PMC8589012 (Methods)",
+     "confidence": 0.7
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Despite ongoing EBV viraemia, patient 2 did not receive a transplant because no further flares of HLH were observed after treatment.",
+     "evidence_source": "Europe PMC full text, PMC8589012",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Three CAEBV/HLH patients managed clinically with rituximab and the HLH-94 protocol; two received peripheral blood stem cell transplants. Archived longitudinal blood samples were sequenced.",
+   "note": "HLH-94 is a standard clinical treatment protocol, not this study's protocol; 'surgery' is a poor code for a stem cell transplant."
+  },
+  {
+   "study_accession": "PRJNA1116256",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "At that time, he was diagnosed with CAP and was administered piperacillin-tazobactam (4.5 g q8h) as empirical therapy.",
+     "evidence_source": "Europe PMC full text, PMC11337151 (Case presentation)",
+     "confidence": 0.85
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient received timely symptomatic treatment, which included an intravenous drip of linezolid (0.6 g Q12H) and oral oseltamivir (75 mg Q12H).",
+     "evidence_source": "Europe PMC full text, PMC11337151 (Case presentation)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Clinical anti-Legionella and antiviral therapy in one 79-year-old patient; BALF mNGS repeated during treatment.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA415710",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "During the treatment phase (Day-84 or t = 2), 32 subjects with dandruff scalp and 33 with healthy scalp received controlled oil-treatment twice a week for 12 weeks at the center (MS Clinical Research, Bengaluru, India).",
+     "evidence_source": "Europe PMC full text, PMC8012655 (Methods, Treatment)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "non_randomized_controlled",
+   "intervention_detail": "Supervised scalp application of 10 ml pure coconut oil with 20 min massage, twice weekly for 12 weeks, in 65 of 131 women; the other 66 received bland shampoo only. No randomisation is described.",
+   "note": "Real administration wrongly dropped by I2, and the recorded design was also wrong: a no-oil comparison group exists, so this is a controlled (non-randomised) intervention. Topical cosmetic use suggests other_intervention rather than dietary_supplement."
+  },
+  {
+   "study_accession": "PRJNA814613",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "He recovered and discharged quickly after treatment with sodium stibogluconate.",
+     "evidence_source": "Europe PMC full text, PMC9469688 (Case presentation)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Sodium stibogluconate given clinically to patients diagnosed with kala-azar after mNGS detection of Leishmania.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA234452",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient responded dramatically when treated with appropriate antimicrobials, and he was discharged home 24 days later near his premorbid baseline.",
+     "evidence_source": "ENA study description, PRJNA234452",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Targeted antimicrobial therapy after unbiased CSF sequencing diagnosed Leptospira santarosai neuroleptospirosis in one boy with SCID; treatment was clinical care.",
+   "note": "No paper link in the catalog package; verdict rests on the archive record."
+  },
+  {
+   "study_accession": "PRJEB34085",
+   "codes": [
+    {
+     "code": "fmt",
+     "verdict": "administered_by_study",
+     "evidence_quote": "We report the results of a first exploratory study testing the use of vaginal microbiome transplantation (VMT) from healthy donors as a therapeutic alternative for patients suffering from symptomatic, intractable and recurrent bacterial vaginosis",
+     "evidence_source": "Europe PMC abstract, PMID 31591599",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Vaginal microbiome transplant from screened healthy donors given to five women with intractable recurrent bacterial vaginosis; repeat transplants and donor changes in some patients.",
+   "note": "Real administration wrongly dropped by I2. ClinicalTrials.gov NCT02236429 is registered INTERVENTIONAL, single-group, primary purpose treatment, intervention 'vaginal flora transplant'. The fmt code is used here for a vaginal (not faecal) transplant."
+  },
+  {
+   "study_accession": "PRJNA1266762",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After colistin discontinuation due to nephrotoxicity, ciprofloxacin was initiated, with an intravenous two-phage cocktail introduced days later.",
+     "evidence_source": "Europe PMC abstract, PMID 41667461",
+     "confidence": 0.5
+    },
+    {
+     "code": "phage_therapy",
+     "verdict": "administered_by_study",
+     "evidence_quote": "The intervention was provided under a compassionate use framework and approved by the U.S. Food and Drug Administration and the Institutional Review Board of the University of California, San Diego (IRB #802083).",
+     "evidence_source": "Europe PMC full text, PMC13003088 (Methods, Ethics statement)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Intravenous two-phage cocktail (P1A and PYO2) under an FDA/IRB-approved compassionate-use framework: test infusion 2x10^7 PFU escalating to 2x10^8 PFU every 8 h for 14 days, alongside clinically prescribed ciprofloxacin, in one man with cystic fibrosis.",
+   "note": "Real phage administration wrongly dropped by I2. The antibiotic itself was clinical therapy, though its staggering was designed around the phage dosing, so the antibiotic verdict is the weaker of the two."
+  },
+  {
+   "study_accession": "PRJNA688615",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The anti-TB treatment was stopped and the patient was prescribed sulphamethoxazole in combination with linezolid and meropenem for nocardiosis.",
+     "evidence_source": "ENA study description, PRJNA688615",
+     "confidence": 0.85
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The anti-TB treatment was stopped and the patient was prescribed sulphamethoxazole in combination with linezolid and meropenem for nocardiosis.",
+     "evidence_source": "ENA study description, PRJNA688615",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Clinical switch from anti-tuberculosis therapy to co-trimoxazole, linezolid and meropenem after mNGS identified Nocardia farcinica in one patient.",
+   "note": "No paper link in the catalog package; drug_therapy duplicates antibiotic."
+  },
+  {
+   "study_accession": "PRJNA727238",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We detected rapid, dynamic changes in translocated microbial constituents during two years after cART initiation.",
+     "evidence_source": "Europe PMC abstract, PMID 34237254",
+     "confidence": 0.55
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Longitudinal plasma sampling (months 0-24) in treatment-naive people with HIV starting combination antiretroviral therapy; nothing indicates the study supplied the drugs.",
+   "note": "Provisional: Europe PMC full text (PMC8316372) returned HTTP 500, so only the abstract and archive record were read; the paper was found by phrase search because the project has no paper link in the package."
+  },
+  {
+   "study_accession": "PRJEB96952",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Apart from a similar initiation of the use of lumacaftor/ivacaftor (30), patients were not selected on the basis of disease state or other medications.",
+     "evidence_source": "Europe PMC full text, PMC12671179 (Results/Discussion)",
+     "confidence": 0.75
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Twenty adults with cystic fibrosis homozygous for Phe508del who had started clinically prescribed lumacaftor/ivacaftor; 68 sputum samples collected over roughly a year of routine visits.",
+   "note": "Sampling was timed around a therapy the patients were prescribed anyway (secondary use of a cohort described in reference 30), not around a study-administered drug."
+  },
+  {
+   "study_accession": "PRJNA1162089",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We investigated the dual impact of immune deficiency and hematopoietic stem cell transplantation (HSCT) on the skin microbiome in 24 patients with dedicator of cytokinesis 8 (DOCK8) deficiency, a rare inborn error of immunity.",
+     "evidence_source": "Europe PMC abstract, PMID 40730159",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Skin microbiome sampled before and up to 12 months after allogeneic HSCT, the curative clinical treatment for DOCK8 deficiency, in 24 patients plus healthy controls.",
+   "note": "Europe PMC full text (PMC12313297) returned HTTP 500, so the read rests on the abstract and archive record; 'surgery' is a poor code for a transplant."
+  },
+  {
+   "study_accession": "PRJNA1206143",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient fully recovered after surgical debridement and two weeks of antibiotic therapy.",
+     "evidence_source": "Europe PMC abstract, PMID 40108525",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Transnasal endoscopic removal of a retained intracranial bamboo foreign body plus ceftriaxone, as clinical treatment; intraoperative material used for mNGS.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA785820",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Consequently, the patient accepted sensitive intravenous antibiotics therapy for 13 days and had a remarkable clinical and radiological improvement.",
+     "evidence_source": "Europe PMC full text, PMC8764309 (Case presentation)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Thirteen days of intravenous antibiotics chosen on susceptibility results in one patient with atypical aspiration pneumonia; clinical care.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA808198",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We suspected IE and started using an empirical antibiotic (IV vancomycin 20 mg/kg loading dose) and then 15 mg/kg every 12 hours.",
+     "evidence_source": "Europe PMC full text, PMC9259169 (Case presentation)",
+     "confidence": 0.85
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Eventually, the patient was discharged following surgery and antibiotic treatment.",
+     "evidence_source": "Europe PMC full text, PMC9259169",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Valve surgery and antibiotics for S. agalactiae native valve endocarditis in one patient; mNGS done on perioperative clinical specimens.",
+   "note": ""
+  },
+  {
+   "study_accession": "PRJNA727609",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "All patients achieved SVR after 12 weeks of treatment with sofosbuvir/velpatasvir.",
+     "evidence_source": "Europe PMC full text, PMC11227361 (Methods/Results)",
+     "confidence": 0.65
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Patients with chronic HCV sampled before and 6 months after sustained virologic response on 12 weeks of sofosbuvir/velpatasvir; the protocol itself performed liver biopsies and a dual-cholate test.",
+   "note": "ClinicalTrials.gov NCT02400216 is registered as OBSERVATIONAL (case-only) with a 'dual cholate' test agent, so the direct-acting antiviral course reads as standard care the protocol observed rather than a study-administered drug; confidence moderate because an NIH protocol may still have supplied it."
+  },
+  {
+   "study_accession": "PRJEB74139",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Throughout the treatment week, participants consumed nitrate supplements orally (concentrate from beetroot juice, 400 mg, equivalent to 6.45 mM, sourced from James White Drinks, Ipswich, UK) each morning.",
+     "evidence_source": "Europe PMC full text, PMC12048645 (Methods)",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Beetroot-juice nitrate concentrate, 400 mg (6.45 mM) each morning for a 5-day treatment week in healthy volunteers, with saliva/taste assessment before, during and after.",
+   "note": "Real administration wrongly dropped by I2. The paper calls nitrate a potential prebiotic, so prebiotic_or_fibre is also defensible."
+  },
+  {
+   "study_accession": "PRJNA1512120",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Despite targeted anti-syphilitic and antiepileptic therapy, the patient's consciousness failed to improve, with persistent PLEDs on EEG.",
+     "evidence_source": "Europe PMC full text, PMC13643245",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Intravenous penicillin for neurosyphilis plus levetiracetam and other antiepileptics, given as clinical care to one patient; CSF mNGS submitted for publication.",
+   "note": ""
+  }
+ ],
+ "declared_limitations": [
+  "Europe PMC full text returned HTTP 500 for 3 papers (PMC12856819 / PRJNA1390448, PMC12313297 / PRJNA1162089, PMC8316372 / PRJNA727238); those verdicts rest on abstract plus archive record and the PRJNA727238 verdict is labelled provisional.",
+  "Four projects have no paper link in catalog_study_papers and accession/topic searches found none (PRJNA1477077, PRJEB56082, PRJNA234452, PRJNA688615); their verdicts rest on the ENA study record alone. For PRJNA300602 and PRJNA727238 I located the paper myself by phrase search (SRP065752 data-availability match and an exact-phrase match respectively).",
+  "Three quotes were normalised for XML rendering artifacts only (subscript 'Log 10' -> 'Log10', superscript 'Na +' -> 'Na+', citation marker '( 30 )' -> '(30)'); wording is unchanged from the printed sentence."
+ ]
+}

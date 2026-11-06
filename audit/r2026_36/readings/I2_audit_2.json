@@ -1,0 +1,612 @@
+{
+ "reading": "I2_audit_2",
+ "projects": [
+  {
+   "study_accession": "PRJNA421203",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "unclear",
+     "evidence_quote": "Vaginal virome of patient with Bacterial Vaginosis_day 0 after Clindamycin uptake",
+     "evidence_source": "archive.ena.sample_title (SAMN08134965, PRJNA421203)",
+     "confidence": 0.4
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Single patient with chronic bacterial vaginosis; vaginal virome sampled at day 0, 1, 7 and 12 'after Clindamycin uptake' (4 samples). Clindamycin is the standard clinical treatment for BV; no statement of who prescribed or supplied it.",
+   "note": "No linked publication found (Europe PMC accession and title searches returned nothing). Evidence is limited to BioProject/ENA titles, which record the clindamycin course but not whether the study administered it; sampling schedule is clearly designed around the drug, so the code should not simply be deleted."
+  },
+  {
+   "study_accession": "PRJNA666226",
+   "codes": [
+    {
+     "code": "fmt",
+     "verdict": "administered_by_study",
+     "evidence_quote": "we investigated the gut phage changes after FMT treatment of refractory or recurrent CDI",
+     "evidence_source": "archive.bioproject.description (PRJNA666226)",
+     "confidence": 0.55
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "FMT given to patients with refractory/recurrent C. difficile infection; recipient stool sampled Pre, D10, W05 and W13 plus FMT donor stool (130 runs). University of Guelph deposit.",
+   "note": "No primary publication located (Europe PMC accession/title/topic searches; the CHUV phageome preprint PPR1098667 has different timepoints and sample counts). The protocol-schedule timepoints and archived donor material point to a prospective FMT protocol rather than passive observation, but the archive text does not say who delivered the FMT, hence confidence 0.55."
+  },
+  {
+   "study_accession": "PRJNA839435",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We compare the metagenomes of before and after exacerbation events after antibiotic treatment on n=6 individuals.",
+     "evidence_source": "archive.bioproject.description (PRJNA839435)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antibiotics given clinically to treat acute pulmonary exacerbations in 6 people with cystic fibrosis; sputum metagenomes compared before and after treatment (12 runs).",
+   "note": "Europe PMC accession search returns only a 2026 review (PMID 42545024) that cites the dataset, not a primary report; verdict rests on the BioProject/ENA description. Antibiotics were treatment for clinical exacerbations, which the study sampled around."
+  },
+  {
+   "study_accession": "PRJNA1346422",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Generally healthy adults (107 enrolled, 87 completed) with early periodontitis used a home-care regimen (stannous fluoride paste, cetylpyridinium chloride rinse, power toothbrush, and floss) or usual care (control).",
+     "evidence_source": "paper.abstract PMID:41303313 (PMC12652036)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "randomized_controlled_trial",
+   "intervention_detail": "Home-care oral hygiene regimen (0.454% stannous fluoride toothpaste, 0.07% cetylpyridinium chloride rinse, oscillating-rotating power toothbrush, floss, 6-monthly prophylaxis) vs usual care, applied daily for 24 months in 107 enrolled / 87 completing adults with early periodontitis.",
+   "note": "Two-arm trial, not single-arm: the regimen is compared against a usual-care control group. The parent clinical study is cited in the reference list as 'Effects of an Oral Hygiene Regimen on the Progression of Gingivitis/Early Periodontitis: A Randomized Controlled Trial' (ref 15), so design is recorded as randomized_controlled_trial."
+  },
+  {
+   "study_accession": "PRJNA556827",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We present an in-depth evaluation of a renal transplant recipient with a pruritic HPyV7-associated eruption that resolved with reduction of immunosuppression and treatment with acitretin.",
+     "evidence_source": "archive.bioproject.description (PRJNA556827)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of one renal transplant recipient; immunosuppression was reduced and acitretin given as clinical management of an HPyV7-associated eruption. Skin metagenomes from 6 samples.",
+   "note": "Linked paper PMID 33075349 (J Invest Dermatol letter) has no abstract in PubMed/Europe PMC and is not open access; the BioProject description carries the same wording. Treatment was clinical management of the patient's eruption."
+  },
+  {
+   "study_accession": "PRJNA949023",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "among patients coming for surgical periodontal treatment (either regenerative or plastic periodontal surgery), which indicated the use of CHX rinsing for 4 weeks (twice daily with 0.2% CHX)",
+     "evidence_source": "paper.fulltext.methods PMID:38983634 (PMC11231401)",
+     "confidence": 0.75
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The inclusion criteria were: - Surgical periodontal treatment (either regenerative or plastic surgery).",
+     "evidence_source": "paper.fulltext.methods PMID:38983634 (PMC11231401)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Patients recruited among those already scheduled for regenerative or plastic periodontal surgery for which 4 weeks of 0.2% chlorhexidine rinsing twice daily was clinically indicated; saliva and plaque sampled before, after 4 weeks and 4 weeks after stopping.",
+   "note": "Inclusion required an existing indication for both the surgery and post-operative CHX, so neither was allocated by the study; the study added sampling visits only. Registered as DRKS00031475, which is why a reading may have treated it as a trial."
+  },
+  {
+   "study_accession": "PRJEB24753",
+   "codes": [
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient underwent a semi-urgent aortic valve replacement by a mechanical prosthetic valve.",
+     "evidence_source": "paper.abstract PMID:31448292 (PMC6691042)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Clinically indicated semi-urgent aortic valve replacement in a 54-year-old woman with blood-culture-negative endocarditis; the surgically removed valve tissue was used for metagenomic sequencing.",
+   "note": "The valve replacement was therapeutic and would have happened regardless; the study used the explanted tissue (2 runs: valve specimen plus water control)."
+  },
+  {
+   "study_accession": "PRJNA1397972",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "the patient achieved symptom resolution and improved imaging after 6 months of treatment with voriconazole",
+     "evidence_source": "paper.abstract PMID:42222213 (PMC13218273)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 75-year-old woman with rheumatoid arthritis and pulmonary aspergilloma; 6 months of voriconazole given as clinical treatment after diagnosis. One BALF sample sequenced.",
+   "note": "The deposited data are the diagnostic mNGS of bronchoalveolar lavage fluid; treatment is reported as clinical outcome, not as a study-delivered protocol."
+  },
+  {
+   "study_accession": "PRJNA422117",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Paired sputa were also obtained from three study participants with CF before and >6 days after initiation of antibiotics.",
+     "evidence_source": "paper.abstract PMID:29887843 (PMC5980964)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Antibiotics given to treat acute pulmonary exacerbations in three people with cystic fibrosis; paired sputa taken before and more than 6 days after antibiotic initiation (plus 3 mock-community controls).",
+   "note": "The paper's primary aim is benchmarking sequencing methods; antibiotics were clinical treatment of exacerbations that the study sampled around."
+  },
+  {
+   "study_accession": "PRJNA981362",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The targeted therapy with linezolid according to the antimicrobial susceptibility was used to treat cerebral abscess induced by N. gipuzkoensis",
+     "evidence_source": "paper.abstract PMID:38023399 (PMC10657549)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of an elderly woman with cerebral abscess caused by Nocardia gipuzkoensis; linezolid chosen clinically on antimicrobial susceptibility after mNGS identification. Single sample.",
+   "note": "Single diagnostic specimen from brain secretion; therapy is reported as the clinical course."
+  },
+  {
+   "study_accession": "PRJEB44020",
+   "codes": [
+    {
+     "code": "dietary_supplement",
+     "verdict": "administered_by_study",
+     "evidence_quote": "The normal diets of study participants were supplemented with either a pea- or orange fiber-containing snack.",
+     "evidence_source": "archive.ena.study_description (PRJEB44020)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "prebiotic_or_fibre",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Two 10-week open-label, single-group human studies in which participants' normal diets were supplemented with a pea-fiber or an orange-fiber snack prototype (escalating servings); 222 samples / 390 runs.",
+   "note": "The snacks are explicitly fiber preparations ('dietary fiber polysaccharides' in the study title), so prebiotic_or_fibre applies in addition to dietary_supplement. Linked paper PMID 35764090 reports the human arm of the same fiber-snack studies."
+  },
+  {
+   "study_accession": "PRJNA1042839",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After the addition of vancomycin as an anti-infective treatment, the temperature and leukocytes improved quickly.",
+     "evidence_source": "paper.abstract PMID:38567022 (PMC10985196)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of Q fever endocarditis; vancomycin, then doxycycline plus hydroxychloroquine, then vancomycin re-added, all as clinical anti-infective management around cardiac surgery. Three samples.",
+   "note": "Treatment decisions were clinical; the deposit is diagnostic blood mNGS. The paper describes a 43-year-old male, which differs from the age recorded in the catalog detail."
+  },
+  {
+   "study_accession": "PRJNA428720",
+   "codes": [
+    {
+     "code": "prebiotic_or_fibre",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Healthy human subjects consumed two BMO doses over 11-day periods each and provided fecal samples.",
+     "evidence_source": "paper.abstract PMID:32028108 (PMC7233280)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Healthy adults consumed bovine milk oligosaccharides at two doses over sequential 11-day periods, providing fecal samples at day 0 and day 11 of each period (24 samples / 144 runs).",
+   "note": "Supplement was supplied and dosed by the study; sample aliases encode subject, timepoint and day (e.g. 4003-T2-D11)."
+  },
+  {
+   "study_accession": "PRJNA773989",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After antituberculosis and antifungal treatments, the symptoms were significantly relieved, and the chest CT showed resolution of the lung lesions.",
+     "evidence_source": "paper.abstract PMID:35462994 (PMC9026854)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of an 82-year-old man with recurrent pneumonia; antituberculosis and antifungal drugs given clinically after mNGS identified M. tuberculosis and Candida albicans. Single sample.",
+   "note": "Single diagnostic BALF specimen; treatment reported as clinical outcome."
+  },
+  {
+   "study_accession": "PRJNA895321",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "He was treated with antibiotics with full remission of systemic and neurologic symptoms.",
+     "evidence_source": "paper.abstract PMID:37188245 (PMC10173873)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 32-year-old man with neurobrucellosis; antibiotics given clinically after CSF mNGS identified Brucella sp. Single CSF sample.",
+   "note": "Diagnostic CSF metagenomics only; no study-delivered regimen."
+  },
+  {
+   "study_accession": "PRJNA1353102",
+   "codes": [
+    {
+     "code": "probiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "Then, without changing their usual diet, they took a probiotic supplement containing B. bifidum VSUET22 (5 × 10 8 CFU) twice daily with food for 2 weeks.",
+     "evidence_source": "paper.fulltext.methods PMID:41809656 (PMC12968040)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "14 patients with BMI > 30 selected from a questionnaire took a B. bifidum VSUET22 probiotic supplement (5 x 10^8 CFU) twice daily with food for 2 weeks without changing their usual diet; stool sampled before and after (28 samples).",
+   "note": "Quote is copied from the Europe PMC full text with superscript markup removed, so '5 x 10^8' renders as '5 × 10 8'. Clear single-arm supplementation protocol wrongly stripped by I2."
+  },
+  {
+   "study_accession": "PRJEB89174",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "We report Borrelia afzelii hepatitis in an immunosuppressed patient in Switzerland receiving anti-CD20 therapy and venetoclax.",
+     "evidence_source": "paper.abstract PMID:41379644 (PMC12704518)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report: an immunosuppressed patient already receiving anti-CD20 therapy and venetoclax for haematological disease developed Borrelia afzelii hepatitis; one filtered-read sample.",
+   "note": "The immunosuppressive drugs are the patient's pre-existing therapy and the risk factor being described, not a study intervention."
+  },
+  {
+   "study_accession": "PRJNA1521571",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "All patients were treated with 5% topical permethrin cream (Omeclean, Seoul, Republic of Korea) according to institutional practice.",
+     "evidence_source": "paper.fulltext.methods PMID:42794824 (PMC13607506)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "18 patients with scabies received three applications of 5% topical permethrin cream per institutional practice; skin swabs from dry and moist sites before treatment and two weeks after completion (41 samples).",
+   "note": "The authors themselves describe this as an 'observational pre-post design'; treatment followed institutional practice rather than a study-assigned protocol, though post-treatment sampling was scheduled by the study."
+  },
+  {
+   "study_accession": "PRJNA628815",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Once targeted antibiotic therapy was administered, the patient recovered quickly.",
+     "evidence_source": "paper.abstract PMID:32615925 (PMC7330266)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 33-year-old man with urinary tract infection; empirical Sulperazon plus metronidazole, then targeted therapy once mNGS identified Enterococcus faecalis. Three samples.",
+   "note": "Antibiotic choices were clinical decisions; the deposit is diagnostic blood and urine mNGS."
+  },
+  {
+   "study_accession": "PRJNA808819",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "mNGS reported microbial findings in all cases, which led to changes in antibiotic treatment.",
+     "evidence_source": "paper.abstract PMID:35401464 (PMC8989347)",
+     "confidence": 0.8
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Cohort of neonates with severe infections; mNGS results led clinicians to change antibiotic treatment, and repeat sequencing was used to monitor response (15 samples).",
+   "note": "The study's own intervention is the diagnostic test; the antibiotics themselves were clinical care chosen by the treating team."
+  },
+  {
+   "study_accession": "PRJNA909599",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After receiving the combined treatment of antibiotic therapy and surgical intervention, the patient recovered well, and the sagittal MRI showed that vertebral edema signals disappeared and the graft of bone fused 16 months after surgery.",
+     "evidence_source": "paper.abstract PMID:36609227 (PMC9817394)",
+     "confidence": 0.85
+    },
+    {
+     "code": "surgery",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After receiving the combined treatment of antibiotic therapy and surgical intervention, the patient recovered well, and the sagittal MRI showed that vertebral edema signals disappeared and the graft of bone fused 16 months after surgery.",
+     "evidence_source": "paper.abstract PMID:36609227 (PMC9817394)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 66-year-old man with Coxiella burnetii spinal infection treated clinically with antibiotics plus surgical intervention; one specimen from the spinal lesion sequenced.",
+   "note": "Both the antibiotics and the spinal surgery were therapeutic management of the patient's infection."
+  },
+  {
+   "study_accession": "PRJNA1522555",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "This project uses oral saliva as a medium and employs metagenomic techniques to detect changes in the microbial community before and after neoadjuvant immunochemotherapy.",
+     "evidence_source": "archive.bioproject.description (PRJNA1522555)",
+     "confidence": 0.6
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Saliva metagenomes from oral cancer patients before and after neoadjuvant chemoimmunotherapy given as their cancer treatment (20 samples).",
+   "note": "No publication located (2026 deposit; Europe PMC accession and topic searches returned nothing). The description reads as a cohort sampled around standard neoadjuvant therapy, but it does not exclude the samples coming from a trial that assigned the regimen, hence confidence 0.60."
+  },
+  {
+   "study_accession": "PRJNA951887",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Based on the results of pathogenic identification by mNGS, the four patients were individually, treated with different antibiotics, and discharged with favorable outcomes.",
+     "evidence_source": "paper.abstract PMID:37799338 (PMC10548267)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Family cluster of four Chlamydia psittaci cases; each patient given a different antibiotic clinically after mNGS identification (4 samples).",
+   "note": "Per-patient clinical treatment, not a protocol regimen."
+  },
+  {
+   "study_accession": "PRJEB44898",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "He received antibiotic prophylaxis with piperacillin-tazobactam and azythromycin.",
+     "evidence_source": "paper.abstract PMID:34295911 (PMC8290067)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of hyperammonemia syndrome after double lung transplantation; piperacillin-tazobactam plus azithromycin prophylaxis and later azithromycin/doxycycline were standard post-transplant care. One BAL sample.",
+   "note": "Transplant and prophylaxis were clinical care; the lung transplantation itself is likewise observed care, so no surgery code is added."
+  },
+  {
+   "study_accession": "PRJNA1097321",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After confirming Listeria meningitis and multibacillary leprosy with erythema nodosum leprosum (ENL), a type 2 reaction, she was treated with ampicillin sodium, dapsone, rifampicin, clofazimine, methylprednisolone, and thalidomide.",
+     "evidence_source": "paper.abstract PMID:38961391 (PMC11223277)",
+     "confidence": 0.85
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After confirming Listeria meningitis and multibacillary leprosy with erythema nodosum leprosum (ENL), a type 2 reaction, she was treated with ampicillin sodium, dapsone, rifampicin, clofazimine, methylprednisolone, and thalidomide.",
+     "evidence_source": "paper.abstract PMID:38961391 (PMC11223277)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 30-year-old woman with Listeria meningitis and multibacillary leprosy with erythema nodosum leprosum; ampicillin plus multidrug leprosy therapy, methylprednisolone and thalidomide given clinically. One CSF sample.",
+   "note": "PRJNA1097321 and PRJNA1097746 are two deposits from the same case report (PMID 38961391); the BioProject descriptions differ only in which organisms they name."
+  },
+  {
+   "study_accession": "PRJNA1124588",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "A total of 26 treatment-naïve PLWH were recruited at the Shanghai Public Health Clinical Center (SPHCC) during September 2019 and December 2021 and were followed up to 15 months since ART initiation",
+     "evidence_source": "paper.fulltext.methods PMID:39950859 (PMC11866967)",
+     "confidence": 0.7
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Longitudinal cohort of 26 treatment-naive people with HIV-1 followed from initiation of the standard first-line regimen (efavirenz 600 mg/day, lamivudine 300 mg/day, tenofovir 300 mg/day) for up to 15 months, plus 19 healthy controls (131 samples).",
+   "note": "Participants were recruited at a clinical centre and followed through first-line ART they were receiving as care; the methods report the regimen used but no study allocation, dispensing or randomisation."
+  },
+  {
+   "study_accession": "PRJNA778020",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The pathogen was diagnosed in a timely and accurate manner by metagenome sequencing, and the patient was eventually discharged with azithromycin.",
+     "evidence_source": "paper.abstract PMID:35089209 (PMC8797581)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of neonatal suppurative meningitis caused by Ureaplasma parvum; azithromycin given clinically and the infant discharged on it. Two samples.",
+   "note": "Diagnostic deposit; treatment is clinical narrative."
+  },
+  {
+   "study_accession": "PRJNA819667",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "With targeted antibiotic intervention, the patient's symptoms were effectively alleviated, and clinical indicators returned to normal levels.",
+     "evidence_source": "paper.abstract PMID:35983300 (PMC9380824)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational_with_procedure",
+   "intervention_detail": "Case report of a 61-year-old man with Mycoplasma hominis meningitis after neurosurgery for cerebral haemorrhage; empiric then targeted antibiotics given clinically, with CSF mNGS repeated after treatment (2 samples).",
+   "note": "The preceding neurosurgery was therapeutic for cerebral haemorrhage and is likewise observed care, so no surgery code is added."
+  },
+  {
+   "study_accession": "PRJNA1097746",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After confirming Listeria meningitis and multibacillary leprosy with erythema nodosum leprosum (ENL), a type 2 reaction, she was treated with ampicillin sodium, dapsone, rifampicin, clofazimine, methylprednisolone, and thalidomide.",
+     "evidence_source": "paper.abstract PMID:38961391 (PMC11223277)",
+     "confidence": 0.85
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "After confirming Listeria meningitis and multibacillary leprosy with erythema nodosum leprosum (ENL), a type 2 reaction, she was treated with ampicillin sodium, dapsone, rifampicin, clofazimine, methylprednisolone, and thalidomide.",
+     "evidence_source": "paper.abstract PMID:38961391 (PMC11223277)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Second deposit from the same case report as PRJNA1097321: Listeria meningitis and multibacillary leprosy with ENL treated with ampicillin sodium, dapsone, rifampicin, clofazimine, methylprednisolone and thalidomide. One CSF sample.",
+   "note": "Duplicate-case pair with PRJNA1097321 (same publication, PMID 38961391)."
+  },
+  {
+   "study_accession": "PRJNA647796",
+   "codes": [
+    {
+     "code": "other_intervention",
+     "verdict": "administered_by_study",
+     "evidence_quote": "The aim of the study is evaluating the effect of caries treatment and topical fluoridation on oral microflora in in patients with primary Sjogren's syndrome",
+     "evidence_source": "archive.bioproject.description (PRJNA647796)",
+     "confidence": 0.55
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Patients with primary Sjogren's syndrome sampled before and after caries treatment and topical fluoridation; 108 oral samples with 4-digit subject/timepoint aliases collected Nov 2018 - Sep 2019.",
+   "note": "No publication located (Europe PMC accession search returns only a secondary methods paper on genome compression, PMID 37894218; PubMed topic searches found no matching report). Topical fluoridation on a scheduled visit series reads as protocol-delivered, but restorative caries treatment is also routine dental care, so confidence is 0.55."
+  },
+  {
+   "study_accession": "PRJNA755812",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The mother was treated with rifampicin and isoniazid for 9 months, ethambutol and pyrazinamide for 3 months, and prednisolone acetate for 8 weeks.",
+     "evidence_source": "paper.abstract PMID:34596161 (PMC8483829)",
+     "confidence": 0.85
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The mother was treated with rifampicin and isoniazid for 9 months, ethambutol and pyrazinamide for 3 months, and prednisolone acetate for 8 weeks.",
+     "evidence_source": "paper.abstract PMID:34596161 (PMC8483829)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Mother-infant pair diagnosed with tuberculosis after delivery; mother given rifampicin/isoniazid 9 months, ethambutol/pyrazinamide 3 months and prednisolone acetate 8 weeks, infant 11 months of anti-tuberculous therapy. Two samples.",
+   "note": "Standard anti-tuberculous therapy and adjunctive corticosteroid, given as clinical treatment; the deposit is diagnostic BAL sequencing."
+  },
+  {
+   "study_accession": "PRJEB89675",
+   "codes": [
+    {
+     "code": "live_biotherapeutic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "In this multicenter, single-arm, open-label phase 2 clinical trial, the efficacy and safety of L. lac_G01, in combination with avelumab, an anti-PD-L1 inhibitor, were evaluated in 42 PD-L1 positive advanced gastric cancer patients.",
+     "evidence_source": "archive.ena.study_description (PRJEB89675)",
+     "confidence": 0.95
+    },
+    {
+     "code": "drug_therapy",
+     "verdict": "administered_by_study",
+     "evidence_quote": "In this multicenter, single-arm, open-label phase 2 clinical trial, the efficacy and safety of L. lac_G01, in combination with avelumab, an anti-PD-L1 inhibitor, were evaluated in 42 PD-L1 positive advanced gastric cancer patients.",
+     "evidence_source": "archive.ena.study_description (PRJEB89675)",
+     "confidence": 0.95
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Multicentre, single-arm, open-label phase 2 trial: oral live biotherapeutic Lactococcus lactis GEN-001 (L. lac_G01), once daily, combined with the anti-PD-L1 antibody avelumab, in 42 PD-L1-positive advanced gastric cancer patients (43 fecal samples).",
+   "note": "Unambiguous study-administered intervention removed by I2 purely because the trial is single-arm rather than controlled."
+  },
+  {
+   "study_accession": "PRJNA1177974",
+   "codes": [
+    {
+     "code": "drug_therapy",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "Tropheryma whipplei and Cryptococcus antimicrobial therapies were sequentially administered.",
+     "evidence_source": "paper.abstract PMID:39707301 (PMC11662430)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 41-year-old man on a JAK inhibitor for psoriasis who developed Tropheryma whipplei pneumonia with cryptococcal co-infection; antimicrobials given sequentially as clinical treatment. Two samples.",
+   "note": "The JAK inhibitor is the patient's pre-existing psoriasis therapy and the antimicrobials are clinical treatment of the infection."
+  },
+  {
+   "study_accession": "PRJNA669294",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "administered_by_study",
+     "evidence_quote": "For this study, all five women received 1 week oral MET treatment after baseline assessment and every subsequent time point for which they tested positive for BV.",
+     "evidence_source": "paper.fulltext.results PMID:34151180 (PMC8209634)",
+     "confidence": 0.9
+    }
+   ],
+   "missing_codes": "",
+   "design": "single_arm_before_after",
+   "intervention_detail": "Five women with asymptomatic bacterial vaginosis, untreated at baseline, were each given a 1-week course of oral metronidazole after baseline assessment and at every subsequent 2-monthly visit at which they tested BV-positive over 12 months (20 swabs).",
+   "note": "Treatment was triggered by the study's own Nugent-score testing of asymptomatic (normally untreated) BV and administered after baseline sampling - the full text states 'Treatment was administered after baseline.' A genuine single-arm administration removed by I2."
+  },
+  {
+   "study_accession": "PRJNA702049",
+   "codes": [
+    {
+     "code": "antibiotic",
+     "verdict": "observed_routine_care",
+     "evidence_quote": "The patient was treated with antibiotics for 14 days, 2 days with meropenem (4 g/day) and linezolid (1.2 g/day), 2 days with meropenem only, 2 days with cefotaxime and finally 8 days with amoxicillin at 12 g/day.",
+     "evidence_source": "paper.fulltext.case_presentation PMID:33921275 (PMC8069228)",
+     "confidence": 0.85
+    }
+   ],
+   "missing_codes": "",
+   "design": "observational",
+   "intervention_detail": "Case report of a 22-year-old man with Haemophilus influenzae meningitis after a fall; 14 days of clinical antibiotics (meropenem + linezolid, meropenem, cefotaxime, then amoxicillin). One CSF sample sequenced.",
+   "note": "The study contribution is real-time nanopore diagnosis of the CSF sample; antibiotics were the treating team's clinical management."
+  }
+ ],
+ "declared_limitations": [
+  "5 of 35 projects have no primary publication locatable in Europe PMC (PRJNA421203, PRJNA666226, PRJNA1522555, PRJNA647796 and, for PRJNA839435, only a review citing the accession); their verdicts rest on ENA/BioProject descriptions and sample titles alone and are provisional, with confidences 0.40-0.80 and the limitation stated in each note.",
+  "PRJNA556827's linked paper (PMID 33075349) is a non-open-access letter with no abstract indexed; the verdict uses the BioProject description, which carries the same wording.",
+  "Full text was fetched only for the 7 projects where the abstract did not settle administration or design; the remaining verdicts use abstracts plus archive records."
+ ]
+}

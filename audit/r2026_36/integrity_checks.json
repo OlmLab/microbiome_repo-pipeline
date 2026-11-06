@@ -1,0 +1,71 @@
+{
+ "fail": {
+  "F1_duplicate_current_sample_keys": {
+   "n": 0
+  },
+  "F2_current_samples_without_runs": {
+   "n": 0,
+   "detail": {
+    "count": 35,
+    "allowed": 100,
+    "projects": {
+     "PRJNA61745": 26,
+     "PRJNA46879": 9
+    }
+   }
+  },
+  "F3_sandpiper_rows_not_current": {
+   "n": 0
+  },
+  "F4_sandpiper_samples_without_flagged_profiled_run": {
+   "n": 0
+  },
+  "F5_coverage_n_samples_mismatch": {
+   "n": 0,
+   "detail": {}
+  },
+  "F9_genus_samples_not_in_summary": {
+   "n": 0
+  },
+  "F6_person_invariant_rows_outside_person": {
+   "n": 0
+  },
+  "F7_people_with_two_sex_values": {
+   "n": 0
+  },
+  "F8_values_out_of_range": {
+   "n": 0,
+   "detail": {
+    "age_lt0": 0,
+    "age_gt122y": 0,
+    "date_lt1980": 0,
+    "date_after_build": 0
+   }
+  }
+ },
+ "warn": {
+  "W2_retired_rows": 59475,
+  "W1_people_with_two_country_values": {
+   "n": 6,
+   "projects": {
+    "PRJEB50977": 3,
+    "PRJNA1083578": 2,
+    "PRJEB32794": 1
+   }
+  },
+  "W3_ages_above_110y": {
+   "n": 1,
+   "projects": {
+    "PRJNA542578": 1
+   }
+  }
+ },
+ "info": {
+  "wide_rows": 865529,
+  "current_samples": 806054,
+  "sandpiper_samples": 416336,
+  "sandpiper_share_of_current": 0.5165,
+  "person_invariant_rows": 2655
+ },
+ "ok": true
+}

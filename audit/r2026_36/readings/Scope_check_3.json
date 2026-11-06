@@ -1,0 +1,195 @@
+{
+ "reading": "Scope_check_3",
+ "projects": [
+  {
+   "study_accession": "PRJNA981109",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Blank/negative extraction controls run alongside the human CSF metagenomes, filed as 'hospital metagenome' with host 'Not applicable'. All 7 carry isolation_source 'Blank negative control' and study_participant 'Negative control 1'-'Negative control 7'.",
+   "exclude_rule": "Exclude all 7 flagged samples in PRJNA981109 (organism 'hospital metagenome'); equivalently exclude flagged samples whose isolation_source is 'Blank negative control'.",
+   "reason_code": "environmental",
+   "evidence_quote": "Blank negative control",
+   "evidence_source": "BioSample SAMN35715328 (PRJNA981109), attribute isolation_source; same value on SAMN35715329-SAMN35715334, host 'Not applicable', study_participant 'Negative control 1'-'Negative control 7'",
+   "confidence": 0.97,
+   "note": "The 43 non-flagged samples of this study are the human cerebrospinal fluid metagenomes and are unaffected."
+  },
+  {
+   "study_accession": "PRJEB55583",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Archaeological cave sediment samples from El Miron (Spain), sequenced alongside Neanderthal/modern-human dental calculus. Sample titles are excavation coordinates ('Layer 17 square H3') and isolation_source is 'Archaeological Sediment layer'.",
+   "exclude_rule": "Exclude all 6 flagged samples in PRJEB55583 (organism 'soil metagenome', isolation_source 'Archaeological Sediment layer').",
+   "reason_code": "environmental",
+   "evidence_quote": "Furthermore, this study includes the sequencing data of the extraction and library preparation negative controls plus the shotgun short-read sequencing data of six sediment samples and a toe bone sample from the cave site El Mirón, Spain.",
+   "evidence_source": "ENA study PRJEB55583 study_description (ENA portal API, result=study); corroborated by BioSample SAMEA110744179 isolation_source 'Archaeological Sediment layer'",
+   "confidence": 0.96,
+   "note": "Exactly six sediment samples are described and exactly six samples are flagged, so the flagged set is the sediment set."
+  },
+  {
+   "study_accession": "PRJEB80740",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Mineral concretion material scraped from around archaeological human remains (isolation_source 'Powdered concretion' or 'Chunk of concretion'), not tissue taken from a human body. The study's human specimens are the dental/skeletal remains themselves.",
+   "exclude_rule": "Exclude all 5 flagged samples in PRJEB80740 (organism 'soil metagenome', isolation_source containing 'concretion').",
+   "reason_code": "environmental",
+   "evidence_quote": "Powdered concretion",
+   "evidence_source": "BioSample SAMEA118446617 (PRJEB80740), attribute isolation_source; SAMEA118446623 and SAMEA118446625 carry 'Chunk of concretion'",
+   "confidence": 0.8,
+   "note": "Judgement call worth a second look: the paper reports that concretions covering human tissue contained human oral microbiome DNA leached from the skeleton, so the sequence content is partly human-derived even though the substrate is a mineral crust, not a body site. ENA study_description: \"Interestingly, concretions covering human tissues in two cases were found to contain human oral microbiome genomic data leached from the original skeletal source, as well as environmental and human proteins.\""
+  },
+  {
+   "study_accession": "PRJNA672826",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Non-human test datasets for a bioinformatics tool: 2 cheese samples (isolation_source 'cheese matrix', host 'not applicable') and 2 cattle-barn litter/soil samples (organism 'bovine metagenome', host Bos taurus, isolation_source 'soil').",
+   "exclude_rule": "Exclude all 4 flagged samples in PRJNA672826 (organism 'food metagenome' or 'bovine metagenome'); keep the remaining human samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "cheese matrix",
+   "evidence_source": "BioSample SAMN16578994 (PRJNA672826), attribute isolation_source, sample alias 'Cheese'; SAMN16578995 alias 'Cow Litter', host 'Bos taurus', isolation_source 'soil'",
+   "confidence": 0.95,
+   "note": "Two reason codes really apply: the 2 cheese samples are food_or_product and the 2 cow-litter samples are environmental/host_nonhuman (Bos taurus). Coded as environmental for the project as a whole."
+  },
+  {
+   "study_accession": "PRJNA1053868",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Environmental swabs and soil from a poultry slaughterhouse in Guangzhou: swabs of the slaughterhouse and of a transport vehicle (indoor metagenome) and slaughterhouse soil.",
+   "exclude_rule": "Exclude all 3 flagged samples in PRJNA1053868 (organism 'indoor metagenome' or 'soil metagenome').",
+   "reason_code": "environmental",
+   "evidence_quote": "Swabs of slaughterhouse transport vehicle",
+   "evidence_source": "BioSample SAMN38877006 (PRJNA1053868), attribute isolation_source; SAMN38877005 'Swabs of slaugherhouse', SAMN38877009 'Soil of slaugherhouse'",
+   "confidence": 0.97,
+   "note": "Study description: \"Various types of samples from a poultry slaughterhouse in China, raw data obtained by metagenomic and metatranscriptomic sequencing.\" Remaining samples of the project should also be re-checked for poultry/worker material."
+  },
+  {
+   "study_accession": "PRJNA1066070",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "The three human FMT donor faecal metagenomes (sample aliases HD-1, HD-2, HD-3, host Homo sapiens) of a human-to-mouse transplantation experiment; the submitter gave the whole project the organism name 'mouse gut metagenome'.",
+   "exclude_rule": "None - keep all 3 flagged samples. (For the rest of the BioProject, which is not in the catalog: exclude samples whose title begins 'Mouse feces sample'.)",
+   "reason_code": "not_applicable",
+   "evidence_quote": "Metagenome of human donor bacteria 1",
+   "evidence_source": "BioSample SAMN39458688 (PRJNA1066070), sample title; attribute host 'Homo sapiens'; titles 2 and 3 identical except for the index",
+   "confidence": 0.93,
+   "note": "ENA read_run listing for PRJNA1066070 shows the other 28 samples titled 'Mouse feces sample in gavage group N' / 'Lower gut transplantation group N'; only the 3 HD-* donor samples are in the catalog. Study description: \"normal metagenome of human faces and mice faces.\""
+  },
+  {
+   "study_accession": "PRJNA255985",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Creek water samples (input, bound and unbound fractions of a post-rain creek water collection in San Diego County) used as non-human test material for a restriction-enzyme DNA isolation method.",
+   "exclude_rule": "Exclude all 3 flagged samples in PRJNA255985 (organism 'freshwater metagenome'); keep the human saliva samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "Creek water post-rain input",
+   "evidence_source": "BioSample SAMN02929637 (PRJNA255985), sample title; env_material 'water', env_feature 'creek'",
+   "confidence": 0.97,
+   "note": "Study title itself names the three material types: \"Human saliva, creek water, and synthetic metagenomic samples used in selective DNA isolation using restriction enzymes\"."
+  },
+  {
+   "study_accession": "PRJNA1083578",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Two environmental reference samples collected next to the Yanomami skin sampling sites: Amazon soil and Amazon creek water (sample aliases Environment.Amazon.soil.2019 and Environment.Amazon.creek.2019).",
+   "exclude_rule": "Exclude the 2 flagged samples in PRJNA1083578 (organism 'soil metagenome' / 'freshwater metagenome', or Individual_ID 'Soil'/'Creek'); keep the 152 skin samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "Accompanying environmental samples were collected to evaluate interconnections between the people and their environment.",
+   "evidence_source": "ENA study PRJNA1083578 study_description (ENA portal API, result=study); BioSample SAMN40252359 isolation_source 'soil', SAMN40252360 isolation_source 'creek'",
+   "confidence": 0.97,
+   "note": "Both are currently given body-site code 'skin' in the catalog, which is wrong; their BioSample 'body site' attributes read 'Env_soil' and 'Env_water'."
+  },
+  {
+   "study_accession": "PRJNA791766",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "Two archaeological soil controls (aliases Soil1 'Portonovo' and Soil2 'Ripatetta') taken from the surface of the skeletal remains whose dental calculus was sequenced; host is recorded as Homo sapiens only because the human-oral BioSample package was reused.",
+   "exclude_rule": "Exclude the 2 flagged samples in PRJNA791766 (organism 'soil metagenome', env_medium 'soil on the surface of skeletal remain'); keep the dental calculus samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "soil on the surface of skeletal remain",
+   "evidence_source": "BioSample SAMN24342452 (PRJNA791766), attribute env_medium; env_local_scale 'Soil associated to archaeological human remains', host_age 'not applicable'",
+   "confidence": 0.93,
+   "note": "Same values on SAMN24342453. The other 76 catalog samples of the project are the dental calculus metagenomes."
+  },
+  {
+   "study_accession": "PRJEB79832",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "One human stool sample (SUBJECT_ID 7860STDY15122453, Mozambique) from the soil-transmitted-helminth cohort. Its organism name is a submission-side taxonomy error, not a real virus or animal sample.",
+   "exclude_rule": "None - keep the 1 flagged sample.",
+   "reason_code": "not_applicable",
+   "evidence_quote": "These data have been generated to assess the microbiome composition of human hosts infected or not with soil-transmitted helminths, and to understand if variation in the microbiome impacts treatment responses to anthelmintic treatment.",
+   "evidence_source": "ENA study PRJEB79832 study_description (ENA portal API, result=study); BioSample SAMEA116001949 attributes 'common name: metagenome' and 'ArrayExpress-SPECIES: metagenome'",
+   "confidence": 0.85,
+   "note": "ENA sample query over PRJEB79832 shows 68 of 223 samples with tax_id 256318 ('metagenome') and the remainder carrying sequentially drifting tax_ids mapped onto unrelated species (orchids, birds, beetles, viruses); SAMEA116001949 has tax_id 256548. The organism field is therefore uninformative for this submission; all samples are human stool."
+  },
+  {
+   "study_accession": "PRJEB81804",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "One human rectum-mucosa biopsy (Qiita 14778.42.9.Control.Human.Colon.A3, host Homo sapiens, host_taxid 9606, 65-year-old female, undepleted 'Control' arm) in a study that compares host-depletion methods on pig and human colon; the organism field was set to 'pig gut metagenome' in error.",
+   "exclude_rule": "None - keep the 1 flagged sample. (Within this project, exclude samples whose host scientific name is Sus scrofa / title contains '.Pig.'; this one has host Homo sapiens.)",
+   "reason_code": "not_applicable",
+   "evidence_quote": "14778.42.9.Control.Human.Colon.A3",
+   "evidence_source": "BioSample SAMEA116331273 (PRJEB81804), sample title; attributes 'host scientific name: Homo sapiens', host_taxid 9606, sample_type 'rectum mucosa', host_age 65, host_common_name 'human'",
+   "confidence": 0.95,
+   "note": "Study description: \"Here, we compare four existing commercial methods and two newly introduced methods involving chromatin immunoprecipitation (ChIP) on frozen human and pig intestinal biopsies.\" The remaining 137 catalog samples are unaffected."
+  },
+  {
+   "study_accession": "PRJNA1157857",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "One poultry faecal sample (host Gallus gallus, isolation_source feces) from a Nairobi household study that sampled adults, children, poultry and dogs.",
+   "exclude_rule": "Exclude the 1 flagged sample in PRJNA1157857 (host 'Gallus gallus' / organism 'chicken gut metagenome'); keep the human adult and child samples.",
+   "reason_code": "host_nonhuman",
+   "evidence_quote": "CTX-M, TEM Cas9 enrichment from poultry feces",
+   "evidence_source": "BioSample SAMN43524420 (PRJNA1157857), sample title; attribute host 'Gallus gallus'",
+   "confidence": 0.97,
+   "note": "Study description: \"Using this method, termed Context-Seq, we investigated overlapping AMR elements containing the ARGs blaCTX-M and blaTEM between adults, children, poultry, and dogs in animal-owning households in Nairobi, Kenya.\" The other 28 catalog samples should also be screened for dog/poultry material."
+  },
+  {
+   "study_accession": "PRJNA1166287",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "One vermicompost (earthworm compost) sample, host Eisenia fetida, used as a non-human native microbiome for a methyltransferase-specificity method.",
+   "exclude_rule": "Exclude the 1 flagged sample in PRJNA1166287 (organism 'compost metagenome' / host 'Eisenia fetida').",
+   "reason_code": "environmental",
+   "evidence_quote": "MIMS Environmental/Metagenome sample from compost metagenome",
+   "evidence_source": "BioSample SAMN43962509 (PRJNA1166287), sample title; attributes env_medium 'vermicompost', env_broad_scale 'vermicompost', host 'Eisenia fetida'",
+   "confidence": 0.96,
+   "note": "Sample alias is 'vermicompost'. The BioSample package is MIMS.me.human-associated.6.0, which is probably why the sample entered a human frame."
+  },
+  {
+   "study_accession": "PRJNA288044",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "One shotgun metagenome of kefir, a fermented milk product (sample alias KEFIR.shotgun, host 'not applicable'), sequenced alongside human stool, colon biopsy and ileum resection samples.",
+   "exclude_rule": "Exclude the 1 flagged sample in PRJNA288044 (organism 'food fermentation metagenome' / alias 'KEFIR.shotgun'); keep the human stool and biopsy samples.",
+   "reason_code": "food_or_product",
+   "evidence_quote": "Non-human sequence from stool, colon biopsy, ileum resection, kefir, and artificial bacterial mixtures",
+   "evidence_source": "ENA study PRJNA288044 study_description (ENA portal API, result=study); BioSample SAMN03793059 sample alias 'KEFIR.shotgun', host 'not applicable'",
+   "confidence": 0.94,
+   "note": "Artificial bacterial mixtures in the same project are mock communities rather than human specimens and may deserve a separate look; they were not in the flagged set."
+  },
+  {
+   "study_accession": "PRJNA588650",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "One human cerebrospinal fluid sample from a meningoencephalitis patient in Ho Chi Minh City; it was registered under the NCBI Pathogen package with the organism set to the virus detected in it rather than to a metagenome taxon.",
+   "exclude_rule": "None - keep the 1 flagged sample.",
+   "reason_code": "not_applicable",
+   "evidence_quote": "cerebrospinal fluid",
+   "evidence_source": "BioSample SAMN13255533 (PRJNA588650), attribute isolate; attributes host 'Homo sapiens', host_disease 'meningoencephalitis', collected_by 'Hospital for Tropical Diseases, Ho Chi Minh City'",
+   "confidence": 0.9,
+   "note": "Study description: \"Assessing the performance of Illumina-based metagenomics on 66 consecutive CSFs from adults with meningoencephalitis from a tertiary referral hospital for infectious disease in Ho Chi Minh City, Vietnam during 2016-2017.\" The organism string 'Bovine viral diarrhea virus 1' records the agent detected, not the specimen source."
+  },
+  {
+   "study_accession": "PRJNA639909",
+   "verdict": "human_specimen_mislabelled_keep",
+   "what_the_flagged_samples_are": "The single human FMT donor faecal sample (source_material_id 'Donor', host Homo sapiens, isolation_source feces) of a germ-free-mouse transplantation experiment; the whole project was registered as 'mouse gut metagenome'.",
+   "exclude_rule": "None - keep the 1 flagged sample. (The mouse recipients of this project, SAMN15293640-SAMN15293647, are not in the catalog and should stay out.)",
+   "reason_code": "not_applicable",
+   "evidence_quote": "Germ-free mice received fecal transplantation from a human donor and feces of mice after the transplantation and the donor were analyzed by WGS",
+   "evidence_source": "ENA study PRJNA639909 study_description (ENA portal API, result=study); BioSample SAMN15293648 attributes source_material_id 'Donor', host 'Homo sapiens', isolation_source 'feces'",
+   "confidence": 0.93,
+   "note": "SAMN15293648 (alias Sample231) is the only sample of the project in the catalog and the only one with host Homo sapiens."
+  },
+  {
+   "study_accession": "PRJNA830888",
+   "verdict": "non_human_exclude",
+   "what_the_flagged_samples_are": "One negative control air swab (sample title 'NEGATIVE CONTROL', env_medium 'air swab', host 'not applicable') from a pediatric allergic-disease microbiome project.",
+   "exclude_rule": "Exclude the 1 flagged sample in PRJNA830888 (organism 'air metagenome' / title 'NEGATIVE CONTROL'); keep the 27 pediatric samples.",
+   "reason_code": "environmental",
+   "evidence_quote": "NEGATIVE CONTROL",
+   "evidence_source": "BioSample SAMN36000487 (PRJNA830888), sample title; attributes env_medium 'air swab', env_broad_scale 'air', host 'not applicable'",
+   "confidence": 0.96,
+   "note": "Currently carries body-site code 'skin' in the catalog."
+  }
+ ],
+ "declared_limitations": [
+  "none"
+ ]
+}

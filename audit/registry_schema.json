@@ -1740,7 +1740,7 @@
     {
      "name": "person_key",
      "type": "string",
-     "description": "person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key>"
+     "description": "person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key>. Unique only WITHIN a project (the same subject id recurs across projects): identify a person by (study_accession, person_key)"
     },
     {
      "name": "has_dna",

@@ -2977,3 +2977,9 @@ SAMEA6844903,PRJEB38352,negative_control,mark,11546.mg.blank.1.1f | 11546.mg.bla
 SAMEA6844904,PRJEB38352,negative_control,mark,11546.mg.blank.1.1g | 11546.mg.blank.1.1g |  | metagenome
 SAMEA121102925,PRJEB96943,synthetic_community,mark,cs.1 | cs-1_metagenome_illumina |  | synthetic metagenome
 SAMEA121102926,PRJEB96943,synthetic_community,mark,cs.2 | cs-2_metagenome_illumina |  | synthetic metagenome
+SAMN08056491,PRJNA419524,negative_control,mark,title 'Extraction Buffer' (R2026.36 reading)
+SAMN08056606,PRJNA419524,negative_control,mark,title 'PCR NTC' (R2026.36 reading)
+SAMN08056607,PRJNA419524,negative_control,mark,title 'Molecular Water' (R2026.36 reading)
+SAMN08056608,PRJNA419524,negative_control,mark,title 'Buffer' (R2026.36 reading)
+SAMN08056609,PRJNA419524,negative_control,mark,title 'Buffer' (R2026.36 reading)
+SAMN08056610,PRJNA419524,negative_control,mark,title 'Buffer' (R2026.36 reading)

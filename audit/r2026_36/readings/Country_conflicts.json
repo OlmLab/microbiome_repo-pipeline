@@ -1,0 +1,109 @@
+{
+ "reading": "Country_conflicts",
+ "projects": [
+  {
+   "study_accession": "PRJEB32794",
+   "field": "country",
+   "cause": "genuine_change",
+   "proposed_action": "keep",
+   "identifier_attribute": "sample alias prefix (OM033 in aliases OM033a/OM033b/OM033c); the deposit carries no separate subject-id attribute",
+   "explanation": "Teagasc 'OlympicMET' cohort of elite Irish athletes. All 40 ENA samples carry 'geographic location (country and/or sea)': 26 Ireland (Dublin coordinates 53.39/-6.36) and 14 Brazil (coordinates -18.89/-48.26), so the two values differ in the archive itself, not through catalog mapping. The 14 Brazil samples were collected 2016-07-29 to 2016-08-12, i.e. around the Rio Olympics. Of 32 alias-defined subjects only OM033 spans both countries: OM033a 2016-08-04 Brazil, OM033b 2016-08-06 Brazil, OM033c 2016-11-24 Ireland. The alias suffixes a/b/c are timepoints of one athlete, so the grouping is correct and the country change is the athlete travelling to the Games and being resampled at home.",
+   "evidence_quote": "This study aimed to determine if the gut microbiome and metabolome differed across sports classification groups among elite Irish athletes, many of whom were participating in the 2016 Summer Olympics",
+   "evidence_source": "ENA study record PRJEB32794 (study_description), https://www.ebi.ac.uk/ena/browser/api/xml/PRJEB32794; sample attributes of SAMEA5665397/8/9",
+   "confidence": 0.9
+  },
+  {
+   "study_accession": "PRJEB37731",
+   "field": "country",
+   "cause": "value_error_some_samples",
+   "proposed_action": "fix_values",
+   "identifier_attribute": "host subject id (a genuine per-participant number; not the problem here)",
+   "explanation": "CTMR 'MiMens' menstrual-cycle cohort, Copenhagen. All 3,342 BioSamples of the project carry 'geographic location (country and/or sea)': Denmark - there is no Sweden anywhere in that attribute. A separate attribute, 'travel outside the country in last six months', holds destination countries (Spain 70, Italy 47, France 39, ... Sweden 21). Exactly 21 samples carry travel='Sweden', which matches the catalog's 21 SE rows one-for-one, and all 8 SE example samples checked (SAMEA6661912, 6661949, 6662390, 6662426, 6662547, 6662583, 6662706, 6662741) carry country=Denmark plus travel=Sweden. The catalog's R1 extraction read the travel attribute instead of the geographic-location attribute. The correct value is DK for all 2,825 catalogued samples; the person grouping (host subject id) is correct and should be kept.",
+   "evidence_quote": "geographic location (country and/or sea): Denmark; travel outside the country in last six months: Sweden",
+   "evidence_source": "ENA BioSample SAMEA6661912 SAMPLE_ATTRIBUTES (verbatim tag: value pairs), https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA6661912",
+   "confidence": 0.95
+  },
+  {
+   "study_accession": "PRJEB50977",
+   "field": "country",
+   "cause": "genuine_change",
+   "proposed_action": "keep",
+   "identifier_attribute": "subject token of the sample alias (HD.S7 in MyMicrobes_HD.S7_ST_d773); no separate subject-id attribute in the deposit",
+   "explanation": "EMBL 'MyMicrobes' self-sampling longitudinal series (448 samples, 143 subjects) re-deposited for a C. difficile meta-analysis. The countries differ in the archive's own 'geographic location (country and/or sea)' attribute, with matching city-level coordinates. Only 3 of 143 subjects span more than one country, and in each the change is time-ordered within a single day-indexed series with one d0: HD.S7 Germany d0/d2/d7 (Berlin) then France d60/d392/d773 (Paris); HD.S30 Germany d0 then United Kingdom d7/d60 (London); HD.S15 Germany d0-d60, Greece d392 (Athens), Denmark d889 (Copenhagen). No day is duplicated within a subject, so the ids are not reused across people; the pattern is a participant who moved or travelled between mail-in samples.",
+   "evidence_quote": "MyMicrobes_HD.S7_ST_d773; geographic location (country and/or sea): France; collection date: 2014-08-28",
+   "evidence_source": "ENA BioSample SAMEA114481015 alias and SAMPLE_ATTRIBUTES (verbatim), https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA114481015",
+   "confidence": 0.8
+  },
+  {
+   "study_accession": "PRJNA1083578",
+   "field": "country",
+   "cause": "genuine_change",
+   "proposed_action": "keep",
+   "identifier_attribute": "Individual_ID (a real person id for the Yanomami.* rows, but a sampling-stage label for the 'Expeditioner N' rows)",
+   "explanation": "Symbiome Yanomami skin study (174 samples). Both conflicting people are travellers documented in the paper. Yanomami.28 has 8 samples at Parque Nacional Parima Tapirapeco, Venezuela (2018) and 3 (Arm, RAC, Scalp) dated 2019-12-06 with geo_loc_name 'Dominican Republic'; the paper reports a Yanomami adult female who left the Amazon with the expedition and was sampled at exactly those three sites during an extended stay in an industrialised setting. 'Expeditioner 4' has 7 samples in Venezuela (2018-09-13, aliases ...2018.Amazon_2) and 4 dated 2019-12-06 in the Dominican Republic (aliases ...2019.post-Amazon_Non-US), i.e. the same travelling individual at two stages. No country value is wrong, so the values should be kept. Caveat for a separate ticket: Individual_ID is not a person id for the expeditioner rows - the paper states all expeditioner samples come from one western adult male, yet they are split across Individual_IDs 'Expeditioner 1', '1.1', '1.2', '1.3', '1.3.1', '1.3.2', '2', '4', '5', '6', which index expedition stages and replicates. The repair there is merging those rows into one person, not ungrouping them.",
+   "evidence_quote": "a Yanomami adult female (Yanomami traveler) accompanied the expeditioner on his return to the USA",
+   "evidence_source": "Yanomami skin microbiome complexity challenges prevailing concepts of healthy skin, Nat Commun 2025, PMC12216509, doi 10.1038/s41467-025-60131-7 (Results)",
+   "confidence": 0.75
+  },
+  {
+   "study_accession": "PRJNA1157371",
+   "field": "country",
+   "cause": "person_grouping_wrong",
+   "proposed_action": "ungroup_persons",
+   "identifier_attribute": "participant_ID - an Excel cell reference ('=A100') that is a per-site spreadsheet row number, reused at every study site",
+   "explanation": "AWI-Gen 2 Microbiome Project (Stanford), 1,820 samples from six sites in four countries. The attribute the catalog used as the subject id, participant_ID, holds values such as '=A100': 1,287 of 1,820 values literally begin with '=', i.e. leaked spreadsheet formulas. Within a site the value is a pure row index - for the Soweto site participant_ID number equals the alias number plus a constant 13 (SW001='=A14', SW002='=A15', ... correlation 1.00). Because every site's spreadsheet starts at the same row, the same value recurs at each site: '=A100' is attached to SW087 (South Africa: Soweto), KY087 (Kenya: Nairobi), DM087 (South Africa: DIMAMO), GH087 (Ghana: Navrongo) and BF087 (Burkina Faso: Nanoro). 239 of 917 participant_ID values span more than one country, exactly the 239 conflicting people reported. The real per-sample identifier is the sample alias (site prefix + number). These people should be ungrouped; the country values are correct.",
+   "evidence_quote": "These data are part of the AWI-Gen 2 Microbiome Project, a large international study of the gut microbiome of approximately 1,800 women from Burkina Faso, Ghana, Kenya, and South Africa",
+   "evidence_source": "ENA/BioProject study record PRJNA1157371 (study_description); BioSample attributes participant_ID='=A100' on SAMN43523501 (SW087) and SAMN43525070 (KY087)",
+   "confidence": 0.95
+  },
+  {
+   "study_accession": "PRJNA1430386",
+   "field": "country",
+   "cause": "value_error_some_samples",
+   "proposed_action": "fix_values",
+   "identifier_attribute": "host_subject_id (RH008, RH012 - a genuine per-patient id; not the problem here)",
+   "explanation": "Cleveland Clinic study 'Impact of bladder microbiome on BCG response'. Of the 80 BioSamples in the project, 77 carry geo_loc_name 'Canada: Vancouver' and only 3 carry 'USA: Cleveland': BCG1-RH005, BCG1-RH008 and BCG1-RH012, all Timepoint='Before' and all with collection_date 'missing', whereas the dated BCG1 samples of other patients (BCG1-RH021, BCG1-RH023, BCG1-RH024, BCG1-RH028, BCG1-RH029, BCG1-RH031) are 'Canada: Vancouver'. Subjects RH008 and RH012 - the two conflicting people - have their other sample (Cyto1-RH008, Cyto1-RH012) in Vancouver. The three outliers carry the submitting institution's city rather than the collection site. Correct value is CA for all; keep the grouping. No linked publication was found for this 2025/2026 deposit, so this rests on the archive records alone.",
+   "evidence_quote": "BCG1-RH008; host_subject_id: RH008; geo_loc_name: USA: Cleveland; Timepoint: Before",
+   "evidence_source": "NCBI BioSample SAMN56287122 attributes (verbatim), via https://www.ebi.ac.uk/ena/browser/api/xml/SAMN56287122; contrast SAMN56287153 (Cyto1-RH008, geo_loc_name: Canada: Vancouver)",
+   "confidence": 0.8
+  },
+  {
+   "study_accession": "PRJNA589866",
+   "field": "country",
+   "cause": "value_error_some_samples",
+   "proposed_action": "fix_values",
+   "identifier_attribute": "host_subject_id ('303-020' = trial site 303, patient 020; a genuine per-patient id)",
+   "explanation": "Diversigen deposit for a multi-country ribaxamase Phase 2b trial, 349 samples. host_subject_id is site-prefixed and the site prefix maps one-to-one to a country across all 37 sites (3xx Serbia, 4xx Hungary, 5xx Romania, 6xx Bulgaria, 7xx Poland, 8xx USA) with exactly one exception: site 303 has 34 samples labelled Serbia and 2 labelled Hungary. Those 2 are the Screening and 72h samples of the single conflicting patient 303-020 (SAMN13292933, SAMN13292934), whose third sample (SAMN13292999, EarlyTerm) is Serbia; all three share host_age 87, host_sex female and the same BMI, so they are one patient. Every other site-303 patient (303-005, 012, 013, 014, 015, 016, 017, 023, 024, 025, 030) is Serbia. The correct value is RS for the two Hungary-labelled samples; keep the grouping.",
+   "evidence_quote": "host_subject_id: 303-020; geo_loc_name: Hungary; study_visit: Screening",
+   "evidence_source": "NCBI BioSample SAMN13292933 attributes (verbatim), via https://www.ebi.ac.uk/ena/browser/api/xml/SAMN13292933; contrast SAMN13292999 (same subject, geo_loc_name: Serbia)",
+   "confidence": 0.85
+  },
+  {
+   "study_accession": "PRJNA624223",
+   "field": "country",
+   "cause": "value_error_some_samples",
+   "proposed_action": "fix_values",
+   "identifier_attribute": "sample TITLE (CoV5D0, CoV5D3, ... = subject CoV5 at day 0, 3, ...); the grouping is correct",
+   "explanation": "CUHK COVID-19 cohort. The archive cannot be the source of the split: all 73 runs/samples have geo_loc_name 'missing'. The catalog's CN values came from a supplementary table (R2, 70 samples) and the HK values from a reading of the paper (R3, 3 samples), so the same single-site cohort was labelled two ways and the conflict appears inside persons (e.g. CoV5D0 = HK while CoV5D3/D5/D9/D11 = CN). The paper places the whole cohort in Hong Kong. The source-supported value is HK for all 73 samples; if the catalog's convention is to report Hong Kong under China then all 73 should instead read CN - the essential fix is that one single-site cohort must carry one value.",
+   "evidence_quote": "We prospectively included 15 hospitalized patients with COVID-19 admitted between February 16, 2020, and March 2, 2020, in Hong Kong, China, followed from hospital admission until discharge.",
+   "evidence_source": "Zuo et al., Alterations in Gut Microbiota of Patients With COVID-19 During Time of Hospitalization, Gastroenterology 2020, PMID 32442562, PMC7237927 (Methods)",
+   "confidence": 0.8
+  },
+  {
+   "study_accession": "PRJNA644725",
+   "field": "country",
+   "cause": "value_error_some_samples",
+   "proposed_action": "fix_values",
+   "identifier_attribute": "'Infant' column of the paper's Supplementary Table S5, joined to BioSample sample_id / alias (P112, P113, P114); the grouping is correct",
+   "explanation": "UCSF PUFFIN study: 30 Bangladeshi infants (3 serial stools each) plus 16 California infants. BioSample geo_loc_name is 'not applicable' for all 150 samples, so both the subject ids and the countries came from the paper's Supplementary Table S5, whose caption states it covers Bangladeshi infants only. That table maps P112, P113 and P114 to Infant 12 at time points 1, 2 and 3; P118/P119/P120 to Infant 14; P124/P125/P126 to Infant 16. 81 of the 150 project samples appear in S5 and they are precisely the samples that received a subject id, so there is no reuse of infant numbers between the Bangladeshi and US cohorts. Every sample carrying one of these infant numbers is Bangladeshi, so the US labels on P114, P118, P119, P124, P125 and the other conflicting rows are wrong: the correct value is BD for all samples listed in Supplementary Table S5. Keep the grouping.",
+   "evidence_quote": "List of symptoms and putative viral pathogens in stool for each Bangladeshi infant in the study",
+   "evidence_source": "Tan et al., Sci Rep 2020, PMC7506025, doi 10.1038/s41598-020-71791-4, Supplementary Table S5 caption (MOESM1) and the S5 workbook (MOESM2) rows P112/P113/P114 = Infant 12",
+   "confidence": 0.85
+  }
+ ],
+ "declared_limitations": [
+  "PRJNA1430386 and PRJNA589866 were adjudicated from archive records alone: no linked publication was located for the 2025/2026 Cleveland Clinic deposit, and the Diversigen trial deposit's paper was not consulted because the site-code-to-country mapping across all 349 samples was decisive.",
+  "For PRJEB37731 the 'travel outside the country in last six months' = Sweden attribute was confirmed on all 3,342 BioSamples (count 21 matches the catalog's 21 SE rows exactly), but only the 8 SE example sample accessions were individually matched to catalog rows; the identity of the other 13 SE rows is inferred from the count match.",
+  "PRJNA624223: the supplementary table that supplied the 70 CN values was not retrieved (the BioSamples carry no country at all), so the choice between HK and CN rests on the paper's statement plus the catalog's own use of HK as a distinct code."
+ ]
+}

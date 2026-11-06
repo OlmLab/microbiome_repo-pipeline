@@ -776,6 +776,12 @@ def build(a):
     det_all.loc[~inf, "release_added"] = rid
     det_all.loc[~inf, "package_added"] = pv
     det_all["release_retired"] = None
+    # R2026.36: value gates + checked corrections (catalog.scopes.plausibility); removed rows go to catalog_rejected_values
+    from catalog.scopes.plausibility import apply_value_gates
+    _pcp = getattr(a, "plausibility_corrections", None)
+    _pc = pd.read_csv(_pcp, dtype=str, keep_default_na=False) if _pcp and os.path.exists(_pcp) else None
+    det_all, rejected_values, _pg = apply_value_gates(det_all, _pc)
+    print(f"plausibility gates: {json.dumps(_pg)}", file=sys.stderr)
 
     # ---- wide
     piv = det_all.pivot_table(index="sample_key", columns="field_name", values="value_normalized", aggfunc="first")
@@ -917,6 +923,18 @@ def build(a):
             _ts = pd.concat([_ts] + [pd.read_parquet(f_) for f_ in _pt], ignore_index=True)
         _mo = _ts.drop_duplicates("sample_key").set_index("sample_key").offset_days
     w = sample_longitudinal(w, gen_keys, _sched, _mo)
+    # R2026.36: a person's sex / country applied to that person's samples that lack it — (project, person) groups only, never
+    # over a disagreement; projects whose grouping is unreliable for a field are listed in --person-invariant-exclusions.
+    from catalog.scopes.longitudinal import propagate_person_invariants
+    _px = {}
+    _pxp = getattr(a, "person_invariant_exclusions", None)
+    if _pxp and os.path.exists(_pxp):
+        _pxd = pd.read_csv(_pxp)
+        _px = {f_: set(g_.study_accession) for f_, g_ in _pxd.groupby("field")}
+    w, _det_pi, _pi_report = propagate_person_invariants(w, det_all, rid, pv, exclude_projects=_px)
+    if len(_det_pi):
+        det_all = pd.concat([det_all, _det_pi.reindex(columns=det_all.columns)], ignore_index=True)
+    print(f"person invariants: {json.dumps(_pi_report)}", file=sys.stderr)
     long_study = study_longitudinal(w, gen_keys, design if len(design) else None)
     rel_groups, rel_study = relatedness(w, design if len(design) else None, relations if len(relations) else None)
 
@@ -1139,6 +1157,10 @@ def build(a):
     rel_groups[rel_groups.study_accession.isin(set(gs.study_accession))].to_parquet(os.path.join(a.out, "catalog_relatedness.parquet"), index=False)
     (relations[relations.study_accession.isin(set(gs.study_accession))] if len(relations) else pd.DataFrame(columns=["study_accession", "subject_a", "subject_b", "relation", "evidence_source", "evidence_quote", "confidence"])).to_parquet(os.path.join(a.out, "catalog_relations.parquet"), index=False)
     conflicts.to_parquet(os.path.join(a.out, "catalog_sample_determinations_conflicts.parquet"), index=False)
+    rejected_values = neutral_codes(rejected_values)
+    if "evidence_limited_to_abstract" in rejected_values.columns:
+        rejected_values["evidence_limited_to_abstract"] = pd.to_numeric(rejected_values["evidence_limited_to_abstract"].map(lambda v: float(v) if isinstance(v, (bool, int, float)) else v), errors="coerce")
+    rejected_values.to_parquet(os.path.join(a.out, "catalog_rejected_values.parquet"), index=False)
     contra.to_parquet(os.path.join(a.out, "catalog_metadata_contradictions.parquet"), index=False)
     summary = dict(n_studies=int(len(gs)), n_samples=int(len(w)), n_determinations=int(len(det_all)), n_conflicts=int(len(conflicts)), n_contradicted=int(len(contra)), n_contradicted_samples=int(contra.sample_key.nunique()) if len(contra) else 0, corrections=n_corr,
                    by_source=w.curated_source.value_counts().to_dict(), age_category=w.age_category.value_counts().to_dict(),
@@ -1179,6 +1201,8 @@ def main(argv=None) -> int:
     ap.add_argument("--r1-newfields-v2", help="R1 determinations of the 1.13.0 fields (diet, smoking_status, medication, stool_consistency_bristol) from catalog.scopes.newfields_r1_v2"),
     ap.add_argument("--registry-runs", help="registry_runs.parquet → catalog_runs.parquet + study sequencing summary columns"), ap.add_argument("--registry-sandpiper", help="registry_runs_sandpiper.parquet (sandpiper_profiled per run)"), ap.add_argument("--r2-glob"), ap.add_argument("--r3-glob", help="R3 full-text study_all determinations (glob)"), ap.add_argument("--r4-glob"), ap.add_argument("--condition-map"), ap.add_argument("--antibiotic-map")
     ap.add_argument("--out", required=True), ap.add_argument("--summary"), ap.add_argument("--release-id", default="R2026.7"), ap.add_argument("--package-version", default="1.8.0")
+    ap.add_argument("--plausibility-corrections", help="CSV of checked value corrections (catalog.scopes.plausibility; R2026.36)")
+    ap.add_argument("--person-invariant-exclusions", help="CSV study_accession,field,reason: projects where sex/country are not propagated within people (R2026.36)")
     ap.add_argument("--previous-dir", help="previous package dir: its catalog_* (gut_* before 1.26.0) tables provide release_added / retirements")
     # R2026.31: one catalog over every human body site, DNA and RNA (scripts/prepare_catalog_inputs.py → data/inputs/catalog/)
     ap.add_argument("--extra-studies", help="study rows of the projects decided by the scope classification (extra_studies.parquet)")
