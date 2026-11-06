@@ -5,36 +5,36 @@
 | check | result |
 |---|---|
 | Sandpiper version used | 2.0.0 (Zenodo 20419175, 2026-05-28). Newer: 2.0.1 GTDB profiles and 2.1.0 GlobDB profiles (record 21287531, 2026-07-10) |
-| catalog samples with a profiled run (2.0.0) that are missing from the Sandpiper tables | 2 of 414,970 |
-| gain from 2.0.1 | +11,233 profiled runs, +10,488 samples (414,970 → 425,458 = 52.5 % of 810,820); no run lost |
-| Sandpiper rows whose runs are not current profiled catalog runs | 8,202 samples: 6,235 have no rows in `catalog_runs`, 1,967 have runs none of which is flagged profiled |
-| `catalog_runs` gap (found during this check) | 38,158 catalog samples in 343 projects have no run rows although their runs (WGS / METAGENOMIC, same project and BioSample) are in `runs_source.parquet`; rebuilding the run table from the final tables keys 42,101 runs to 38,093 of them. Supplement for the frozen copy: `~/catalog/frozen_releases/R2026.35_package_1.29.1_supplement/` |
+| catalog samples with a profiled run (2.0.0) that are missing from the Sandpiper tables | 2 of 414,969 |
+| gain from 2.0.1 | +4,347 profiled runs, +4,257 samples (414,969 → 419,226 = 51.7 % of the 810,820 current samples); no run lost |
+| Sandpiper rows of samples no longer in the catalog | 6,235 (samples retired in earlier releases; their rows were never dropped) |
+| current samples in the Sandpiper tables none of whose runs is flagged profiled | 1,967 |
+| `catalog_runs` | complete for current samples: 35 current samples (2 projects) have no run, and the archive records none. (An earlier count of 38,158 "samples without runs" wrongly included the wide table's 54,709 retired rows.) |
 | shipped `CATALOG_SANDPIPER_REPORT.md` | text describes the catalog of package 1.11.0 (2,837 projects); the tables are newer |
 
-Next run: (1) find where `build_gut_scope` loses those runs (the function keys them correctly on the final tables, so the loss is in
-the inputs it is called with) and add a release check `every sample with n_runs > 0 has a catalog_runs row`; (2) `make
-sandpiper-refresh SANDPIPER_VERSION=2.0.1 ZENODO_RECORD=21287531` (GTDB profiles; GlobDB profiles as a second taxonomy later);
-(3) regenerate the Sandpiper report and tables against the current catalog (`make sandpiper-delta`), which also drops the 8,202
-mismatched rows; (4) add a release check that every Sandpiper row's runs are current catalog runs.
+Next run: (1) `make sandpiper-refresh SANDPIPER_VERSION=2.0.1 ZENODO_RECORD=21287531` (GTDB profiles; GlobDB profiles as a second
+taxonomy later); (2) re-derive the Sandpiper tables and report against the current samples only (drops the 6,235 retired rows and
+re-checks the 1,967); (3) release checks: every Sandpiper row is a current sample whose runs are current profiled catalog runs, and
+every current sample with archive runs has `catalog_runs` rows. Count only current rows (`release_retired` null) in every check.
 
 ## 2. Analyses to compute and display (live-updating with each release)
 
-Data available now (QC-clean profiled samples: 374,142 in 2,825 projects; genus level; counts below are QC-clean profiled samples
-that also carry the field):
+Data available now (QC-clean profiled current samples: 369,036 in 2,814 projects; genus level; counts below are QC-clean profiled
+current samples that also carry the field):
 
 | field | samples / projects |
 |---|---|
-| body site labelled | 348,164 / 2,631 |
-| country | 355,875 / 2,558 · latitude/longitude 142,718 / 995 |
-| exact age | 91,316 / 674 · infant gut (< 3 y) 30,404 / 175 |
-| health condition (not healthy) | 108,203 / 1,230 · healthy controls 65,949 / 823 |
-| sex | 102,512 / 773 · BMI 25,613 / 211 · lifestyle 30,437 / 222 · diet 8,926 / 62 |
-| antibiotic exposure (any value) | 67,983 / 527 (yes: 10,137 / 150) |
-| intervention arm | 28,440 / 278 |
+| body site labelled | 341,499 / 2,624 |
+| country | 344,129 / 2,547 · latitude/longitude 135,154 / 987 |
+| exact age | 90,226 / 672 · infant gut (< 3 y) 30,394 / 172 |
+| health condition (not healthy) | 102,601 / 1,230 · healthy controls 64,447 / 822 |
+| sex | 99,391 / 771 · BMI 25,340 / 211 · lifestyle 30,376 / 222 · diet 8,863 / 61 |
+| antibiotic exposure (any value) | 66,660 / 526 (yes: 10,022 / 149) |
+| intervention arm | 27,951 / 278 |
 | delivery mode / feeding / preterm (infants) | 12,795 / 68 · 7,976 / 56 · 15,425 / 85 |
-| people with ≥ 2 profiled samples | 33,189 people (146,277 samples, 1,093 projects); with a time axis 16,254 people (74,260 samples) |
+| people with ≥ 2 profiled samples | 28,219 people (133,424 samples, 1,056 projects); with a time axis 16,223 people (73,123 samples) |
 | families with a mother and a child profiled | 2,462 |
-| sequencing depth (Gbp) | 381,796 / 2,820 · collection year 309,760 / 2,308 |
+| sequencing depth (Gbp) | 368,675 / 2,809 · collection year 299,052 / 2,298 |
 
 Rules for every analysis: one value per person per stratum (or mixed models with person and project random effects); contrasts
 inside projects pooled by random-effects meta-analysis, never raw pooled samples across projects; QC-flagged samples excluded;
@@ -91,7 +91,7 @@ adopting (the reader's 22 lessons, ranked):
 3. **Cross-route agreement**: flag samples where two routes give different values for one field and send conflicts to the Opus
    check; set route precedence per field from the benchmark, not one global order (cf. the person / time precedence fix in 1.29.1).
 4. **Subject invariants**: once sex, country or date of birth is known for a person, apply it to all that person's samples — direct
-   coverage gain for sex (29 %), helped by the 7,109 new subject ids in 1.29.0.
+   coverage gain for sex: +18,341 samples (29.3 % → 31.6 %); 1,819 people whose samples disagree on sex go to a check instead.
 5. **Identifier columns**: UBERON for body site, MONDO / Disease Ontology for health condition, ISO 3166 for country, beside the
    current values.
 6. **Published validators and a rejection log** shipped with each release; **confidence calibration** per field from the gold set.

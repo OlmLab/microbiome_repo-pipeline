@@ -76,8 +76,9 @@ by `release`) keeps the package's release notes and changelog to the releases fr
 
 ## Next run: carried over from R2026.34
 
-* First: the `catalog_runs` gap (38,158 samples without run rows), the Sandpiper 2.0.1 refresh and the Sandpiper table re-derivation,
-  then the analyses and the benchmark changes in `docs/SANDPIPER_ANALYSES_PLAN.md` (sections 1–3).
+* First: the Sandpiper 2.0.1 refresh and the Sandpiper table re-derivation against current samples (6,235 rows of retired samples
+  to drop), then the analyses and the benchmark changes in `docs/SANDPIPER_ANALYSES_PLAN.md` (sections 1–3). Every integrity
+  count must use current rows only (`release_retired` null): the wide table also holds 54,709 retired rows.
 * Probiotics: filter I2 should keep administered products in single-arm designs (22 missed tags in 1.29.0; see 1.29.1 changelog).
 
 * The R2026.31 catch-up list (`config/pass_coverage_exceptions.csv`): 18 project-passes in 6 projects remain (both
