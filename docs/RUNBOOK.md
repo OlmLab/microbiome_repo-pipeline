@@ -359,6 +359,12 @@ new, higher version**: it always serves the highest tag, and tags are never move
 301 redirect, GitHub Pages keeps deploying the same tags there; after that, Pages is retired (DNS must stop pointing at GitHub
 before the Pages custom domain is removed).
 
+**Tag protection (2026-11-11):** ruleset `protect-release-tags` (active, no bypass) on `site-v*` (microbiome_repo), `data-v*`
+(microbiome_repo-data) and `benchmark-*` (microbiome_repo-pipeline) blocks deleting, moving and force-pushing those tags; creating a
+new tag is allowed, so publishing is unchanged. Tested on a throwaway pattern: move and delete were refused through the API and
+`git push --force` (GH013). A tag mistake is fixed by publishing a new version. Re-creating a GitHub Release (the Zenodo recovery)
+does not touch the tag and still works. An owner can switch a ruleset off in Settings → Rules in an emergency.
+
 **Never:** push `main`, force-push, delete tags, embed the token in a URL (docs/SECURITY.md §4).
 Until a credential exists: `rsync -a --delete --exclude .git build/site/ ~/Downloads/site/` and the owner pushes.
 
