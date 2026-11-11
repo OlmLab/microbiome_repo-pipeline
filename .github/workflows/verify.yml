@@ -118,6 +118,9 @@ jobs:
     needs: site-checks
     env:
       SITE_DIR: ${{ inputs.site_dir || '.' }}
+      # R2026.37: the CU server's Content-Security-Policy (keep identical to config/site.yaml hosting.csp; tests/test_check_csp.py
+      # checks this). The smoke server sends it ENFORCED, so every test below also proves the pages work under it.
+      CU_CSP: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://gc.zgo.at 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://microbiome-repo.goatcounter.com; img-src 'self' data: https://zenodo.org https://microbiome-repo.goatcounter.com; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -133,7 +136,18 @@ jobs:
         if: steps.site.outputs.dir != ''
         run: |
           npm i -D @playwright/test@1 && npx playwright install --with-deps chromium
-          (cd "${{ steps.site.outputs.dir }}" && python3 -m http.server 8123 >/dev/null 2>&1 &) ; sleep 2
+          cat > csp_server.py <<'PYEOF'
+          import functools, http.server, os
+          class H(http.server.SimpleHTTPRequestHandler):
+              def end_headers(self):
+                  self.send_header('Content-Security-Policy', os.environ['CU_CSP'])
+                  super().end_headers()
+              def log_message(self, *a):
+                  pass
+          http.server.ThreadingHTTPServer(('127.0.0.1', 8123), functools.partial(H, directory=os.environ['SITE_ROOT'])).serve_forever()
+          PYEOF
+          (SITE_ROOT="${{ steps.site.outputs.dir }}" python3 csp_server.py >/dev/null 2>&1 &) ; sleep 2
+          curl -sI http://localhost:8123/index.html | grep -i '^content-security-policy:' || { echo "smoke server sends no CSP"; exit 1; }
           cat > smoke.spec.js <<'EOF'
           const { test, expect } = require('@playwright/test');
           test('explorer study slice renders count and evidence', async ({ page }) => {
@@ -153,6 +167,20 @@ jobs:
             if (r.status() === 404) { test.skip(true, 'site predates the registry tier (< R2026.4)'); return; }
             await expect(page.locator('#count')).toContainText(/\d/, { timeout: 180000 });
             await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 30000 });
+          });
+          test('main pages load nothing outside the CU server policy', async ({ page }) => {
+            test.setTimeout(420000);
+            const bad = [];
+            await page.addInitScript(() => document.addEventListener('securitypolicyviolation',
+              e => console.error('CSP-VIOLATION ' + e.violatedDirective + ' ' + e.blockedURI)));
+            page.on('console', m => { const t = m.text(); if (/CSP-VIOLATION|Content Security Policy|Refused to/i.test(t)) bad.push(page.url() + ' :: ' + t); });
+            for (const p of ['index.html', 'studies/index.html', 'studies/PRJEB32631.html', 'samples/index.html?study=PRJEB32631',
+                             'atlas/index.html', 'atlas/pca.html', 'atlas/measures.html', 'registry/index.html',
+                             'downloads/index.html', 'about/accessibility.html', 'no-such-page.html']) {
+              await page.goto('http://localhost:8123/' + p, { waitUntil: 'networkidle', timeout: 150000 }).catch(() => {});
+              await page.waitForTimeout(1500);
+            }
+            expect(bad, bad.join('\n')).toEqual([]);
           });
           test('contribute worklist page renders study panels', async ({ page }) => {
             const r = await page.goto('http://localhost:8123/contribute/index.html');

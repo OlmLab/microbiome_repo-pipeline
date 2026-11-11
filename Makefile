@@ -256,6 +256,8 @@ verify:          ## local subset of .github/workflows/verify.yml (link check + d
 	$(PY) site_generator/gen/check_links.py $(SITE_OUT)
 	@# R2026.37: the CU server refuses a release with a symlink, an extensionless file or a type outside its allow-list
 	$(PY) site_generator/gen/check_file_types.py $(SITE_OUT)
+	@# R2026.37: nothing a page loads may fall outside the CU server's Content-Security-Policy (config/site.yaml hosting.csp)
+	$(PY) site_generator/gen/check_csp.py $(SITE_OUT) > $(BUILD)/csp_check.json || { cat $(BUILD)/csp_check.json; exit 1; }
 	$(PY) -c "import duckdb,glob;[print(duckdb.sql(f\"select count(*) from read_parquet('{f}')\").fetchone()[0], f) for f in glob.glob('$(SITE_OUT)/data/**/*.parquet', recursive=True)]"
 	$(PY) -m catalog.make_version --package $(PKG_OUT) --check --zip $(PKG_ZIP_OUT)
 	@# GitHub Pages refuses sites above 1 GB: stop at 950 MB so a release never fails at deploy time
