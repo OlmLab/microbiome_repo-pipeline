@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ site.title }}{% endblock %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+{# R2026.37: served by the web server for any missing address, at any depth, so every link here is root-relative #}
+<div class="page-head"><h1>Page not found</h1>
+<p>There is no page at this address. It may have moved in a recent release.</p></div>
+<p id="nf-project" class="note" hidden></p>
+<ul>
+<li><a href="/index.html">Home</a></li>
+<li><a href="/studies/index.html">Projects</a>: every catalogued project</li>
+<li><a href="/samples/index.html">Samples</a>: search the sample table</li>
+<li><a href="/registry/index.html">Registry</a>: every human-associated metagenome project in the archives</li>
+<li><a href="/downloads/index.html">Downloads &amp; releases</a></li>
+</ul>
+<script>(function () {
+  var m = location.pathname.match(/(PRJ[A-Z]{1,2}\d+|[EDS]RP\d+)/);
+  if (!m) return;
+  var p = document.getElementById('nf-project');
+  p.innerHTML = 'Looking for project <span class="mono">' + m[1] + '</span>? Its catalog page is <a href="/studies/' + m[1] + '.html">/studies/' + m[1] + '.html</a>; if it is not in the catalog, <a href="/registry/index.html?study=' + m[1] + '">look it up in the registry</a>.';
+  p.hidden = false;
+})();</script>
+{% endblock %}

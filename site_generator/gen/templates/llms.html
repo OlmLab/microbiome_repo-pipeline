@@ -30,7 +30,7 @@
 <tr><td class="mono">api/samples/&lt;ACCESSION&gt;.csv</td><td>per-project sample sheet (plain CSV, key columns)</td></tr>
 <tr><td><a class="mono" href="../data/catalog_sample_metadata_wide.parquet">data/catalog_sample_metadata_wide.parquet</a></td><td>every sample, every field (for DuckDB / pandas / R)</td></tr>
 </tbody></table>
-<p class="small">The API is a set of static files regenerated with every release (release <span class="mono">{{ index.release }}</span>); URLs are stable. No key, no rate limit beyond GitHub Pages'. Values are evidence-linked claims — the evidence for each is on the project page.</p>
+<p class="small">The API is a set of static files regenerated with every release (release <span class="mono">{{ index.release }}</span>); URLs are stable. No key and no rate limit. Values are evidence-linked claims — the evidence for each is on the project page.</p>
 
 <h2>Project record keys</h2>
 <table class="tbl small"><tbody>{% for k, v in index.project_keys.items() %}<tr><td class="mono">{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}</tbody></table>

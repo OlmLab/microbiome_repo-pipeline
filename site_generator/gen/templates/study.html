@@ -147,8 +147,8 @@
 </section>
 </div>
 {% endblock %}
-{% block scripts %}{% if glance.globe %}<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+{% block scripts %}{% if glance.globe %}<script src="{{ root }}static/vendor/d3-7.9.0.min.js" integrity="{{ site.sri['d3-7.9.0.min.js'] }}" crossorigin="anonymous"></script>
+<script src="{{ root }}static/vendor/topojson-client-3.1.0.min.js" integrity="{{ site.sri['topojson-client-3.1.0.min.js'] }}" crossorigin="anonymous"></script>
 <script>window.GLOBE_ROOT='{{ root }}';</script><script src="{{ root }}static/globe.js"></script>
 <script>MiniGlobe.render(document.getElementById('globe'), Object.assign({{ glance.globe|tojson }}, {size: 190}));</script>{% endif %}
 <script>window.STUDY_TABLE={acc:'{{ s.study_accession }}',csv:'../data/studies/{{ s.study_accession }}.csv.gz',cols:{{ tcols|tojson }}};</script><script src="{{ root }}static/study_table.js"></script>{% endblock %}

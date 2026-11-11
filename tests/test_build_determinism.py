@@ -29,7 +29,7 @@ def _tree_hashes(root):
 
 
 def _build(out):
-    cmd = [sys.executable, GEN, "--package", PKG, "--out", out, "--base-url", "https://microbiomerepo.com/"]
+    cmd = [sys.executable, GEN, "--package", PKG, "--out", out, "--base-url", "https://microbiome-repo.colorado.edu/"]
     subprocess.run(cmd, check=True, capture_output=True, text=True, cwd=REPO)
 
 

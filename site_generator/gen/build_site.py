@@ -2326,6 +2326,8 @@ def main():
                     tables={k: dict(rows=v.get('rows'), sha256=v.get('sha256')) for k, v in sorted(vj['tables'].items())})
     (out / 'data' / 'manifest.json').write_text(json.dumps(manifest, indent=1, sort_keys=True), encoding='utf-8')
     (out / 'data' / 'VERSION.json').write_text(json.dumps(vj, indent=1, sort_keys=True), encoding='utf-8')
+    # R2026.37: small root version.json with the SITE tag, so a post-release check can confirm which release the CU server serves
+    (out / 'version.json').write_text(json.dumps(dict(tag=f'site-v{version}', package_version=version, release_id=release_id, build_date=build_date), indent=1, sort_keys=True) + '\n', encoding='utf-8')
 
     # ---------- methods ----------
     depth_counts = counts_sorted(cs.curated_depth.fillna('none'))
@@ -2522,6 +2524,9 @@ def main():
     urls = ''.join(f'<url><loc>{base_url}{p}</loc></url>' for p in sorted(written))
     (out / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + '</urlset>', encoding='utf-8')
     (out / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {base_url}sitemap.xml\n', encoding='utf-8')
+    # R2026.37: /404.html for missing addresses (nginx on the CU server, GitHub Pages). Rendered outside render() so it has no canonical
+    # link and no sitemap entry; root='/' because it can be served at any depth.
+    (out / '404.html').write_text(singular_counts(env.get_template('404.html').render(root='/', nav=None, crumbs=None, page_path=None)), encoding='utf-8')
     for name in NEVER_PUBLISH_DOCS:
         assert not (out / 'docs' / name).exists() and not (out / 'docs' / (name[:-3] + '.html')).exists(), f'F7: {name} must not be published'
     leak_pages = []

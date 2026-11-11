@@ -23,7 +23,7 @@
 <ul>
 <li>This site is a set of static pages. It has no user accounts, no log-in, and no forms that send information to us. It sets no cookies.</li>
 <li>Page views are counted with <a href="https://www.goatcounter.com/">GoatCounter</a>, which records aggregate, cookie-free counts (page, referrer, browser type, country) and does not store IP addresses or build profiles of visitors.</li>
-<li>The site is hosted by <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Pages</a>. Pages load pinned JavaScript libraries from jsDelivr; these providers receive the standard information your browser sends with any request (such as IP address and browser type).</li>
+<li>The site is hosted on a University of Colorado Boulder server. Its JavaScript libraries are served from the site itself, except the DuckDB-WASM database engine used by the Samples and Registry explorers, which loads from jsDelivr; jsDelivr receives the standard information your browser sends with any request (such as IP address and browser type).</li>
 <li>"Flag an issue" and "Contribute" links open a form on GitHub; anything you submit there is public and governed by GitHub's terms.</li>
 <li>All metadata shown here comes from public archives (ENA, NCBI SRA/BioSample, DDBJ) and published papers. No private or controlled-access data are used; values that the sources contradict are withheld rather than published.</li>
 </ul>
@@ -32,9 +32,9 @@
 <h2 id="security">Security</h2>
 <ul>
 <li>Static files only: no server-side code, database, log-in or file upload.</li>
-<li>Served over HTTPS only (HTTPS is enforced by GitHub Pages).</li>
-<li>Third-party JavaScript libraries are pinned to exact versions; those loaded as script tags (d3, topojson, jQuery, DataTables) carry Subresource Integrity hashes. A Content Security Policy blocks plug-ins and base-URL injection.</li>
-<li>The site is published only from tagged releases by a GitHub Actions workflow; the main branches are protected against force-pushes and deletion. All source code is public: <a href="https://github.com/OlmLab/microbiome_repo-pipeline">pipeline</a>, <a href="https://github.com/OlmLab/microbiome_repo">site</a>, <a href="https://github.com/OlmLab/microbiome_repo-data">data</a>.</li>
+<li>Served over HTTPS only (the server enforces HTTPS with HTTP Strict Transport Security).</li>
+<li>Third-party JavaScript libraries are pinned to exact versions. d3, topojson, jQuery and DataTables are served from this site and carry Subresource Integrity hashes; DuckDB-WASM (pinned 1.29.0) loads from jsDelivr. A Content Security Policy blocks plug-ins and base-URL injection.</li>
+<li>The site is published only from tagged releases: the server deploys the newest exact <span class="mono">site-vX.Y.Z</span> tag of the public site repository, and the main branches are protected against force-pushes and deletion. All source code is public: <a href="https://github.com/OlmLab/microbiome_repo-pipeline">pipeline</a>, <a href="https://github.com/OlmLab/microbiome_repo">site</a>, <a href="https://github.com/OlmLab/microbiome_repo-data">data</a>.</li>
 <li>Report a security problem to <a href="mailto:{{ site.about.contact_email }}">{{ site.about.contact_email }}</a> (also listed in <a href="{{ root }}.well-known/security.txt">security.txt</a>).</li>
 </ul>
 

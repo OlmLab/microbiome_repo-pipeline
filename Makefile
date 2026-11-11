@@ -254,6 +254,8 @@ measures:        ## R2026.36: Atlas › Profile measures payload (scripts/sandpi
 verify:          ## local subset of .github/workflows/verify.yml (link check + duckdb read + manifest/zip check); Playwright runs in Actions
 	$(PY) -m catalog.release.integrity_checks --package $(PKG_OUT) --out $(BUILD)/integrity_checks.json --sandpiper-genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet
 	$(PY) site_generator/gen/check_links.py $(SITE_OUT)
+	@# R2026.37: the CU server refuses a release with a symlink, an extensionless file or a type outside its allow-list
+	$(PY) site_generator/gen/check_file_types.py $(SITE_OUT)
 	$(PY) -c "import duckdb,glob;[print(duckdb.sql(f\"select count(*) from read_parquet('{f}')\").fetchone()[0], f) for f in glob.glob('$(SITE_OUT)/data/**/*.parquet', recursive=True)]"
 	$(PY) -m catalog.make_version --package $(PKG_OUT) --check --zip $(PKG_ZIP_OUT)
 	@# GitHub Pages refuses sites above 1 GB: stop at 950 MB so a release never fails at deploy time

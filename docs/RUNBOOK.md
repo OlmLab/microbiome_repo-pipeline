@@ -344,6 +344,21 @@ https://olmlab.github.io/microbiome_repo/ → `release.yml` builds `data_package
 Post-check (needs the `olmlab.github.io` grant): fetch `/data/VERSION.json` and compare `release_tag`.
 The owner merges `release/<semver>` → `main` at leisure (or `main` is left as the last-known-good pointer).
 **Rollback:** Actions → deploy-pages → Run workflow with `ref = site-v<previous>`; data: the previous Release stays.
+
+**Hosting from R2026.37 (1.30.1): University of Colorado Boulder server, https://microbiome-repo.colorado.edu/** (`config/site.yaml`
+`base_url`; run by CU BIT). The server shallow-fetches the highest exact `site-vX.Y.Z` tag of the public site repo about every 15 min
+and ignores malformed tags (`site-v1.15.0-1`, `site-v1.27.0.1`). It refuses a whole release that contains a symlink, a file with no
+extension, or a type outside html, gz, parquet, csv, json, png, md, js, bin, txt, css, ico, xml, svg, ipynb, nojekyll; the previous
+release then stays live and the refusal shows only in the server's log. `make verify` runs `check_file_types.py` against that list.
+nginx serves `.gz` as-is (no `Content-Encoding`), folder URLs open `index.html`, and missing pages get `/404.html` (root-relative
+links). Each build writes a root `version.json` (`tag` = the site tag), and the site repo's `check-cu-deploy.yml` (canonical copy
+in this repo's `.github/workflows/`; copy it into the site clone like the other workflows) polls it after each site tag and fails
+after 40 min if the server still serves an older tag. The server sends a Content-Security-Policy (report-only until the owner signs
+off); scripts may come only from the site, `cdn.jsdelivr.net` (DuckDB-WASM) and `gc.zgo.at`. **Rollback on the CU server = publish a
+new, higher version**: it always serves the highest tag, and tags are never moved. Until microbiomerepo.com becomes a DNS-level
+301 redirect, GitHub Pages keeps deploying the same tags there; after that, Pages is retired (DNS must stop pointing at GitHub
+before the Pages custom domain is removed).
+
 **Never:** push `main`, force-push, delete tags, embed the token in a URL (docs/SECURITY.md §4).
 Until a credential exists: `rsync -a --delete --exclude .git build/site/ ~/Downloads/site/` and the owner pushes.
 

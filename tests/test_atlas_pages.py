@@ -148,7 +148,7 @@ def test_pages_render(built):
     out = built['out']
     assert built['pages'] == ['atlas/index.html', 'atlas/figures.html'] == built['written']
     a = (out / 'atlas' / 'index.html').read_text()
-    assert 'id="map"' in a and 'static/atlas.js' in a and 'd3@7.9.0' in a and 'topojson-client@3.1.0' in a and 'integrity="sha384-' in a
+    assert 'id="map"' in a and 'static/atlas.js' in a and 'static/vendor/d3-7.9.0.min.js' in a and 'static/vendor/topojson-client-3.1.0.min.js' in a and 'integrity="sha384-' in a   # self-hosted since R2026.37
     assert 'About this view' in a and 'master confounder' in a and 'Repeated measures' in a and '100 Mbp' in a
     assert '289' in a and 'class="active"' in a and 'atlas/index.html' in a  # nav link present + active
     f = (out / 'atlas' / 'figures.html').read_text()   # R2026.25: Observations replaced by the manuscript Figures page

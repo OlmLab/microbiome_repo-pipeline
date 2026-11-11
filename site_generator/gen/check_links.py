@@ -31,11 +31,12 @@ for pg, p in parsed.items():
         u = urlsplit(href)
         if u.scheme in ('http', 'https', 'mailto'):
             external += 1; continue
-        if href.startswith('/'):
+        root_page = pg == site / '404.html'   # served for missing addresses at any depth, so its links are root-relative by design
+        if href.startswith('/') and not root_page:
             absolute.append((str(pg.relative_to(site)), href)); continue
         internal += 1
         path = unquote(u.path)
-        target = pg if not path else (pg.parent / path).resolve()
+        target = pg if not path else ((site / path.lstrip('/')) if (root_page and path.startswith('/')) else (pg.parent / path)).resolve()
         if not target.exists() or not target.is_file():
             broken.append((str(pg.relative_to(site)), href)); continue
         if u.fragment and target.suffix == '.html' and u.fragment not in ids.get(target, set()):

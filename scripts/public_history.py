@@ -87,11 +87,25 @@ def main(pkg, after_docs=False):
     fix_releases_csv(pkg, keep)
     cp = os.path.join(pkg, "CHANGELOG.md")
     if os.path.exists(cp):
+        # R2026.37: rebuilt from docs/package_changelog/<version>.md, newest first. From 1.28.0 the entries start with an H1
+        # ('# Package X (...)'); filtering the old file on '## <version>' sections silently dropped them (1.28.0-1.30.0 shipped a
+        # CHANGELOG whose newest entry was 1.27.0). H1-style entries are demoted one level so the file has a single H1.
         s = open(cp, encoding="utf-8").read()
-        parts = re.split(r"(?m)^(?=## )", s)
-        kept = [p for p in parts if p.startswith("## ") and any(re.match(rf"## v?{re.escape(v)}\b", p) for v in keep_versions)]
+        old_parts = {m.group(1): part for part in re.split(r"(?m)^(?=## )", s)
+                     for m in [re.match(r"## v?(\d+\.\d+\.\d+)\b", part)] if m}
+        src = os.path.join(HERE, "..", "docs", "package_changelog")
+        entries = []
+        for v in sorted(keep_versions, key=lambda x: tuple(int(t) for t in x.split(".")), reverse=True):
+            f = os.path.join(src, f"{v}.md")
+            if os.path.exists(f):
+                e = open(f, encoding="utf-8").read().strip()
+                if e.startswith("# "):
+                    e = re.sub(r"(?m)^(#+) ", r"#\1 ", e)
+                entries.append(e + "\n\n")
+            elif v in old_parts:
+                entries.append(old_parts[v].strip() + "\n\n")
         head = "# Changelog\n\nEarlier versions are archived with their own releases (GitHub / Zenodo).\n\n"
-        open(cp, "w", encoding="utf-8").write(head + "".join(kept))
+        open(cp, "w", encoding="utf-8").write(head + "".join(entries))
     # tables renamed / folded in 1.26.0: their old sections and README rows go, package_docs appends the catalog_* ones
     legacy = r"(?:gut_(?:studies|sample_metadata_wide|sample_determinations(?:_conflicts)?|runs|relatedness|relations|metadata_contradictions|pass_coverage|sandpiper_[a-z_]+)\.(?:parquet|csv)|human_(?:studies|samples|runs|exposure_items)\.parquet|GUT_SANDPIPER_REPORT\.md)"
     dp = os.path.join(pkg, "DATA_DICTIONARY.md")

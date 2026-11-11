@@ -1,7 +1,7 @@
-# microbiome_repo-pipeline — Infant Gut Shotgun-Metagenome Catalog
+# microbiome_repo-pipeline — Microbiome Repo
 
 Code, configuration, tests and documentation that build and maintain the catalog
-(https://microbiomerepo.com/). Data tables live in `microbiome_repo-data`, the generated site in
+(https://microbiome-repo.colorado.edu/). Data tables live in `microbiome_repo-data`, the generated site in
 `microbiome_repo` (docs/DATA_LAYOUT.md). Assembled 2026-09-26 from the release-v11 artifacts (config/inputs.json
 records every source artifact id + sha256).
 

@@ -1,0 +1,41 @@
+# R2026.37: post-release check for the CU Boulder server. Lives in the SITE repo (OlmLab/microbiome_repo); the pipeline keeps the
+# canonical copy, like deploy-pages.yml and verify.yml.
+#
+# The server (BIT) shallow-fetches the highest exact `site-vX.Y.Z` tag about every 15 minutes. If it refuses a release (symlink,
+# extensionless file, file type outside its allow-list) the previous release stays live and the refusal shows only in the server's
+# logs. This workflow closes that gap: after each site tag it polls https://microbiome-repo.colorado.edu/version.json (written by
+# build_site.py) until it reports this tag, and fails after 40 minutes otherwise. GitHub then emails a failure notice to whoever
+# pushed the tag. A failure means: check `make verify` (check_file_types.py) on that build, or ask BIT for the server log.
+name: check-cu-deploy
+
+on:
+  push:
+    tags: ["site-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Wait for the CU server to serve this tag
+        env:
+          TAG: ${{ github.ref_name }}
+          URL: https://microbiome-repo.colorado.edu/version.json
+        run: |
+          if ! echo "$TAG" | grep -Eq '^site-v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$TAG is not an exact site-vX.Y.Z tag; the CU server ignores it."
+            exit 1
+          fi
+          live=""
+          for i in $(seq 1 40); do
+            live=$(curl -fsS --max-time 30 "$URL?t=$(date +%s)" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("tag",""))' 2>/dev/null || true)
+            echo "attempt $i: server has '${live:-?}', expecting $TAG"
+            if [ "$live" = "$TAG" ]; then echo "CU server is serving $TAG"; exit 0; fi
+            sleep 60
+          done
+          echo "::error::After 40 minutes the CU server still serves '${live:-?}', not $TAG. It may have refused the release; the previous release stays live."
+          exit 1
