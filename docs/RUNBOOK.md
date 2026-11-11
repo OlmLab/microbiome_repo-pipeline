@@ -355,9 +355,17 @@ links). Each build writes a root `version.json` (`tag` = the site tag), and the 
 in this repo's `.github/workflows/`; copy it into the site clone like the other workflows) polls it after each site tag and fails
 after 40 min if the server still serves an older tag. The server sends a Content-Security-Policy (report-only until the owner signs
 off); scripts may come only from the site, `cdn.jsdelivr.net` (DuckDB-WASM) and `gc.zgo.at`. **Rollback on the CU server = publish a
-new, higher version**: it always serves the highest tag, and tags are never moved. Until microbiomerepo.com becomes a DNS-level
-301 redirect, GitHub Pages keeps deploying the same tags there; after that, Pages is retired (DNS must stop pointing at GitHub
-before the Pages custom domain is removed).
+new, higher version**: it always serves the highest tag, and tags are never moved.
+
+**microbiomerepo.com is a permanent redirect (2026-11-11).** Registrar and DNS are Cloudflare (owner's account). A Single
+Redirect rule sends `microbiomerepo.com` and `www.` to `concat("https://microbiome-repo.colorado.edu", http.request.uri.path)`
+with status 301 and the query string kept. DNS holds only proxied placeholders (`A @ 192.0.2.1`, `AAAA @ 100::`,
+`CNAME www → microbiomerepo.com`); the former GitHub records (four `A` 185.199.108–111.153, `CNAME www → olmlab.github.io`) are
+in the artifact `cloudflare_backup_microbiomerepo_2026-11-11.json`. GitHub Pages KEEPS `microbiomerepo.com` as its custom domain
+on purpose: GitHub then forwards `olmlab.github.io/microbiome_repo/…` → microbiomerepo.com → CU (2 hops), so links from before the
+custom domain still work, and with DNS off GitHub nobody can take the domain over. Next release: deploy-pages.yml deploys a small
+placeholder instead of the full site (GitHub's forwarding does not depend on the content), which also lifts the 1 GB Pages limit
+from the site build.
 
 **Tag protection (2026-11-11):** ruleset `protect-release-tags` (active, no bypass) on `site-v*` (microbiome_repo), `data-v*`
 (microbiome_repo-data) and `benchmark-*` (microbiome_repo-pipeline) blocks deleting, moving and force-pushing those tags; creating a
