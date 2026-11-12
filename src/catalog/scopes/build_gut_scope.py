@@ -424,6 +424,49 @@ def apply_condition_maps(det: pd.DataFrame, cond_map: pd.DataFrame | None, abx_m
     return pd.concat([det, pd.DataFrame(extra, columns=DET_COLS)], ignore_index=True) if extra else det
 
 
+IBD_PARENT = ("ibd_or_gi_disease", "ibd_unspecified")
+_CD = re.compile(r"(?i)^\s*(crohn'?s?(\s+disease)?|cd|crohn\s+disease)\s*$")
+_UC = re.compile(r"(?i)^\s*(ulcerative\s+colitis|uc)\s*$")
+
+
+def refine_ibd_codes(det: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """R2026.38: a raw value that names Crohn's disease or ulcerative colitis outright must not stay on the broader IBD code.
+    Some normalisation passes returned `ibd_or_gi_disease` for the attribute value "Crohn's disease" while the condition map
+    gives the specific code for the same string under another key (PRJNA398089: host_disease vs disease). Only exact names
+    are refined; longer strings ("CD/UC", "family history of Crohn's disease") are left as they are."""
+    hc = det.field_name.eq("health_condition") & det.value_normalized.isin(IBD_PARENT)
+    if not hc.any():
+        return det, 0
+    raw = det.loc[hc, "field_value"].astype(str)
+    cd, uc = raw.str.match(_CD), raw.str.match(_UC)
+    det = det.copy()
+    det.loc[cd[cd].index, "value_normalized"] = "crohns_disease"
+    det.loc[uc[uc].index, "value_normalized"] = "ulcerative_colitis"
+    ix = cd[cd].index.union(uc[uc].index)
+    det.loc[ix, "parse_note"] = det.loc[ix, "parse_note"].fillna("").astype(str).str.cat(["exact disease name refined from the broader IBD code (R2026.38)"] * len(ix), sep="; ").str.lstrip("; ")
+    return det, int(len(ix))
+
+
+def settle_checked_contradictions(contra: pd.DataFrame, det: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """R2026.38: two sources that disagree are withheld until someone checks. Once a checker has confirmed a value for the project
+    and field (a dq_adjudication_v2 row, cohort-wide or per sample), a `sources_disagree` row whose published side is that value is
+    settled and the value is published (PRJEB6456: the paper's table says Sweden, the archive attribute Denmark, the paper's
+    abstract confirms Sweden)."""
+    if contra is None or not len(contra):
+        return contra, 0
+    adj = det[det.determined_by.astype(str).str.startswith("dq_adjudication_v2") & det.value_normalized.notna()]
+    if not len(adj):
+        return contra, 0
+    by_study = set(zip(adj.loc[adj.scope == "study_all", "study_accession"], adj.loc[adj.scope == "study_all", "field_name"],
+                       adj.loc[adj.scope == "study_all", "value_normalized"].astype(str).str.lower()))
+    by_sample = set(zip(adj.loc[adj.scope != "study_all", "sample_key"], adj.loc[adj.scope != "study_all", "field_name"],
+                        adj.loc[adj.scope != "study_all", "value_normalized"].astype(str).str.lower()))
+    va = contra.value_a.astype(str).str.lower()
+    settled = contra.kind.eq("sources_disagree") & pd.Series(
+        [(st, f, v) in by_study or (sk, f, v) in by_sample for st, sk, f, v in zip(contra.study_accession, contra.sample_key, contra.field_name, va)], index=contra.index)
+    return contra[~settled].reset_index(drop=True), int(settled.sum())
+
+
 def _route_of(src, sample_level: bool) -> str:
     s = str(src or "")
     if s.startswith(("biosample.attribute", "sample.attr")):
@@ -477,10 +520,15 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
         return det, {"n_rows": 0}
     c["sample_key"] = c.get("sample_key", pd.Series([""] * len(c))).fillna("").astype(str)
     c["old_value"] = c.old_value.fillna("").astype(str)
+    # R2026.38: optional old_route (R1..R4) restricts a row to the values that came by that route, so that a cohort-wide statement
+    # from a paper can be withdrawn without touching per-sample values of the same project and field
+    c["old_route"] = (c["old_route"] if "old_route" in c.columns else pd.Series([""] * len(c), index=c.index)).fillna("").astype(str)
+    # ... and optional old_determined_by (prefix) restricts it to the values one pass wrote (lifestyle codes of fulltext_setting_v1)
+    c["old_determined_by"] = (c["old_determined_by"] if "old_determined_by" in c.columns else pd.Series([""] * len(c), index=c.index)).fillna("").astype(str)
     dv = det.value_normalized.astype("string").fillna("").astype(str)
     drop = pd.Series(False, index=det.index)
     # per-sample rows without an old_value: one vectorised key match (R2026.23: thousands of subject_id fixes)
-    fast = (c.sample_key != "") & (c.old_value == "")
+    fast = (c.sample_key != "") & (c.old_value == "") & (c.old_route == "") & (c.old_determined_by == "")
     if fast.any():
         keys = set(zip(c.loc[fast, "study_accession"], c.loc[fast, "field_name"], c.loc[fast, "sample_key"]))
         flds = set(c.loc[fast, "field_name"])
@@ -494,6 +542,8 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
         grp = sub.groupby([sub.study_accession.astype(str), sub.field_name.astype(str)]).indices
         sk = sub.sample_key.astype(str).values
         sv = dv.loc[sub.index].values
+        sr = sub.route.astype(str).values
+        sb = sub.determined_by.astype(str).values
         for r in slow.itertuples(index=False):
             ix = grp.get((str(r.study_accession), str(r.field_name)))
             if ix is None:
@@ -503,6 +553,10 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
                 m &= sk[ix] == r.sample_key
             if r.old_value:
                 m &= sv[ix] == r.old_value
+            if r.old_route:
+                m &= sr[ix] == r.old_route
+            if r.old_determined_by:
+                m &= np.fromiter((str(x).startswith(r.old_determined_by) for x in sb[ix]), dtype=bool, count=len(ix))
             drop.loc[sub.index[ix[m]]] = True
     n_dropped = int(drop.sum())
     out = det[~drop]
@@ -511,6 +565,13 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
                      r.evidence_source or "dq_adjudication", r.evidence_locator or "", r.evidence_quote or "", _route_of(r.evidence_source, bool(r.sample_key)),
                      str(getattr(r, "determined_by", "") or "dq_adjudication_v1"), note=str(getattr(r, "rationale", "") or "")[:200],
                      scope="sample" if r.sample_key else "study_all", release_id=rid, pv=pv) for r in rec.itertuples(index=False)]
+    # R2026.38: rows of the second adjudication round keep their whole quote (up to 60 words); _row() cuts quotes at 12 words,
+    # which is the rule for model-extracted spans, not for a sentence a checker copied from the source
+    for row, r in zip(new_rows, rec.itertuples(index=False)):
+        if str(getattr(r, "determined_by", "") or "").startswith("dq_adjudication_v2"):
+            row["evidence_quote"] = " ".join(str(r.evidence_quote or "").split()[:60])[:600]
+            if getattr(r, "old_value", "") and str(r.old_value) != str(r.new_value):
+                row["parse_note"] = (f"was {r.old_value}; " + row["parse_note"])[:240]
     if new_rows:
         out = pd.concat([out, pd.DataFrame(new_rows, columns=DET_COLS)], ignore_index=True)
     return out, {"n_rows": int(len(c)), "n_dropped": n_dropped, "n_recoded": len(new_rows)}
@@ -520,11 +581,15 @@ def resolve(det: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """One current row per (sample, field): precedence infant catalog > R1 > R2 > R3 > R4, then confidence. Losers whose normalised
     value differs from the winner are returned as conflicts."""
     d = det[det.value_normalized.notna()].copy()
-    d["_rank"] = d.route.map(ROUTE_RANK).fillna(9)
+    d["_rank"] = d.route.map(ROUTE_RANK).fillna(9).astype(float)
     d.loc[d.src_track == "infant_catalog", "_rank"] = 0
     # person / time rows checked by Opus 5 (R2026.34) compete with the infant catalog's parser rows on confidence: they keep the
     # stored code and add its stated meaning ("BL" -> "baseline")
     d.loc[d.determined_by.astype(str).str.startswith("catalog_persontime_v1"), "_rank"] = 0
+    # R2026.38: a value a checker confirmed or corrected against the primary source outranks every automatic route, whatever the
+    # source it cites (a project description is route R4, and would otherwise lose to the per-sample row it corrects); the infant
+    # catalog's curated rows still come first
+    d.loc[d.determined_by.astype(str).str.startswith("dq_adjudication_v2"), "_rank"] = 0.5
     d = d.sort_values(["sample_key", "field_name", "_rank", "confidence"], ascending=[True, True, True, False], kind="mergesort")
     keep = d.drop_duplicates(["sample_key", "field_name"], keep="first")
     lost = d.loc[d.index.difference(keep.index)]
@@ -585,7 +650,9 @@ def expand_study_all(det_sample: pd.DataFrame, det_study: pd.DataFrame, samples:
         return pd.DataFrame(columns=DET_COLS)
     # one statement per (study, field): route precedence R1 > R2 > R3 > R4, then confidence (1.9.0 shipped both an R3 and an R4 row
     # for the same sample × field when a full-text statement and an abstract statement coexisted — fixed in 1.10.0)
-    det_study = det_study.assign(_rank=det_study.route.map(ROUTE_RANK).fillna(9)).sort_values(["study_accession", "field_name", "_rank", "confidence"], ascending=[True, True, True, False], kind="mergesort")
+    det_study = det_study.assign(_rank=det_study.route.map(ROUTE_RANK).fillna(9).astype(float))
+    det_study.loc[det_study.determined_by.astype(str).str.startswith("dq_adjudication_v2"), "_rank"] = 0.5   # a checked statement first (R2026.38)
+    det_study = det_study.sort_values(["study_accession", "field_name", "_rank", "confidence"], ascending=[True, True, True, False], kind="mergesort")
     det_study = det_study.drop_duplicates(["study_accession", "field_name"], keep="first").drop(columns=["_rank"])
     have = set(zip(det_sample.sample_key, det_sample.field_name))
     per_study = samples.groupby("study_accession").sample_key.apply(list)
@@ -727,6 +794,8 @@ def build(a):
     cond = pd.read_parquet(a.condition_map) if a.condition_map and os.path.exists(a.condition_map) else None
     abx = pd.read_parquet(a.antibiotic_map) if a.antibiotic_map and os.path.exists(a.antibiotic_map) else None
     det = apply_condition_maps(det, cond, abx, rid, pv)
+    det, n_ibd_refined = refine_ibd_codes(det)
+    print(f"IBD codes refined to the exact disease named by the raw value: {n_ibd_refined}", file=sys.stderr)
     # 'unknown' / placeholder codes are not determinations (unknown stays unknown = no row); keep raw detail text
     unk = det.value_normalized.astype("string").str.lower().isin(["unknown", "unknown_age", "unknown_site", "none", "nan", ""]) & (det.field_name != "health_condition_detail")
     det = det[~unk.fillna(False)]
@@ -756,6 +825,7 @@ def build(a):
     _cx = getattr(a, "contradiction_extra", None)
     _extra = pd.read_parquet(_cx) if _cx and os.path.exists(_cx) else None
     contra = find_contradictions(det_sample, conflicts, _extra, tuple(GENERATED_SUBJECT_RULES))
+    contra, n_corr["contradictions_settled_by_check"] = settle_checked_contradictions(contra, det)
     _ck = set(zip(contra.sample_key, contra.field_name))
     if _ck:
         _m = pd.Series([(s_, f_) in _ck for s_, f_ in zip(det_sample.sample_key, det_sample.field_name)], index=det_sample.index)

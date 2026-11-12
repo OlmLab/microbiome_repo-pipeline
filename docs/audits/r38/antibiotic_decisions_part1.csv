@@ -1,0 +1,243 @@
+row_id,study_accession,value_normalized,n_samples,category,decision,checked,paper_quote,reason
+1,PRJNA841786,no,2470,enrolment_criterion,keep,paper,the use of antibiotics in the last 3 months,"Antibiotic/probiotic use in the 3 months before sampling is a recruitment exclusion for patients and, separately, for healthy controls."
+3,PRJNA943687,no,2089,subgroup_only,retire,paper,A total of 598 children aged 3 to 12 years old,"Criterion covers the own-data paper's 598 recruited children, but the deposit holds 2,089 samples and its description says it will continue to be updated (4 linked papers)."
+5,PRJDB41738,no,1342,analysis_exclusion,keep,paper,"Finally, a total of 1,342 participants were included in this analysis","Antibiotic users were dropped before deposit: the deposit holds exactly the 1,342 analysed participants of the same centre."
+7,PRJEB74042,no,931,enrolment_criterion,keep,paper,Participants were excluded from the study if any of the following criteria applied,Antibiotics in the last 3 months are in the list of criteria that excluded participants from the study at enrolment.
+9,PRJEB72385,no,751,enrolment_criterion,keep,paper,"Patients were excluded if they used antibiotics, probiotics, or antihypertensive agents within 1 month before the study",Trial-wide eligibility criterion; no antibiotic use during the trial is reported.
+11,PRJNA1277853,yes,679,direct_statement,keep,paper,"Samples were obtained after starting IV antibiotics, at discharge, and at four weeks follow-up.","Every sample was taken after IV antibiotics had been started, at discharge or at follow-up."
+13,PRJEB90577,yes,631,direct_statement,keep,paper,"Samples were obtained after starting IV antibiotics, at discharge, and at four weeks follow-up.","Every sample was taken after IV antibiotics had been started, at discharge or at follow-up."
+15,PRJNA545794,yes,567,intervention_or_design,retire,quote_only,define microbiome and resistome change under antibiotic pressure,"ENA description states the study aim (change under antibiotic pressure), not that every LTACH sample followed antibiotics."
+17,PRJEB52093,yes,539,intervention_or_design,retire,quote_only,Samples were collected at four time points (up to four weeks after cessation of Hp treatment (D42),"Eradication therapy is the intervention and the ENA description has four sampling time points including before treatment, so exposure varies by sample."
+19,PRJNA1077691,no,498,enrolment_criterion,keep,paper,"not having undergone antibiotic, antiviral, antifungal or antiparasitic treatment over the 12 months prior donation",Donor inclusion criterion: no antibiotics in the 12 months before donation.
+21,PRJEB50761,no,496,enrolment_criterion,keep,paper,Women who had taken antibiotics or estrogens within three months of enrollment were excluded.,Recruitment exclusion covering all enrolled women.
+23,PRJNA934596,no,468,enrolment_criterion,keep,paper,"antibiotic therapy or oral prophylactic procedures within the preceding 3 months, and fewer than 20 teeth in the dentition were also excluded",Recruitment exclusion for all 130 enrolled pregnant women.
+25,PRJNA1258884,no,440,enrolment_criterion,keep,paper,"Nine participants withdrew because of digestive problems caused by yogurt consumption (n = 3), unplanned surgery (n = 2), antibiotic treatment (n = 1)","Recruitment exclusion; one participant withdrew after antibiotic treatment during the crossover, so a small residual risk remains for deposited samples of that participant."
+27,PRJNA1128723,no,429,direct_statement,keep,paper,Stool samples were not collected if the participant had taken antibiotics within the 2 weeks prior to sampling.,Per-sample collection rule: no stool was collected within 2 weeks of antibiotics.
+29,PRJNA642308,no,409,enrolment_criterion,keep,paper,None of the participants reported antibiotic treatment during the study.,Recruitment exclusion plus an explicit statement that no participant took antibiotics during the study.
+31,PRJNA1457641,no,402,not_supported,retire,quote_only,a densely sampled longitudinal metagenomic study conducted in an ecologically managed rural farming community without routine antibiotic use,"'Without routine antibiotic use' describes the farming community's practice, not the antibiotic status of the sampled people."
+33,PRJNA530339,no,385,direct_statement,keep,paper,"According to records, none of the volunteers used antibiotics within one month prior to the study.",Paper states no volunteer used antibiotics in the month before the study.
+35,PRJNA388263,no,382,enrolment_criterion,keep,paper,"excluding individuals with chronic disease, hospitalization or antibiotic use in the previous 6 months",Recruitment exclusion with 6-month look-back.
+37,PRJEB56264,no,380,enrolment_criterion,keep,paper,"had taken any pro-, pre- or antibiotic 4 weeks prior to enrollment in the study",Eligibility criterion at enrolment for all participants.
+39,PRJNA1042925,no,375,enrolment_criterion,keep,paper,Patients who have received broad-spectrum antibiotics orally or intravenously within one month prior to or during the immune checkpoint inhibitor therapy.,Exclusion covers antibiotics before and during the therapy over which samples were taken.
+41,PRJNA770647,no,342,enrolment_criterion,keep,paper,Fourteen periodontitis patients were closely monitored in the absence of periodontal treatment for 12 months.,"Recruitment exclusion with 6-month look-back; full text is not open access (Europe PMC 500), so follow-up antibiotic use could not be checked in this 12-month study."
+43,PRJNA1402699,no,341,enrolment_criterion,keep,paper,use of antibiotics 6 months before the start of the study,Recruitment exclusion with 6-month look-back.
+45,PRJNA993161,yes,315,intervention_or_design,retire,quote_only,antibiotic-treated healthy volunteers,"Antibiotic treatment is the study's own intervention, so deposited samples include pre-antibiotic baselines."
+47,PRJEB56022,no,312,enrolment_criterion,retire,paper,"made them prone to infections that required antibiotic treatment, causing many dropouts",Enrolment criterion only; in this two-year trial the paper reports that participants' infections required antibiotic treatment during follow-up.
+49,PRJEB79317,no,290,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+51,PRJNA532888,no,284,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+53,PRJEB17632,no,283,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+55,PRJNA1463324,yes,272,intervention_or_design,retire,paper,Thirty-one healthy adults received oral vancomycin 125 mg four times daily for 5 days to decrease gut microbial burden,"Vancomycin is the trial's own pretreatment and stool was collected during screening, before dosing, so 'yes' is wrong for the screening samples."
+57,PRJEB108545,no,269,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+59,PRJEB51894,no,262,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+61,PRJEB78698,no,258,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+63,PRJNA1402308,yes,254,intervention_or_design,keep,paper,"The BALANCE randomized controlled trial enrolled 3631 participants with bacteremia, who were randomized 1:1 to receive 7 or 14 days of antibiotics.","Every sampled participant was treated with antibiotics for bacteremia and rectal swabs were taken at days 7 and 14, so 'yes' holds for all samples."
+65,PRJEB79944,no,241,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+67,PRJNA1087376,no,230,enrolment_criterion,keep,paper,"Inclusion criteria included an assessment of MAM, no history of chronic medical conditions, known congenital anomalies, and no antibiotic use within the past month.",Recruitment criterion for both the MAM and well-nourished groups sampled at 12 months.
+69,PRJNA769968,no,222,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+71,PRJEB46664,no,206,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+73,PRJNA1090034,no,206,enrolment_criterion,keep,quote_only,The exclusion criteria were as follows: (1) use of antibiotics within the past 3 months,Project description lists antibiotics in the past 3 months as an exclusion criterion; 115+28+63=206 recruited subjects match the 206 deposited samples.
+75,PRJNA1188789,no,198,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+77,PRJNA506988,no,195,enrolment_criterion,retire,paper,a subset of patients were administered systemic antibiotics at some time during the study,Enrolment-time statement only; the paper reports that patients were given systemic antibiotics during this longitudinal DFU study.
+79,PRJNA1078115,no,183,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+81,PRJNA686835,no,182,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+83,PRJNA1082341,no,180,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+85,PRJEB73985,no,175,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+87,PRJNA422434,no,171,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+89,PRJNA885289,no,169,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+91,PRJNA415710,no,168,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+93,PRJEB28058,no,164,intervention_or_design,retire,paper,we quantified changes in the gut microbiome in two cohorts of hematological patients receiving prophylactic antibiotics,"Quote is an enrolment criterion, but both deposited cohorts then received prophylactic antibiotics and were sampled during treatment."
+95,PRJNA1171107,no,159,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+97,PRJNA771720,no,151,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+99,PRJEB45944,no,151,direct_statement,keep,paper,"None of them had used antibiotics, insulin, proton pump inhibitors or drugs related to cancer treatment and chemotherapy in the past 3 months.",Paper states no participant used antibiotics in the past 3 months.
+101,PRJEB40628,no,149,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+103,PRJNA1142892,no,148,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+105,PRJNA1033539,yes,142,direct_statement,keep,paper,from children admitted to the PICU of Xinhua Hospital who received broad-spectrum antibiotics on days 1 (the D1 group) and 7 (the,All sampled PICU children were on broad-spectrum antibiotics; samples are the D1 and D7 groups.
+107,PRJEB67456,no,139,direct_statement,keep,quote_only,,Paper states no participant had taken antibiotics within 1 month.
+109,PRJEB39813,no,134,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+111,PRJNA954584,no,132,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+113,PRJNA891875,no,132,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+115,PRJNA1364832,no,129,intervention_or_design,retire,paper,"Vancomycin pretreatment induced colonisation success: with 5% colonisation without, 32% after one day, and 84% after five days vancomycin pretreatment.","Participants were antibiotic-free at enrolment but received vancomycin pretreatment as the intervention, so later samples are exposed."
+117,PRJEB30611,no,126,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+119,PRJNA1037036,no,124,enrolment_criterion,keep,paper,usage of antibiotics and antifungal medications as well as prebiotics and probiotics supplements 1-month prior to data and sample collection,Part of the list of criteria that excluded children from the study at recruitment.
+121,PRJNA749138,yes,121,intervention_or_design,retire,paper,"we apply metagenomic sequencing to fecal samples of 44 H. pylori-infected patients at baseline, 6-week (N = 44), and 6-month (N = 33) after treatment","The 121 samples are 44 baseline (pre-eradication) plus 6-week and 6-month samples, so 'yes' does not hold at baseline."
+123,PRJNA1210004,no,120,enrolment_criterion,keep,paper,Prospective participants who reported antibiotic use within the past six months were not considered for inclusion.,Recruitment exclusion with 6-month look-back; no antibiotic use during follow-up is reported.
+125,PRJNA243613,no,120,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+127,PRJNA706116,no,116,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+129,PRJDB14272,yes,114,intervention_or_design,retire,quote_only,treated with antibiotic combination therapy,Antibiotic combination therapy is the treatment under study; the description does not place every deposited sample after it.
+131,PRJNA592261,no,113,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+133,PRJNA785561,no,110,analysis_exclusion,keep,paper,"Participants were excluded from this analysis if they had urethral discharge, tested positive for C. trachomatis , M. genitalium , N. gonorrhoeae , T. vaginalis , or urethrotropic Neisseria meningitidis strain US_NmUC, exhibited &gt;1 polymorphonuclear leukocytes per high-power field (PMN/HPF) on their urethral Gram stain smear, reported antibiotic use in the past month","Exclusion is at analysis, but the deposit holds exactly 110 urethral samples matching the 110 analysed men, so no excluded participant is in it."
+135,PRJNA663652,yes,108,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+137,PRJNA762484,no,108,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+139,PRJEB81868,no,105,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+141,PRJNA1201908,no,103,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+143,PRJDB41048,no,102,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+145,PRJEB35524,no,102,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+147,PRJNA1267986,no,101,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+149,PRJNA1163384,no,100,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+151,PRJNA1195999,no,100,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+153,PRJNA1090491,no,99,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+155,PRJNA1293883,no,98,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+157,PRJNA1004560,no,97,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+159,PRJNA1096686,no,96,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+161,PRJNA978345,yes,96,direct_statement,keep,quote_only,treated with ongoing prophylactic amoxicillin/clavulanate to assess microbial maturation over this period,Project description states the sampled CF infants were on ongoing prophylactic amoxicillin/clavulanate over the sampling period.
+163,PRJNA644666,no,96,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+165,PRJNA1148759,no,95,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+167,PRJEB61325,no,95,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+169,PRJNA910239,no,95,direct_statement,keep,paper,All patients received the following two treatment regimens without antibiotic use during the treatment until disease progression or intolerable toxicity,Paper states all patients were treated without antibiotics over the sampled treatment period.
+171,PRJNA722129,no,93,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+173,PRJNA1225636,no,91,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+175,PRJNA1125836,no,91,direct_statement,keep,paper,None of the participants had used antibiotics in the 2 months before fecal sampling or had inflammatory bowel disease or a history of cancer.,Paper reporting this deposit (it cites PRJNA1125836 and PRJNA885289) states no participant used antibiotics in the 2 months before sampling.
+177,PRJEB88212,no,90,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+179,PRJNA1004858,no,88,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+181,PRJNA1300960,no,88,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+183,PRJNA672125,no,86,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+185,PRJNA689476,no,85,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+187,PRJNA1043691,no,84,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+189,PRJEB28671,no,84,analysis_exclusion,retire,paper,"an additional small number of 16 samples from 15 children who received antibiotics were also removed leaving 1,389 samples from 633 children for detailed analysis","Antibiotic-exposed samples were removed at analysis; the 1,616-sample deposit still contains them, so cohort-wide 'no' is unsupported."
+191,PRJNA812695,no,83,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+193,PRJNA1257948,no,82,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+195,PRJNA1082417,no,82,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+197,PRJEB72800,no,80,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+199,PRJEB108281,no,78,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+201,PRJNA1208576,no,78,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+203,PRJNA1198331,no,76,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+205,PRJNA347511,no,74,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+207,PRJNA814640,no,73,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+209,PRJEB86263,no,72,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+211,PRJEB56674,yes,72,direct_statement,keep,paper,"Briefly, both cohorts were on antibiotic therapies prior to the therapeutic intervention.","Paper states both deposited cohorts (MET-2 and FMT recipients, subject ids FMT01-...) were on antibiotic therapy before the intervention."
+213,PRJNA391226,no,71,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+215,PRJEB120968,no,66,analysis_exclusion,retire,quote_only,"recent antibiotic use, proton pump inhibitor use, metformin use, or other relevant exclusion criteria were not included in the analysis","Description says such individuals were not included in the analysis, which does not establish that their samples are absent from the deposit."
+217,PRJEB76307,no,66,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+219,PRJNA861285,no,65,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+221,PRJNA919082,no,64,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+223,PRJEB74248,no,62,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+225,PRJNA719915,no,62,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+227,PRJNA1024640,no,62,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+229,PRJEB49262,no,62,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+231,PRJNA1135502,no,60,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+233,PRJNA1494378,no,60,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+235,PRJNA1138254,no,60,intervention_or_design,retire,paper,Oral vancomycin resulted in clinical remission in 12/15 patients and significant reductions in fecal calprotectin.,Trial administers oral vancomycin; the 3-month enrolment exclusion does not cover on-treatment samples.
+237,PRJDB17737,no,60,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+239,PRJNA1077752,no,59,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+241,PRJNA588313,no,59,intervention_or_design,retire,paper,We observed that 3 to 19 species per individual proliferated during antibiotic treatment,Healthy volunteers were given antibiotics in this study; the 1-year enrolment criterion covers only the pre-treatment samples.
+243,PRJNA565546,no,57,not_supported,retire,paper,"In this study, none of the participants had a history of fractures.",Quote is about fracture history and the paper contains no antibiotic statement at all (zero occurrences of 'antibiot'/'antimicrob').
+245,PRJNA827921,no,56,direct_statement,keep,paper,"Finally, 38 patients were diagnosed with spinal infection and had not received any antimicrobial therapy before sample collection.","Covers all 38 patients from whom the deposited samples were taken, before any antimicrobial therapy."
+247,PRJNA984000,no,56,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+249,PRJNA856701,no,56,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+251,PRJNA973824,no,55,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+253,PRJEB18755,no,54,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+255,PRJEB80390,no,54,direct_statement,keep,paper,No participants started a course of antibiotics during their involvement in the study.,3-month enrolment washout plus an explicit statement that nobody started antibiotics during the study.
+257,PRJEB48983,yes,53,intervention_or_design,retire,paper,the microbiome diversity rate was significantly higher in the pre-eradication state than in the post-eradication state,"Deposit spans pre- and post-eradication states, so the antibiotic regimen does not make every sample exposed."
+259,PRJNA1141738,no,52,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+261,PRJNA941095,no,51,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+263,PRJNA905731,no,51,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+265,PRJNA735337,no,50,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+267,PRJNA779226,no,50,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+269,PRJNA746114,no,49,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+271,PRJNA1484494,no,48,enrolment_criterion,keep,paper,"The participants were required to have not taken probiotics, antibiotics, or immunosuppressants for at least one month before enrollment in the study.","Recruitment criterion; the paper's only antibiotic mention, so no antibiotic preparation before FMT is reported."
+273,PRJNA1199756,no,48,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+275,PRJNA1391873,no,47,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+277,PRJNA1002235,no,46,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+279,PRJNA588627,no,46,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+281,PRJNA1440449,no,45,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+283,PRJNA665061,no,45,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+285,PRJDB18359,no,45,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+287,PRJNA302832,no,44,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+289,PRJNA1471479,no,43,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+291,PRJEB38989,no,42,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+293,PRJEB22032,no,42,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+295,PRJDB11203,no,42,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+297,PRJNA1064442,no,42,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+299,PRJNA1441104,no,41,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+301,PRJNA349463,no,40,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+303,PRJNA685581,no,40,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+305,PRJNA947684,no,40,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+307,PRJNA847258,no,40,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+309,PRJNA1231247,no,40,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+311,PRJNA1256532,no,40,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+313,PRJDB37151,no,39,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+315,PRJNA530620,no,38,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+317,PRJNA1355505,no,38,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+319,PRJEB58222,no,37,analysis_exclusion,retire,paper,"Patients who received antibiotics during the first three months of treatment, did not deliver pre-treatment stool, did not start chemotherapy or suffered from COVID-19 were excluded from the analyses (n = 7).","Seven of 30 recruited patients were excluded from the analyses, not from the study, so their samples may be among the 37 deposited."
+321,PRJEB66728,no,36,direct_statement,keep,paper,"We sequenced 57 stool samples from 24 mothers and their full-term, vaginally-born, antibiotic free infants enrolled in the AIMS study",All 36 samples carrying the value are infant stool (day 30 and day 183) from the AIMS infants the paper calls antibiotic free.
+323,PRJNA479838,no,35,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+325,PRJNA1317643,no,34,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+327,PRJNA1076126,no,33,enrolment_criterion,keep,paper,"The inclusion criteria were: (i) age &lt;7 months, (ii) clinical symptoms of bronchiolitis requiring hospitalization, (iii) positive testing for Respiratory Syncytial Virus (RSV) or influenza virus, and (iv) no antibiotic exposure.",No antibiotic exposure was an inclusion criterion for every hospitalised infant sampled.
+329,PRJEB70916,no,33,direct_statement,keep,paper,Biological samples were obtained before colonoscopy and/or surgery and/or chemotherapy with no exposure to antibiotics during and/or colonic washing procedure the 3 weeks preceding the fecal sampling.,Collection-level statement: no antibiotic exposure in the 3 weeks before each faecal sampling.
+331,PRJNA1171384,no,32,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+333,PRJEB61039,no,32,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+335,PRJNA478488,no,31,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+337,PRJEB27914,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+339,PRJNA987158,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+341,PRJNA1277202,no,30,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+343,PRJDB16312,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+345,PRJNA1365953,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+347,PRJNA1495175,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+349,PRJNA1241499,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+351,PRJNA1121414,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+353,PRJNA939268,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+355,PRJNA1225217,no,30,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+357,PRJEB41867,no,29,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+359,PRJEB89837,no,29,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+361,PRJNA1265940,no,28,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+363,PRJNA1130508,no,27,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+365,PRJNA703034,yes,26,intervention_or_design,retire,paper,"we quantify microbiome dynamics before, during, and 6 months after exposure to 4 commonly used antibiotic regimens","The design samples microbiomes before, during and after the antibiotic regimens, so pre-exposure samples are in the deposit."
+367,PRJNA508385,no,25,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+369,PRJEB7390,no,25,subgroup_only,retire,paper,Administration of antibiotics before hospital admission was not registered; in outpatients no antibiotics were administered before sample collection.,The statement holds only for outpatients; for admitted patients prior antibiotics were not registered.
+371,PRJNA1161622,no,24,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+373,PRJNA1000619,no,24,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+375,PRJEB54728,no,24,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+377,PRJNA650280,no,23,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+379,PRJNA1098044,no,23,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+381,PRJEB58815,yes,22,intervention_or_design,retire,paper,"We treated healthy volunteers either with cefotaxime or ceftriaxone for 3 days, and collected in each subject 12 faecal samples up to day 90","Antibiotics are the study's intervention with 12 faecal samples per subject up to day 90, so exposure varies across the deposited samples."
+383,PRJNA379884,no,22,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+385,PRJNA838635,no,22,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+387,PRJEB8249,no,21,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+389,PRJEB51713,no,21,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+391,PRJNA1423428,no,20,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+393,PRJNA480900,no,20,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+395,PRJNA757462,no,20,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+397,PRJNA613054,yes,20,subgroup_only,retire,paper,"147 infants born at ≥36 weeks of gestational age, requiring broad-spectrum antibiotics for treatment of sEONS in their first week of life were randomized 1:1:1","The trial also has an untreated control group and spreads data over six BioProjects, so 'yes' is not established for these 20 samples."
+399,PRJNA720271,no,20,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+401,PRJNA1250239,no,18,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+403,PRJNA837034,no,18,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+405,PRJNA669585,no,17,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+407,PRJNA1221292,no,16,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+409,PRJEB4673,no,16,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+411,PRJEB47736,no,16,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+413,PRJNA1179893,yes,16,subgroup_only,retire,paper,"The second was the Food and Resulting Microbial Metabolites (FARMM) study, a controlled feeding study in healthy volunteers designed to rigorously evaluate the role of dietary fiber in microbiota recovery after antibiotic treatment","Deposit backs two human studies (an IBS diet study with no antibiotics and FARMM), so 'after antibiotic use' does not cover every sample."
+415,PRJEB21338,yes,15,intervention_or_design,retire,quote_only,"at 3 time points (before the start of the eradication therapy, immediately after the therapy and several weeks after the end of treatment)","Sampling includes a time point before eradication therapy starts, so 'yes' does not hold for every sample."
+417,PRJNA856821,no,13,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+419,PRJNA689670,no,12,enrolment_criterion,keep,paper,- Participants had received local or systemic antibiotic treatment in the past 3 months;,Bullet in the recruitment exclusion list: antibiotics in the past 3 months excluded participants.
+421,PRJNA1043851,no,12,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+423,PRJEB5771,yes,12,intervention_or_design,retire,paper,"Samples were taken before, during and after AB treatment and were checked for the presence of the pathogen.","Abstract states samples were taken before, during and after antibiotic treatment, so 'yes' does not hold for the pre-treatment samples."
+425,PRJNA855131,no,12,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+427,PRJNA748448,yes,12,not_supported,retire,paper,"The Simpson index increased an average of 2.5× between the first and last time points (test for linear trend, P = 0.0052), which spanned a period of antibiotic use in all four infants","Quote says the sampling period spanned antibiotic use, not that each of the 12 samples followed exposure."
+429,PRJEB55599,no,11,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+431,PRJNA484151,no,10,not_supported,retire,paper,"The data illustrated the key role of the host gastrointestinal tract system in amplifying the ever-increasing AR gene pool, even without antibiotic exposure.","Quote is a discussion claim about resistance genes, not a statement that the sampled infants were antibiotic-free."
+433,PRJNA1018099,no,10,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+435,PRJNA1005267,no,10,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+437,PRJEB18265,yes,10,intervention_or_design,retire,paper,Data on gut metagenomes of the patients with Helicobacter pylori infection before and after the antibiotic therapy,"The deposit covers samples before as well as after eradication therapy, so 'yes' is wrong for the pre-therapy samples."
+439,PRJNA732769,no,9,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+441,PRJNA1458179,no,9,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+443,PRJEB22207,yes,8,not_supported,retire,paper,the red dots represent the days of antibiotic treatment,"Quote is a figure-legend element for one infant's timeline and does not state antibiotic exposure for the eight samples it was applied to (P10, P103, P106)."
+445,PRJEB89897,no,7,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+447,PRJEB79246,no,7,direct_statement,keep,paper,None of the volunteers had any gastrointestinal tract disorders or had taken antibiotics and probiotics in the prior three months.,Paper states no volunteer had taken antibiotics in the three months before sampling.
+449,PRJEB31957,yes,6,intervention_or_design,retire,quote_only,Oral and fecal samples were collected from a young child before,Samples were collected before as well as during/after the penicillin course.
+451,PRJNA981221,no,6,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+453,PRJNA672826,no,6,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+455,PRJEB67641,no,5,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+457,PRJNA735705,no,4,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+459,PRJEB10391,yes,4,intervention_or_design,keep,quote_only,"Stool samples from both participants were collected before treatment (baseline), on day 1, 3 and 6 of treatment as well as 2 and 28 days after treatment.","The four samples carrying this quote are the day-2 and day-28 post-ciprofloxacin samples (baselines carry 'no'), so exposure holds."
+461,PRJNA434731,yes,4,direct_statement,keep,paper,The patient had been exposed to a course of therapy with azithromycin 1.5 months prior to the date of the first sample (Fig. 1—timepoint A); treatment with ciprofloxacin started the day before the first sample was taken.,"All four samples come from this single patient, taken after the azithromycin course (and after ciprofloxacin started the day before sample 1)."
+463,PRJDB5180,yes,3,direct_statement,keep,paper,"The patients underwent antimicrobial treatment several times before the operation, except for one case.","Table 1 gives the antimicrobial agent per patient (P1 CTRX, P2 and P5 SBT/CPZ) and the samples carrying it are that patient's; agents were given before the operation at which samples were taken."
+465,PRJDB5180,yes,3,direct_statement,keep,paper,"The patients underwent antimicrobial treatment several times before the operation, except for one case.","Table 1 gives the antimicrobial agent per patient (P1 CTRX, P2 and P5 SBT/CPZ) and the samples carrying it are that patient's; agents were given before the operation at which samples were taken."
+467,PRJDB5180,yes,3,direct_statement,keep,paper,"The patients underwent antimicrobial treatment several times before the operation, except for one case.","Table 1 gives the antimicrobial agent per patient (P1 CTRX, P2 and P5 SBT/CPZ) and the samples carrying it are that patient's; agents were given before the operation at which samples were taken."
+469,PRJNA740243,no,2,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+471,PRJNA612291,no,2,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+473,PRJNA221723,yes,2,direct_statement,keep,paper,"Day of life (DOL) 1 to 7 antibiotics Ampicillin, gentamycin Ampicillin, gentamycin","Table 1 records ampicillin + gentamicin on DOL 1-7 for both infants and faecal sampling ran every 3 days over the first month, so the samples follow exposure."
+475,PRJNA396794,yes,2,direct_statement,retire,quote_only,All 107 infants received gentamicin and ampicillin during the first week,"The two samples carrying the value are DOL 0 (BioSample attribute dol=0), so a statement about antibiotics given 'during the first week' does not establish exposure before sampling."
+477,PRJNA834885,no,2,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.
+479,PRJNA961998,no,1,direct_statement,keep,quote_only,,Paper states the sampled participants' antibiotic status directly for the whole group.
+481,PRJNA60717,yes,1,direct_statement,keep,quote_only,,"Paper states prophylactic antibiotics were given to all premature infants at birth, before the sampled stool."
+483,PRJNA491335,no,1,enrolment_criterion,keep,quote_only,,Recruitment exclusion criterion with look-back window; every enrolled participant meets it.

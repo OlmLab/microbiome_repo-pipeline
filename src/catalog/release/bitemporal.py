@@ -336,7 +336,12 @@ def build_registry(cfg: dict, out_dir: str, release_id: str, package_version: st
             assert r["package_version"] == package_version, f"config/releases.yaml says {release_id} = {r['package_version']}, got {package_version}"
             rows.append(_registry_row(release_id, package_version, release_date, r, counts, notes))
         elif r["release_id"] in published:  # an earlier numbered release: copy the published registry row verbatim
-            rows.append({k: published[r["release_id"]].get(k, "") for k in cfg["registry_columns"]})
+            row = {k: published[r["release_id"]].get(k, "") for k in cfg["registry_columns"]}
+            # the DOI is minted after a release is published, so the published row never carries its own; it is recorded in
+            # config/releases.yaml afterwards and filled here (R2026.38) — every other column stays as published
+            if str(row.get("doi") or "").strip() in ("", "nan", "None") and r.get("doi"):
+                row["doi"] = r["doi"]
+            rows.append(row)
         elif r.get("release_date"):  # an earlier numbered release already cut but no previous registry available
             rows.append(_registry_row(r["release_id"], r["package_version"], r["release_date"], r, r.get("counts") or {}, notes))
     reg = pd.DataFrame(rows, columns=cfg["registry_columns"]).astype(str).replace({"nan": "", "None": "", "<NA>": ""})

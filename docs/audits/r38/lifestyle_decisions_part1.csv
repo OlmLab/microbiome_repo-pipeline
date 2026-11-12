@@ -1,0 +1,89 @@
+study_accession,code,n_samples,decision,new_code,quote,pmcid,section,source_checked,reason
+PRJNA841786,urban_industrialized,2470,retire,,,,,europepmc,Only the Hong Kong recruitment hospital is named; no statement about participants' residence or lifestyle.
+PRJEB87865,urban_industrialized,1633,retire,,,,,cached_text,Cached texts contain no statement describing participants as urban or industrialized.
+PRJNA687136,urban_industrialized,1067,retire,,,,,europepmc,Only a figure caption on settlement level of 120 viral samples; no cohort-wide residence statement.
+PRJNA666535,urban_industrialized,816,retire,,,,,europepmc,No sentence in the paper describes the children or their residence as urban.
+PRJNA266117,urban_industrialized,675,retire,,,,,cached_text,No statement about participants' residence or lifestyle in any linked paper.
+PRJNA870959,rural_non_industrialized,586,retire,,,,,europepmc,Paper names parishes/districts and households in Uganda but never describes the cohort as rural or non-industrialized.
+PRJNA1162089,urban_industrialized,498,retire,,,,,cached_text,Only the NIH Clinical Center recruitment site is named; no residence statement.
+PRJNA1052084,urban_industrialized,457,retire,,,,,cached_text,Only a K-8 school recruitment site; paper states lifestyle not_stated.
+PRJNA698366,urban_industrialized,379,retire,,,,,cached_text,"Cohort was recruited at both urban and rural clinics and residence is an urban-vs-rural covariate, so urban is a subgroup only."
+PRJEB49334,urban_industrialized,361,retire,,,,,cached_text,Singapore hospital/community recruitment named; no urban or industrialized descriptor for participants.
+PRJNA812699,urban_industrialized,327,retire,,,,,europepmc,"Only recruitment areas (Los Angeles, Buffalo) are named; no urban residence statement."
+PRJNA681566,other_lifestyle,303,retire,,,,,europepmc,"Lifestyle terms appear only for two individual cases (a forest worker, a sex worker), not the cohort."
+PRJNA876804,urban_industrialized,296,retire,,,,,europepmc,Only Hong Kong recruitment hospitals are named; no residence or lifestyle statement.
+PRJNA633853,urban_industrialized,269,retire,,,,,europepmc,Only the UCSF/ZSFG testing sites are named; no statement about participants' residence.
+PRJEB78698,urban_industrialized,258,retire,,,,,cached_text,No statement describing the Wageningen participants as urban or industrialized.
+PRJEB59568,urban_industrialized,248,retire,,,,,cached_text,Only the London ICU study site is named; no statement about where patients live.
+PRJEB49124,urban_industrialized,234,retire,,,,,cached_text,"Paper describes participants as community-living, which is not an urban/industrialized statement."
+PRJNA1189566,urban_industrialized,212,retire,,,,,europepmc,"Recruitment from the San Francisco Bay Area is a recruitment region, not a statement that participants are urban."
+PRJNA595703,urban_industrialized,199,retire,,,,,cached_text,Only Singapore outpatient clinic recruitment sites are named; no residence statement.
+PRJEB28553,urban_industrialized,193,retire,,,,,europepmc,Only Hannover/Jena study sites and a catchment region; no urban descriptor for participants.
+PRJNA817430,urban_industrialized,182,retire,,,,,cached_text,Only German study-site cities are named; no statement that participants live in urban settings.
+PRJNA885289,athlete,169,retire,,,,,cached_text,"Three-arm design: only 25 of ~170 participants are professional athletes (plus 109 esports players and 36 students), so athlete is a subgroup."
+PRJNA846182,urban_industrialized,163,retire,,,,,europepmc,"No accessible source: paper is not open access, Europe PMC full text unavailable."
+PRJNA1355317,military,157,keep,,"To assess the degree of microbiome convergence, we performed shotgun metagenomic sequencing on swab samples from a military trainee cohort.",PMC12889126,abstract,cached_text,Paper describes the sampled cohort project-wide as a military trainee cohort at US Army Infantry training.
+PRJNA935265,urban_industrialized,155,retire,,,,,cached_text,No statement describing participants as urban or industrialized; only the Flemish Region of residence is named.
+PRJEB50547,urban_industrialized,144,retire,,,,,europepmc,Only Swedish university hospital study sites are named; no residence or lifestyle statement.
+PRJNA765878,urban_industrialized,141,retire,,,,,europepmc,"Cached text contains no urban, industrialized or westernized descriptor for the student cohort."
+PRJNA983219,urban_industrialized,130,retire,,,,,cached_text,Only the Buenos Aires recruitment clinic is named; no statement about participants' residence.
+PRJNA1184735,urban_industrialized,122,retire,,,,,cached_text,Only the University of Chicago hospital is named; no residence statement for patients.
+PRJNA819439,urban_industrialized,120,retire,,,,,cached_text,Only Mexico City diagnostic institutes that processed samples are named; no patient residence statement.
+PRJEB38221,urban_industrialized,119,retire,,,,,cached_text,No statement describing the Hannover infants or families as urban or industrialized.
+PRJEB52394,other_lifestyle,114,retire,,,,,cached_text,Cohort is a 19th-century Dutch skeletal collection defined by pipe smoking; no population lifestyle code is stated for it.
+PRJNA785561,urban_industrialized,110,retire,,,,,cached_text,No occurrence of urban/industrialized/westernized in the paper; only the Indianapolis clinic is named.
+PRJEB53577,urban_industrialized,105,retire,,,,,cached_text,"The only westernized mention compares the taxa to previously described westernized cohorts, not these subjects."
+PRJEB52877,urban_industrialized,103,retire,,,,,cached_text,Only Tromso as the study location; no statement describing participants as urban.
+PRJNA729919,urban_industrialized,102,retire,,,,,europepmc,Nationwide Belgian rotavirus surveillance; no statement about where patients live.
+PRJEB25422,urban_industrialized,99,retire,,,,,cached_text,Only the Sydney hospital study site is named; no residence or lifestyle statement.
+PRJEB61325,urban_industrialized,95,retire,,,,,europepmc,Only the Leiden clinic is named; no urban residence statement for the women included.
+PRJEB106785,other_lifestyle,88,retire,,,,,cached_text,"Three archaeological communities that the paper says differed in their lifestyles (rural Lucus Feroniae vs Isola Sacra vs Selvicciola), so no single project-wide code."
+PRJEB52640,urban_industrialized,87,retire,,,,,cached_text,"No urban, industrialized or westernized descriptor anywhere in the paper."
+PRJNA879058,urban_industrialized,81,retire,,,,,cached_text,No statement about participants' residence or lifestyle.
+PRJNA597839,urban_industrialized,76,retire,,,,,cached_text,Only Shanghai as the hospital study site; no patient residence statement.
+PRJNA1156747,urban_industrialized,73,retire,,,,,cached_text,Only US academic medical centres as study sites; no residence statement.
+PRJEB22882,urban_industrialized,72,retire,,,,,cached_text,Valencia undergraduates recruited at the university; the only westernization mention is a cited reference title.
+PRJNA860730,urban_industrialized,72,retire,,,,,cached_text,Only the Stanford hospital study site is named; no patient residence or lifestyle statement.
+PRJEB57944,urban_industrialized,68,retire,,,,,cached_text,Only the Geneva university hospital study site is named; no residence statement.
+PRJEB41184,urban_industrialized,66,retire,,,,,cached_text,Only the London ICUs that admitted patients are named; no statement about where patients live.
+PRJNA827603,institutionalized,63,keep,,"In this study, elderly people in long-term care (aged 83.2 ± 5.3 year) with malnutrition (MNA-SF score ≤ 7) were recruited in a community hospital for a 12-week randomized, single-blind clinical trial with Clostridium butyricum.",PMC9460359,abstract,cached_text,"All participants are elderly people in long-term care, stated cohort-wide in the abstract."
+PRJNA504776,urban_industrialized,62,retire,,,,,europepmc,"No urban, industrialized or westernized statement in the paper; only the Barcelona hospital is named."
+PRJNA1135502,urban_industrialized,60,retire,,,,,cached_text,Seoul is given as the recruitment city only; no statement that volunteers are urban residents.
+PRJEB122097,urban_industrialized,58,retire,,,,,cached_text,Only the Daegu hospital study site is named; no residence statement.
+PRJNA984000,urban_industrialized,56,retire,,,,,cached_text,No urban/industrialized statement; only the Milan research centre is named.
+PRJEB35173,urban_industrialized,54,retire,,,,,cached_text,Only Oxford and Brighton clinic study sites; no statement about where patients live.
+PRJEB53437,traditional_agriculturalist,52,retire,,,,,cached_text,"The eight southern African populations are cattle/small-stock herders, foragers and peripatetic groups; the paper states agriculture is not practised, so traditional_agriculturalist is contradicted and no single code is stated."
+PRJEB42612,urban_industrialized,49,retire,,,,,cached_text,"Westernization/industrialized sentences are general background from an unrelated linked paper, not about this cohort."
+PRJNA348728,urban_industrialized,48,retire,,,,,europepmc,No statement describing the Californian subjects as urban or industrialized.
+PRJNA832560,urban_industrialized,45,retire,,,,,europepmc,No urban descriptor in the paper; only the Bologna recruitment unit is named.
+PRJNA741238,urban_industrialized,43,retire,,,,,cached_text,Only the Israeli medical centre is named; no residence statement for the patients.
+PRJEB38989,urban_industrialized,42,retire,,,,,cached_text,Only the Bern university hospital study site is named; no residence statement.
+PRJNA1521571,institutionalized,41,retire,,,,,europepmc,"Paper states a majority (not all) of the scabies patients were institutionalized, the rest walk-in outpatients, so the code is not project-wide."
+PRJNA1283503,urban_industrialized,40,retire,,,,,cached_text,No statement about participants' residence or lifestyle; only the university study site.
+PRJNA419274,other_lifestyle,39,recode,extreme_environment,"A total of 25 volunteers participated in the 34th Indian Scientific Summer Expedition to Antarctica (ISEA), out of which 12 volunteered to the present study.",PMC6394331,methods,cached_text,"Participants are members of the 34th Indian Scientific Expedition to Antarctica, a polar expedition cohort, which matches extreme_environment."
+PRJNA478488,urban_industrialized,31,keep,,Skin microbiota from individuals living in the cities of Baoding and Dalian in China were characterized.,PMC7320578,figure 1 caption,cached_text,"All subjects are stated to live in the cities of Baoding (industrial) and Dalian (urbanized), a cohort-wide residence statement."
+PRJNA1013505,urban_industrialized,30,retire,,,,,europepmc,No urban or industrialized statement; only the Toronto hospital study site.
+PRJNA987158,other_lifestyle,30,keep,,Ten workers from a single commercial farrow-to-wean operation in the Midwestern region of the United States were voluntarily enrolled into the study after providing written informed consent.,PMC12810053,methods,europepmc,"Cohort is ten workers at a single commercial swine operation, stated project-wide; lifestyle_detail is the occupational swine-worker cohort."
+PRJEB74139,urban_industrialized,26,retire,,,,,cached_text,No statement about participants' residence or lifestyle; only the university study site.
+PRJNA755142,urban_industrialized,24,retire,,,,,cached_text,Only the Sydney hospital recruitment site is named; no residence statement.
+PRJNA145383,urban_industrialized,23,retire,,,,,europepmc,"No accessible source: paper is not open access, Europe PMC full text unavailable."
+PRJNA720904,urban_industrialized,22,retire,,,,,cached_text,"Paper states only that the 22 samples were collected from Dhaka city, not that participants live in an urban setting."
+PRJEB52962,urban_industrialized,20,retire,,,,,europepmc,"Paper states 26 of 44 patients lived in large urban centres and the rest in villages, so urban is a subgroup only."
+PRJNA448135,urban_industrialized,20,retire,,,,,cached_text,"Only the Columbus, Ohio study sites are named; no residence or lifestyle statement."
+PRJNA1209946,urban_industrialized,19,retire,,,,,cached_text,"The industrialized-contexts sentence describes prior literature cohorts, not the zoo staff sampled here."
+PRJNA1136496,institutionalized,16,retire,,,,,europepmc,Cohort is ICU inpatients expected to stay over 48 h; an ICU admission is not institutional residence.
+PRJNA971196,rural_non_industrialized,16,retire,,,,,cached_text,"Project compares dairy workers with community controls, so neither a rural code nor an occupational code applies project-wide; rural is never stated for the cohort."
+PRJEB47800,urban_industrialized,14,retire,,,,,cached_text,No statement about participants' residence or lifestyle in the paper.
+PRJNA663926,urban_industrialized,13,retire,,,,,europepmc,"No urban, industrialized or westernized statement anywhere in the paper."
+PRJNA730407,other_lifestyle,12,retire,,,,,cached_text,"Only a hedged, citation-backed statement that the cemetery was likely used by mobile pastoralists; the individuals' lifestyle is not stated."
+PRJNA473698,urban_industrialized,11,retire,,,,,europepmc,Participants enrolled in the FRESH study near Durban; no statement that they are urban residents.
+PRJNA1005267,institutionalized,10,retire,,,,,europepmc,"Cohort is five TBI residents of the CNS facility plus five healthy controls recruited from the Galveston area, so institutionalized covers only half the samples."
+PRJEB51569,urban_industrialized,9,retire,,,,,cached_text,"The only London matches are the name of the research ethics committee, not a residence statement."
+PRJEB60515,urban_industrialized,8,retire,,,,,europepmc,No urban or industrialized statement; only the Swedish hospital study sites.
+PRJEB49091,other_lifestyle,5,retire,,,,,cached_text,"Nomadic wording refers to the Kazakh Khanate's origins and general steppe populations, not to the five analysed individuals."
+PRJNA657014,institutionalized,4,keep,,"When patients colonized with Candida auris were identified in Illinois and New York health care facilities in 2017, local health departments launched point prevalence surveillance surveys to identify any additional residents colonized by C. auris.",PMC8386442,results,cached_text,"Samples come from a point-prevalence survey of residents of US nursing homes / health-care facilities, stated for the whole sampled group."
+PRJNA851947,other_lifestyle,3,retire,,,,,cached_text,Single historical individual from an anatomical collection; structural/socioeconomic context is described but no lifestyle code is stated.
+PRJNA1155894,urban_industrialized,2,retire,,,,,europepmc,Only Dar es Salaam districts where the outbreak was investigated; no statement describing patients as urban residents.
+PRJEB34030,urban_industrialized,1,retire,,,,,europepmc,Only Bergen and the hospital catchment district are named; no urban descriptor for patients.
+PRJNA1293919,other_lifestyle,1,retire,,,,,cached_text,"The indigenous wording refers to pathogen biodiversity, not to the sampled people; no lifestyle is stated."
+PRJNA953446,urban_industrialized,1,retire,,,,,cached_text,Only Shenzhen districts of residence are named; no statement describing the patient as an urban resident.

@@ -2,7 +2,7 @@
 # regenerated into docs/RELATED_RESOURCES.md. Edit here only. `ingestion` ∈ {used, candidate_high, candidate_medium, candidate_low,
 # not_applicable}; `used` entries need resource_id (= evidence_source suffix external.<resource_id>) and `ingested` (what was taken).
 schema_version: 1
-updated: '2026-09-28'
+updated: '2026-11-12'
 funding:
 - text: Development of Microbiome Repo is supported by a grant from Anthropic to the Olm Lab (University of Colorado Boulder) for organising human microbiome metadata.
 data_sources:
@@ -39,6 +39,10 @@ software:
   url: https://duckdb.org/docs/api/wasm/overview
   role: In-browser SQL over the parquet tables (sample and registry explorers); pinned 1.29.0 from jsDelivr.
   terms: MIT.
+- name: D3, TopoJSON and Natural Earth country shapes
+  url: https://www.naturalearthdata.com/
+  role: The globe on the home page and the Atlas maps (D3 7.9, topojson-client 3.1, Natural Earth 1:110m via world-atlas). Boundaries are shown only to display sample counts and imply no position on the status of any territory; Crimea is drawn as part of Ukraine (UN General Assembly resolution 68/262), which differs from the Natural Earth default.
+  terms: ISC / BSD-3-Clause (D3, TopoJSON); Natural Earth is public domain.
 - name: DataTables and jQuery
   url: https://datatables.net/
   role: Sortable study, cohort and scope tables.
@@ -66,7 +70,7 @@ related_efforts:
     = cMD study_name/sample_id, confidence 0.8) with precedence after the study's own supplementary tables. Disease codes map to health_conditions.yaml by rule.
   resource_id: cmd
   ingested: 141,320 R2 evidence rows per-sample values for 24,547 samples in 118 catalog studies — country 24,413, health_condition 23,576, health_condition_detail 23,089, sex 21,691, antibiotic_exposure
-    17,708, age_at_collection_days 16,757, bmi 14,086. Joined on archive accessions; each row links to the source record.
+    17,708, age_at_collection_days 16,757, bmi 14,086. Joined on archive accessions; each row links to the source record. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 14,428 further rows for 3,192 samples in 21 projects (R2026.38); 477 re-matched values that differ from a current per-sample value were not ingested.
 - name: GMrepo v3
   url: https://gmrepo.humangut.info/
   reference: Wu et al. 2020, Dai et al. 2022, Liu et al. 2026 NAR (v3)
@@ -80,7 +84,7 @@ related_efforts:
     0.75) once redistribution terms are confirmed; otherwise use only as a cross-check and link out per study.
   resource_id: gmrepo
   ingested: 140,605 R2 evidence rows per-sample values for 39,805 samples in 286 catalog studies — health_condition_detail 38,059, health_condition 37,165, country 35,361, sex 15,826, age_at_collection_days
-    11,600, bmi 2,521, antibiotic_exposure 73. Joined on archive accessions; each row links to the source record. Run-level phenotypes from the live v3 API (MeSH terms mapped to the health-condition vocabulary).
+    11,600, bmi 2,521, antibiotic_exposure 73. Joined on archive accessions; each row links to the source record. Run-level phenotypes from the live v3 API (MeSH terms mapped to the health-condition vocabulary). Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 8,409 further rows for 2,640 samples in 26 projects (R2026.38); 1,007 re-matched values that differ from a current per-sample value were not ingested.
 - name: HumanMetagenomeDB
   url: https://webapp.ufz.de/hmgdb/
   reference: Kasmanas et al. 2021 NAR
@@ -93,7 +97,7 @@ related_efforts:
   assessment: Derived from the same archive attributes as our R1, so mostly a consistency check for the 2020 snapshot; its ontology mappings (body site, disease) can validate our vocabularies.
   resource_id: hmgdb
   ingested: 34,330 R2 evidence rows per-sample values for 19,876 samples in 165 catalog studies — country 17,135, sex 5,942, age_at_collection_days 4,485, health_condition 2,709, health_condition_detail
-    2,708, bmi 1,199, antibiotic_exposure 152. Joined on archive accessions; each row links to the source record.
+    2,708, bmi 1,199, antibiotic_exposure 152. Joined on archive accessions; each row links to the source record. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 3,213 further rows for 2,499 samples in 75 projects (R2026.38); 105 re-matched values that differ from a current per-sample value were not ingested.
 - name: MicrobeAtlas
   url: https://microbeatlas.org/
   reference: Cell 2026
@@ -107,7 +111,7 @@ related_efforts:
     rRNA-based and outside our scope.
   resource_id: microbeatlas
   ingested: 15,074 R2 evidence rows per-sample values for 15,074 samples in 151 catalog studies — country 15,074. Joined on archive accessions; each row links to the source record. Country derived from
-    the source's parsed coordinates (reverse geocoding, confidence 0.65); 17 studies with systematic disagreement against archive attributes were excluded.
+    the source's parsed coordinates (reverse geocoding, confidence 0.65); 17 studies with systematic disagreement against archive attributes were excluded. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 46,705 further rows for 46,705 samples in 458 projects (R2026.38); 43 re-matched values that differ from a current per-sample value were not ingested.
 - name: Human Microbiome Compendium (MicroBioMap)
   url: https://microbiomap.org/
   reference: Abdill et al. 2023 bioRxiv
@@ -130,7 +134,7 @@ related_efforts:
   assessment: Body-site and disease annotations for oral, skin and vaginal samples make it a candidate external source for those sites.
   resource_id: mbodymap
   ingested: 6,404 R2 evidence rows per-sample values for 3,070 samples in 5 catalog studies — health_condition 3,070, sex 3,062, health_condition_detail 272. Joined on archive accessions; each row links
-    to the source record.
+    to the source record. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 2,096 further rows for 1,210 samples in 9 projects (R2026.38).
 - name: MicrobiomeDB (VEuPathDB)
   url: https://microbiomedb.org/
   reference: Oliveira et al. 2018 NAR
@@ -143,7 +147,7 @@ related_efforts:
   assessment: Small overlap but very high metadata quality for the studies it covers; worth an accession-level join test.
   resource_id: microbiomedb
   ingested: 18,921 R2 evidence rows per-sample values for 5,113 samples in 10 catalog studies — age_at_collection_days 5,021, sex 4,501, country 3,405, antibiotic_exposure 2,528, health_condition 1,577,
-    health_condition_detail 1,455, bmi 434. Joined on archive accessions; each row links to the source record.
+    health_condition_detail 1,455, bmi 434. Joined on archive accessions; each row links to the source record. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 2,311 further rows for 705 samples in 3 projects (R2026.38); 3 re-matched values that differ from a current per-sample value were not ingested.
 - name: African Human Microbiome Portal (H3ABioNet)
   url: https://microbiome.h3abionet.org/
   reference: Database 2024
@@ -156,7 +160,7 @@ related_efforts:
   assessment: Improves population coverage where archive attributes are thin; join on BioProject then BioSample.
   resource_id: ahmp
   ingested: 6,209 R2 evidence rows per-sample values for 2,192 samples in 15 catalog studies — country 2,192, health_condition 1,992, health_condition_detail 1,992, age_at_collection_days 33. Joined on
-    archive accessions; each row links to the source record.
+    archive accessions; each row links to the source record. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 726 further rows for 314 samples in 5 projects (R2026.38).
 - name: Meta2DB (LLNL)
   url: https://gdo-meta2db.llnl.gov/
   reference: Meta2DB 2024 bioRxiv / 2026
@@ -169,7 +173,7 @@ related_efforts:
   assessment: Health-state labels for shotgun samples map to health_conditions.yaml; profiles out of scope.
   resource_id: meta2db
   ingested: 51,784 R2 evidence rows per-sample values for 11,338 samples in 78 catalog studies — health_condition 10,559, country 9,809, sex 7,969, age_at_collection_days 7,059, antibiotic_exposure 5,776,
-    bmi 5,406, health_condition_detail 5,206. Joined on archive accessions; each row links to the source record.
+    bmi 5,406, health_condition_detail 5,206. Joined on archive accessions; each row links to the source record. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 4,009 further rows for 1,369 samples in 16 projects (R2026.38); 242 re-matched values that differ from a current per-sample value were not ingested.
 - name: BugSigDB
   url: https://bugsigdb.org/
   reference: Geistlinger et al. 2023 Nat Biotechnol
@@ -206,7 +210,7 @@ related_efforts:
   resource_id: hmp_ihmp
   ingested: 14,152 R2 evidence rows per-sample values for 2,456 samples in 3 catalog studies — health_condition 2,456, health_condition_detail 2,456, sex 2,317, antibiotic_exposure 2,317, country 2,317,
     age_at_collection_days 2,289. Joined on archive accessions; each row links to the source record. The HMP data portal API is retired; values come from the IBDMDB public metadata file and the archived
-    HMASM-690 table.
+    HMASM-690 table. Matched again to every current catalog sample (all body sites) on 2026-11-11 at the same resource version; 5,688 further rows for 1,386 samples in 4 projects (R2026.38); 412 re-matched values that differ from a current per-sample value were not ingested.
 - name: EMBERS (LLM extraction of metadata from 26,435 gut-microbiome papers)
   url: https://www.biorxiv.org/content/10.1101/2024.10.26.620145
   reference: bioRxiv 2024

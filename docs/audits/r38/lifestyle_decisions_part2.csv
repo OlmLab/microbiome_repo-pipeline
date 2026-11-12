@@ -1,0 +1,89 @@
+study_accession,code,n_samples,decision,new_code,quote,pmcid,section,source_checked,reason
+PRJNA1084017,urban_industrialized,1876,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA46333,urban_industrialized,1554,retire,,,,,cached_text,'industrialized countries' appears only as background on atopic dermatitis prevalence
+PRJNA784939,urban_industrialized,971,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB38148,urban_industrialized,779,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA952827,urban_industrialized,643,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB54673,urban_industrialized,554,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+PRJNA217052,rural_non_industrialized,484,keep,,"Here, we investigate this question by comparing the mobile genes found in the microbiomes of 81 metropolitan North Americans with that of 172 agrarian Fiji islanders",PMC4983458,Abstract,cached_text,FijiCOMP participants described as agrarian Fiji islanders sampled across Fijian villages
+PRJEB51408,institutionalized,441,keep,,"GRACE was a cross-sectional study in long-term aged care in metropolitan South Australia, conducted between March 2019 and March 2020.",PMC11329762,Methods,cached_text,all participants sampled in long-term aged care facilities
+PRJNA1296491,urban_industrialized,377,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA936638,urban_industrialized,360,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1000281,urban_industrialized,319,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB89354,urban_industrialized,301,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA763232,urban_industrialized,289,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB51894,urban_industrialized,262,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1129090,urban_industrialized,257,keep,,Participants were healthy adults residing in urban areas of Northern Italy,PMC13426232,Discussion/limitations,cached_text,participants described as residing in urban areas of Northern Italy
+PRJNA1099173,urban_industrialized,242,retire,,,,,cached_text,'urban' appears only in a cited reference title
+PRJEB44020,urban_industrialized,222,retire,,,,,cached_text,"'Westernized lifestyles' appears only as general background about snack consumption, not about participants"
+PRJEB102458,urban_industrialized,207,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+PRJNA1274175,urban_industrialized,198,retire,,,,,cached_text,only 'lifestyle habits' kept unchanged during the trial; no settlement/lifestyle statement
+PRJNA327423,urban_industrialized,192,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA271229,urban_industrialized,178,retire,,,,,cached_text,"paper describes a peri-urban village in southeastern Nigeria, which does not support urban_industrialized"
+PRJNA982297,urban_industrialized,169,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB36291,urban_industrialized,160,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1185841,urban_industrialized,156,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1083578,hunter_gatherer,152,retire,,,,,cached_text,"project mixes Yanomami samples with a westernized expeditioner and a Yanomami traveler (18 US, 7 DO samples), so hunter_gatherer is not project-wide"
+PRJNA798061,urban_industrialized,142,retire,,,,,cached_text,only recruitment from clinics in the Baltimore metropolitan area; no statement of where participants live
+PRJNA1470033,urban_industrialized,133,retire,,,,,cached_text,'urban Chinese adults' appears only in a cited reference title
+PRJNA910314,urban_industrialized,128,retire,,,,,cached_text,"only the 25 healthy controls are described as citizens in Shanghai (subgroup, and city name only)"
+PRJNA982563,other_lifestyle,121,retire,,,,,cached_text,cohort is swine-farm workers plus students; occupational lifestyle applies to one arm only
+PRJNA883997,urban_industrialized,120,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA671163,urban_industrialized,116,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+PRJEB62460,other_lifestyle,112,retire,,,,,cached_text,samples are deceased body donors at forensic facilities; no lifestyle stated
+PRJNA1086504,urban_industrialized,107,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1073697,urban_industrialized,104,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1201908,urban_industrialized,103,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1163384,urban_industrialized,100,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB40590,urban_industrialized,99,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA277905,urban_industrialized,94,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1300960,urban_industrialized,88,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB88622,urban_industrialized,84,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB11685,urban_industrialized,80,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+PRJNA791766,hunter_gatherer,76,retire,,,,,cached_text,ancient cohort mixes hunter-gatherer and post-Neolithic (farming) individuals; subgroup only
+PRJNA1196639,urban_industrialized,73,retire,,,,,cached_text,only subgroup residence statements (Guangzhou-city volunteers vs Nyingchi-city locals); no cohort-wide lifestyle
+PRJNA1049329,rural_non_industrialized,72,keep,,"The study population comprises rural residents in the Netherlands, both with and without a diagnosis of COPD.",PMC11638102,Methods,cached_text,both arms stated to be rural residents
+PRJNA842425,urban_industrialized,71,retire,,,,,cached_text,only the study site is described as an urban academic medical center (recruitment site)
+PRJNA1054643,urban_industrialized,68,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB46230,urban_industrialized,64,keep,,"All participants had a Dutch nationality, were born in the Netherlands and lived in urban areas.",PMC8814023,Methods,cached_text,participants explicitly described as living in urban areas
+PRJEB21503,urban_industrialized,62,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA862314,rural_non_industrialized,62,retire,,,,,cached_text,human samples span Cameroonian forest villagers and European zookeepers; rural not established project-wide
+PRJNA202303,urban_industrialized,59,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+PRJEB32184,urban_industrialized,58,keep,,"Slum-dwelling Bangladeshi children aged 18±2 months, with linear growth-faltering (stunting) who failed a nutritional intervention underwent endoscopy to obtain duodenal biopsies and aspirates.",PMC7289524,Abstract/Methods,cached_text,"participants are slum-dwelling children in the urban slum of Mirpur, Dhaka"
+PRJEB6358,urban_industrialized,55,keep,,We used an IRB-approved protocol for recruiting Bangladeshi adults living in Dhaka Municipal Corporation area for this study.,PMC4353411,Methods,cached_text,participants stated to live in the Dhaka municipal (city) area
+PRJNA749564,urban_industrialized,54,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1052614,urban_industrialized,50,retire,,,,,cached_text,'urban' appears only in cited reference titles and a background sentence
+PRJEB44313,hunter_gatherer,48,retire,,,,,cached_text,ancient cohort mixes Mesolithic foragers and Neolithic farmers; subgroup only
+PRJNA904925,urban_industrialized,48,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA832581,urban_industrialized,45,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA752146,urban_industrialized,43,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA466231,urban_industrialized,42,retire,,,,,cached_text,"'industrial-urban population' refers to a different study (Pechal et al. 2018), not this cohort"
+PRJEB48068,other_lifestyle,40,retire,,,,,cached_text,study spans urban (Dhaka) and rural (Mirzapur) communities and poultry-exposure arms; no project-wide lifestyle
+PRJNA801796,urban_industrialized,40,retire,,,,,cached_text,'Urban' is only an author surname in a reference
+PRJNA1317643,urban_industrialized,34,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB61661,urban_industrialized,30,retire,,,,,cached_text,only household co-residence of patients and carer controls; no lifestyle statement
+PRJNA1059748,urban_industrialized,30,retire,,,,,cached_text,'urban living' appears only in a cited reference title
+PRJNA1157857,urban_industrialized,28,keep,,"We identified sharing of ARGs and genomic context between humans and animals, as well as between poultry and canines in urban Kenyan households",PMC12229574,Discussion,cached_text,sampled households described as urban Kenyan households in Nairobi
+PRJEB22348,urban_industrialized,24,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA886972,urban_industrialized,24,retire,,,,,cached_text,participants described only as living in Singapore (country level); no urban/lifestyle statement
+PRJNA541574,hunter_gatherer,23,keep,,we used this approach for RNA-seq analyses on n = 10 fecal samples of BaAka foragers and n = 9 samples of wild gorillas,PMC6567582,Results,cached_text,sampled humans are BaAka foragers (called BaAka hunter-gatherers in the paper)
+PRJEB43389,other_lifestyle,21,retire,,,,,cached_text,ancient dental calculus from Neolithic to Early Middle Ages; no lifestyle stated for the individuals
+PRJEB74775,urban_industrialized,20,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA669294,urban_industrialized,20,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA608555,hunter_gatherer,17,retire,,,,,cached_text,ancient Japanese cohort spans Jomon and Edo-period individuals; hunter-gatherer wording only in cited references
+PRJNA1189147,urban_industrialized,16,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+PRJEB40382,other_lifestyle,15,retire,,,,,cached_text,mixes post-medieval and modern individuals; lifestyles only inferred from burial place
+PRJNA635133,urban_industrialized,14,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA956591,urban_industrialized,13,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB64347,urban_industrialized,11,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA490628,urban_industrialized,11,retire,,,,,cached_text,"'Beijing residents' appears in a dietary background sentence, not as a statement about participants"
+PRJNA1150154,other_lifestyle,10,retire,,,,,cached_text,hepatitis E outbreak investigation; no lifestyle stated for the sampled people
+PRJEB31117,urban_industrialized,8,retire,,,,,cached_text,match term occurs only inside unrelated words (e.g. 'disturbance'); no lifestyle statement
+SRP000287,urban_industrialized,8,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1194306,urban_industrialized,5,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJNA1108908,urban_industrialized,3,retire,,,,,cached_text,paper contains no urban/industrialized/westernized wording about the participants
+PRJEB112518,other_lifestyle,2,retire,,,,,cached_text,two ancient individuals (Neanderthal and Chalcolithic); no lifestyle stated
+PRJNA432355,rural_non_industrialized,2,keep,,"The two study villages were located in rural Lofa County, Liberia and made up of ~30 households each.",PMC5880402,Methods,cached_text,enrolled households are in two rural villages in Liberia
+PRJEB45013,other_lifestyle,1,retire,,,,,cached_text,single Anglo-Saxon burial; no lifestyle stated
+PRJNA684919,indigenous_community,1,keep,,The objective of this study was to examine the nasal microbiota in relation to otitis media (OM) status and nose health in Indigenous Australian children.,PMC8528113,Abstract/Introduction,cached_text,cohort stated to be Indigenous Australian children
+PRJNA971259,other_lifestyle,1,retire,,,,,cached_text,single hospitalised patient; no lifestyle stated

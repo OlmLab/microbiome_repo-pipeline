@@ -1,0 +1,88 @@
+study_accession,code,n_samples,decision,new_code,quote,pmcid,section,source_checked,reason
+PRJNA1057503,urban_industrialized,1832,retire,,,,,cached_text,"Only recruitment site (university hospital) named; athlete and vegetarian arms are subgroups, not a cohort-wide lifestyle."
+PRJNA971252,urban_industrialized,1076,retire,,,,,europepmc,Paper states no lifestyle or residence description for the mother-infant cohort.
+PRJEB74042,urban_industrialized,931,retire,,,,,cached_text,"Only ""living in the US"" (country-level) is stated; no urban or industrialized description."
+PRJNA984617,urban_industrialized,763,retire,,,,,cached_text,No lifestyle or residence statement; only the study site city is named.
+PRJNA1366739,urban_industrialized,635,retire,,,,,europepmc,Cohort resided in six US states or two metropolitan areas; urban applies to part of the cohort only.
+PRJEB101630,urban_industrialized,535,retire,,,,,cached_text,No lifestyle or residence statement for the Valencia cohort.
+PRJNA1078287,urban_industrialized,465,retire,,,,,cached_text,Only the two recruiting clinics are named; no urban or residence description.
+PRJEB42539,urban_industrialized,422,retire,,,,,cached_text,Cohort described as born in a peri-urban area and explicitly contrasted with industrialized settings.
+PRJEB38352,urban_industrialized,361,retire,,,,,cached_text,No lifestyle term anywhere in the paper; only the recruiting medical centre is named.
+PRJNA1186390,urban_industrialized,349,retire,,,,,cached_text,Pan-European clinical recruitment; lifestyle mentioned only as a generic discussion factor.
+PRJNA1115111,indigenous_community,315,retire,,,,,europepmc,"Design contrasts Orang Asli villagers with urban Kuala Lumpur controls, so the indigenous code is a subgroup statement."
+PRJNA671299,urban_industrialized,300,retire,,,,,europepmc,"No residence or lifestyle statement; ""urbanization"" appears only in a cited title."
+PRJNA610982,urban_industrialized,281,retire,,,,,cached_text,Only the recruiting medical centre is named; lifestyle appears only as a generic confounder.
+PRJEB60691,urban_industrialized,261,retire,,,,,europepmc,No lifestyle or residence statement; only the recruiting hospital is named.
+PRJNA1033689,urban_industrialized,254,retire,,,,,europepmc,Only San Francisco hospitals as recruitment sites; no residence description.
+PRJEB88674,urban_industrialized,235,retire,,,,,cached_text,No lifestyle or residence statement; only the recruiting hospital is named.
+PRJNA780005,other_lifestyle,213,keep,,"We performed an ancient dental calculus study (n = 235 samples assessed), reconstructing authenticated oral microbiota using shotgun metagenomics from 183 pre-industrialized individuals who were excavated across 27 archaeological sites in England and Scotland",PMC11323141,Results,cached_text,All sampled individuals described as pre-industrialized.
+PRJNA1330355,institutionalized,207,keep,,"To test for skin carriage of MDROs on nursing home residents, the axilla and groin of 38 residents of 15 NHs (2–3 residents per NH) were sampled and cultured on antibiotic selective media.",PMC13434387,Results,cached_text,All sampled participants are nursing home residents.
+PRJNA639592,urban_industrialized,197,retire,,,,,europepmc,No lifestyle or residence statement for the pregnancy biobank cohorts.
+PRJEB72778,urban_industrialized,182,retire,,,,,cached_text,Only the recruiting hospital and county are named; no urban description.
+PRJEB52317,urban_industrialized,169,retire,,,,,europepmc,"Participants described as living in the Hannover region / Central Lower Saxony, a region, not an urban or industrialized setting."
+PRJNA415710,urban_industrialized,168,retire,,,,,cached_text,Only the study site city is named; no residence or lifestyle description of the women sampled.
+PRJNA428766,urban_industrialized,158,retire,,,,,cached_text,College students in Rhode Island; military mentions are comparisons to other studies.
+PRJNA782906,urban_industrialized,156,retire,,,,,cached_text,No lifestyle term anywhere in the paper; only the recruiting hospitals are named.
+PRJNA1066963,rural_non_industrialized,150,keep,,"We conducted a sub-study of the MORDOR trial to track changes to antibiotic resistance in the gut, and 5,340 children from 150 villages were included.",PMC11073710,What did the researchers do and find?,europepmc,"All sampled children were resident in Niger villages (communities of 200-2,000 inhabitants)."
+PRJNA905467,urban_industrialized,142,retire,,,,,cached_text,"Only ""residents of Cork, Ireland"" is stated; the source never describes the cohort as urban or industrialized."
+PRJEB61887,other_lifestyle,132,retire,,,,,cached_text,Subsistence and lifestyle terms appear only in cited reference titles; no statement about the sampled individuals.
+PRJEB62577,urban_industrialized,123,retire,,,,,cached_text,University healthcare workers and employees; no residence or lifestyle statement.
+PRJEB90572,urban_industrialized,120,retire,,,,,europepmc,"Only the recruiting outpatient clinic is named; lifestyle appears as an analysis variable, not a cohort description."
+PRJNA949023,urban_industrialized,120,retire,,,,,cached_text,No lifestyle or residence statement; only the study site city is named.
+PRJNA843091,urban_industrialized,116,retire,,,,,europepmc,Cohort described as preschool children in North Carolina; no urban or residence description.
+PRJNA1155269,urban_industrialized,112,retire,,,,,cached_text,Finnish Karelia is called westernized but Russian Karelia follows a traditional rural lifestyle; urban applies to one arm only.
+PRJNA785545,other_lifestyle,107,retire,,,,,cached_text,Only residence in the Amsterdam area is stated; no lifestyle in the vocabulary sense.
+PRJNA1453162,urban_industrialized,104,retire,,,,,cached_text,No lifestyle term anywhere in the paper.
+PRJNA1224245,urban_industrialized,103,retire,,,,,cached_text,Only hospital and city healthcare services as recruitment settings; no residence description.
+PRJNA608948,rural_non_industrialized,100,keep,,"This study assessed the prevalence, diversity, abundance, and co-occurrence of Campylobacter spp. in stools from children in a rural area of eastern Ethiopia and their association with microbiome, diarrhea, and EED in children.",PMC7174729,Abstract,europepmc,Paper states the sampled children live in a rural area of eastern Ethiopia.
+PRJNA1090491,urban_industrialized,99,retire,,,,,cached_text,Only the recruiting university neurology clinic is named; no residence or lifestyle statement.
+PRJNA639353,rural_non_industrialized,91,retire,,,,,europepmc,Only provinces of residence and occupational animal exposure are stated; the paper never describes the cohort as rural.
+PRJNA383868,urban_industrialized,88,retire,,,,,cached_text,Only study cohorts and institutions are named; lifestyle appears as a generic discussion factor.
+PRJNA812695,urban_industrialized,83,retire,,,,,cached_text,"Cohort defined by altitude exposure in Nyingchi with a pre-exposure baseline arm; no urban statement, and altitude applies to part of the design."
+PRJNA1151239,urban_industrialized,78,retire,,,,,europepmc,No residence or lifestyle statement for the preschool children; urban terms appear only in cited titles.
+PRJNA1139314,urban_industrialized,75,retire,,,,,europepmc,Only the recruiting kidney stone clinics are named; no residence or lifestyle description.
+PRJNA281366,urban_industrialized,73,retire,,,,,cached_text,Participants recruited from the Province of Trentino via a hospital and a spa; no urban description.
+PRJNA625082,urban_industrialized,72,retire,,,,,cached_text,No residence or lifestyle statement; lifestyle refers to microbial lifestyles.
+PRJNA756530,urban_industrialized,70,retire,,,,,europepmc,No residence or lifestyle statement for the Hong Kong preschool children.
+PRJNA922078,urban_industrialized,68,retire,,,,,europepmc,No lifestyle term anywhere in the paper; only the recruiting medical centre is named.
+PRJNA418043,urban_industrialized,63,retire,,,,,europepmc,No lifestyle term anywhere in the paper; only the study city is named.
+PRJNA1024640,urban_industrialized,62,keep,,"Our study included 38 samples from 19 participants, which were sufficient for performing the differential analysis (61), all from lower-income households in the Baltimore metropolitan area, providing valuable insights within this focused community.",PMC13185588,DISCUSSION,europepmc,"Participants stated to be from households in the Baltimore metropolitan area (residence, not a recruitment facility)."
+PRJNA655567,urban_industrialized,61,retire,,,,,cached_text,Only the recruiting hospital in Shenzhen is named; no residence description.
+PRJNA678453,urban_industrialized,59,retire,,,,,cached_text,Only the recruiting university dental department is named; lifestyle appears only in cited titles.
+PRJNA671738,urban_industrialized,58,retire,,,,,europepmc,Only the recruiting medical centre is named; no residence or lifestyle statement.
+PRJNA1013332,urban_industrialized,55,keep,,"Study participants from the New York metropolitan area (healthy, aged 19–66 years) were recruited by BASF at the Tarrytown Consumer Testing Center (Tarrytown, NY, USA).",PMC10878091,Oily scalp study,cached_text,Participants stated to be from the New York metropolitan area.
+PRJNA1083779,urban_industrialized,53,retire,,,,,europepmc,Only the recruiting hospital in Girona is named; no residence or lifestyle statement.
+PRJNA694925,urban_industrialized,50,keep,,"Adult male and female HVs 18–40 years of age were recruited from the Washington, DC, metropolitan region.",PMC10790575,Subject recruitment and sampling,europepmc,"Volunteers drawn from the Washington, DC, metropolitan region; no facility-only recruitment."
+PRJEB47876,urban_industrialized,48,retire,,,,,europepmc,No lifestyle term anywhere in the paper; only the recruiting hospital is named.
+PRJNA779415,urban_industrialized,47,keep,,The mothers and daughters included in this study were all living in the Baltimore metropolitan area at the time of sampling.,PMC9604009,Discussion,cached_text,All participants stated to be living in the Baltimore metropolitan area at sampling.
+PRJEB63347,hunter_gatherer,44,retire,,,,,europepmc,"Cohort is 26 Baka plus 18 Nzime villagers, so the forager code covers only one arm."
+PRJDB11203,urban_industrialized,42,retire,,,,,cached_text,Participants recruited from dental college hospitals; no residence or lifestyle statement.
+PRJNA590026,urban_industrialized,42,retire,,,,,europepmc,Volunteers at a university in Haikou; no residence or lifestyle statement.
+PRJNA1232950,urban_industrialized,40,retire,,,,,cached_text,Only the study institution is named; vegan/vegetarian hits are software and cited titles.
+PRJEB25404,urban_industrialized,39,retire,,,,,europepmc,No lifestyle term anywhere in the paper; only the study city is named.
+PRJEB80549,urban_industrialized,33,retire,,,,,cached_text,Only the Paris testing centre is named; no residence or lifestyle statement.
+PRJNA1010809,urban_industrialized,30,retire,,,,,cached_text,Participants screened at a university dental clinic; no residence or lifestyle statement.
+PRJNA791464,urban_industrialized,30,retire,,,,,cached_text,Children recruited from one kindergarten in a Beijing district; recruitment site only.
+PRJNA1273078,other_lifestyle,28,retire,,,,,cached_text,"Poverty statements are disease-general background, not a description of the sampled children."
+PRJNA1078731,urban_industrialized,24,retire,,,,,cached_text,University students and staff; no residence or lifestyle statement.
+PRJNA1108520,urban_industrialized,23,retire,,,,,cached_text,Only the recruiting hospital and its catchment region are named; no residence description.
+PRJNA553326,urban_industrialized,22,retire,,,,,cached_text,Only the recruiting dental faculty is named; lifestyle appears as an unmeasured confounder.
+PRJEB84038,other_lifestyle,21,keep,,"Oral microbiome species diversity fell within the range previously observed among other northern European populations, suggesting that a royal lifestyle and a rich diet did not substantially impact his oral microbiota.",PMC13539363,Results,cached_text,Paper attributes a royal lifestyle and rich diet to the single sampled individual.
+PRJNA1095563,urban_industrialized,20,retire,,,,,cached_text,Only the delivery hospital is named; no residence or lifestyle statement.
+PRJNA767368,urban_industrialized,20,retire,,,,,europepmc,Only the recruiting cancer centre is named; no residence or lifestyle statement.
+PRJNA1046703,urban_industrialized,16,retire,,,,,europepmc,Health care workers at a university medical centre; no residence or lifestyle statement.
+PRJNA547643,urban_industrialized,16,retire,,,,,europepmc,Only the recruiting children’s hospital is named; no residence or lifestyle statement.
+PRJNA1037120,other_lifestyle,15,retire,,,,,cached_text,"Paper describes 18th-century African-descended individuals and enslavement context generally, with no lifestyle statement for the sampled Ancestors."
+PRJNA302219,urban_industrialized,13,retire,,,,,europepmc,No lifestyle term anywhere in the paper; only clinical sources are named.
+PRJEB65963,rural_non_industrialized,12,retire,,,,,cached_text,Only the county and the two health facilities are named; rural and pastoralist terms occur only in cited titles.
+PRJEB75175,urban_industrialized,11,retire,,,,,europepmc,Recruitment supported by a state hospital and a physician in Graz; no residence or lifestyle statement.
+PRJEB57226,urban_industrialized,10,retire,,,,,europepmc,Only the recruiting university ENT department is named; no residence or lifestyle statement.
+PRJNA758430,urban_industrialized,10,retire,,,,,europepmc,Only the recruiting university GI clinic is named; no residence or lifestyle statement.
+PRJEB37382,urban_industrialized,8,retire,,,,,europepmc,Methods-comparison study at a Copenhagen hospital; no residence or lifestyle statement.
+PRJEB37995,other_lifestyle,5,retire,,,,,cached_text,Archaeological individual from Trondheim; no lifestyle statement about the sampled individual.
+PRJNA650011,other_lifestyle,4,recode,rural_non_industrialized,"In the present study, two of the patients with visceral leishmaniasis were from rural Shanxi and one was from rural Beijing.",PMC7538539,Discussion,cached_text,All three sampled patients stated to come from rural Shanxi or rural Beijing.
+PRJNA664107,urban_industrialized,3,retire,,,,,cached_text,Only the recruiting university dental clinic is named; no residence or lifestyle statement.
+PRJEB55789,hunter_gatherer,2,keep,,We sequenced ancient DNA extracted from dental calculus to characterise the oral microbial communities of the two Upper Palaeolithic hunter-gatherers.,PMC9674856,Diversity of the oral microbiome,europepmc,Both sampled individuals are described as Upper Palaeolithic hunter-gatherers.
+PRJEB30280,hunter_gatherer,1,retire,,,,,cached_text,"Hunter-gatherer refers to the individual’s genetic ancestry (western hunter-gatherers), not a stated subsistence or lifestyle."
+PRJNA1108161,other_lifestyle,1,retire,,,,,cached_text,Single case report with no lifestyle or residence statement.
+PRJNA909599,other_lifestyle,1,retire,,,,,cached_text,Patient described only as a farmer (occupation); no lifestyle statement in the vocabulary sense.

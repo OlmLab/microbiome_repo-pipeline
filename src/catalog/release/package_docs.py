@@ -402,6 +402,32 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
     return True
 
 
+ROWS_HEADING_RE = re.compile(r"^(#{2,4} `?)([\w.\-]+\.(?:parquet|csv|csv\.gz|jsonl))(`? \()([\d,]+)( rows\))", flags=re.M)
+
+
+def refresh_row_counts(pkg: str) -> int:
+    """Every `### <file> (N rows)` heading of DATA_DICTIONARY.md states the row count of the file as packaged now.
+    Blocks carried forward from the previous package's dictionary kept the count of the release that added them (R2026.38)."""
+    path = os.path.join(pkg, "DATA_DICTIONARY.md")
+    if not os.path.exists(path):
+        return 0
+    s = open(path, encoding="utf-8").read()
+    n = [0]
+
+    def _sub(m):
+        f = os.path.join(pkg, m.group(2))
+        if not os.path.exists(f):
+            return m.group(0)
+        new = f"{_rows(f):,}"
+        n[0] += new != m.group(4)
+        return m.group(1) + m.group(2) + m.group(3) + new + m.group(5)
+
+    s2 = ROWS_HEADING_RE.sub(_sub, s)
+    if s2 != s:
+        open(path, "w", encoding="utf-8").write(s2)
+    return n[0]
+
+
 def prepend_changelog(pkg: str, entry_path: str | None) -> bool:
     if not entry_path or not os.path.exists(entry_path):
         return False
@@ -518,6 +544,7 @@ def main(argv=None):
     registry_doc = update_docs_registry(a.package, a.package_version, a.release_id, counts)
     json.dump(counts, open(os.path.join(a.package, "build_counts.json"), "w"), indent=1, sort_keys=True)
     changed = prepend_changelog(a.package, a.changelog_entry)
+    refresh_row_counts(a.package)
     sanitised = sanitise_session_tokens(a.package)  # F7
     print(json.dumps({k: counts[k] for k in ("package_version", "release_id", "n_samples", "n_studies", "n_catalog_scope", "n_determinations_current")} | {"changelog_prepended": changed, "worklist_documented": worklist_doc, "registry_documented": registry_doc, "readme_intro_rewritten": intro_doc, "session_tokens_stripped": sanitised}))
     return 0

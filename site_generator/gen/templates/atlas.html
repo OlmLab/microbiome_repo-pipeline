@@ -76,6 +76,7 @@ See also the <a href="figures.html">resource-paper figures</a>.</p></details>
 <li><b>Which runs are profiled.</b> Sandpiper profiles Illumina runs ≥ 100 Mbp public before its snapshot; runs failing its QC (non-metagenome, synthetic, RNA, predicted non-gut, root coverage &lt; 2) and samples whose body site is not primary gut were excluded ({{ meta.sample_filter }}).</li>
 <li><b>Taxonomy.</b> {{ meta.taxonomy }}: names follow GTDB, so <i>Prevotella copri</i> is <i>Prevotella</i>, <i>Bacteroides vulgatus</i> is <i>Phocaeicola vulgatus</i>, and suffixed genera (Blautia_A) are GTDB placeholders.</li>
 <li><b>Hong Kong and Singapore</b> are drawn as dots (the 110 m base map merges them into larger polygons). Country is missing for {{ ((meta.n_samples - meta.n_samples_with_country) / meta.n_samples * 100) | round(1) }} % of samples.</li>
+<li><b>Boundaries.</b> Country shapes are from Natural Earth (1:110 m) and are shown only to display sample counts; they imply no position on the status of any territory. Crimea is drawn as part of Ukraine (UN General Assembly resolution 68/262). A sample is placed by the country its record states.</li>
 <li><b>Payload.</b> <code>data/atlas/taxa.json</code> (index), <code>countries.json</code>, <code>studies.json</code>, <code>matrix_&lt;rank&gt;.bin</code> — format documented in <code>taxa.json → meta.format</code>; HDI values in <code>country_hdi.csv</code> ({{ meta.hdi_source }}; {{ meta.hdi_n_countries_with_value }} of {{ meta.n_countries }} atlas countries have a value).</li>
 </ul>
 </details>

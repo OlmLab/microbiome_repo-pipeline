@@ -317,7 +317,7 @@ GUT_ABX_MAP  ?= $(GUT_DIR)/gut_antibiotic_map.parquet
 # 1.12.0 (R2026.12): route R1 for the new pack fields (collection_date, location_*, latitude/longitude, lifestyle) — output of gut-newfields-r1
 GUT_R1_NEWFIELDS ?= $(GUT_DIR)/gut_r1_newfields_determinations.parquet
 # data-quality corrections (retire / recode) from the adjudication leaf — optional
-GUT_CORRECTIONS ?= $(GUT_DIR)/dq_corrections.parquet $(GUT_DIR)/curated_supp_corrections.parquet $(GUT_DIR)/probiotic_corrections_r34.parquet
+GUT_CORRECTIONS ?= $(GUT_DIR)/dq_corrections.parquet $(GUT_DIR)/curated_supp_corrections.parquet $(GUT_DIR)/probiotic_corrections_r34.parquet $(GUT_DIR)/dq_corrections_r38.parquet
 # harvested BioSample attribute rows of the catalog studies (artifact; bootstrap materialises it) — input of gut-newfields-r1
 GUT_ATTRIBUTES   ?= $(GUT_DIR)/gut_biosample_attributes.parquet
 # 1.13.0 (R2026.13): route R1 for the new fields v2 (diet, smoking_status, medication, stool_consistency_bristol) — output of gut-newfields-r1-v2
