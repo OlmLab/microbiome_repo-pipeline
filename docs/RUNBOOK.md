@@ -296,7 +296,7 @@ from `config/inputs.json` group `reports` into `data/inputs/reports/`; the PNG i
 
 ## 7. Publish (Release Engineer profile; 10 min; 0 tokens) — the agent pushes branches + tags, Actions deploys
 
-Sandbox notes (2026-09-26): `git checkout -B release/<v> origin/main` inside the clones prints `could not write config file .git/config: Operation not permitted` — harmless (branch tracking only); rsync into the clones exits 23 (utimensat on the clone root) — `publish-branch` tolerates it and proves completeness with a checksum dry-run. Actions job logs cannot be downloaded from the sandbox (Azure blob redirect); read the jobs/steps API instead. Re-running a failed deploy: `POST /repos/OlmLab/microbiome_repo/actions/runs/<id>/rerun-failed-jobs` (PAT has Actions: write).
+Sandbox notes (2026-09-26): `git checkout -B release/<v> origin/main` inside the clones prints `could not write config file .git/config: Operation not permitted` — harmless (branch tracking only); since 2026-11-13 git treats it as an error (`could not lock config file`), so `publish-branch` checks out with `--no-track`; rsync into the clones exits 23 (utimensat on the clone root) — `publish-branch` tolerates it and proves completeness with a checksum dry-run. Actions job logs cannot be downloaded from the sandbox (Azure blob redirect); read the jobs/steps API instead. Re-running a failed deploy: `POST /repos/OlmLab/microbiome_repo/actions/runs/<id>/rerun-failed-jobs` (PAT has Actions: write).
 
 ```
 make publish-branch                          # release/<semver> in both clones; tags site-v<semver>, data-v<semver>
