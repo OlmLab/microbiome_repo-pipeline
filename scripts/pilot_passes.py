@@ -27,7 +27,8 @@ SITES = ["gut_stool", "oral", "nasal_nasopharyngeal", "respiratory_lower", "skin
          "eye_ear", "other_site"]
 OUT_REASONS = ["animal_host", "environmental", "amplicon", "human_genome", "human_tissue_rna", "single_cell", "culture_enriched",
                "simulated", "isolate_genomes", "virus_genome_surveillance", "in_vitro", "other"]
-PROC = ["none", "virome_vlp", "host_depletion", "targeted_capture", "wga_mda", "sorted_fraction", "rrna_depletion", "other"]
+PROC = ["none", "virome_vlp", "host_depletion", "targeted_capture", "wga_mda", "sequence_independent_amplification", "sorted_fraction",
+        "rrna_depletion", "other"]
 STYPES = ["specimen", "negative_control", "mock_community", "positive_control", "other"]
 SHAPES = ["population_survey", "cross_sectional_groups", "case_control", "cohort_longitudinal", "single_arm_intervention", "rct",
           "crossover", "non_randomised_intervention", "method_or_benchmark", "case_series", "unclear"]
@@ -52,7 +53,9 @@ processing: WET-LAB steps before sequencing only. Computational removal of human
 host_depletion means a kit or step that removes human cells / DNA before library preparation (saponin, QIAamp DNA Microbiome,
 MolYsis, NEBNext Microbiome enrichment, benzonase, CRISPR depletion). Virus-like-particle purification (filtration, nuclease,
 CsCl) is virome_vlp, not host_depletion. List EVERY step: VLP preparations are usually followed by whole-genome / random
-amplification (MDA, phi29, SISPA, WTA) -> also wga_mda. Use 'none' when no such step is evident.
+amplification -> also wga_mda when it is phi29 multiple displacement amplification (MDA, REPLI-g, GenomiPhi), or
+sequence_independent_amplification when it is WTA / WTA2, SISPA or another random-primed PCR scheme (two different chemistries;
+R2026.39). Use 'none' when no such step is evident.
 study_shape — take the FIRST that applies:
  1 method_or_benchmark: the aim is a method, protocol, sequencing or diagnostic performance (incl. clinical mNGS diagnostic-yield
    studies, kit comparisons, mock communities), not a biological comparison of people;

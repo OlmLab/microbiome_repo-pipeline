@@ -48,7 +48,7 @@ fields:
                         rRNA read share; disagreement -> conflict, shown in neither the DNA nor the RNA view"}
   processing: {type: vocab_list, vocab: config/vocab/processing.yaml, routes: [R1, R2, R3, R4], detail_field: processing_detail,
                note: "what was done to the sample before sequencing beyond plain extraction: virome_vlp, host_depletion,
-                      targeted_capture, wga_mda, sorted_fraction (IgA / FACS), rrna_depletion, culture_enriched, other"}
+                      targeted_capture, wga_mda (phi29 MDA), sequence_independent_amplification (WTA / SISPA / random-primed), sorted_fraction (IgA / FACS), rrna_depletion, culture_enriched, other"}
   processing_detail: {type: text, max_len: 160, routes: [R2, R3]}
 
   # ---- how it was sequenced (DNA and RNA)

@@ -1,0 +1,6 @@
+parent_code,detail_value,new_code,note
+ibd_unspecified,Inflammatory Bowel Disease;Ulcerative Colitis,ulcerative_colitis,"detail names the parent plus exactly one subtype, ulcerative colitis"
+ibd_unspecified,UC,ulcerative_colitis,UC is the vocabulary match_term for ulcerative_colitis; unambiguous inside an IBD parent
+ibd_unspecified,Crohn's Disease patients,crohns_disease,detail names Crohn's disease in plain words
+ibd_unspecified,CD,crohns_disease,CD is the vocabulary match_term for crohns_disease; unambiguous inside an IBD parent
+ibd_unspecified,Inflammatory Bowel Disease;Crohn Disease,crohns_disease,"detail names the parent plus exactly one subtype, Crohn disease"

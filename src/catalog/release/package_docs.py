@@ -32,6 +32,10 @@ FRAME_TOKEN_RE = re.compile(r'\s*\((?:frame|session)\s+[0-9a-f]{6,}[^)]*\)|\b(?:
 
 
 DESCRIPTION_UPDATES = [
+    ("| `linked_pmids` | str | `;`-joined PMIDs |",
+     "| `linked_pmids` | str | `;`-joined PMIDs of every paper linked to the project, filled for all projects from R2026.39: own-data papers first, then papers that reused the data (the relation of each paper is in `catalog_study_papers.relation`; own-data ids alone are in `paper_ids_generated`) |"),
+    ("| `processing` | string | sample processing before sequencing, from the scope classification (virome_vlp, host_depletion, wga_mda, …) |",
+     "| `processing` | string | sample processing before sequencing, from the scope classification and, from R2026.39, the kit text (virome_vlp, host_depletion, wga_mda = phi29 MDA, sequence_independent_amplification = WTA / SISPA / random-primed, …; a project-level set — a project with differently processed arms carries every code) |"),
     ("| `person_key` | string | person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key> |",
      "| `person_key` | string | person identity used for relatedness: subject_id, else fam:<family>:<role> for parents, else sample:<key>. Unique only WITHIN a project (the same subject id recurs across projects): identify a person by (`study_accession`, `person_key`) |"),
 ]

@@ -127,7 +127,7 @@ def facts_of(row) -> dict:
         extras.append(("RNA methods stated in the paper", False, "rRNA depletion / DNase / strandedness"))
     for code in str(g("processing") or "").split(";"):
         if code and code != "none":
-            extras.append((code.replace("_", " "), code in ("wga_mda", "virome_vlp"),
+            extras.append((code.replace("_", " "), code in ("wga_mda", "virome_vlp", "sequence_independent_amplification"),
                            "sample processing before sequencing, from the project classification"))
     acc = g("metadata_access_paper")
     if acc and acc not in ("not_stated", "default", "public"):

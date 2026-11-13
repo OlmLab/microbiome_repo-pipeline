@@ -852,6 +852,11 @@ def build(a):
     _pc = pd.read_csv(_pcp, dtype=str, keep_default_na=False) if _pcp and os.path.exists(_pcp) else None
     det_all, rejected_values, _pg = apply_value_gates(det_all, _pc)
     print(f"plausibility gates: {json.dumps(_pg)}", file=sys.stderr)
+    # R2026.39: an unspecified parent condition takes the subtype named by the sample's own health_condition_detail
+    from catalog.scopes.study_rules import rollup_subtype_from_detail
+    _rt_p = os.path.join(cfg_dir, "health_subtype_rollup.csv")
+    det_all, _n_roll = rollup_subtype_from_detail(det_all, pd.read_csv(_rt_p, dtype=str) if os.path.exists(_rt_p) else None, rid)
+    print(f"health_condition subtype taken from health_condition_detail: {_n_roll} samples", file=sys.stderr)
 
     # ---- wide
     piv = det_all.pivot_table(index="sample_key", columns="field_name", values="value_normalized", aggfunc="first")
@@ -1156,6 +1161,15 @@ def build(a):
         sf = sf.rename(columns={c: f"{c}_paper" for c in clash if not c.endswith("_paper")})
         sf = sf[[c for c in sf.columns if c not in gs.columns]]
         gs = gs.join(sf, how="left")
+    # R2026.39 (catalog.scopes.study_rules): processing from the kit text; linked paper ids of every project from the paper tables
+    from catalog.scopes.study_rules import apply_kit_processing, fill_linked_papers
+    gs, _n_kit = apply_kit_processing(gs)
+    _spp = getattr(a, "study_papers", None)
+    _prev_st = None
+    if a.previous_dir and os.path.exists(os.path.join(a.previous_dir, pack["tables"]["studies"])):
+        _prev_st = pd.read_parquet(os.path.join(a.previous_dir, pack["tables"]["studies"]), columns=["study_accession", "linked_pmids"])
+    gs, _lp = fill_linked_papers(gs, pd.read_parquet(_spp) if _spp and os.path.exists(_spp) else None, _prev_st)
+    print(f"processing set from kit text: {_n_kit} projects; linked paper ids: {json.dumps(_lp)}", file=sys.stderr)
     gs["n_samples_curated"] = gs.n_samples_curated.fillna(0).astype(int)
     # per-project source checkmarks (R2026.18): archive / abstract / full text / supplement / external / contribution / expert
     from catalog.scopes.study_sources import study_source_flags
@@ -1282,6 +1296,7 @@ def main(argv=None) -> int:
     ap.add_argument("--extra-studies", help="study rows of the projects decided by the scope classification (extra_studies.parquet)")
     ap.add_argument("--extra-biosamples", help="specimen rows in registry_biosamples columns (extra_biosamples.parquet)")
     ap.add_argument("--extra-determinations", help="per-sample determinations of those specimens (extra_determinations.parquet)")
+    ap.add_argument("--study-papers", help="study_papers.parquet (link audit: own_data / reuse) -> linked_pmids of every project (R2026.39)")
     ap.add_argument("--study-facts", help="paper-derived study facts (study_facts.parquet: nucleic_acid_paper, methods, design, setting)")
     ap.add_argument("--short-descriptions-extra", help="short titles / descriptions of the projects not in data/inputs/gut/short_descriptions.parquet")
     ap.add_argument("--read-checks", help="comma-separated read-check CSVs (run, frac_rrna, verdict) in priority order")

@@ -10,7 +10,13 @@ Paper metadata (PMID, PMCID, DOI, title, journal, year, type, open access) comes
 CANDIDATE links; whether a paper generated the data or only re-used it is decided later (link audit), never here.
 
 usage: python scripts/find_papers.py --projects ids.txt --meta registry_studies.parquet [--meta s4_universe.parquet ...]
-                                     --out links.parquet [--workers 6]
+                                     --out links.parquet [--workers 6] [--ttl-days 7] [--always-fuzzy]
+                                     [--extra-accessions extra.csv]
+R2026.39 (paper finding for projects without an own-data paper): --ttl-days re-asks Europe PMC when the cached answer is
+older than that many days; --always-fuzzy adds the title_similar candidates even when a direct hit exists (the direct hits of
+these projects were already judged not to be the generating paper); --extra-accessions is a CSV (study_accession, accession)
+of run / sample / experiment accessions of the project, searched as method epmc_sample_accession (papers that cite
+run or BioSample accessions instead of the project accession).
 Responses are cached as JSON under $CATALOG_CACHE_DIR/find_papers/ so a re-run (monthly) only asks for what is new.
 """
 import argparse, hashlib, json, os, re, sys, time, xml.etree.ElementTree as ET
@@ -72,9 +78,23 @@ def paper_row(r):
             "is_open_access": r.get("isOpenAccess") == "Y", "in_epmc_fulltext": r.get("inEPMC") == "Y", "source_db": r.get("source")}
 
 
+TTL = [30]
+
+
 def by_accession(acc, sec):
     q = " OR ".join(f'ACCESSION_ID:"{a}" OR "{a}"' for a in [acc, sec] if a)
-    return [dict(paper_row(r), method="epmc_accession", match_accession=acc) for r in epmc(f"({q})")]
+    return [dict(paper_row(r), method="epmc_accession", match_accession=acc) for r in epmc(f"({q})", ttl_days=TTL[0])]
+
+
+def by_sample_accessions(acc, extra):
+    """Papers that cite a run / sample / experiment accession of the project (R2026.39). One query per accession, so a hit
+    records which accession matched; a paper citing a run accession of the project used its data (generated or reused —
+    the link audit decides)."""
+    out = []
+    for x in extra:
+        for r in epmc(f'(ACCESSION_ID:"{x}" OR "{x}")', ttl_days=TTL[0]):
+            out.append(dict(paper_row(r), method="epmc_sample_accession", match_accession=x))
+    return out
 
 
 def by_title(acc, title):
@@ -192,7 +212,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--projects", required=True); ap.add_argument("--meta", action="append", required=True)
     ap.add_argument("--out", required=True); ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--ttl-days", type=float, default=30); ap.add_argument("--always-fuzzy", action="store_true")
+    ap.add_argument("--extra-accessions", default=None)
     a = ap.parse_args(argv)
+    TTL[0] = a.ttl_days
+    extra = {}
+    if a.extra_accessions:
+        for p_, x_ in pd.read_csv(a.extra_accessions, dtype=str).dropna().itertuples(index=False):
+            extra.setdefault(p_, []).append(x_)
     proj = [l.strip() for l in open(a.projects) if l.strip()]
     meta = pd.concat([pd.read_parquet(m, columns=[c for c in ["study_accession", "secondary_study_accession", "study_title",
                                                                  "description_short", "first_public_min"]
@@ -205,10 +232,10 @@ def main(argv=None):
 
     def one(p):
         s_ = sec.get(p) if isinstance(sec.get(p), str) else None
-        got = by_accession(p, s_) + by_title(p, title.get(p))
-        if not got:                                    # fuzzy title search only when nothing more direct was found
+        got = by_accession(p, s_) + by_title(p, title.get(p)) + by_sample_accessions(p, extra.get(p, []))
+        if not got or a.always_fuzzy:                  # fuzzy title search only when nothing more direct was found
             y = year.get(p)
-            got = by_title_similar(p, title.get(p), desc.get(p), None if pd.isna(y) else y)
+            got = got + by_title_similar(p, title.get(p), desc.get(p), None if pd.isna(y) else y)
         return got
     rows = []
     t0 = time.time()

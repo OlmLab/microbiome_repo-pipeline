@@ -2220,7 +2220,7 @@
     {
      "name": "processing",
      "type": "string",
-     "description": "sample processing before sequencing, from the scope classification (virome_vlp, host_depletion, wga_mda, …)"
+     "description": "sample processing before sequencing, from the scope classification and, from R2026.39, the kit text (virome_vlp, host_depletion, wga_mda = phi29 MDA, sequence_independent_amplification = WTA / SISPA / random-primed, …; config/vocab/processing.yaml)"
     },
     {
      "name": "study_shape_classification",
@@ -3219,6 +3219,97 @@
      "name": "journal",
      "type": "string",
      "description": "journal"
+    }
+   ]
+  },
+  "catalog_sandpiper_unprofiled.parquet": {
+   "key": [
+    "sample_key"
+   ],
+   "one_row_per": "current catalog sample without a Sandpiper community profile, with the reason where it can be known (R2026.39)",
+   "columns": [
+    {
+     "name": "sample_key",
+     "type": "string",
+     "description": "catalog sample"
+    },
+    {
+     "name": "study_accession",
+     "type": "string",
+     "description": "catalog project"
+    },
+    {
+     "name": "reason",
+     "type": "string",
+     "description": "why no profile, from the run that came closest to one: listed_no_profile (on Sandpiper's run list, no profile released) · unexplained (meets Sandpiper's published selection rule and predates its snapshot, yet is not on its run list) · after_snapshot (public after the newest run on Sandpiper's list) · size_rule (at most 0.1 Gbp, or at most 1 Gbp with a library selection other than RANDOM) · platform (not Illumina) · source_rule (library source not METAGENOMIC and organism not a metagenome) · no_base_count · no_public_date · rna (RNA libraries only) · profile_not_used (Sandpiper profiled a run the catalog does not count as a DNA metagenome run) · no_runs"
+    },
+    {
+     "name": "n_runs",
+     "type": "int64",
+     "description": "run rows of the sample in catalog_runs"
+    },
+    {
+     "name": "n_dna_runs",
+     "type": "int64",
+     "description": "of which DNA libraries"
+    },
+    {
+     "name": "gbp_total",
+     "type": "float64",
+     "description": "bases over the sample's runs, Gbp"
+    },
+    {
+     "name": "sandpiper_version",
+     "type": "string",
+     "description": "Sandpiper release whose run lists were compared"
+    },
+    {
+     "name": "sandpiper_snapshot_date",
+     "type": "string",
+     "description": "public date of the newest run on that release's run list"
+    },
+    {
+     "name": "reason_label",
+     "type": "string",
+     "description": "the reason in words"
+    }
+   ]
+  },
+  "catalog_sandpiper_gap_by_cause.csv": {
+   "key": [
+    "reason"
+   ],
+   "one_row_per": "reason a current sample has no Sandpiper profile (summary of catalog_sandpiper_unprofiled)",
+   "columns": [
+    {
+     "name": "reason",
+     "type": "string",
+     "description": "reason code (see catalog_sandpiper_unprofiled)"
+    },
+    {
+     "name": "reason_label",
+     "type": "string",
+     "description": "the reason in words"
+    },
+    {
+     "name": "samples",
+     "type": "int64",
+     "description": "current samples without a profile for this reason"
+    },
+    {
+     "name": "projects",
+     "type": "int64",
+     "description": "projects they belong to"
+    },
+    {
+     "name": "total_Tbp",
+     "type": "float64",
+     "description": "their bases, Tbp"
+    },
+    {
+     "name": "median_Gbp",
+     "type": "float64",
+     "description": "median bases per sample, Gbp"
     }
    ]
   }

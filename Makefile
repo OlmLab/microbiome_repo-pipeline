@@ -210,6 +210,8 @@ release:         ## stage 5 (R2026.n) — unpack → findings → assemble → b
 	  --catalog-dir $(PKG_OUT) --work $(BUILD)/sandpiper_refresh --out $(DATA)/catalog/sandpiper --previous $(DATA)/catalog/sandpiper --registry-runs $(REGISTRY_SANDPIPER) --update-package; \
 	  else echo "no Sandpiper bulk file at $(SP_REFRESH_BULK) — Sandpiper tables not rebuilt"; fi
 	@if [ -d "$(GUT_SANDPIPER_DIR)" ]; then for f in sample_summary.parquet pca_scores.parquet pca_loadings.parquet pca_variance.csv study_coverage.csv; do cp $(GUT_SANDPIPER_DIR)/gut_sandpiper_$$f $(PKG_OUT)/catalog_sandpiper_$$f; done && cp $(GUT_SANDPIPER_DIR)/GUT_SANDPIPER_REPORT.md $(PKG_OUT)/CATALOG_SANDPIPER_REPORT.md && $(PY) scripts/gut_sandpiper_panels.py --genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet --summary $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_summary.parquet --wide $(PKG_OUT)/catalog_sample_metadata_wide.parquet --out $(PKG_OUT)/catalog_sandpiper_study_panels.parquet; else echo "no catalog Sandpiper tables ($(GUT_SANDPIPER_DIR))"; fi
+	@# R2026.39: why a current sample has no community profile (after the profile tables of this package are in place)
+	@if [ -f "$(SANDPIPER_PER_ACC)" ] && [ -f "$(SANDPIPER_RUN_LIST)" ] && [ -f "$(PKG_OUT)/catalog_sandpiper_sample_summary.parquet" ]; then $(PY) scripts/sandpiper_gap.py --package $(PKG_OUT) --per-acc $(SANDPIPER_PER_ACC) --run-list $(SANDPIPER_RUN_LIST) --version $(SANDPIPER_LIST_VERSION) --registry-runs $(REGISTRY_RUNS) --out-dir $(PKG_OUT) && mv $(PKG_OUT)/sandpiper_runs_not_profiled.csv.gz $(BUILD)/gut/sandpiper_runs_not_profiled.csv.gz; else echo "no Sandpiper run lists ($(SANDPIPER_PER_ACC), $(SANDPIPER_RUN_LIST)) or no profile summary yet — catalog_sandpiper_unprofiled not built"; fi
 	$(PY) scripts/public_history.py $(PKG_OUT)
 	$(MAKE) package-docs
 	$(PY) scripts/public_history.py $(PKG_OUT) --after-docs
@@ -339,6 +341,10 @@ RUN_BASES_NCBI ?= $(DATA)/registry/run_bases_ncbi.parquet
 # attribute rows whose keys match diet / smoking / medication / stool / alcohol / activity patterns (artifact gut_biosample_attributes_newfields_v2) — input of gut-newfields-r1-v2
 GUT_ATTRIBUTES_V2   ?= $(GUT_DIR)/gut_biosample_attributes_newfields_v2.parquet
 GUT_OUT      ?= $(BUILD)/gut
+# R2026.39: Sandpiper's two run lists (profiled runs; runs it selected from the archive) -> why a sample has no profile (scripts/sandpiper_gap.py)
+SANDPIPER_PER_ACC      ?= $(CACHE_DIR)/sandpiper_bulk/v2.0.1/sp/sandpiper2.0.1.per_acc_summary.csv.gz
+SANDPIPER_RUN_LIST     ?= $(CACHE_DIR)/sandpiper_bulk/v2.1.0/sandpiper2.1.0.kingfisher_metadata.tsv.gz
+SANDPIPER_LIST_VERSION ?= 2.1.0
 # R2026.31: inputs of the projects added by the scope classification + the per-project run refetch (scripts/prepare_catalog_inputs.py)
 CATALOG_IN   ?= $(DATA)/catalog
 PKG_SRC_WIDE  = $(firstword $(wildcard $(PKG_SRC)/catalog_sample_metadata_wide.parquet) $(PKG_SRC)/gut_sample_metadata_wide.parquet)
@@ -380,7 +386,7 @@ gut-build:       ## curated scope gut_all — gut_studies / gut_sample_metadata_
 	$(PY) -m catalog.scopes.build_gut_scope --studies $(GUT_STUDIES) --registry-studies $(PKG_OUT)/registry_studies.parquet --biosamples $(PKG_OUT)/registry_biosamples.parquet \
 	  --package $(PKG_OUT) --r1 $(GUT_R1) --r1-extra "$(GUT_R1_EXTRA)" --r1-newfields "$(GUT_R1_NEWFIELDS)" --r1-newfields-v2 "$(GUT_R1_NEWFIELDS_V2)" --r1-interventions "$(GUT_R1_INTERVENTIONS)" --r1-infant "$(GUT_R1_INFANT)" --sample-exclusions "$(GUT_SAMPLE_EXCLUSIONS)" --sample-types "$(GUT_SAMPLE_TYPES)" --metadata-access "$(GUT_METADATA_ACCESS)" --deep-glob "$(GUT_DEEP_GLOB)" --interventions-study "$(GUT_IV_STUDY_GLOB)" --run-bases "$(RUN_BASES_NCBI)" --corrections "$(GUT_CORRECTIONS)" --contradiction-extra "$(GUT_CONTRA_EXTRA)" --timing-samples "$(GUT_TIMING_SAMPLES)" --r2-glob "$(GUT_R2_GLOB)" --r3-glob "$(GUT_R3_GLOB)" --r4-glob "$(GUT_R4_GLOB)" --condition-map $(GUT_COND_MAP) --antibiotic-map $(GUT_ABX_MAP) \
 	  --registry-runs $(firstword $(wildcard $(CATALOG_RUNS)) $(REGISTRY_RUNS)) --registry-sandpiper $(REGISTRY_SANDPIPER) --read-checks "$(READ_CHECKS)" \
-	  $(if $(wildcard $(CATALOG_IN)/extra_studies.parquet),--extra-studies $(CATALOG_IN)/extra_studies.parquet --extra-biosamples $(CATALOG_IN)/extra_biosamples.parquet --extra-determinations $(CATALOG_IN)/extra_determinations.parquet --study-facts $(CATALOG_IN)/study_facts.parquet --short-descriptions-extra $(CATALOG_IN)/short_descriptions_extra.parquet,) \
+	  $(if $(wildcard $(CATALOG_IN)/extra_studies.parquet),--extra-studies $(CATALOG_IN)/extra_studies.parquet --extra-biosamples $(CATALOG_IN)/extra_biosamples.parquet --extra-determinations $(CATALOG_IN)/extra_determinations.parquet --study-facts $(CATALOG_IN)/study_facts.parquet --study-papers $(CATALOG_IN)/study_papers.parquet --short-descriptions-extra $(CATALOG_IN)/short_descriptions_extra.parquet,) \
 	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC) \
 	  $(if $(wildcard $(PERSON_INVARIANT_EXCLUSIONS)),--person-invariant-exclusions $(PERSON_INVARIANT_EXCLUSIONS),) $(if $(wildcard $(PLAUSIBILITY_CORRECTIONS)),--plausibility-corrections $(PLAUSIBILITY_CORRECTIONS),)
 	@if [ -f "$(CATALOG_IN)/exposure_items.parquet" ]; then cp $(CATALOG_IN)/exposure_items.parquet $(GUT_OUT)/catalog_exposure_items.parquet; fi
