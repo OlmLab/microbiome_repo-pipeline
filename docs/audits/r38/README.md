@@ -11,6 +11,7 @@ Decision tables and notes of the Opus 5 readers who checked catalog values again
 | `lifestyle_decisions_part{1,2,3}.csv` + notes | keep / recode / retire for the 263 project codes whose stored quote was the code itself |
 | `corrections_classes.csv` + notes | four classes of suspect health_condition values (prematurity without wording, bare cancer strings, yes/no flags, ME/CFS) |
 | `corrections_projects.csv` + notes | eleven single-project items |
+| `corrections_countries.csv`, `short_descriptions_fix.csv` + notes | four projects whose machine-written title named another country than their samples: the per-sample countries were right in three (titles rewritten: `config/short_description_corrections.csv`); PRJNA1165510 is 17 probiotic isolate genomes and leaves the catalog (`config/sample_exclusions.csv`), so its country row is not applied |
 
 Order to rebuild the inputs: `python scripts/build_dq_corrections_r38.py` (needs the unpacked R2026.37 package), then
 `python scripts/build_ext_delta_r38.py` (needs the re-match outputs of the nine prior resources; its gate reads the corrections).
@@ -31,6 +32,7 @@ withdrawn lifestyle code, the same code from the abstract.
   metadata); PRJEB98012 (67 blanks / positive controls); PRJNA1001944 (`ibs` / `crohns_disease` in a breast cancer cohort);
   PRJNA1167328 (464 SARS-CoV-2-negative samples without a condition); the 25 class-3 projects under 30 samples
   (PRJEB68381 and PRJNA895487 show the same pattern).
+- PRJNA932796: 26 samples with `sample_type = cell culture` have not been read.
 - PRJNA544527: the linked paper PMC10039858 only cites the project; PRJNA770647: antibiotic statement kept, paper not open access;
   PRJEB91658: aliases ending .1 / .2; PRJNA310878: age unit; PRJEB45443: table-to-sample join not verified.
 - Paper links of relation `unsure` that are unrelated to the project (PMC11986028 on PRJEB42612, PMC12749156 on PRJNA595703,

@@ -1832,6 +1832,21 @@ def main():
     _cc = {}
     for (acc_, iso_), n_ in _cc_by.items():
         _cc.setdefault(acc_, []).append(iso_)
+    # Country column of the project table (R2026.38): the curated per-sample countries, most samples first; the archive's
+    # project-level string only where no sample has a curated country. The archive string contradicted the curated value in
+    # five projects (PRJEB6456: archive Denmark, samples Sweden) and was absent for 2,358 projects that have curated countries.
+    from pages.atlas import _country_names as _cn_
+    _cnames = _cn_(sorted({iso_ for (_a, iso_) in _cc_by.index})) if len(_cc_by) else {}
+    _cc_top = {}
+    for (acc_, iso_), n_ in _cc_by.items():
+        _cc_top.setdefault(acc_, []).append((-int(n_), str(iso_)))
+
+    def _co_show(s_):
+        t_ = sorted(_cc_top.get(s_['study_accession'], []))
+        if not t_:
+            return _top_key(s_.get('top_country'))
+        nm_ = (_cnames.get(t_[0][1]) or (t_[0][1], None))[0]
+        return nm_ + (f' +{len(t_) - 1}' if len(t_) > 1 else '')
     def _sites_of(s_):   # body-site codes of a project's samples, most samples first (catalog_studies.sample_body_sites)
         d_ = jl(s_.get('sample_body_sites'))
         return [k for k, _ in sorted(d_.items(), key=lambda kv: (-kv[1], kv[0]))] if d_ else [c for c in split_list(s_.get('body_sites')) if c != 'unknown_site']
@@ -1851,7 +1866,7 @@ def main():
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
                       bs=_sites_of(s), na=(s.get('nucleic_acid') or 'unclear') if not isnull(s.get('nucleic_acid')) else 'unclear',
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
-                      iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_top_key(s.get('top_country')), ls=s.get('life_stage_primary') or '',
+                      iv=(s.get('interventions') or '') if not isnull(s.get('interventions')) else '', co=_co_show(s), ls=s.get('life_stage_primary') or '',
                       src=s['curated_source'], sf=''.join({'used': 'u', 'checked': 'c'}.get(x['status'], 'n') for x in s['sources']), fa=s['first_author'], p=s['n_papers'], y=(s.get('first_public_min') or '')[:4],
                       gs=(round(seq_by_study[s['study_accession']]['gbp_per_sample'], 2) if seq_by_study.get(s['study_accession'], {}).get('gbp_per_sample') is not None else None),
                       **({'grp': s['study_group_id'], 'grpn': len(str(s['study_group_members']).split(';'))} if not isnull(s.get('study_group_id')) else {}),

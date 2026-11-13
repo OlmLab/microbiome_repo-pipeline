@@ -1163,6 +1163,10 @@ def build(a):
     # model-written short titles / descriptions (R2026.18; data/inputs/gut/short_descriptions.parquet, labelled as machine-written on the site)
     sd_p = os.path.join(os.path.dirname(os.path.abspath(a.studies)), "short_descriptions.parquet")
     sd_parts = [pd.read_parquet(x) for x in (sd_p, getattr(a, "short_descriptions_extra", None)) if x and os.path.exists(x)]
+    # R2026.38: texts corrected after a check against the primary source come first (config/short_description_corrections.csv)
+    sdc_p = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "config", "short_description_corrections.csv")
+    if os.path.exists(sdc_p):
+        sd_parts.insert(0, pd.read_csv(sdc_p, dtype=str).drop(columns=["note"], errors="ignore"))
     if sd_parts:
         sd = pd.concat(sd_parts, ignore_index=True).drop_duplicates("study_accession", keep="first").set_index("study_accession")
         gs = gs.join(sd[[c for c in ("short_title", "short_description", "short_description_model", "short_description_sources") if c in sd.columns]], how="left")
