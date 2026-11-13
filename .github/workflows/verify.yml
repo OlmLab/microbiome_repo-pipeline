@@ -120,7 +120,7 @@ jobs:
       SITE_DIR: ${{ inputs.site_dir || '.' }}
       # R2026.37: the CU server's Content-Security-Policy (keep identical to config/site.yaml hosting.csp; tests/test_check_csp.py
       # checks this). The smoke server sends it ENFORCED, so every test below also proves the pages work under it.
-      CU_CSP: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://gc.zgo.at 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://microbiome-repo.goatcounter.com; img-src 'self' data: https://zenodo.org https://microbiome-repo.goatcounter.com; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
+      CU_CSP: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://gc.zgo.at 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://extensions.duckdb.org https://microbiome-repo.goatcounter.com; img-src 'self' data: https://zenodo.org https://microbiome-repo.goatcounter.com; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
     steps:
       - uses: actions/checkout@v4
         with:

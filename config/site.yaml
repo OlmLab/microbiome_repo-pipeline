@@ -17,7 +17,9 @@ hosting:
   # R2026.37: CU Boulder server run by BIT (https://microbiome-repo.colorado.edu/). The Content-Security-Policy its nginx sends
   # (report-only from 2026-11-06; to be enforced after the owner's sign-off 2026-11-11). site_generator/gen/check_csp.py, run by
   # `make verify`, fails a build that would load anything outside it; keep this string identical to the server's header.
-  csp: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://gc.zgo.at 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://microbiome-repo.goatcounter.com; img-src 'self' data: https://zenodo.org https://microbiome-repo.goatcounter.com; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
+  # 2026-11-13: equals the header the CU server sends (enforced). extensions.duckdb.org is needed by the explorers: DuckDB-WASM 1.29
+  # fetches its parquet extension from there at run time, which a static scan of our pages cannot see (found by the enforced smoke test).
+  csp: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://gc.zgo.at 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://extensions.duckdb.org https://microbiome-repo.goatcounter.com; img-src 'self' data: https://zenodo.org https://microbiome-repo.goatcounter.com; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
   # Hosts that our JavaScript only builds <a href> links to (never fetched); any OTHER absolute host in a script fails check_csp.py
   # until someone confirms it is a link, or it is added to the policy with BIT.
   js_link_only_hosts: [www.ebi.ac.uk, www.ncbi.nlm.nih.gov, ddbj.nig.ac.jp, github.com, www.openstreetmap.org]
