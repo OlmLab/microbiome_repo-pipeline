@@ -69,6 +69,9 @@ _orig_sections = PP.paper_sections
 PP.paper_sections = lambda pmcid, max_chars=16000: _orig_sections(pmcid, max_chars=min(max_chars, 16000))   # design info is in methods
 PKG = os.environ.get("CATALOG_PKG") or os.path.join(ROOT, "build", "package")   # R2026.34: CATALOG_PKG = an intermediate build
 ATTR = os.path.join(ROOT, "data", "inputs", "registry", "registry_biosample_attributes.parquet")
+REG_RUNS = os.path.join(ROOT, "data", "inputs", "registry", "registry_runs.parquet")
+RUN_FIELDS = ["library_name", "sample_title", "host_phenotype", "host_status", "disease", "dev_stage", "experimental_factor", "isolation_source"]
+RUN_FIELDS_ON = False   # set by --run-fields
 PASS = "catalog_design_v1"
 NOTHINK = {"type": "disabled"}
 MODEL_TAG = "rubric"
@@ -488,6 +491,22 @@ def run(projects, out, budget, shard, host=None, verify_budget=None):
     spec_by = {k: list(g.sample_key) for k, g in w.groupby("study_accession")}
     subj_by = {k: g.set_index("sample_key").subject_id for k, g in w.groupby("study_accession")}
     attrs = pd.read_parquet(ATTR, columns=["sample_acc", "study_accession", "attr_key", "attr_value"], filters=[("study_accession", "in", list(projects))])
+    if RUN_FIELDS_ON:
+        # R2026.40 (deep pass B2): run-level fields of the archive (ENA run table) as further candidate group variables — a
+        # project whose groups no BioSample attribute separates often carries them in the library name or in the ENA
+        # host / disease / experimental-factor columns. One value per sample (samples whose runs disagree get none).
+        rr = pd.read_parquet(REG_RUNS, columns=["study_accession", "sample_accession"] + RUN_FIELDS, filters=[("study_accession", "in", list(projects))])
+        have_keys = set(attrs.attr_key.astype(str).str.lower())
+        extra = []
+        for c in RUN_FIELDS:
+            v = rr[["study_accession", "sample_accession", c]].dropna()
+            v = v[v[c].astype(str).str.strip().ne("")]
+            g = v.groupby(["study_accession", "sample_accession"])[c].agg(lambda x: x.astype(str).str.strip().unique())
+            g = g[g.map(len) == 1].map(lambda x: x[0]).reset_index()
+            key = c if (c == "library_name" and c not in have_keys) else f"run:{c}"
+            extra.append(pd.DataFrame({"sample_acc": g.sample_accession, "study_accession": g.study_accession, "attr_key": key, "attr_value": g[c]}))
+        if extra:
+            attrs = pd.concat([attrs] + extra, ignore_index=True)
     attrs_by = {k: g for k, g in attrs.groupby("study_accession")}
     cd = pd.read_parquet(os.path.join(PKG, "catalog_sample_determinations.parquet"), columns=["sample_key", "study_accession", "field_name", "value_normalized", "scope"],
                          filters=[("study_accession", "in", list(projects)), ("field_name", "in", ["health_condition", "intervention"])])
@@ -634,8 +653,11 @@ def main(argv=None):
     ap.add_argument("--verify-budget", type=float, default=None, help="USD for the Opus check (default: same as --budget)")
     ap.add_argument("--out", default=os.path.join(ROOT, "data", "inputs", "gut"))
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--run-fields", action="store_true", help="also offer run-level archive fields (library name, ENA host / disease / experimental factor) as candidate group variables (R2026.40)")
     ap.add_argument("--tag", default="", help="shard name prefix for a re-run (R2026.34: 'V2_' sorts after the first run's shards, so --merge keeps the re-run)")
     a = ap.parse_args(argv)
+    global RUN_FIELDS_ON
+    RUN_FIELDS_ON = bool(a.run_fields)
     if a.merge:
         return merge(a.out)
     ids = sorted(set(pd.read_csv(a.projects).study_accession.astype(str)))
