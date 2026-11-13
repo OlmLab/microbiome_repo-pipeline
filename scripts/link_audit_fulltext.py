@@ -6,13 +6,16 @@ utility tier. It leaves a project without an own-data paper when the abstract do
 projects: ONE request per (project, paper) on the reasoning tier, with the archive record of the project and, where the
 paper's full text is in the cache (~/catalog/cache/pmc_oa), the sentences that cite one of the project's accessions and the
 data-availability statement. A verdict `generated` is committed only when
-  * the model's supporting quote is verbatim in the text it was given, and
+  * the model's supporting quote is verbatim in the text it was given (paper text or the archive record),
+  * the reading states that the paper reports its own sampling and sequencing, and
   * a second, independent reading on the audit tier (Opus 5, config/models.yaml) also returns `generated`.
+(Pilot of 60 pairs, 27 re-read by an Opus 5 reader: 25 agreed; the one false `generated` was a later re-analysis whose
+availability line pointed at the accession — hence the own-sequencing condition and the availability-pointer basis.)
 Anything else stays out of the catalog's own-data links (the row is kept with its verdicts for the record).
 
 Outputs in --out: pairs_<shard>.parquet (study_accession, paper_id, pmid, pmcid, doi, title, relation, relation_first,
 relation_check, quote, quote_verbatim, quote_source, text_mode, accession_in_text, basis, status, model_first, model_check),
-progress_<shard>.json (counts only) and ledger.csv. Paper text and model answers stay in files; the script prints counts.
+progress_<shard>.json (counts only) and ledger_<shard>.csv. Paper text and model answers stay in files; the script prints counts.
 
 usage (inside a Claude Science python kernel, so `host` exists):
     import runpy; runpy.run_path("scripts/link_audit_fulltext.py", init_globals={"host": host, "ARGS": [
@@ -35,10 +38,14 @@ RELS = ["generated", "reused", "unrelated", "unclear"]
 SYSTEM = """You decide how ONE paper relates to ONE sequencing project in a public archive (ENA / SRA BioProject).
 
 generated  The paper reports the study that PRODUCED the project's sequencing data: its authors collected or sequenced these
-           samples, and the paper describes that work. Evidence that counts: the paper cites the project's accession (or one of
-           its run / sample accessions) as the place where the data OF THIS STUDY were deposited; or, without an accession,
-           the specific design matches the archive record unmistakably (same cohort or trial name, same place, same sample
-           type and numbers, same submitting group and period). A general topical match is not enough.
+           samples, and the paper describes that work (set reports_own_sequencing = true only when the paper itself
+           reports collecting and sequencing samples). Evidence that counts: the paper says the data of THIS study were
+           produced, generated or deposited under the project's accession (or one of its run / sample accessions); or,
+           without an accession, the specific design matches the archive record unmistakably (same cohort or trial name,
+           same place, same sample type and numbers, same submitting group and period; the archive record naming this
+           paper's study counts). A general topical match is not enough. A sentence that only says where data can be
+           found ("files are available at ENA under <accession>") is an availability pointer, not a deposit statement:
+           it supports `generated` only together with the paper reporting its own sampling and sequencing of these samples.
 reused     The paper used the project's data but did not produce it: re-analysis, meta-analysis, a method or database paper
            run on public data, a comparison set. A paper that lists the accession among data sets 'downloaded from' or
            'obtained from' the archive is reused, also when it produced other data itself.
@@ -46,19 +53,24 @@ unrelated  The paper does not use the project's data (same topic, another cohort
 unclear    The text given does not let you decide between the options above.
 
 Rules: judge only from the text given. A later paper from the same cohort that analyses the same deposited samples again is
-`generated` only if it describes the sampling and sequencing as its own work; a paper that deposited NEW data under a
-different accession and cites this project as earlier data is `reused`. `quote` must be copied character for character
-from the paper text given (one sentence or part of one, at most 60 words) and must be the passage that decides the verdict;
-leave it empty for `unclear`. `basis` is one of: accession_deposit_statement, accession_listed_as_public_data,
-design_match, topic_only, no_link, other."""
+`generated` only if it describes the sampling and sequencing as its own work; a later paper that re-analyses data the
+cohort deposited earlier and reports no new sequencing is `reused`; a paper that deposited NEW data under a different
+accession and cites this project as earlier data is `reused`; a trial-protocol paper without sequencing results is
+`unclear` with basis `protocol`. `quote` must be copied character for character from the text given (one sentence or part
+of one, at most 60 words) and must be the passage that decides the verdict — from the paper text, or from the PROJECT
+record when the record itself names the paper's study (quote_from = project_record); leave it empty for `unclear`.
+`basis` is one of: accession_deposit_statement, accession_availability_pointer, accession_listed_as_public_data,
+design_match, protocol, topic_only, no_link, other."""
 
 TOOL = {"name": "link_verdict", "description": "Return the verdict for this paper and project.",
         "input_schema": {"type": "object", "properties": {
             "relation": {"type": "string", "enum": RELS},
-            "basis": {"type": "string", "enum": ["accession_deposit_statement", "accession_listed_as_public_data", "design_match",
-                                                 "topic_only", "no_link", "other"]},
-            "quote": {"type": "string"}, "quote_from": {"type": "string", "enum": ["abstract", "data_availability", "accession_sentence", "title", "none"]},
-            "confidence": {"type": "number"}}, "required": ["relation", "basis", "quote", "quote_from"]}}
+            "basis": {"type": "string", "enum": ["accession_deposit_statement", "accession_availability_pointer",
+                                                 "accession_listed_as_public_data", "design_match", "protocol", "topic_only", "no_link", "other"]},
+            "reports_own_sequencing": {"type": "boolean"},
+            "quote": {"type": "string"}, "quote_from": {"type": "string", "enum": ["abstract", "data_availability", "accession_sentence", "title",
+                                                                                   "project_record", "none"]},
+            "confidence": {"type": "number"}}, "required": ["relation", "basis", "reports_own_sequencing", "quote", "quote_from"]}}
 
 DAV = re.compile(r"(?i)data availab|availability of data|accession|deposit|data access|data and (code|materials)|data sharing")
 
@@ -131,7 +143,7 @@ def build_request(proj, paper, accs):
         body += "SENTENCES OF THE FULL TEXT THAT CITE AN ACCESSION OF THE PROJECT:\n" + ("\n".join(f"- {s}" for s in sents) if sents else "(none: no accession of the project occurs in the full text)") + "\n"
     else:
         body += "(full text not available: abstract only)\n"
-    given = " ".join([norm(paper.get("title")), ab, da or "", " ".join(sents)])
+    given = " ".join([norm(paper.get("title")), ab, da or "", " ".join(sents), norm(rec)])
     return {"system": SYSTEM, "prompt": body, "tools": [TOOL], "tool_choice": {"type": "tool", "name": "link_verdict"},
             "max_tokens": 700, "thinking": NOTHINK}, given, ("fulltext" if da is not None else ("abstract" if ab else "title")), hit
 
@@ -141,8 +153,84 @@ def verdict(r):
         return {"relation": None, "status": r.get("status_original") or r.get("status") or "error"}
     v = r["tool_use"]
     rel = v.get("relation") if v.get("relation") in RELS else "unclear"
-    return {"relation": rel, "basis": v.get("basis"), "quote": norm(v.get("quote")), "quote_from": v.get("quote_from"),
+    return {"relation": rel, "basis": v.get("basis"), "own_seq": v.get("reports_own_sequencing"), "quote": norm(v.get("quote")), "quote_from": v.get("quote_from"),
             "confidence": v.get("confidence"), "status": "ok", "model": r.get("model")}
+
+
+# ---------------------------------------------------------------------------------------------------------------------------
+# Scope check (R2026.39). A check of 25 committed deposit-statement links by an Opus 5 reader found 5 that did not hold, all
+# of one kind: a long-lived umbrella or resource accession several studies write into, a consortium's combined deposit, or a
+# cohort accession shared by sibling papers — the paper's availability sentence is true, but the paper did not produce the
+# project. The release date against the publication date, the record's own title and the sample count decide these.
+SCOPE_SYSTEM = """A paper has been judged to have GENERATED the sequencing data of an archive project because it says its data are
+under the project's accession (or its design matches the record). Decide how much of the PROJECT the paper accounts for.
+
+whole   The paper reports the study that produced the project: the record's title / description is this study, the numbers of
+        samples or participants are of the same order, and the project became public around the paper (from about two years
+        before publication to shortly after it).
+part    The paper produced SOME of the project's data: the accession is an umbrella, a resource cohort or a combined deposit
+        that several studies wrote into (e.g. the record names a larger programme or another paper's study; it holds many more
+        samples than the paper describes; it was public long before the paper; the paper says it added samples to it).
+none    The paper did not produce the project's data: it re-analyses data deposited by earlier work, deposits its own new data
+        elsewhere, or the accession belongs to a sibling study.
+cannot_tell  The text does not let you decide.
+
+Use the project's public dates, sample count and title as evidence, not only the paper's sentence. `reason` is one of:
+record_is_this_study, numbers_and_dates_match, umbrella_or_resource_accession, combined_deposit, sibling_paper_same_cohort,
+public_long_before_paper, counts_do_not_match, reanalysis, other."""
+SCOPE_TOOL = {"name": "link_scope", "description": "Return how much of the project the paper accounts for.",
+              "input_schema": {"type": "object", "properties": {
+                  "scope": {"type": "string", "enum": ["whole", "part", "none", "cannot_tell"]},
+                  "reason": {"type": "string", "enum": ["record_is_this_study", "numbers_and_dates_match", "umbrella_or_resource_accession",
+                                                        "combined_deposit", "sibling_paper_same_cohort", "public_long_before_paper",
+                                                        "counts_do_not_match", "reanalysis", "other"]},
+                  "confidence": {"type": "number"}}, "required": ["scope", "reason"]}}
+
+
+def scope_main(a):
+    """--scope-check: one audit-tier request per pair of --pairs whose audit verdict in --out is `generated`."""
+    import glob
+    pairs = pd.read_parquet(a.pairs)
+    done = pd.concat([pd.read_parquet(f) for f in sorted(glob.glob(os.path.join(a.out, "pairs_*.parquet")))], ignore_index=True)
+    gen = done[done.relation.eq("generated")][["study_accession", "paper_id"]].astype(str).drop_duplicates()
+    pairs["paper_id"] = pairs.paper_id.astype(str)
+    pairs = pairs.merge(gen, on=["study_accession", "paper_id"]).drop_duplicates(["study_accession", "paper_id"]).sort_values(["study_accession", "paper_id"])
+    pairs = pairs.iloc[a.shard::a.nshards]
+    if a.limit:
+        pairs = pairs.head(a.limit)
+    meta = pd.read_parquet(a.meta).drop_duplicates("study_accession").set_index("study_accession")
+    extra = {}
+    if a.accessions and os.path.exists(a.accessions):
+        for p_, x_ in pd.read_csv(a.accessions, dtype=str).dropna().itertuples(index=False):
+            extra.setdefault(p_, []).append(x_)
+    sdir = os.path.join(a.out, "scope"); os.makedirs(sdir, exist_ok=True)
+    llm = LLM("audit", cache_dir=f"{CACHE}/llm/link_ft_scope", ledger=os.path.join(sdir, f"ledger_{a.shard}.csv"), budget_usd=a.budget,
+              pass_name="link_ft_scope", max_concurrency=6)
+    reqs, rows = [], []
+    for r in pairs.itertuples(index=False):
+        d = r._asdict(); acc = d["study_accession"]
+        m = meta.loc[acc].to_dict() if acc in meta.index else {}
+        accs = [x for x in [acc, m.get("secondary_study_accession")] if isinstance(x, str) and x] + extra.get(acc, [])
+        proj = {k: m.get(k) for k in ("study_title", "description_short", "center_name", "first_public_min", "first_public_max", "n_samples",
+                                      "n_runs", "sample_countries", "sample_body_sites", "instrument_models_top") if k in m}
+        q, _, _, _ = build_request(proj, d, accs)
+        reqs.append({"system": SCOPE_SYSTEM, "prompt": q["prompt"], "tools": [SCOPE_TOOL], "tool_choice": {"type": "tool", "name": "link_scope"},
+                     "max_tokens": 300, "thinking": NOTHINK})
+        rows.append(d)
+    try:
+        out_ = llm(reqs)
+    except BudgetExceeded as e:
+        out_ = []
+        print("budget:", e)
+    res = []
+    for i, d in enumerate(rows):
+        r = out_[i] if i < len(out_) else {"status": "not_run"}
+        v = r.get("tool_use") if r.get("status") in ("ok", "cached") and isinstance(r.get("tool_use"), dict) else {}
+        res.append({"study_accession": d["study_accession"], "paper_id": d["paper_id"], "link_scope": v.get("scope"), "scope_reason": v.get("reason"),
+                    "scope_status": "ok" if v else (r.get("status_original") or r.get("status")), "scope_model": r.get("model")})
+    df = pd.DataFrame(res)
+    df.to_parquet(os.path.join(sdir, f"scope_{a.shard}.parquet"), index=False)
+    print(json.dumps({"shard": a.shard, "pairs": len(df), "scope": df.link_scope.value_counts(dropna=False).to_dict() if len(df) else {}}, default=str))
 
 
 def main(argv=None):
@@ -150,8 +238,11 @@ def main(argv=None):
     ap.add_argument("--pairs", required=True); ap.add_argument("--meta", required=True); ap.add_argument("--accessions", default=None)
     ap.add_argument("--out", required=True); ap.add_argument("--shard", type=int, default=0); ap.add_argument("--nshards", type=int, default=1)
     ap.add_argument("--budget", type=float, default=25.0); ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--scope-check", action="store_true", help="second step: whole / part / none for the pairs judged generated")
     a = ap.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
+    if a.scope_check:
+        return scope_main(a)
     pairs = pd.read_parquet(a.pairs)
     pairs = pairs[pairs.shard.astype(int) == a.shard] if "shard" in pairs.columns else pairs.iloc[a.shard::a.nshards]
     if a.limit:
@@ -161,7 +252,7 @@ def main(argv=None):
     if a.accessions and os.path.exists(a.accessions):
         for p_, x_ in pd.read_csv(a.accessions, dtype=str).dropna().itertuples(index=False):
             extra.setdefault(p_, []).append(x_)
-    led = os.path.join(a.out, "ledger.csv")
+    led = os.path.join(a.out, f"ledger_{a.shard}.csv")       # one ledger per shard: the budget is per worker, not per wave
     first = LLM("rubric", cache_dir=f"{CACHE}/llm/link_ft_first", ledger=led, budget_usd=a.budget * 0.6, pass_name="link_ft_first", max_concurrency=8)
     check = LLM("audit", cache_dir=f"{CACHE}/llm/link_ft_check", ledger=led, budget_usd=a.budget * 0.4, pass_name="link_ft_check", max_concurrency=6)
     reqs, given, modes, hits, rows = [], [], [], [], []
@@ -183,7 +274,9 @@ def main(argv=None):
         print("budget:", e)
     v1 = [verdict(x) for x in out1] + [{"relation": None, "status": "not_run"}] * (len(reqs) - len(out1))
     ok_quote = [bool(v.get("quote")) and len(squash(v["quote"])) >= 20 and squash(v["quote"]) in squash(g) for v, g in zip(v1, given)]
-    todo = [i for i, v in enumerate(v1) if v.get("relation") == "generated" and ok_quote[i]]
+    # generated needs: a verbatim quote, the paper reporting its own sequencing, and more than a bare availability pointer
+    gen_ok = [v.get("relation") == "generated" and ok_quote[i] and v.get("own_seq") is True for i, v in enumerate(v1)]
+    todo = [i for i, g_ in enumerate(gen_ok) if g_]
     json.dump({"shard": a.shard, "pairs": len(rows), "stage": "check reading", "first_generated": len(todo), "time": time.time()}, open(prog, "w"))
     try:
         out2 = check([dict(reqs[i], system=SYSTEM + "\n(independent check reading)") for i in todo])
@@ -197,9 +290,9 @@ def main(argv=None):
         if a1.get("relation") is None:
             rel = a1.get("status") or "error"                       # refused / error / not_run: recorded, never re-sent
         elif a1["relation"] == "generated":
-            if not ok_quote[i]:
-                rel = "unclear"                                     # no verbatim support: not committed
-            elif a2.get("relation") == "generated":
+            if not gen_ok[i]:
+                rel = "unclear"                                     # no verbatim support, or no own sequencing reported: not committed
+            elif a2.get("relation") == "generated" and a2.get("own_seq") is True:
                 rel = "generated"
             elif a2.get("relation") is None:
                 rel = "unclear"                                     # check refused / not run: not committed
@@ -210,7 +303,8 @@ def main(argv=None):
         res.append({"study_accession": d["study_accession"], "paper_id": str(d["paper_id"]), "pmid": d.get("pmid"), "pmcid": d.get("pmcid"),
                     "doi": d.get("doi"), "title": d.get("title"), "journal": d.get("journal"), "year": d.get("year"),
                     "relation": rel, "relation_first": a1.get("relation"), "relation_check": a2.get("relation"),
-                    "basis": a1.get("basis"), "quote": a1.get("quote") if ok_quote[i] else None, "quote_verbatim": bool(ok_quote[i]),
+                    "basis": a1.get("basis"), "basis_check": a2.get("basis"), "reports_own_sequencing": a1.get("own_seq"),
+                    "quote": a1.get("quote") if ok_quote[i] else None, "quote_verbatim": bool(ok_quote[i]),
                     "quote_source": f"{d['paper_id']} ({a1.get('quote_from')})" if ok_quote[i] else None,
                     "text_mode": modes[i], "accession_in_text": bool(hits[i]), "confidence": a1.get("confidence"),
                     "status": a1.get("status"), "status_check": a2.get("status"), "model_first": a1.get("model"), "model_check": a2.get("model"),

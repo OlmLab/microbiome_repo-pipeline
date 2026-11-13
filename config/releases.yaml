@@ -405,6 +405,15 @@ releases:
     doi: 10.5281/zenodo.24202832
     label: "corrections release: errors found by checking values against primary sources are fixed, unsupported lifestyle and antibiotic statements withdrawn, prior curated resources matched to every current sample"
 
+  - release_id: R2026.39
+    package_version: '1.32.0'
+    previous_package_version: '1.31.0'
+    previous_release_id: R2026.38
+    notes_file: RELEASE_NOTES_R2026.39.md
+    data_tag: data-v1.32.0
+    site_tag: site-v1.32.0
+    label: "paper links: an own-data paper found for about a thousand more projects, each with the sentence that decides it; linked paper ids for every project; a reason for every sample without a community profile; a separate code for sequence-independent amplification"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

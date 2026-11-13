@@ -3183,7 +3183,7 @@
     {
      "name": "paper_id",
      "type": "string",
-     "description": "PMID or DOI"
+     "description": "PMID where the paper has one, else DOI or another Europe PMC id (one row per project and paper from R2026.39; earlier packages listed some papers twice, as MED:<pmid> and <pmid>)"
     },
     {
      "name": "pmid",
@@ -3219,6 +3219,26 @@
      "name": "journal",
      "type": "string",
      "description": "journal"
+    },
+    {
+     "name": "evidence_quote",
+     "type": "string",
+     "description": "verbatim passage that decided an own_data link made by the one-pair audit of R2026.39 (from the paper, or from the archive record when the record names the paper's study); empty for links of the earlier title-and-abstract audit"
+    },
+    {
+     "name": "evidence_source",
+     "type": "string",
+     "description": "paper id and the part of the text the passage comes from (abstract, data_availability, accession_sentence, title, project_record)"
+    },
+    {
+     "name": "link_basis",
+     "type": "string",
+     "description": "what the link rests on: accession_deposit_statement (the paper says its data are under the project's accession) · design_match (no accession; cohort, place, sample type and numbers match the archive record) · accession_availability_pointer"
+    },
+    {
+     "name": "link_audit",
+     "type": "string",
+     "description": "which audit committed the link; empty = title-and-abstract audit of the large update (R2026.30–R2026.34)"
     }
    ]
   },

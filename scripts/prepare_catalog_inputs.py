@@ -17,7 +17,7 @@ Writes to OUT_DIR (default data/inputs/catalog/):
 
 usage: python scripts/prepare_catalog_inputs.py [--cache ~/catalog/cache] [--out data/inputs/catalog]
 """
-import argparse, glob, json, os, re
+import argparse, glob, json, os, re, sys
 
 import numpy as np
 import pandas as pd
@@ -76,6 +76,41 @@ def load_dossier_archive(cache, ids):
                 except ValueError:
                     pass
     return out
+
+
+def dedupe_papers(pp):
+    """R2026.39: one row per project and paper. The same paper used to appear twice in a project, once as `MED:<pmid>` (first
+    link audit, no metadata) and once as `<pmid>` (later audits, with metadata): 958 rows in package 1.31.0, and 2,057 own-data
+    rows had no title. Rows are keyed by PMID where there is one; own_data wins over reuse; metadata comes from the row that
+    has it, else from Europe PMC (find_papers.pmids_meta, cached)."""
+    import re as _re
+    pp = pp.copy()
+    num = pp.paper_id.str.extract(r"^(?:MED:|PMID:)?(\d{5,9})$")[0]
+    pm = pp.pmid.astype("string").str.replace(r"\.0$", "", regex=True)
+    pp["pmid"] = pm.where(pm.notna() & pm.str.fullmatch(r"\d{5,9}"), num)
+    pp["_k"] = pp.pmid.where(pp.pmid.notna(), pp.paper_id)
+    pp["_own"] = pp.relation.eq("own_data")
+    pp["_meta"] = pp.title.notna()
+    pp = pp.sort_values(["study_accession", "_k", "_meta", "_own"], ascending=[True, True, False, False])
+    g = pp.groupby(["study_accession", "_k"], sort=False)
+    rel = g._own.any().map({True: "own_data", False: "reuse"})
+    first = g.first()                                     # first non-null per column
+    first["relation"] = rel
+    out = first.reset_index()
+    out["paper_id"] = out.pmid.where(out.pmid.notna(), out.paper_id)
+    need = sorted(set(out.loc[out.title.isna() & out.pmid.notna(), "pmid"]))
+    if need:
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import find_papers as FP
+            md = FP.pmids_meta(need)
+        except Exception as e:                            # offline: titles stay empty, links are unaffected
+            print(f"paper metadata not fetched: {e}", file=sys.stderr)
+            md = {}
+        for c in ("title", "journal", "year", "pmcid", "doi"):
+            m = out[c].isna() & out.pmid.notna()
+            out.loc[m, c] = out.loc[m, "pmid"].map(lambda p_: (md.get(p_) or {}).get(c))
+    return out.drop(columns=["_k", "_own", "_meta"])
 
 
 def main():
@@ -273,13 +308,22 @@ def main():
     if os.path.exists(dpc):
         pc = pd.concat([pc, pd.read_parquet(dpc)], ignore_index=True)
     for p in glob.glob(os.path.join(L, "stage*_recheck", "paper_candidates.parquet")) + \
-             glob.glob(os.path.join(L, "stage9_recall", "paper_candidates.parquet")):
+             glob.glob(os.path.join(L, "stage9_recall", "paper_candidates.parquet")) + \
+             glob.glob(os.path.join(L, "stage17_deep_pass", "paper_candidates.parquet")):      # R2026.39 one-pair link audit
         pc = pd.concat([pc, pd.read_parquet(p)], ignore_index=True)
     rel = la[la.relation.isin(["generated", "reused"])][["study_accession", "paper_id", "relation"]]
     pp = rel.merge(pc.drop_duplicates(["study_accession", "paper_id"]), on=["study_accession", "paper_id"], how="left")
     pp["relation"] = pp.relation.map({"generated": "own_data", "reused": "reuse"})
     pp = pp[pp.study_accession.isin(new_acc | gut_acc)]
     cols = ["study_accession", "paper_id", "pmid", "pmcid", "doi", "title", "relation", "year", "journal"]
+    # R2026.39: links committed by the one-pair audit carry the sentence that decided them (scripts/merge_link_audit_fulltext.py)
+    evp = os.path.join(L, "stage17_deep_pass", "link_evidence.parquet")
+    if os.path.exists(evp):
+        pp = pp.merge(pd.read_parquet(evp).drop_duplicates(["study_accession", "paper_id"]), on=["study_accession", "paper_id"], how="left")
+        cols += ["evidence_quote", "evidence_source", "link_basis", "link_audit"]
+    pp["paper_id"] = pp.paper_id.astype(str)
+    pp = dedupe_papers(pp.reindex(columns=cols))
+    stats["study_papers_after_dedup"] = len(pp)
     pp.reindex(columns=cols).drop_duplicates(["study_accession", "paper_id"]).to_parquet(
         os.path.join(a.out, "study_papers.parquet"), index=False)
     stats["study_papers"] = len(pp)
