@@ -102,6 +102,7 @@
 <div class="splegend small">{% for seg in panel.genus.segs %}<span title="{{ seg.label }}: {{ seg.pct }}%"><i style="background:{{ seg.color }}"></i>{% if seg.taxon.startswith('g__') %}<i class="it">{{ seg.label }}</i>{% else %}{{ seg.label }}{% endif %} {{ seg.pct }}%</span>{% endfor %}</div>
 <p class="small muted">Genera, mean relative abundance over {{ panel.n|fmt }} profiled {% if panel.site %}{{ panel.site }} {% endif %}samples of this project (<a href="https://sandpiper.qut.edu.au/">Sandpiper</a> SingleM profiles, {{ panel.taxonomy }}; low-depth and non-metagenome profiles left out).</p>
 {% else %}<p class="small muted">{% if s.nucleic_acid == 'rna' %}Community profiles here come from Sandpiper, which profiles DNA metagenomes; this project's data sets are RNA.{% else %}No Sandpiper profile for this project's samples.{% endif %}</p>{% endif %}
+{% if unprofiled %}<p class="small muted">No community profile for {{ unprofiled|sum(attribute='n')|fmt }} sample{{ 's' if unprofiled|sum(attribute='n') != 1 }} of this project: {% for u in unprofiled %}{{ u.label }} ({{ u.n|fmt }}){{ '; ' if not loop.last }}{% endfor %}. The catalog takes its profiles from Sandpiper and does no profiling of its own.</p>{% endif %}
 </section>
 
 <section class="pg-sec">
@@ -114,7 +115,7 @@
 {% if papers %}
 <section class="pg-sec" id="papers">
 <div class="pg-label">Papers ({{ papers|length }})</div>
-<ul class="plist">{% for p in papers[:5] %}<li>{{ p.title or '(no title)' }}{% if p.year %} <span class="muted">{{ p.year }}</span>{% endif %} {% if p.pmid %}<a href="https://europepmc.org/article/MED/{{ p.pmid }}">PMID {{ p.pmid }}</a>{% endif %}{% if p.pmcid %} <a href="https://europepmc.org/article/PMC/{{ p.pmcid }}">{{ p.pmcid }}</a>{% endif %}{% if p.relation %} <span class="tag">{{ p.relation }}</span>{% endif %}</li>{% endfor %}</ul>
+<ul class="plist">{% for p in papers[:5] %}<li>{{ p.title or '(no title)' }}{% if p.year %} <span class="muted">{{ p.year }}</span>{% endif %} {% if p.pmid %}<a href="https://europepmc.org/article/MED/{{ p.pmid }}">PMID {{ p.pmid }}</a>{% endif %}{% if p.pmcid %} <a href="https://europepmc.org/article/PMC/{{ p.pmcid }}">{{ p.pmcid }}</a>{% endif %}{% if p.relation %} <span class="tag">{{ p.relation }}</span>{% endif %}{% if p.quote %}<div class="small muted">Linked because {{ p.basis or 'the paper describes this study' }}: “{{ p.quote }}”</div>{% endif %}</li>{% endfor %}</ul>
 {% if papers|length > 5 %}<details class="pg-more"><summary>{{ papers|length - 5 }} more</summary><ul class="plist">{% for p in papers[5:] %}<li>{{ p.title or '(no title)' }}{% if p.year %} <span class="muted">{{ p.year }}</span>{% endif %} {% if p.pmid %}<a href="https://europepmc.org/article/MED/{{ p.pmid }}">PMID {{ p.pmid }}</a>{% endif %}{% if p.pmcid %} <a href="https://europepmc.org/article/PMC/{{ p.pmcid }}">{{ p.pmcid }}</a>{% endif %}</li>{% endfor %}</ul></details>{% endif %}
 </section>
 {% endif %}

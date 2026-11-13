@@ -1469,11 +1469,32 @@ def main():
             _t = lambda v: '' if v is None or (isinstance(v, float) and math.isnan(v)) or str(v) in ('nan', 'None', '<NA>') else str(v)
             exposure_by_study[acc_] = [dict(concept=_t(x.get('concept')), scale=_t(x.get('scale')), summary=_t(x.get('summary'))[:200],
                                             quote=_t(x.get('quote'))[:300]) for x in e_.head(12).to_dict('records')]
+    # R2026.39: own-data links made by the one-pair audit carry the sentence that decided them (catalog_study_papers.evidence_quote)
+    link_ev = {}
+    if (pkg / 'catalog_study_papers.parquet').exists():
+        _cp = pd.read_parquet(pkg / 'catalog_study_papers.parquet')
+        if 'evidence_quote' in _cp.columns:
+            _basis = {'accession_deposit_statement': 'the paper says its data are under this accession', 'design_match': 'the study design matches the archive record',
+                      'accession_availability_pointer': 'the paper points to this accession for its data'}
+            for r in _cp[_cp.evidence_quote.notna() & _cp.relation.eq('own_data')].itertuples(index=False):
+                for k_ in (r.pmid, r.paper_id, r.doi):
+                    if not isnull(k_):
+                        link_ev[(r.study_accession, str(k_).split('.')[0] if str(k_).replace('.', '').isdigit() else str(k_).lower())] = (
+                            strip_frame_tokens(str(r.evidence_quote))[:400], _basis.get(r.link_basis, ''))
     papers_by_study = {}
     for r in papers.sort_values(['study_accession', 'relation', 'paper_id'], kind='mergesort').itertuples(index=False):
+        _pm = None if isnull(r.pmid) else str(r.pmid).split('.')[0]
+        _ev = link_ev.get((r.study_accession, _pm)) or link_ev.get((r.study_accession, str(r.paper_id).lower())) or (None if isnull(r.doi) else link_ev.get((r.study_accession, str(r.doi).lower())))
         papers_by_study.setdefault(r.study_accession, []).append(dict(
-            pmid=None if isnull(r.pmid) else str(r.pmid).split('.')[0], pmcid=None if isnull(r.pmcid) else r.pmcid,
-            doi=None if isnull(r.doi) else r.doi, title=None if isnull(r.title) else r.title, relation=r.relation, year=None if isnull(r.year) else str(r.year)[:4]))
+            pmid=_pm, pmcid=None if isnull(r.pmcid) else r.pmcid,
+            doi=None if isnull(r.doi) else r.doi, title=None if isnull(r.title) else r.title, relation='own_data' if _ev else r.relation, year=None if isnull(r.year) else str(r.year)[:4],
+            quote=_ev[0] if _ev else None, basis=_ev[1] if _ev else None))
+    # R2026.39: why samples of a project have no community profile (catalog_sandpiper_unprofiled)
+    unprofiled_by_study = {}
+    if (pkg / 'catalog_sandpiper_unprofiled.parquet').exists():
+        _up = pd.read_parquet(pkg / 'catalog_sandpiper_unprofiled.parquet', columns=['study_accession', 'reason_label'])
+        for (acc_, lab_), n_ in _up.groupby(['study_accession', 'reason_label']).size().sort_values(ascending=False).items():
+            unprofiled_by_study.setdefault(acc_, []).append(dict(label=lab_, n=int(n_)))
     authors_by_study = {}
     for acc, g in authors.groupby('study_accession'):
         g = g.sort_values(['pmid', 'position'], kind='mergesort')
@@ -1963,7 +1984,7 @@ def main():
         for c in tcols:
             c['num'] = c['f'] in ('age_at_collection_days', 'bmi', 'latitude', 'longitude', 'gestational_age_weeks', 'birth_weight_grams', 'stool_consistency_bristol')
         render('study.html', f'studies/{acc}.html', '../', nav='studies', use_datatables=True, s=s, rg=rgr, rg_summary=rg_summary, rg_evidence=rg_evidence, seq=seq_by_study.get(acc),
-               papers=papers_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
+               papers=papers_by_study.get(acc, []), unprofiled=unprofiled_by_study.get(acc, []), study_authors=authors_by_study.get(acc, []), cov=cov, ages=ages, sites=sites, conds=conds, countries=countries, sexes=sexes,
                facts_summary=(compose_summary(n_total, sites, countries, ages, s.get('nucleic_acid')) if isnull(s.get('short_description')) or not str(s.get('short_description') or '').strip() else ''),
                group_stmts=group_stmts, iv_labels={c: (v or {}).get('label', c) for c, v in iv_voc.items()}, ev_rows=ev_rows_study, n_det=int(len(dg)), panel=panel_by_study.get(acc), design=design_by_study.get(acc), contra=contra_by_study.get(acc), ivarms=iv_by_study.get(acc), help=help_by_study.get(acc), flag_url=flag, n_core=len(CORE_FIELDS),
                controls=controls_by_study.get(acc, []), samples=srows, sample_cols=SAMPLE_COLS, tcols=tcols, glance=study_glance(g), verify_url=verify_issue_url(issue_repo, acc, release_id), cov_missing=[LABELS.get(f, f) for f in cov_missing], thr_pct=int(round(100 * thr)), n_total=n_total, n_shown=len(shown), dl=study_dl[acc], hc_labels=hc_labels,
@@ -2055,7 +2076,8 @@ def main():
         _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs, figures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'figures')), out)
         print(f'[{time.time()-t0:.0f}s] atlas/index + observations from {atlas_dir}', file=sys.stderr)
     from pages import measures as _measures   # R2026.36: Atlas › Profile measures (scripts/sandpiper_measures.py payload)
-    _ms = _measures.build(render, dict(measures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'measures'), stats=stats), out)
+    _gap = pd.read_csv(pkg / 'catalog_sandpiper_gap_by_cause.csv').to_dict('records') if (pkg / 'catalog_sandpiper_gap_by_cause.csv').exists() else []
+    _ms = _measures.build(render, dict(measures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'measures'), stats=stats, gap=_gap), out)
     print(f'[{time.time()-t0:.0f}s] atlas/measures: {_ms}', file=sys.stderr)
     if (pkg / 'catalog_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)

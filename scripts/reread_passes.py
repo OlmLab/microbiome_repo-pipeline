@@ -170,12 +170,18 @@ lifestyle item: supported when the passage states this way of life for the peopl
   rural_non_industrialized needs subsistence or non-industrialized living to be stated; a rural cohort in a high-income
   country is not non-industrialized. Occupation is not a way of life, except competitive athletes, military personnel and
   spaceflight or analog crews.
+  Judge the code from the quoted passage itself, not from the project title or from what you know about the population.
+  For an item proposed for ALL sampled people, answer scope_ok: look at THE DEPOSIT (archive description, sample
+  attributes and sample variables shown above the items). scope_ok = true only when nothing there shows other kinds of
+  people among the samples (a second village or ethnic group, urban controls, visitors, staff, another cohort); when the
+  deposit holds such people the statement is true of a subgroup only -> scope_ok = false.
   selector_ok = true only when the listed values pick the people the passage speaks of AND NOBODY ELSE. The item shows how
   many samples the values select and how those samples spread over the other sample variables: if that spread shows other
   kinds of people among them (another group, visitors, controls), or the count is far from the group size the passage
   gives, answer false.
 facility item: supported only when the passage says that this NAMED organisation performed the shotgun (metagenomic) sequencing
-  of this study's samples, or that the samples or libraries were sent or submitted to it for sequencing. not_supported for
+  of this study's samples, or that the samples or libraries were sent or submitted to it for sequencing. A project may
+  have several facilities, each for a part of its samples; one that sequenced some of them is supported. not_supported for
   an ethics committee, a biobank or storage site, a place samples were shipped to for processing only, the supplier of a
   kit or capture workflow, the maker of the instrument, 16S amplicon or isolate sequencing only, or a phrase that names no
   organisation.
@@ -186,7 +192,8 @@ sampling_period item: supported only when the passage gives the period in which 
 CHECK_TOOL = {"name": "check", "description": "Return a verdict per item.", "input_schema": {"type": "object", "properties": {
     "items": {"type": "array", "items": {"type": "object", "properties": {
         "id": {"type": "integer"}, "verdict": {"type": "string", "enum": ["supported", "not_supported"]},
-        "selector_ok": {"type": ["boolean", "null"]}, "why": {"type": "string"}}, "required": ["id", "verdict"]}}}, "required": ["items"]}}
+        "selector_ok": {"type": ["boolean", "null"]}, "scope_ok": {"type": ["boolean", "null"]}, "why": {"type": "string"}},
+        "required": ["id", "verdict"]}}}, "required": ["items"]}}
 
 PERIOD = re.compile(r"^(19[89]\d|20[0-2]\d)(-(0[1-9]|1[0-2]))?$")
 GENERIC_FAC = re.compile(r"(?i)^(an? |the )?(commercial|external|outside|local|central|private|third[- ]party|sequencing|core|service|contract)[a-z ,/-]*"
@@ -274,7 +281,7 @@ def run(projects, out, budget, check_budget, shard, host=None):
     llm = LLM("rubric", cache_dir=cache, ledger=os.path.join(out, "logs", f"ledger_{shard}.csv"), budget_usd=budget, pass_name="reread_r2026_40", max_concurrency=6)
     chk = LLM("audit", cache_dir=cache + "_check", ledger=os.path.join(out, "logs", f"ledger_check_{shard}.csv"),
               budget_usd=check_budget if check_budget is not None else budget, pass_name="reread_check_r2026_40", max_concurrency=6)
-    T, V, reqs, keys, reading = {}, {}, [], [], {}
+    T, V, LN, reqs, keys, reading = {}, {}, {}, [], [], {}
     for acc in projects:
         if acc not in st.index:
             reading[acc] = {"status": "not_in_catalog"}
@@ -284,7 +291,7 @@ def run(projects, out, budget, check_budget, shard, host=None):
             reading[acc] = {"status": "no_paper_text", "text_mode": tx.get("mode")}
             continue
         lines, sel = sample_variables(w_by.get(acc, w.iloc[0:0]))
-        T[acc], V[acc] = tx, sel
+        T[acc], V[acc], LN[acc] = tx, sel, lines
         prompt = tx["prompt"] + "\n\nSAMPLE VARIABLES IN THE CATALOG (field [samples with a value]: value x samples):\n" + (
             "\n".join(lines) if lines else "  (none with 2-30 distinct values)")
         reqs.append({"system": SYSTEM, "prompt": prompt, "tools": [TOOL], "tool_choice": {"type": "tool", "name": "reread"},
@@ -372,8 +379,16 @@ def run(projects, out, budget, check_budget, shard, host=None):
                 else:
                     n["dropped_no_verbatim_quote"] += 1
         reading[acc] = dict(base, **n)
+        seen_, uniq_ = set(), []
+        for x in items:                                           # the same statement proposed twice is one item
+            k_ = (x["kind"], json.dumps(x["it"], sort_keys=True, default=str)) if x["kind"] != "lifestyle" else (
+                "lifestyle", x["it"].get("code"), x["it"].get("applies_to"), x["it"].get("selector_field"), tuple(sorted(map(str, x["it"].get("selector_values") or []))))
+            if k_ not in seen_:
+                seen_.add(k_); uniq_.append(x)
+        items = uniq_
         if items:
-            body = f"PROJECT {acc}: {st.loc[acc].get('study_title')}\n\n"
+            head_ = re.split(r"\n(?:PAPER THAT GENERATED THE DATA|ABSTRACT of a paper)", tx["prompt"])[0][:3500]
+            body = (f"THE DEPOSIT\n{head_}\nSAMPLE VARIABLES IN THE CATALOG:\n" + ("\n".join(LN[acc]) if LN[acc] else "  (none with 2-30 distinct values)") + "\n\nITEMS\n")
             for j, x in enumerate(items):
                 it = x["it"]
                 if x["kind"] == "lifestyle":
@@ -407,7 +422,8 @@ def run(projects, out, budget, check_budget, shard, host=None):
         reading[acc]["check_status"] = "ok" if ok else (r.get("status_original") or r.get("status"))
         tmode = T[acc]["mode"]
         route0 = "R3" if tmode == "fulltext" else "R4"
-        whole = [(j, x) for j, x in enumerate(items) if x["kind"] == "lifestyle" and x["it"].get("applies_to") == "all" and verd.get(j, {}).get("verdict") == "supported"]
+        whole = [(j, x) for j, x in enumerate(items) if x["kind"] == "lifestyle" and x["it"].get("applies_to") == "all" and verd.get(j, {}).get("verdict") == "supported"
+                 and verd.get(j, {}).get("scope_ok") is True]
         conflict = len({x["it"]["code"] for _, x in whole}) > 1
         kept = 0
         n0 = len(dets)
@@ -438,6 +454,8 @@ def run(projects, out, budget, check_budget, shard, host=None):
                    "check": vd.get("verdict") or "not_checked", "n_samples": 0}
             if not sup:
                 rec["outcome"] = "not committed: the check did not support it" if vd else "not committed: not checked"
+            elif it.get("applies_to") == "all" and vd.get("scope_ok") is not True:
+                rec["outcome"] = "not committed: the deposit holds other people (the statement covers a subgroup)"
             elif it.get("applies_to") == "all":
                 if conflict:
                     rec["outcome"] = "not committed: two different codes for the whole cohort"
@@ -474,6 +492,12 @@ def run(projects, out, budget, check_budget, shard, host=None):
         reading[acc]["lifestyle_committed"] = kept
     rd = pd.DataFrame([dict(study_accession=k, **v) for k, v in reading.items()])
     rd.to_parquet(os.path.join(out, f"reread_reading_shard_{shard}.parquet"), index=False)
+    seen_d, dd_ = set(), []
+    for d_ in dets:
+        k_ = (d_["sample_key"], d_["study_accession"], d_["field_name"], d_["value_normalized"], d_["scope"])
+        if k_ not in seen_d:
+            seen_d.add(k_); dd_.append(d_)
+    dets = dd_
     pd.DataFrame(dets, columns=DET_COLS).to_parquet(os.path.join(out, f"reread_determinations_shard_{shard}.parquet"), index=False)
     pd.DataFrame(facts, columns=["study_accession", "fact", "value_raw", "kind", "country", "quote", "source", "text_mode"]).to_parquet(
         os.path.join(out, f"reread_facts_shard_{shard}.parquet"), index=False)

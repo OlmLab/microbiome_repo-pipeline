@@ -11,6 +11,11 @@
 <table class="small"><thead><tr><th>Status of the sample</th><th class="num">Samples</th><th class="num">Share</th></tr></thead><tbody>
 {% for r in reasons %}<tr><td>{{ r.label }}</td><td class="num">{{ "{:,}".format(r.n) }}</td><td class="num">{{ r.share }}</td></tr>{% endfor %}
 </tbody></table>
+{% if gap %}<h3>Why a sample has no profile</h3>
+<p class="small">For every current sample without a profile, the reason of the run that came closest to one. The reasons come from Sandpiper's two run lists (the runs it profiled, and the runs it selected from the archive) and its published selection rule: Illumina; library source METAGENOMIC or organism a metagenome; more than 1 Gbp, or more than 0.1 Gbp with library selection RANDOM. The catalog does no profiling of its own. Per sample in <code>catalog_sandpiper_unprofiled.parquet</code>.</p>
+<table class="small"><thead><tr><th>Reason</th><th class="num">Samples</th><th class="num">Projects</th><th class="num">Median Gbp per sample</th></tr></thead><tbody>
+{% for g in gap %}<tr><td>{{ g.reason_label }}</td><td class="num">{{ "{:,}".format(g.samples|int) }}</td><td class="num">{{ "{:,}".format(g.projects|int) }}</td><td class="num">{{ "" if g.median_Gbp != g.median_Gbp else "%.2f"|format(g.median_Gbp) }}</td></tr>{% endfor %}
+</tbody></table>{% endif %}
 <figure class="msfig"><a href="../data/measures/coverage.png"><img src="../data/measures/coverage_web.png" alt="Profiling coverage by body site and by the year a sample's first DNA run became public" loading="lazy" width="1400"></a>
 <figcaption><b>Profiling status of the current catalog samples.</b> (a) Share of samples per body site (n = samples per site). (b) Samples by the year their first DNA run became public. "QC-flagged" = any of low depth, low complexity, non-metagenome organism label, synthetic, RNA library, ecological prediction or no genus assigned. "Reason not known" = a DNA run of at least 0.1 Gbp public before the cut-off but no profile.</figcaption></figure>
 <h3>Largest unprofiled projects</h3>
