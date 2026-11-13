@@ -412,6 +412,7 @@ releases:
     notes_file: RELEASE_NOTES_R2026.39.md
     data_tag: data-v1.32.0
     site_tag: site-v1.32.0
+    doi: 10.5281/zenodo.24209247
     label: "paper links: an own-data paper found for about a thousand more projects, each with the sentence that decides it; linked paper ids for every project; a reason for every sample without a community profile; a separate code for sequence-independent amplification"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
