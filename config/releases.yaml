@@ -402,6 +402,7 @@ releases:
     notes_file: RELEASE_NOTES_R2026.38.md
     data_tag: data-v1.31.0
     site_tag: site-v1.31.0
+    doi: 10.5281/zenodo.24202832
     label: "corrections release: errors found by checking values against primary sources are fixed, unsupported lifestyle and antibiotic statements withdrawn, prior curated resources matched to every current sample"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.

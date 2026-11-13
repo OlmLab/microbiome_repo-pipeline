@@ -150,23 +150,41 @@ jobs:
           curl -sI http://localhost:8123/index.html | grep -i '^content-security-policy:' || { echo "smoke server sends no CSP"; exit 1; }
           cat > smoke.spec.js <<'EOF'
           const { test, expect } = require('@playwright/test');
+          // R2026.38: a failing explorer test reports what the page logged (console errors, failed requests), so that the
+          // GitHub annotation says why (the job log itself cannot be read from the release sandbox)
+          function watch(page) {
+            const seen = [];
+            page.on('console', m => { if (m.type() === 'error' || /Content Security Policy|Refused to/i.test(m.text())) seen.push(m.text().slice(0, 260)); });
+            page.on('pageerror', e => seen.push('pageerror ' + String(e).slice(0, 260)));
+            page.on('requestfailed', r => seen.push('requestfailed ' + r.url().slice(0, 160) + ' ' + ((r.failure() || {}).errorText || '')));
+            return seen;
+          }
+          async function reported(seen, body) {
+            try { await body(); } catch (e) { throw new Error(String(e.message).slice(0, 500) + ' || page log: ' + ([...new Set(seen)].slice(0, 10).join(' | ') || 'empty')); }
+          }
           test('explorer study slice renders count and evidence', async ({ page }) => {
             test.setTimeout(240000);
-            await page.goto('http://localhost:8123/samples/index.html?study=PRJEB32631');
-            // DuckDB-WASM (36 MB from jsDelivr) + parquet load: wait for the "samples match" result text
-            await expect(page.getByText(/samples? match/i)).toBeVisible({ timeout: 180000 });
-            const txt = await page.getByText(/samples? match/i).first().textContent();
-            expect(txt).toMatch(/\d/);
-            const row = page.locator('table tbody tr').first();
-            await row.click();
-            await expect(page.getByText(/evidence/i).first()).toBeVisible({ timeout: 30000 });
+            const seen = watch(page);
+            await reported(seen, async () => {
+              await page.goto('http://localhost:8123/samples/index.html?study=PRJEB32631');
+              // DuckDB-WASM (36 MB from jsDelivr) + parquet load: wait for the "samples match" result text
+              await expect(page.getByText(/samples? match/i)).toBeVisible({ timeout: 180000 });
+              const txt = await page.getByText(/samples? match/i).first().textContent();
+              expect(txt).toMatch(/\d/);
+              const row = page.locator('table tbody tr').first();
+              await row.click();
+              await expect(page.getByText(/evidence/i).first()).toBeVisible({ timeout: 30000 });
+            });
           });
           test('registry explorer loads registry_studies.parquet and shows a row count', async ({ page }) => {
             test.setTimeout(240000);
+            const seen = watch(page);
             const r = await page.goto('http://localhost:8123/registry/index.html');
             if (r.status() === 404) { test.skip(true, 'site predates the registry tier (< R2026.4)'); return; }
-            await expect(page.locator('#count')).toContainText(/\d/, { timeout: 180000 });
-            await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 30000 });
+            await reported(seen, async () => {
+              await expect(page.locator('#count')).toContainText(/\d/, { timeout: 180000 });
+              await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 30000 });
+            });
           });
           test('main pages load nothing outside the CU server policy', async ({ page }) => {
             test.setTimeout(420000);
@@ -188,7 +206,7 @@ jobs:
             await expect(page.getByText(/PRJ[EDN][A-Z]\d+/).first()).toBeVisible({ timeout: 30000 });
           });
           EOF
-          npx playwright test smoke.spec.js --reporter=list
+          npx playwright test smoke.spec.js --reporter=github,list
 
   notify:
     # R1-07: a separate job so a failure in ANY of the three jobs (not only explorer-smoke) opens the Issue.
