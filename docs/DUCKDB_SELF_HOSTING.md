@@ -3,6 +3,16 @@
 Status (2026-11-13): prepared and tested, **switched off**. No `.wasm` file is in any release. Switch it on only after the
 owner confirms that the CU server serves `.wasm` files (owner's instruction of 2026-11-13).
 
+## Test result
+
+Run 43543090630 of `duckdb-selfhost-test` (pipeline repository, commit 608b31e, 2026-11-14): **9 of 9 tests passed** in
+Chromium, Firefox and WebKit. In each browser: (1) self-hosted with the `eh` build only and (2) self-hosted with both builds —
+a parquet file is read through the shared start-up code under `default-src 'self'; connect-src 'self'; worker-src 'self'`
+(no other host in the policy), the DuckDB `.wasm` and the parquet extension are fetched from the test server, and the page
+makes no request to another origin; (3) CDN mode, as released, under the CU server's policy from `config/site.yaml`.
+What the test does not cover: the two explorer pages themselves in self-hosted mode (the site-repository smoke test does
+that on the first release with the switch on) and the CU server's handling of `.wasm` files.
+
 ## Why
 
 The two explorers (Samples, Registry) run DuckDB-WASM 1.29.0 in the browser. Today the module, the workers and the
