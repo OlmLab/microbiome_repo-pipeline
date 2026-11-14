@@ -48,7 +48,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default=str(REPO / 'build' / 'vendor_duckdb'))
     args = ap.parse_args()
-    out = Path(args.out)
+    out = Path(args.out).resolve()   # esbuild runs in a temporary directory
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
