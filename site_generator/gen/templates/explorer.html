@@ -8,7 +8,7 @@
 <details class="about-page"><summary>About this page</summary><p>Filters run in your browser with <a href="https://duckdb.org/docs/api/wasm/overview">DuckDB-WASM</a> over <span class="mono">data/catalog_sample_metadata_wide.parquet</span> ({{ parquet_size }}); nothing is sent to a server. Click a row for every field with its route and confidence; the verbatim evidence quotes are in <span class="mono">catalog_sample_determinations.parquet</span> ({{ det_size }}, <a href="../downloads/index.html">Downloads</a>) and per study on the study pages.</p></details>
 <noscript><p class="note">The explorer needs JavaScript (and WebAssembly). Without it, download the tables: <a href="../data/catalog_sample_metadata_wide.parquet">catalog_sample_metadata_wide.parquet</a>, <a href="../data/catalog_studies.parquet">catalog_studies.parquet</a>.</p></noscript>
 <div id="collection-bar" class="note" style="display:none"></div>
-<div id="boot" class="note" role="status" aria-live="polite">Loading DuckDB-WASM (from cdn.jsdelivr.net, pinned 1.29.0) and the sample table… <span id="boot-msg"></span></div>
+<div id="boot" class="note" role="status" aria-live="polite">Loading DuckDB-WASM ({% if site.duckdb_self_hosted %}from this site{% else %}from cdn.jsdelivr.net{% endif %}, pinned 1.29.0) and the sample table… <span id="boot-msg"></span></div>
 <div class="exp nofilters" id="exp" style="display:none">
 <aside class="filters">
   <label for="f-q">Study / sample accession or title word</label><input id="f-q" placeholder="PRJ…, SAMN…, or a word">
@@ -48,6 +48,7 @@
 {% endblock %}
 {% block scripts %}
 <script>window.CATALOG_CFG={samples:'../data/catalog_sample_metadata_wide.parquet',studies:'../data/catalog_studies.parquet',collections:'../data/collections.json',studiesUrl:'../studies/',registryUrl:'../registry/index.html',enaSampleUrl:'https://www.ebi.ac.uk/ena/browser/view/',archive:{SAMN:'https://www.ncbi.nlm.nih.gov/biosample/',SAMD:'https://ddbj.nig.ac.jp/resource/biosample/',SAME:'https://www.ebi.ac.uk/ena/browser/view/',RUN:'https://www.ebi.ac.uk/ena/browser/view/'},coreFields:{{ site.core_fields|tojson }},keyFields:{{ site.key_fields|tojson }}};</script>
-<script>setTimeout(function(){ if (!window.__gutReady) { var b=document.getElementById('boot'); if (b && b.style.display !== 'none') { b.innerHTML='<b>The explorer could not start within 20 s.</b> DuckDB-WASM (pinned 1.29.0) is loaded from cdn.jsdelivr.net; the CDN may be blocked on your network or the browser blocks WebAssembly/Workers. Everything the explorer shows is also downloadable: <a href="../data/catalog_sample_metadata_wide.parquet">catalog_sample_metadata_wide.parquet</a>.'; } } }, 20000);</script>
-<script type="module" src="../static/explorer.js"></script>
+<script>setTimeout(function(){ if (!window.__gutReady) { var b=document.getElementById('boot'); if (b && b.style.display !== 'none') { b.innerHTML='<b>The explorer could not start within 20 s.</b> {% if site.duckdb_self_hosted %}DuckDB-WASM (pinned 1.29.0) is loaded from this site; the browser may block WebAssembly/Workers.{% else %}DuckDB-WASM (pinned 1.29.0) is loaded from cdn.jsdelivr.net; the CDN may be blocked on your network or the browser blocks WebAssembly/Workers.{% endif %} Everything the explorer shows is also downloadable: <a href="../data/catalog_sample_metadata_wide.parquet">catalog_sample_metadata_wide.parquet</a>.'; } } }, 20000);</script>
+{% if site.duckdb_self_hosted %}<script>window.SITE_DUCKDB={base:'../static/vendor/duckdb/',builds:{{ site.duckdb_builds|tojson }}};</script>
+{% endif %}<script type="module" src="../static/explorer.js"></script>
 {% endblock %}

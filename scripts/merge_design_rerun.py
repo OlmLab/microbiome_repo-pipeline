@@ -30,6 +30,7 @@ def main(argv=None):
     ids = set(pd.read_csv(a.targets).study_accession.astype(str))
     new = pd.concat([pd.read_parquet(f) for f in sorted(glob.glob(os.path.join(D, f"design_reading_shard_D{a.tag}*.parquet")))], ignore_index=True)
     new = new.drop_duplicates("study_accession", keep="last")
+    new = new[new.study_accession.isin(ids)]   # R2026.40: only the targets named (the shards may hold more projects than are merged)
     bk = os.path.join(D, f"backup_pre_{a.tag.strip('_')}")
     os.makedirs(bk, exist_ok=True)
     out = {"rerun_projects": len(ids), "rerun_rows": len(new)}
@@ -53,6 +54,7 @@ def main(argv=None):
     shutil.copy2(sg_p, os.path.join(bk, "design_sample_groups_all.parquet"))
     sgn = [pd.read_parquet(f) for f in sorted(glob.glob(os.path.join(D, f"design_sample_groups_shard_D{a.tag}*.parquet")))]
     sgn = pd.concat([x for x in sgn if len(x)], ignore_index=True) if any(len(x) for x in sgn) else sg.iloc[0:0]
+    sgn = sgn[sgn.study_accession.isin(ids)]
     sg2 = pd.concat([sg[~sg.study_accession.isin(ids)], sgn], ignore_index=True)
     sg2.to_parquet(sg_p, index=False)
     out.update(sample_group_rows_removed=int(sg.study_accession.isin(ids).sum()), sample_group_rows_added=len(sgn))

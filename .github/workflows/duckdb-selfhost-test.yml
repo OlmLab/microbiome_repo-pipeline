@@ -1,0 +1,102 @@
+name: duckdb-selfhost-test
+# R2026.40 (owner's request of 2026-11-13): proves in real browsers that the explorers' DuckDB start-up code
+# (site_generator/gen/static/duckdb_boot.js) works in both modes:
+#   * self-hosted — every file (module, workers, .wasm, parquet extension) comes from the test server, under a
+#     Content-Security-Policy that names NO other host, and the page makes no request to any other origin;
+#   * CDN (what the released site does today) — under the CU server's policy from config/site.yaml.
+# Runs here, in the pipeline repository, so that no .wasm file is ever pushed to the site repository before the owner
+# confirms that the CU server serves them.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/duckdb-selfhost-test.yml
+      - scripts/vendor_duckdb_wasm.py
+      - scripts/duckdb_boot_harness.py
+      - site_generator/gen/static/duckdb_boot.js
+      - site_generator/vendor_src/**
+permissions:
+  contents: read
+jobs:
+  browser-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Vendor DuckDB-WASM and the parquet extension
+        run: |
+          pip install pyarrow requests pyyaml
+          python scripts/vendor_duckdb_wasm.py --out build/vendor_duckdb
+          cat build/vendor_duckdb/MANIFEST.json
+          { echo '### Vendored files'; echo '```json'; cat build/vendor_duckdb/MANIFEST.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Build the three test pages and start the servers
+        run: |
+          python scripts/duckdb_boot_harness.py build --out /tmp/h_self --mode self --builds eh
+          python scripts/duckdb_boot_harness.py build --out /tmp/h_both --mode self --builds eh,mvp
+          python scripts/duckdb_boot_harness.py build --out /tmp/h_cdn --mode cdn
+          SELF_CSP="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+          CU_CSP="$(python -c "import yaml; print(yaml.safe_load(open('config/site.yaml'))['hosting']['csp'])")"
+          nohup python scripts/duckdb_boot_harness.py serve --dir /tmp/h_self --port 8131 --csp "$SELF_CSP" > /tmp/s1.log 2>&1 &
+          nohup python scripts/duckdb_boot_harness.py serve --dir /tmp/h_both --port 8132 --csp "$SELF_CSP" > /tmp/s2.log 2>&1 &
+          nohup python scripts/duckdb_boot_harness.py serve --dir /tmp/h_cdn --port 8133 --csp "$CU_CSP" > /tmp/s3.log 2>&1 &
+          sleep 2
+          for p in 8131 8132 8133; do curl -sf -o /dev/null -D - http://127.0.0.1:$p/index.html | grep -i content-security-policy; done
+      - name: Playwright — Chromium, Firefox and WebKit
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw
+          npm init -y >/dev/null
+          npm i -D @playwright/test@1.48.2 >/dev/null
+          npx playwright install --with-deps chromium firefox webkit >/dev/null
+          cat > playwright.config.js <<'EOF'
+          module.exports = { timeout: 240000, retries: 1, projects: [
+            { name: 'chromium', use: { browserName: 'chromium' } },
+            { name: 'firefox', use: { browserName: 'firefox' } },
+            { name: 'webkit', use: { browserName: 'webkit' } } ] };
+          EOF
+          cat > boot.spec.js <<'EOF'
+          const { test, expect } = require('@playwright/test');
+          function watch(page) {
+            const seen = [], urls = [];
+            page.on('console', m => { if (m.type() === 'error' || /Content Security Policy|Refused to/i.test(m.text())) seen.push(m.text().slice(0, 260)); });
+            page.on('pageerror', e => seen.push('pageerror ' + String(e).slice(0, 260)));
+            page.on('requestfailed', r => seen.push('requestfailed ' + r.url().slice(0, 160) + ' ' + ((r.failure() || {}).errorText || '')));
+            page.on('request', r => urls.push(r.url()));
+            return { seen, urls };
+          }
+          async function reported(w, body) {
+            try { await body(); } catch (e) { throw new Error(String(e.message).slice(0, 500) + ' || page log: ' + ([...new Set(w.seen)].slice(0, 10).join(' | ') || 'empty') + ' || requests: ' + [...new Set(w.urls)].slice(0, 14).join(' ')); }
+          }
+          for (const [name, port, builds] of [['eh build only', 8131, 'eh'], ['eh and mvp builds', 8132, 'eh,mvp']]) {
+            test(`self-hosted (${name}): parquet query works and nothing leaves the origin`, async ({ page }) => {
+              const w = watch(page);
+              await reported(w, async () => {
+                await page.goto(`http://127.0.0.1:${port}/index.html`);
+                await expect(page.locator('#out')).toHaveText('ok n=1000 s=500500 source=this site core=v1.1.1', { timeout: 180000 });
+                const origin = `http://127.0.0.1:${port}/`;
+                const off = [...new Set(w.urls)].filter(u => !u.startsWith(origin) && !u.startsWith('blob:') && !u.startsWith('data:'));
+                expect(off, 'requests to another origin').toEqual([]);
+                expect(w.urls.some(u => /static\/vendor\/duckdb\/extensions\/v1\.1\.1\/wasm_(eh|mvp)\/parquet\.duckdb_extension\.wasm$/.test(u)), 'the parquet extension was fetched from this site').toBe(true);
+                expect(w.urls.some(u => /static\/vendor\/duckdb\/duckdb-(eh|mvp)\.wasm$/.test(u)), 'the DuckDB .wasm was fetched from this site').toBe(true);
+                expect(w.seen.filter(s => /Content Security Policy|Refused to/i.test(s)), 'policy violations').toEqual([]);
+              });
+            });
+          }
+          test('CDN mode (as released): parquet query works under the CU server policy', async ({ page }) => {
+            const w = watch(page);
+            await reported(w, async () => {
+              await page.goto('http://127.0.0.1:8133/index.html');
+              await expect(page.locator('#out')).toHaveText('ok n=1000 s=500500 source=cdn.jsdelivr.net core=v1.1.1', { timeout: 180000 });
+              expect(w.seen.filter(s => /Content Security Policy|Refused to/i.test(s)), 'policy violations').toEqual([]);
+            });
+          });
+          EOF
+          npx playwright test --reporter=github,list
+      - name: Server request logs
+        if: always()
+        run: |
+          for d in h_self h_both h_cdn; do echo "== $d"; cat /tmp/$d/requests.log 2>/dev/null | awk '{print $1, $2, $4}' | sort | uniq -c | head -30; done

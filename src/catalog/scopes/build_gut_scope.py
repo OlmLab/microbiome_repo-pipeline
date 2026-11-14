@@ -558,7 +558,7 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
             if not r.old_determined_by:
                 # R2026.40: a withdrawal that names no pass was decided on the values present then; a value the paper re-read
                 # (determined_by reread_*) wrote later, with its own sentence and check, is not withdrawn by it
-                m &= ~np.char.startswith(sb[ix].astype(str), "reread_")
+                m &= ~np.fromiter((str(x).startswith("reread_") for x in sb[ix]), dtype=bool, count=len(ix))
             if r.old_determined_by:
                 m &= np.fromiter((str(x).startswith(r.old_determined_by) for x in sb[ix]), dtype=bool, count=len(ix))
             drop.loc[sub.index[ix[m]]] = True

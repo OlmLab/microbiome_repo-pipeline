@@ -1135,6 +1135,7 @@ def main():
     ap.add_argument('--sources-config', default=str(HERE.parent.parent / 'config' / 'sources.yaml'))
     ap.add_argument('--human-dir', default=None, help='ignored since R2026.31 (one catalog; kept so older Makefiles still run)')
     ap.add_argument('--collections-config', default=str(HERE.parent.parent / 'config' / 'collections.yaml'), help='optional (another track); searched from the home page when present')
+    ap.add_argument('--duckdb-vendor-dir', default=str(HERE.parent.parent / 'build' / 'vendor_duckdb'), help='output of scripts/vendor_duckdb_wasm.py; copied into static/vendor/duckdb/ only when hosting.duckdb_self_hosted is true in config/site.yaml')
     ap.add_argument('--atlas-data', default=None, help='precomputed Atlas payload directory (taxa.json, matrix_*.bin, observations.json, obs/); optional')
     ap.add_argument('--allow-placeholder-base-url', action='store_true', help='test builds only')
     ap.add_argument('--build-date', default=None, help='overrides VERSION.json build_date (tests only)')
@@ -1337,7 +1338,10 @@ def main():
 
     def flag_url(acc, page):
         return simple_issue_url(issue_repo, issue_template, issue_label, acc, release_id, base_url + page)
-    site = dict(title=names['title'], short_title=names['short_title'], tagline=names['tagline'], version=version, release_tag=vj['release_tag'], build_date=build_date,
+    _hosting = yaml.safe_load(Path(a.config).read_text(encoding='utf-8')).get('hosting') or {}
+    site = dict(duckdb_self_hosted=bool(_hosting.get('duckdb_self_hosted')) or os.environ.get('SITE_DUCKDB_SELF_HOSTED') == '1',
+                duckdb_builds=[b for b in (_hosting.get('duckdb_self_hosted_builds') or ['eh']) if b in ('eh', 'mvp')],
+                title=names['title'], short_title=names['short_title'], tagline=names['tagline'], version=version, release_tag=vj['release_tag'], build_date=build_date,
                 sha8=gen_sha[:8], base_url=base_url, issue_repo=issue_repo, issue_template=issue_template, issue_label=issue_label, about=about, nav=NAV,
                 core_fields=CORE_FIELDS, key_fields=KEY_FIELDS, has_collections=bool(collections),
                 release_id=release_id, previous_release_id=vj.get('previous_release_id'), release_date=cur_rel['release_date'], doi=doi, concept_doi=concept_doi,
@@ -1375,6 +1379,23 @@ def main():
             rel = f.relative_to(HERE / 'static')
             (out / 'static' / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(f, out / 'static' / rel)
+    # R2026.40: DuckDB-WASM served by this site instead of jsDelivr / extensions.duckdb.org. Off by default (the CU server is not yet
+    # known to serve .wasm files; check_file_types.py rejects them), so no .wasm file can enter a release by accident.
+    if site.get('duckdb_self_hosted'):
+        vend = Path(a.duckdb_vendor_dir)
+        builds = site['duckdb_builds']
+        need = ['duckdb-browser.bundle.js', 'MANIFEST.json'] + [n for b in builds for n in (f'duckdb-{b}.wasm', f'duckdb-browser-{b}.worker.js')]
+        missing = [n for n in need if not (vend / n).exists()]
+        if missing or not list((vend / 'extensions').rglob('parquet.duckdb_extension.wasm')):
+            raise SystemExit(f'hosting.duckdb_self_hosted is true but {vend} is incomplete (missing {missing or "the parquet extension"}); run scripts/vendor_duckdb_wasm.py')
+        skip = [b for b in ('eh', 'mvp') if b not in builds]   # a build that is not shipped: its .wasm, its worker and its extension directory stay out
+        for f in sorted(vend.rglob('*')):
+            if f.is_file():
+                rel = f.relative_to(vend)
+                if any(rel.name in (f'duckdb-{b}.wasm', f'duckdb-browser-{b}.worker.js') or f'wasm_{b}' in rel.parts for b in skip):
+                    continue
+                (out / 'static' / 'vendor' / 'duckdb' / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(f, out / 'static' / 'vendor' / 'duckdb' / rel)
     if (HERE / 'static' / 'icons' / 'favicon.ico').exists():   # browsers ask for /favicon.ico when a page names no icon
         shutil.copyfile(HERE / 'static' / 'icons' / 'favicon.ico', out / 'favicon.ico')
     (out / '.nojekyll').write_text('')

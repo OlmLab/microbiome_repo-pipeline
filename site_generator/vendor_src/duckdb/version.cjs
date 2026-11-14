@@ -1,0 +1,11 @@
+const duckdb = require('@duckdb/duckdb-wasm/dist/duckdb-node-blocking.cjs');
+const path = require('path');
+(async () => {
+  const dist = path.dirname(require.resolve('@duckdb/duckdb-wasm/dist/duckdb-node-blocking.cjs'));
+  const bundles = { mvp: { mainModule: path.join(dist, 'duckdb-mvp.wasm'), mainWorker: '' }, eh: { mainModule: path.join(dist, 'duckdb-eh.wasm'), mainWorker: '' } };
+  const db = await duckdb.createDuckDB(bundles, new duckdb.VoidLogger(), duckdb.NODE_RUNTIME);
+  await db.instantiate(() => {});
+  const c = db.connect();
+  const r = c.query("SELECT version() AS v, (SELECT platform FROM pragma_platform()) AS p");
+  console.log(JSON.stringify(r.toArray().map(x => x.toJSON())));
+})().catch(e => { console.error('ERR', e.message); process.exit(1); });

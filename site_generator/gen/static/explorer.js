@@ -2,7 +2,7 @@
 // for titles), fully client-side, one row per sample. Same boot / failure pattern as registry_explorer.js. Values shown with their
 // route (R1 archive attribute, R2 supplementary table, R3 paper full text, R4 abstract) and confidence; the verbatim evidence quotes
 // live in catalog_sample_determinations.parquet (Downloads) and per study in data/studies/<PRJ>_determinations.csv.gz.
-const DUCKDB_URL = 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm';
+import { bootDuckDB, DUCKDB_SOURCE } from './duckdb_boot.js';
 const CFG = window.CATALOG_CFG;
 const PAGE = 50;
 // core + key fields come from the field pack through CATALOG_CFG (item 7); detailed_location is derived from location_site/locality/region
@@ -23,18 +23,12 @@ const fmtV = v => { if (v === null || v === undefined) return ''; if (typeof v =
 let duckdb, db, conn, page = 0, total = 0, sortCol = 'study_accession', sortDir = 'ASC', lastFocus = null;
 
 function setBoot(msg) { $('boot-msg').textContent = msg; }
-function bootFail(e) { $('boot').innerHTML = '<b>The explorer could not start.</b> ' + h(e && e.message || e) + '<br>DuckDB-WASM (pinned 1.29.0) is loaded from cdn.jsdelivr.net; the tables are plain parquet files under data/ and can be opened with any parquet reader.'; console.error(e); }
+function bootFail(e) { $('boot').innerHTML = '<b>The explorer could not start.</b> ' + h(e && e.message || e) + '<br>DuckDB-WASM (pinned 1.29.0) is loaded from ' + DUCKDB_SOURCE + '; the tables are plain parquet files under data/ and can be opened with any parquet reader.'; console.error(e); }
 
 async function init() {
   try {
     setBoot('loading DuckDB-WASM module…');
-    duckdb = await import(DUCKDB_URL);
-    const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
-    const workerUrl = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], {type: 'text/javascript'}));
-    const worker = new Worker(workerUrl);
-    db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), worker);
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-    URL.revokeObjectURL(workerUrl);
+    ({ duckdb, db } = await bootDuckDB());
     setBoot('fetching the sample table…');
     for (const [name, url] of [['samples.parquet', CFG.samples], ['studies.parquet', CFG.studies]]) {
       const resp = await fetch(url); if (!resp.ok) throw new Error('fetch of ' + url + ' failed: HTTP ' + resp.status);

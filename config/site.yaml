@@ -20,6 +20,14 @@ hosting:
   # 2026-11-13: equals the header the CU server sends (enforced). extensions.duckdb.org is needed by the explorers: DuckDB-WASM 1.29
   # fetches its parquet extension from there at run time, which a static scan of our pages cannot see (found by the enforced smoke test).
   csp: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://gc.zgo.at 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://extensions.duckdb.org https://microbiome-repo.goatcounter.com; img-src 'self' data: https://zenodo.org https://microbiome-repo.goatcounter.com; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
+  # R2026.40: when true, the explorers load DuckDB-WASM and its parquet extension from this site (static/vendor/duckdb/, made by
+  # scripts/vendor_duckdb_wasm.py) and need neither cdn.jsdelivr.net nor extensions.duckdb.org. KEEP FALSE until the owner confirms
+  # that the CU server serves .wasm files; switching it on also needs 'wasm' added to the allowed types in
+  # site_generator/gen/check_file_types.py (docs/DUCKDB_SELF_HOSTING.md has the full procedure).
+  duckdb_self_hosted: false
+  # builds to ship when self-hosting: eh (39 MB with its parquet extension; needs WebAssembly exception handling — Chrome 95, Firefox 100,
+  # Safari 15.2 and later) and optionally mvp for older browsers (+43 MB; the site would then pass the 950 MB limit of R2026.39's 897 MB).
+  duckdb_self_hosted_builds: [eh]
   # Hosts that our JavaScript only builds <a href> links to (never fetched); any OTHER absolute host in a script fails check_csp.py
   # until someone confirms it is a link, or it is added to the policy with BIT.
   js_link_only_hosts: [www.ebi.ac.uk, www.ncbi.nlm.nih.gov, ddbj.nig.ac.jp, github.com, www.openstreetmap.org]

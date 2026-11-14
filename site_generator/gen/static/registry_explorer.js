@@ -2,7 +2,7 @@
 // Same boot / failure pattern as explorer.js (samples). One row per ENA study; list columns (body_sites, life_stages,
 // scope_memberships) are ';'-joined codes and are matched with a delimited LIKE. Detail panel shows every column, the
 // evidence rows behind host / body site / life stage (JSON lists of {source, quote}); catalog studies link to their study page.
-const DUCKDB_URL = 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm';
+import { bootDuckDB, DUCKDB_SOURCE } from './duckdb_boot.js';
 const CFG = window.REGISTRY_CFG;
 const PAGE = 50;
 // owner review 2026-10-01: the first column says whether a study is in the curated catalog; samples only (no run counts)
@@ -22,20 +22,14 @@ let duckdb, db, conn, page = 0, total = 0, sortCol = 'n_samples', sortDir = 'DES
 
 function setBoot(msg) { $('boot-msg').textContent = msg; }
 function bootFail(e) {
-  $('boot').innerHTML = '<b>The explorer could not start.</b> ' + h(e && e.message || e) + '<br>DuckDB-WASM (pinned 1.29.0) is loaded from cdn.jsdelivr.net; this message means the browser blocks WebAssembly/Workers or the CDN is unreachable. The table is downloadable: <a href="' + CFG.parquet + '">registry_studies.parquet</a>.';
+  $('boot').innerHTML = '<b>The explorer could not start.</b> ' + h(e && e.message || e) + '<br>DuckDB-WASM (pinned 1.29.0) is loaded from ' + DUCKDB_SOURCE + '; this message means the browser blocks WebAssembly/Workers or the files could not be fetched. The table is downloadable: <a href="' + CFG.parquet + '">registry_studies.parquet</a>.';
   console.error(e);
 }
 
 async function init() {
   try {
     setBoot('loading DuckDB-WASM module…');
-    duckdb = await import(DUCKDB_URL);
-    const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
-    const workerUrl = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], {type: 'text/javascript'}));
-    const worker = new Worker(workerUrl);
-    db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), worker);
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-    URL.revokeObjectURL(workerUrl);
+    ({ duckdb, db } = await bootDuckDB());
     setBoot('fetching registry table…');
     const resp = await fetch(CFG.parquet);
     if (!resp.ok) throw new Error('fetch of parquet failed: HTTP ' + resp.status);

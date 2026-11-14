@@ -1,0 +1,12 @@
+{
+  "name": "microbiome-repo-duckdb-vendor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Pinned inputs of scripts/vendor_duckdb_wasm.py (DuckDB-WASM for the site explorers)",
+  "dependencies": {
+    "@duckdb/duckdb-wasm": "1.29.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}
