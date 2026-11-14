@@ -55,13 +55,18 @@ jobs:
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw
           npm init -y >/dev/null
-          npm i -D @playwright/test@1.48.2 >/dev/null
-          npx playwright install --with-deps chromium firefox webkit >/dev/null
+          # same install as verify.yml (latest 1.x); a failure of any step is repeated as an annotation (the job log cannot be read from the release sandbox)
+          fail() { echo "::error title=$1::$(tail -c 1200 /tmp/step.log | tr '\n' ' ' | sed 's/%/%25/g')"; cat /tmp/step.log; exit 1; }
+          npm i -D @playwright/test@1 > /tmp/step.log 2>&1 || fail "npm install of playwright failed"
+          npx playwright install --with-deps chromium > /tmp/step.log 2>&1 || fail "chromium install failed"
+          BROWSERS="chromium"
+          for b in firefox webkit; do
+            if npx playwright install --with-deps $b > /tmp/step.log 2>&1; then BROWSERS="$BROWSERS $b"; else echo "::warning title=$b not installed on this runner::$(tail -c 600 /tmp/step.log | tr '\n' ' ' | sed 's/%/%25/g')"; fi
+          done
+          echo "browsers: $BROWSERS"
           cat > playwright.config.js <<'EOF'
-          module.exports = { timeout: 240000, retries: 1, projects: [
-            { name: 'chromium', use: { browserName: 'chromium' } },
-            { name: 'firefox', use: { browserName: 'firefox' } },
-            { name: 'webkit', use: { browserName: 'webkit' } } ] };
+          const want = (process.env.BROWSERS || 'chromium').split(' ').filter(Boolean);
+          module.exports = { timeout: 240000, retries: 1, projects: want.map(b => ({ name: b, use: { browserName: b } })) };
           EOF
           cat > boot.spec.js <<'EOF'
           const { test, expect } = require('@playwright/test');
@@ -100,7 +105,9 @@ jobs:
             });
           });
           EOF
-          npx playwright test --reporter=github,list
+          BROWSERS="$BROWSERS" npx playwright test --reporter=github,list > /tmp/pw.log 2>&1 || { echo "::error title=playwright run failed::$(grep -v '^$' /tmp/pw.log | tail -c 1500 | tr '\n' ' ' | sed 's/%/%25/g')"; cat /tmp/pw.log; exit 1; }
+          cat /tmp/pw.log
+          echo "::notice title=DuckDB boot test::$(grep -E 'passed|flaky|skipped' /tmp/pw.log | tr '\n' ' ') browsers: $BROWSERS"
       - name: Server request logs
         if: always()
         run: |
