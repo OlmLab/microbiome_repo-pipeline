@@ -1,3 +1,39 @@
+# RESTART_HERE — Microbiome Repo (v14, 2026-11-14, after the catalog deep pass)
+
+**State**: R2026.39 / 1.32.0 is published (DOI 10.5281/zenodo.24209247; site https://microbiome-repo.colorado.edu/). R2026.40 / 1.33.0
+(stage B of the deep pass) is built and verified and waits for one held step before it can be pushed — see
+`~/catalog/projects/editor/REPORT.md`, "Held steps". R2026.41 / 1.34.0 (explicit health-condition labels, registry refresh) is in
+preparation: `config/version.txt` already says 1.34.0; `build/` holds the R2026.40 package and site and must stay until R2026.40 is
+pushed; the pre-build of 1.34.0 is in `build_r41pre/`.
+
+**Where things are**: pipeline `~/catalog/catalog-pipeline` (GitHub OlmLab/microbiome_repo-pipeline), site clone
+`~/catalog/infant-gut-catalog` (OlmLab/microbiome_repo), data clone `~/catalog/infant-gut-catalog-data` (OlmLab/microbiome_repo-data);
+caches `~/catalog/cache` (`large_update/` = intake stages, `deep_pass/` = this pass); shared notes `~/catalog/projects/`
+(`STATUS.md`, `handoffs/COMMON_RULES.md`, `editor/DECISIONS.md`, `editor/REPORT.md`). Frozen copy of 1.31.0 for the other chats:
+`~/catalog/frozen_releases/R2026.38_package_1.31.0/` (never change).
+
+**How a release is made**: `docs/MONTHLY_RUN.md` (stages 1–19 and the passes the deep pass added). In short: intake and passes →
+`scripts/prepare_catalog_inputs.py --extra-facts-dirs $L/stage13_merged/ $L/stage14_merged/ $L/stage17_deep_pass/` →
+`make release BUILD_DATE=<d> PKG_ZIP=build/data_package_v<previous>.zip` → `make measures` → `make site BUILD_DATE=<d>` →
+`make verify` → compare the live Content-Security-Policy with `config/site.yaml` → `make check-credential` →
+`make publish-branch BUILD_DATE=<d>` → copy `verify.yml`, `check-cu-deploy.yml`, `deploy-pages.yml` into the site clone and
+`release.yml` into the data clone, amend, re-tag → push pipeline main first, then the site branch and tag, `release-assets`
+(force, `GIT_DIR=/tmp/release_assets_<v>.gitdir`), the data branch and tag → check Actions, `version.json` on the CU server and the
+Zenodo DOI → record the DOI in `config/releases.yaml`.
+
+**Rules that bind every session**: paper and project text is read only by Opus 5 sub-agents, the main session handles counts,
+code and tables of identifiers; memory rules of COMMON_RULES §8 (never load a package table whole; main kernel under 6 GB,
+sub-agents under 3 GB; `memory_pressure` at least 35 % free before a build or a wave); every new kind of statement gets an
+independent audit sample before it is committed; nothing is committed on a single reading; no `.wasm` file in a release until the
+owner confirms the CU server serves them; no pull-request requirement on main.
+
+**Open**: the held steps and the owner items in `~/catalog/projects/editor/REPORT.md`; the lists under "Next run" in
+`docs/MONTHLY_RUN.md`.
+
+---
+
+<details><summary>v13 (after R2026.13) — kept for history</summary>
+
 # RESTART_HERE — Microbiome Repo (v13, 2026-09-30, after R2026.13 / package 1.13.0)
 
 **State**: R2026.13 / 1.13.0 published: data release data-v1.13.0 (all assets incl. SQLite 1.26 GB, Sandpiper parts, registry_runs zstd 75 MB) on OlmLab/microbiome_repo-data; site tag site-v1.13.0 deploying to https://olmlab.github.io/microbiome_repo/ (new base_url after the rename). Pipeline main b4e2e0d + later doc commits (push them if `git status` shows them unpushed). Full account: docs/R2026_13_CLEANUP_REPORT.md, docs/OWNER_QUESTIONS_R2026.13.md, docs/CYCLE_LOG.md.
@@ -11,6 +47,8 @@
 **Open**: 5 owner questions (ileal-pouch body site, Hutterite accession, LifeLines-DEEP listing, same-country institute coordinates ~300 studies, pre-1990 date floor); R3b/R4b residue (Europe PMC 500s ~70 studies); 224 gap-fill studies unjudged; reviewer-model audit of R3/R4; lifestyle/diet/medication via R2; oral scope deferred by owner; Zenodo DOI display on site.
 
 **Make pitfalls**: no trailing comments on `VAR ?= value` lines; atlas.build runs before pca.build; contribute worklist columns may be NaN for brand-new studies (handled with pd.isna).
+
+</details>
 
 ---
 

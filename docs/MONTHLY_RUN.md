@@ -49,6 +49,27 @@ sample or the only data set of a catalogued sample), and writes the `catalog_*` 
 by `release`) keeps the package's release notes and changelog to the releases from `public_history_from` in
 `config/releases.yaml`.
 
+## Passes added by the deep pass (R2026.40)
+
+Run these after step 17e and before step 18 for the projects a month touches; each is resumable and keeps its own ledger.
+
+| What | Command | Rule |
+|---|---|---|
+| Paper search for projects without an own-data paper | `scripts/find_papers.py` (accession search in Europe PMC full text, then title / author search) → candidates | a candidate is not a link |
+| Full-text link audit and scope check | sub-agents running `scripts/link_audit_fulltext.py`, then the scope check, then `scripts/merge_link_audit_fulltext.py --audit-out <dir> --pairs <pairs.parquet>` | only pairs read as *generated the data* with scope *whole deposit* are linked; *part* and *reuse* are listed, not linked |
+| Duplicate papers | done inside `scripts/prepare_catalog_inputs.py` (paper rows are de-duplicated by project and paper id) | one row per (project, paper) |
+| Methods re-read (extraction kit, library kit, instrument, sequencing facility, sampling period, lifestyle, exposure items) | sub-agents running `scripts/reread_passes.py`; audit sample with `scripts/reread_audit_context.py`; `scripts/build_reread_methods.py` builds the controlled names (`config/methods_names/*_map.csv`) | lifestyle statements are committed only for audit-confirmed kinds; a re-read kit wording never changes a kit-rule outcome that earlier wording set |
+| Exposure items check (**mandatory**) | sub-agents running `scripts/exposure_item_check.py` | every exposure item is checked by Opus 5 against the passage before it is committed; nothing is committed on one reading |
+| Study design for newly linked papers | `scripts/design_passes.py --run-fields`, then `scripts/merge_design_rerun.py` (targets only) | a re-run that loses per-sample groups keeps the earlier result |
+| Verification of catch-up statements (**mandatory before the build**) | sub-agents running `scripts/verify_catchup_rows.py --tag <tag>` on every newly written cohort statement (R3, R4, healthy-control, relatedness) | unverified statements are not built; medication cohort statements are not written (1 of 3 right in the R2026.40 audit) |
+| Condition labels that do not say what the samples are | `scripts/condition_string_context.py` (context for two independent Opus 5 readings per (project, label)) → checked corrections (`dq_adjudication_v2:<release>`) | written only when both readings agree on role and code, each with a verbatim quote |
+| Sandpiper gap list | `scripts/sandpiper_gap.py` | report only |
+| Profile measures | `make measures` (`scripts/sandpiper_measures.py` builds the genus matrix out of core) | about 35 minutes under load |
+| Release notices | `docs/release_notices/<release>.md` is printed in the release notes under "Notices" | used for the replication plan hash in R2026.40 |
+
+The explorers can load DuckDB-WASM from the site itself (`docs/DUCKDB_SELF_HOSTING.md`); the switch `hosting.duckdb_self_hosted`
+in `config/site.yaml` stays off until the CU server is confirmed to serve `.wasm` files.
+
 ## Rules that hold every month
 
 * **One request per paper**; a worker reads at most 25 papers, or 10 when the projects concern pathogens or infection.
@@ -71,6 +92,9 @@ by `release`) keeps the package's release notes and changelog to the releases fr
 
 * **The project badge describes the catalogued data sets.** DNA and RNA runs in the archive make a project "DNA and RNA";
   a paper describing both while only one kind was deposited gives the deposited kind.
+* **Memory.** Never load a package table whole; filter by project or read columns. A main session stays under 6 GB, a
+  sub-agent under 3 GB, and `memory_pressure` must show at least 35 % free before a build, a heavy cell or a wave of sub-agents
+  (the machine was force-quit on 12 November 2026 when several chats ran builds at once).
 * **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
   page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
 

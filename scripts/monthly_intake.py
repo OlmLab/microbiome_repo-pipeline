@@ -32,6 +32,11 @@ PATH = re.compile(r"(?i)pathogen|infect|sepsis|septic|bacter(a)?emia|virus|viral
                   r"antimicrobial resist|outbreak|cholera|typhoid|shigell|salmonell|clostridi|difficile|candid|fung|parasit|helminth")
 
 
+RUN_COLS = ["run_accession", "study_accession", "sample_accession", "secondary_sample_accession", "experiment_accession", "library_name",
+            "library_strategy", "library_source", "library_selection", "library_layout", "instrument_platform", "instrument_model",
+            "read_count", "base_count", "first_public"]
+
+
 def _ids(p):
     return [x.strip() for x in open(p) if x.strip()] if os.path.exists(p) else []
 
@@ -133,6 +138,10 @@ def samples(a):
     ins = sorted(set(c[c.in_scope.isin(["yes", "partly"])].study_accession) & keep)
     S = os.path.join(L, f"stage16_delta_samples_{a.tag}")
     os.makedirs(S, exist_ok=True)
+    # R2026.41: the run lists of the admitted projects, where prepare_catalog_inputs.py looks for them (delta?*_runs_fetched.parquet).
+    # Without this file the build drops every sample of the new projects as "specimen without an in-scope data set".
+    rf = pd.read_parquet(os.path.join(S4, "registry_runs.parquet"), filters=[("study_accession", "in", ins)]).drop_duplicates("run_accession")
+    rf.reindex(columns=RUN_COLS).to_parquet(os.path.join(L, f"delta_{a.tag}_runs_fetched.parquet"), index=False)
     r = pd.read_parquet(os.path.join(S4, "registry_runs.parquet"), columns=["study_accession", "sample_accession"])
     todo = r[r.study_accession.isin(ins)].drop_duplicates("sample_accession")[["sample_accession", "study_accession"]]
     todo.to_csv(os.path.join(S, "samples_todo.csv"), index=False)

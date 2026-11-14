@@ -424,6 +424,15 @@ releases:
     site_tag: site-v1.33.0
     label: "paper re-read: sequencing facility, extraction and library kits and instruments with controlled names and the sentence each was read from; sampling periods and lifestyle from the papers; study groups for 39 more projects; exposure items checked one by one; 1,029 derived copies removed"
 
+  - release_id: R2026.41
+    package_version: '1.34.0'
+    previous_package_version: '1.33.0'
+    previous_release_id: R2026.40
+    notes_file: RELEASE_NOTES_R2026.41.md
+    data_tag: data-v1.34.0
+    site_tag: site-v1.34.0
+    label: "health-condition labels say what the samples are: explicit case and control wording for about 9,400 samples whose stored detail was a code or a group name, per-sample case and control labels read from archive fields in 18 projects; registry refresh with 48 newly admitted projects, including deposits filed under unusual library strategies"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

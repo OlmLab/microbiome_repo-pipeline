@@ -22,6 +22,8 @@ Slices (NO taxon frame, NO date filter unless --since):
                           human-metagenome taxa)).  GENOMIC x tax_eq(9606) (1.19M human-genome
                           runs) and GENOMIC x host_tax_id=9606 (70k isolate genomes) are excluded
                           by design -- see ENUMERATION_REGISTRY_REPORT.md.
+  S5 unusual_strategy     (R2026.41; not in the default slice set) library_source="METAGENOMIC" AND strategy in (POOLCLONE,
+                         CLONE, CLONEEND, FINISHING, Synthetic-Long-Read, WCS) AND (host 9606 OR a human-metagenome taxon)
   S4 rna_human           (R2026.30 scope expansion; not in the default slice set) RNA libraries of human-associated
                           communities: library_source=METATRANSCRIPTOMIC AND (host_tax_id=9606 OR tax_eq(9606) OR
                           human-metagenome taxa), OR library_source=VIRAL RNA AND human-metagenome taxa (VIRAL RNA x host
@@ -149,10 +151,16 @@ def build_slices(since=None):
           f'(library_source="TRANSCRIPTOMIC" AND {taxc}) OR '
           f'(library_strategy="RNA-Seq" AND library_source="METAGENOMIC" AND (host_tax_id=9606 OR {taxc}))')
     s4 = f"({s4})" + d
+    # S5 (R2026.41, opt-in): metagenomic libraries of human-associated communities deposited under a library strategy the
+    # other slices do not pull (POOLCLONE, CLONE, CLONEEND, FINISHING, Synthetic-Long-Read, WCS). PRJNA791492 is a 50-run
+    # Illumina shotgun data set of human stool labelled POOLCLONE; the read check and the classification decide what stays.
+    strat5 = "(" + " OR ".join(f'library_strategy="{x}"' for x in ("POOLCLONE", "CLONE", "CLONEEND", "FINISHING", "Synthetic-Long-Read", "WCS")) + ")"
+    s5 = f'(library_source="METAGENOMIC" AND {strat5} AND (host_tax_id=9606 OR {taxc}))' + d
     return [("S1", "shotgun_frame_free", s1, parts),
             ("S2", "misfiled_genomic_human_taxa", s2, None),
             ("S3", "adjudication_other_tc_wga", s3, None),
-            ("S4", "rna_human", s4, None)]
+            ("S4", "rna_human", s4, None),
+            ("S5", "unusual_strategy_human_taxa", s5, None)]
 
 
 def verify_taxa(taxa, log):
@@ -626,7 +634,7 @@ def write_report(out_dir, audit, st, runs, bi, infant, misses, t_start, lines, s
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True, help="output directory")
-    ap.add_argument("--slices", nargs="*", default=["S1", "S2", "S3"], help="subset of S1 S2 S3 S4 (S4 = human RNA libraries, opt-in)")
+    ap.add_argument("--slices", nargs="*", default=["S1", "S2", "S3"], help="subset of S1 S2 S3 S4 S5 (S4 = human RNA libraries, S5 = unusual library strategies; both opt-in)")
     ap.add_argument("--since", default=None, help="optional YYYY-MM-DD; first_public>=SINCE on every slice")
     ap.add_argument("--infant-universe", default=None, help="universe_studies_all.parquet of the infant catalog")
     ap.add_argument("--stage", choices=["pull", "aggregate", "all"], default="all",
