@@ -50,8 +50,10 @@ require one.
    Update `tests/test_duckdb_self_hosting.py::test_switch_is_off_and_wasm_is_not_an_allowed_site_file_type` accordingly.
 4. `make site && make verify` — the site-repository smoke test then exercises the explorers in self-hosted mode under the CU
    policy. After the release `https://extensions.duckdb.org` can be dropped from `connect-src`;
-   `cdn.jsdelivr.net` stays in the policy for as long as other pages load libraries from it (the Atlas map loads D3 and
-   topojson-client from there; `grep -l jsdelivr site_generator/gen/templates/*.html` lists the pages).
+   `cdn.jsdelivr.net` can be dropped from `script-src` and `connect-src` too if no other page loads from it: D3, topojson-client,
+   jQuery and DataTables are already served from `static/vendor/` (see `SRI.json`), and on 2026-11-13 only the two explorer
+   templates named the CDN (`grep -l jsdelivr site_generator/gen/templates/*.html site_generator/gen/static/*.js` to re-check;
+   `atlas.js` names it in an error message only). Any policy change is BIT's; `config/site.yaml` `hosting.csp` must follow it.
 5. When DuckDB-WASM is upgraded: change the version in `package.json`, run `npm install` there to refresh the lock file, set
    `DUCKDB_VERSION` in `duckdb_boot.js`, re-run the vendoring script (it reads the DuckDB core version from the build and
    fetches the matching extension) and the browser test.

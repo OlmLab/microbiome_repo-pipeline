@@ -31,7 +31,12 @@ jobs:
       - name: Vendor DuckDB-WASM and the parquet extension
         run: |
           pip install pyarrow requests pyyaml
-          python scripts/vendor_duckdb_wasm.py --out build/vendor_duckdb
+          # the job log cannot be read from the release sandbox: a failure is repeated as an annotation
+          if ! python scripts/vendor_duckdb_wasm.py --out build/vendor_duckdb > /tmp/vendor.log 2>&1; then
+            echo "::error title=vendoring failed::$(tail -c 1500 /tmp/vendor.log | tr '\n' ' ' | sed 's/%/%25/g')"
+            cat /tmp/vendor.log; exit 1
+          fi
+          cat /tmp/vendor.log
           cat build/vendor_duckdb/MANIFEST.json
           { echo '### Vendored files'; echo '```json'; cat build/vendor_duckdb/MANIFEST.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Build the three test pages and start the servers
