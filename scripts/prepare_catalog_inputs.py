@@ -315,6 +315,28 @@ def main():
     rmp = os.path.join(L, "stage17_deep_pass", "reread_methods.parquet")
     if os.path.exists(rmp):
         rm = pd.read_parquet(rmp)
+        # A reworded kit text must not silently change `processing`: where a project already had a kit wording and the kit rule
+        # (catalog.scopes.study_rules.apply_kit_processing) would give a different code with the re-read's wording, the earlier
+        # wording stays (and the re-read's kit names are not applied). Projects without an earlier wording take the rule as it falls.
+        from catalog.scopes.study_rules import apply_kit_processing
+
+        def _kit_outcome(df):
+            g = df.drop_duplicates("study_accession").set_index("study_accession")[["processing", "library_kit", "extraction_kit"]].copy()
+            return apply_kit_processing(g)[0].processing.fillna("")
+        _old = facts[["study_accession", "processing", "library_kit", "extraction_kit"]]
+        _new = _old.merge(rm[["study_accession", "library_kit", "extraction_kit"]], on="study_accession", how="left", suffixes=("", "_rr"))
+        for c in ("library_kit", "extraction_kit"):
+            _new[c] = _new[f"{c}_rr"].where(_new[f"{c}_rr"].notna(), _new[c])
+        o_old, o_new = _kit_outcome(_old), _kit_outcome(_new)
+        had = set(_old.study_accession[_old.library_kit.notna() | _old.extraction_kit.notna()])
+        keep_kit = {a_ for a_ in o_old.index if o_old[a_] != o_new.get(a_, "") and a_ in had}
+        m_ = rm.study_accession.isin(keep_kit)
+        for c in ("extraction_kit", "extraction_kit_norm", "library_kit", "library_kit_norm"):
+            rm.loc[m_, c] = None
+        rm.loc[m_, "methods_evidence"] = rm.loc[m_, "methods_evidence"].map(
+            lambda s: json.dumps({k: v for k, v in json.loads(s or "{}").items() if k not in ("extraction_kit", "library_kit")}, ensure_ascii=False, sort_keys=True))
+        stats["reread_kit_wording_not_applied_rule_outcome_would_change"] = sorted(keep_kit)
+        stats["kit_rule_new_codes_from_reread_wording"] = sorted(a_ for a_ in o_old.index if o_old[a_] != o_new.get(a_, "") and a_ not in had)
         facts = facts.merge(rm, on="study_accession", how="outer", suffixes=("", "_reread"))
         for c in ("extraction_kit", "library_kit", "platform"):
             if f"{c}_reread" in facts.columns:
