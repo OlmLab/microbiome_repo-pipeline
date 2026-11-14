@@ -422,6 +422,7 @@ releases:
     notes_file: RELEASE_NOTES_R2026.40.md
     data_tag: data-v1.33.0
     site_tag: site-v1.33.0
+    doi: 10.5281/zenodo.24224449
     label: "paper re-read: sequencing facility, extraction and library kits and instruments with controlled names and the sentence each was read from; sampling periods and lifestyle from the papers; study groups for 39 more projects; exposure items checked one by one; 1,029 derived copies removed"
 
   - release_id: R2026.41
