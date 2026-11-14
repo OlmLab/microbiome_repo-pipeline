@@ -103,18 +103,37 @@ def coverage(w, s, runs, cutoff):
 
 
 def matrix(s, sp_dir, keys):
+    """CLR matrix of the PCA genera for the given samples. R2026.40: the long genus table (24 M rows) is no longer read into
+    pandas (about 11 GB at peak); DuckDB joins it to integer row / column codes out of core and the transform runs in place in
+    row chunks. Same values as before (same genera, same pseudo-count, same row order)."""
+    import duckdb
     G = list(pd.read_parquet(f"{sp_dir}/gut_sandpiper_pca_loadings.parquet").genus)
-    gl = pd.read_parquet(f"{sp_dir}/gut_sandpiper_sample_genus.parquet", columns=["sample_key", "genus", "relabund"], filters=[("genus", "in", G)])
-    gl = gl[gl.sample_key.isin(set(keys))]
-    si = pd.Index(sorted(set(gl.sample_key))); gi = pd.Index(G)
-    X = np.zeros((len(si), len(gi)), dtype=np.float32)
-    X[si.get_indexer(gl.sample_key), gi.get_indexer(gl.genus)] = gl.relabund.to_numpy(np.float32)
-    del gl
-    ks = X.sum(1); ok = ks > 0; X = X[ok]; si = si[ok]
-    X /= X.sum(1, keepdims=True)
-    nz = (X == 0).sum(1); dl = 1e-5
-    X = np.where(X == 0, dl, X * (1 - nz * dl)[:, None]).astype(np.float32)
-    np.log(X, out=X); X -= X.mean(1, keepdims=True)
+    kdf = pd.DataFrame({"sample_key": sorted(set(keys))})
+    kdf["si"] = np.arange(len(kdf), dtype=np.int32)
+    gdf = pd.DataFrame({"genus": G, "gi": np.arange(len(G), dtype=np.int32)})
+    con = duckdb.connect()
+    con.execute("SET memory_limit='3GB'")
+    con.execute("SET threads=4")
+    con.register("kdf", kdf)
+    con.register("gdf", gdf)
+    r = con.execute(f"SELECT k.si AS si, g.gi AS gi, CAST(t.relabund AS FLOAT) AS v FROM read_parquet('{sp_dir}/gut_sandpiper_sample_genus.parquet') t "
+                    "JOIN kdf k USING (sample_key) JOIN gdf g USING (genus)").fetchnumpy()
+    con.close()
+    X = np.zeros((len(kdf), len(G)), dtype=np.float32)
+    X[r["si"], r["gi"]] = r["v"]
+    del r
+    ok = X.sum(1) > 0
+    X = X[ok]
+    si = pd.Index(kdf.sample_key[ok])
+    dl = 1e-5
+    for a0 in range(0, len(X), 50000):
+        B = X[a0:a0 + 50000]
+        B /= B.sum(1, keepdims=True)
+        z = B == 0
+        B *= (1 - z.sum(1) * dl)[:, None]
+        B[z] = dl
+        np.log(B, out=B)
+        B -= B.mean(1, keepdims=True)
     return X, si
 
 

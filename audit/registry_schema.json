@@ -2155,17 +2155,62 @@
     {
      "name": "platform",
      "type": "string",
-     "description": "sequencing platform stated by the generating paper"
+     "description": "sequencing instrument as written in the project's own paper (from R2026.40 the wording of the paper re-read where one exists; the sentence is in `methods_evidence`)"
     },
     {
      "name": "extraction_kit",
      "type": "string",
-     "description": "DNA / RNA extraction kit stated by the paper"
+     "description": "DNA / RNA extraction kit or method as written in the project's own paper (from R2026.40 the wording of the paper re-read where one exists; the sentence is in `methods_evidence`)"
     },
     {
      "name": "library_kit",
      "type": "string",
-     "description": "library preparation kit stated by the paper"
+     "description": "library preparation kit or method as written in the project's own paper (from R2026.40 the wording of the paper re-read where one exists; the sentence is in `methods_evidence`)"
+    },
+    {
+     "name": "extraction_kit_norm",
+     "type": "string",
+     "description": "controlled name of `extraction_kit` ('<maker> <product>' or a method name; several joined with ' | '); blank when the wording names no kit or method. Names were assigned by a model over the distinct wordings (config/methods_names/extraction_kit_map.csv; rows with a mapping_note are provisional) — R2026.40"
+    },
+    {
+     "name": "library_kit_norm",
+     "type": "string",
+     "description": "controlled name of `library_kit` (config/methods_names/library_kit_map.csv; family-level names end in '(kit not specified)') — R2026.40"
+    },
+    {
+     "name": "platform_norm",
+     "type": "string",
+     "description": "controlled name of `platform` in the archives' instrument-model spelling; family-level names end in '(model not specified)'; several joined with ' | ' (config/methods_names/platform_map.csv) — R2026.40"
+    },
+    {
+     "name": "platform_vs_archive",
+     "type": "string",
+     "description": "the paper's instrument against the instrument models of the project's runs in the archive: agree (a model the paper names is among them), paper_less_specific (the paper names only a maker or family that covers them), differ (none of the paper's instruments is among them), not_compared (the archive names no model or the wording names no instrument) — R2026.40"
+    },
+    {
+     "name": "sequencing_facility",
+     "type": "string",
+     "description": "facility or company that sequenced the samples, as written in the project's own paper (paper re-read; the sentence is in `methods_evidence`) — R2026.40"
+    },
+    {
+     "name": "sequencing_facility_norm",
+     "type": "string",
+     "description": "controlled name of `sequencing_facility` (config/methods_names/sequencing_facility_map.csv; several joined with ' | ') — R2026.40"
+    },
+    {
+     "name": "sequencing_facility_country",
+     "type": "string",
+     "description": "ISO 3166-1 alpha-2 country of the facility site named, blank when the wording does not say and the organisation has sites in several countries — R2026.40"
+    },
+    {
+     "name": "sequencing_facility_type",
+     "type": "string",
+     "description": "company | university_core_facility | research_institute_or_genome_centre | hospital_or_clinical_lab | consortium_or_national_centre | authors_own_lab | other — R2026.40"
+    },
+    {
+     "name": "methods_evidence",
+     "type": "string",
+     "description": "JSON: for each of extraction_kit, library_kit, platform, sequencing_facility read by the paper re-read, the sentence it was read from (`quote`) and the text it is in (`source`) — R2026.40"
     },
     {
      "name": "n_participants",

@@ -415,6 +415,15 @@ releases:
     doi: 10.5281/zenodo.24209247
     label: "paper links: an own-data paper found for about a thousand more projects, each with the sentence that decides it; linked paper ids for every project; a reason for every sample without a community profile; a separate code for sequence-independent amplification"
 
+  - release_id: R2026.40
+    package_version: '1.33.0'
+    previous_package_version: '1.32.0'
+    previous_release_id: R2026.39
+    notes_file: RELEASE_NOTES_R2026.40.md
+    data_tag: data-v1.33.0
+    site_tag: site-v1.33.0
+    label: "paper re-read: sequencing facility, extraction and library kits and instruments with controlled names and the sentence each was read from; sampling periods and lifestyle from the papers; study groups for 39 more projects; exposure items checked one by one; 1,029 derived copies removed"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

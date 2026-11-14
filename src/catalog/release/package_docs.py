@@ -32,6 +32,12 @@ FRAME_TOKEN_RE = re.compile(r'\s*\((?:frame|session)\s+[0-9a-f]{6,}[^)]*\)|\b(?:
 
 
 DESCRIPTION_UPDATES = [
+    ("| `platform` | string | sequencing platform stated by the generating paper |",
+     "| `platform` | string | sequencing instrument as written in the project's own paper (from R2026.40 the wording of the paper re-read where one exists; the sentence is in `methods_evidence`) |"),
+    ("| `extraction_kit` | string | DNA / RNA extraction kit stated by the paper |",
+     "| `extraction_kit` | string | DNA / RNA extraction kit or method as written in the project's own paper (from R2026.40 the wording of the paper re-read where one exists; the sentence is in `methods_evidence`) |"),
+    ("| `library_kit` | string | library preparation kit stated by the paper |",
+     "| `library_kit` | string | library preparation kit or method as written in the project's own paper (from R2026.40 the wording of the paper re-read where one exists; the sentence is in `methods_evidence`) |"),
     ("| `linked_pmids` | str | `;`-joined PMIDs |",
      "| `linked_pmids` | str | `;`-joined PMIDs of every paper linked to the project, filled for all projects from R2026.39: own-data papers first, then papers that reused the data (the relation of each paper is in `catalog_study_papers.relation`; own-data ids alone are in `paper_ids_generated`) |"),
     ("| `processing` | string | sample processing before sequencing, from the scope classification (virome_vlp, host_depletion, wga_mda, …) |",
@@ -303,6 +309,28 @@ def update_docs_worklist(pkg: str, package_version: str, release_id: str, counts
     return True
 
 
+def add_missing_columns(d: str, schema: dict, release_id: str):
+    """R2026.40: a column added to a table that already has a block in the dictionary gets its row (the blocks are carried from
+    release to release and were only written once). Rows come from audit/registry_schema.json and go after the block's last row."""
+    n = 0
+    for fn, spec in schema.items():
+        i = d.find(f"### {fn}")
+        if i < 0:
+            continue
+        ends = [x for x in (d.find("\n### ", i + 5), d.find("\n## ", i + 5)) if x > 0]
+        j = min(ends) if ends else len(d)
+        block = d[i:j]
+        have = set(re.findall(r"^\| `([^`]+)` \|", block, flags=re.M))
+        miss = [c for c in spec.get("columns", []) if c["name"] not in have]
+        rows = [m for m in re.finditer(r"^\| `[^`]+` \|.*$", block, flags=re.M)]
+        if not miss or not rows:
+            continue
+        at = i + rows[-1].end()
+        add = "".join(f"\n| `{c['name']}` | {c.get('type', '')} | {c.get('description', '')}{'' if 'R2026.' in c.get('description', '') else f' — documented {release_id}'} |" for c in miss)
+        d = d[:at] + add + d[at:]
+        n += len(miss)
+    return d, n
+
 def update_docs_registry(pkg: str, package_version: str, release_id: str, counts: dict, schema_path: str | None = None) -> bool:
     """Registry tier (R2026.4, scale-up S1): README Files rows + DATA_DICTIONARY 'Registry tier' section generated from the frozen
     audit/registry_schema.json (column descriptions) — no-op when registry_studies.parquet is absent or already documented."""
@@ -365,6 +393,7 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
     for old_, new_ in DESCRIPTION_UPDATES:
         if old_ in d and new_ not in d:
             d = d.replace(old_, new_)
+    d, n_added = add_missing_columns(d, schema, release_id)
     open(dp, "w", encoding="utf-8").write(d)
     if "## Registry tier" in d:  # section exists from an earlier release: append blocks for tables documented since (R2026.5 side tables)
         blocks = []

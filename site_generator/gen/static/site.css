@@ -411,11 +411,12 @@ footer .site-policies{margin-bottom:.5rem}
 /* R2026.30 — project page: methods strip, body figure, living conditions, DNA/RNA badges */
 .mstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
 .mstrip>div{padding:.5rem .8rem;border-left:1px solid #eee}.mstrip>div:first-child{border-left:0}
+.mstrip.m5{grid-template-columns:repeat(5,minmax(0,1fr))}
 .mstrip .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:#5f6365;font-weight:600}
 .mstrip .v{font-size:.92rem;font-weight:600;margin-top:.1rem}.mstrip .v.nr{color:#9a9a9a;font-weight:400;font-style:italic}
 .mstrip .s{font-size:.76rem;color:#5f6365;margin-top:.1rem}
 .mstrip .v.na-dna{color:#2f6b3f}.mstrip .v.na-rna{color:#8a4b8a}.mstrip .v.na-both{color:#4b4b8a}.mstrip .v.na-conflict{color:#b3261e}
-@media (max-width:760px){.mstrip{grid-template-columns:repeat(2,minmax(0,1fr))}.mstrip>div:nth-child(3){border-left:0}.mstrip>div:nth-child(n+3){border-top:1px solid #eee}}
+@media (max-width:760px){.mstrip,.mstrip.m5{grid-template-columns:repeat(2,minmax(0,1fr))}.mstrip>div:nth-child(3),.mstrip>div:nth-child(5){border-left:0}.mstrip>div:nth-child(n+3){border-top:1px solid #eee}}
 .mextra{font-size:.78rem;color:#444;margin:.1rem 0 .3rem}
 .mextra .x{display:inline-block;padding:.05rem .5rem;margin:.1rem .25rem .1rem 0;border-radius:999px;background:#efe4c4;border:1px solid #d9c896;color:#4a3c14}
 .mextra .x.warn{background:#fff6e5;border-color:#e0b25b;color:#7a4b00}

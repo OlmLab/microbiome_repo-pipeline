@@ -104,6 +104,22 @@ def facts_of(row) -> dict:
     models = {k: v for k, v in _jdict(g("instrument_models_top")).items() if k and str(k).lower() not in ("unspecified", "not specified", "none")}
     layouts = _jdict(g("library_layouts") or g("library_layout"))
     f = {"extraction_kit": g("extraction_kit"), "library_kit": g("library_kit"), "has_paper": bool(g("paper_ids_generated"))}
+    # R2026.40 (paper re-read): controlled names where one was assigned (the paper's wording stays in the tooltip), the sentence
+    # each fact was read from, the sequencing facility, and a flag when the paper names an instrument the archive does not
+    ev = _jdict(g("methods_evidence"))
+    for k, qk in (("extraction_kit", "extraction_quote"), ("library_kit", "library_quote")):
+        q = (ev.get(k) or {}).get("quote") if isinstance(ev.get(k), dict) else None
+        if g(f"{k}_norm"):
+            f[qk] = f"as written: {g(k)}" + (f" — “{q}”" if q else "")
+            f[k] = str(g(f"{k}_norm")).replace(" | ", "; ")
+        elif q:
+            f[qk] = f"“{q}”"
+    if g("sequencing_facility"):
+        q = (ev.get("sequencing_facility") or {}).get("quote") if isinstance(ev.get("sequencing_facility"), dict) else None
+        f["facility"] = str(g("sequencing_facility_norm") or g("sequencing_facility")).replace(" | ", "; ")
+        ft = str(g("sequencing_facility_type") or "").split(";")[0].replace("_", " ")
+        f["facility_note"] = " · ".join(x for x in (ft, str(g("sequencing_facility_country") or "").replace(";", ", ")) if x) or "paper methods"
+        f["facility_quote"] = f"as written: {g('sequencing_facility')}" + (f" — “{q}”" if q else "")
     if models:
         ranked = sorted(models.items(), key=lambda kv: -(_int(kv[1])))
         f["platform"] = ranked[0][0] + (f" + {len(ranked) - 1} more" if len(ranked) > 1 else "")
@@ -123,6 +139,10 @@ def facts_of(row) -> dict:
     nd, nr = _int(g("n_runs_dna")), _int(g("n_runs_rna"))
     f["na_note"] = NA_SUB.get(na, "") + (f" · {nd:,} DNA / {nr:,} RNA runs" if na == "both" and (nd or nr) else "")
     extras = []
+    if g("platform_vs_archive") == "differ" and g("platform_norm"):
+        q = (ev.get("platform") or {}).get("quote") if isinstance(ev.get("platform"), dict) else None
+        extras.append((f"paper names another instrument: {str(g('platform_norm')).replace(' | ', '; ')}", True,
+                       "the instrument in the paper's methods is not among the instrument models of this project's runs in the archive" + (f" — “{q}”" if q else "")))
     if g("rna_methods"):
         extras.append(("RNA methods stated in the paper", False, "rRNA depletion / DNase / strandedness"))
     for code in str(g("processing") or "").split(";"):
@@ -177,13 +197,15 @@ def methods_strip(f: dict) -> str:
             ("Extraction", f.get("extraction_kit"), "paper methods" if f.get("extraction_kit") else miss, f.get("extraction_quote")),
             ("Library preparation", f.get("library_kit"), "paper methods" if f.get("library_kit") else miss, f.get("library_quote")),
             ("Sequencing", f.get("platform"), f.get("seq_note"), f.get("platform_quote"))]
+    if f.get("facility"):
+        core.append(("Sequenced at", f.get("facility"), f.get("facility_note"), f.get("facility_quote")))
     cells = "".join(
         f'<div><div class="k">{E(k)}</div><div class="v{"" if v else " nr"}{" na-" + na if k.startswith("Nucleic") and v else ""}"'
         f'{f" title={chr(34)}{E(str(q))}{chr(34)}" if q else ""}>{E(str(v)) if v else "not reported"}</div>'
         f'<div class="s">{E(str(s)) if s else ""}</div></div>' for k, v, s, q in core)
     chips = "".join(f'<span class="x{" warn" if w else ""}" title="{E(str(t2 or ""))}">{E(str(t))}</span>'
                     for t, w, t2 in f.get("extras") or [])
-    return f'<div class="mstrip">{cells}</div>{f"<div class=mextra>{chips}</div>" if chips else ""}'
+    return f'<div class="mstrip{" m5" if len(core) == 5 else ""}">{cells}</div>{f"<div class=mextra>{chips}</div>" if chips else ""}'
 
 
 def living_table(rows) -> str:

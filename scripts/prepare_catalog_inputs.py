@@ -289,6 +289,17 @@ def main():
                     la = pd.concat([la[~la.study_accession.isin(set(d2.study_accession))], d2], ignore_index=True)
                 else:
                     ex = pd.concat([ex[~ex.study_accession.isin(set(d2.study_accession))], d2], ignore_index=True)
+    # R2026.40: every exposure item is checked against its passage (scripts/exposure_item_check.py). Items the check has seen are
+    # replaced by its outcome (kept with the checker's concept, scale and summary, or dropped); the re-read's items come in
+    # only through the check. Items the check has not seen yet pass through and are counted.
+    xcp = os.path.join(L, "stage17_deep_pass", "exposure_items_checked.parquet")
+    xop = os.path.join(L, "stage17_deep_pass", "exposure_check_outcomes.parquet")
+    if os.path.exists(xcp) and os.path.exists(xop):
+        seen = set(map(tuple, pd.read_parquet(xop)[["study_accession", "concept"]].values))
+        unseen = ex[[k not in seen for k in zip(ex.study_accession, ex.concept)]]
+        stats["exposure_items_before_check"] = len(ex)
+        stats["exposure_items_unchecked_passed_through"] = len(unseen)
+        ex = pd.concat([pd.read_parquet(xcp), unseen], ignore_index=True).drop_duplicates(["study_accession", "concept"], keep="first")
     gen = la[la.relation == "generated"].groupby("study_accession").paper_id.apply(lambda s: ";".join(sorted(set(map(str, s)))))
     facts = ft.rename(columns={"nucleic_acids": "nucleic_acid_paper", "metadata_access": "metadata_access_paper",
                                "lifestyle": "lifestyle_paper"}).copy()
@@ -298,6 +309,20 @@ def main():
     cls_cols = keep[["study_accession", "processing", "study_shape", "nucleic_acid"]].rename(
         columns={"study_shape": "study_shape_classification", "nucleic_acid": "nucleic_acid_classification"})
     facts = facts.merge(cls_cols, on="study_accession", how="outer")
+    # R2026.40: methods facts of the paper re-read (scripts/build_reread_methods.py): the paper's wording with the sentence it was
+    # read from replaces the earlier pass's wording (which kept no sentence); controlled names, the sequencing facility and the
+    # comparison of the paper's instrument with the archive's are new columns
+    rmp = os.path.join(L, "stage17_deep_pass", "reread_methods.parquet")
+    if os.path.exists(rmp):
+        rm = pd.read_parquet(rmp)
+        facts = facts.merge(rm, on="study_accession", how="outer", suffixes=("", "_reread"))
+        for c in ("extraction_kit", "library_kit", "platform"):
+            if f"{c}_reread" in facts.columns:
+                stats[f"reread_{c}"] = {"replaced": int((facts[c].notna() & facts[f"{c}_reread"].notna()).sum()),
+                                        "new": int((facts[c].isna() & facts[f"{c}_reread"].notna()).sum())}
+                facts[c] = facts[f"{c}_reread"].where(facts[f"{c}_reread"].notna(), facts[c])
+                facts = facts.drop(columns=[f"{c}_reread"])
+        stats["reread_sequencing_facility"] = int(facts.sequencing_facility.notna().sum())
     facts.to_parquet(os.path.join(a.out, "study_facts.parquet"), index=False)
     ex.to_parquet(os.path.join(a.out, "exposure_items.parquet"), index=False)
     stats["study_facts"] = len(facts)
