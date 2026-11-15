@@ -1,10 +1,12 @@
-# RESTART_HERE — Microbiome Repo (v14, 2026-11-14, after the catalog deep pass)
+# RESTART_HERE — Microbiome Repo (v14, 2026-11-15, after the catalog deep pass and R2026.41)
 
-**State**: R2026.39 / 1.32.0 is published (DOI 10.5281/zenodo.24209247; site https://microbiome-repo.colorado.edu/). R2026.40 / 1.33.0
-(stage B of the deep pass) is built and verified and waits for one held step before it can be pushed — see
-`~/catalog/projects/editor/REPORT.md`, "Held steps". R2026.41 / 1.34.0 (explicit health-condition labels, registry refresh) is in
-preparation: `config/version.txt` already says 1.34.0; `build/` holds the R2026.40 package and site and must stay until R2026.40 is
-pushed; the pre-build of 1.34.0 is in `build_r41pre/`.
+**State**: R2026.41 / 1.34.0 is published (15 November 2026 UTC; DOI 10.5281/zenodo.24241062; site https://microbiome-repo.colorado.edu/;
+813,356 samples, 5,086 projects, 4,814,518 values). R2026.40 / 1.33.0 (DOI 10.5281/zenodo.24224449) and R2026.39 / 1.32.0
+(DOI 10.5281/zenodo.24209247) precede it. The deep pass is finished; its report is `~/catalog/projects/editor/REPORT.md`, its
+decisions `~/catalog/projects/editor/DECISIONS.md`. `build/` holds the R2026.41 package and site. What the next run inherits is in
+`docs/MONTHLY_RUN.md`, section "Next run: carried over from R2026.41". The DuckDB self-hosting switch stays off until the owner
+confirms that the CU server serves `.wasm` files. Publishing steps that rewrite a tag or copy workflow files need the owner's
+explicit Yes on a card that names the action.
 
 **Where things are**: pipeline `~/catalog/catalog-pipeline` (GitHub OlmLab/microbiome_repo-pipeline), site clone
 `~/catalog/infant-gut-catalog` (OlmLab/microbiome_repo), data clone `~/catalog/infant-gut-catalog-data` (OlmLab/microbiome_repo-data);

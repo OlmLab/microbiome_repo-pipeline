@@ -432,7 +432,8 @@ releases:
     notes_file: RELEASE_NOTES_R2026.41.md
     data_tag: data-v1.34.0
     site_tag: site-v1.34.0
-    label: "health-condition labels say what the samples are: explicit case and control wording for about 9,400 samples whose stored detail was a code or a group name, per-sample case and control labels read from archive fields in 18 projects; registry refresh with 48 newly admitted projects, including deposits filed under unusual library strategies"
+    doi: 10.5281/zenodo.24241062
+    label: "health-condition labels say what the samples are: explicit case and control wording for about 9,400 samples whose stored detail was a code or a group name, per-sample case and control labels read from archive fields in 115 projects; sex, BMI and time points from supplementary and repository tables; registry refresh with 36 newly admitted projects, including deposits filed under unusual library strategies"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
