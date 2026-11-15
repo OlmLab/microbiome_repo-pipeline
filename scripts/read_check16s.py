@@ -20,7 +20,7 @@ amplicons in the R2026.27 check). A low distinct20 / uniq15 alone never makes a 
 
 usage: python scripts/read_check16s.py --runs runs.txt --out out.csv [--workers 6] [--reads 4000]
 """
-import argparse, csv, os, subprocess, tempfile, zlib, collections, re, concurrent.futures as cf
+import argparse, sys, csv, os, subprocess, tempfile, zlib, collections, re, concurrent.futures as cf
 import requests
 
 MMI = os.path.expanduser('~/catalog/cache/partie/refseq_16S.mmi')
@@ -142,6 +142,10 @@ if __name__ == '__main__':
     ap.add_argument('--runs', required=True); ap.add_argument('--out', required=True)
     ap.add_argument('--workers', type=int, default=6); ap.add_argument('--reads', type=int, default=4000)
     a = ap.parse_args()
+    import shutil as _sh
+    if not _sh.which('minimap2'):
+        # R2026.41: without minimap2 every run came back as 'error' and two monthly intakes went unchecked
+        sys.exit('read_check16s: minimap2 is not on PATH (conda install -c bioconda minimap2); nothing was checked')
     runs = [l.split(',')[0].strip() for l in open(a.runs) if l.strip() and not l.startswith('run')]
     done = {r['run'] for r in csv.DictReader(open(a.out))} if os.path.exists(a.out) else set()
     todo = [r for r in dict.fromkeys(runs) if r not in done]

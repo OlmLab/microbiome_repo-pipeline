@@ -108,6 +108,13 @@ def prep(a):
             continue
         r = subprocess.run(s, env=env, capture_output=True, text=True)
         print(os.path.basename(s[1]), "exit", r.returncode, (r.stdout + r.stderr).strip().splitlines()[-1:] if (r.stdout + r.stderr).strip() else "")
+    if os.path.exists(rc):
+        # R2026.41: a read check that returns no verdict (tool missing, network) must not pass silently
+        v = pd.read_csv(rc, dtype=str).verdict.value_counts()
+        bad = int(v.get("error", 0))
+        print("read check verdicts:", v.to_dict())
+        if bad > 0.5 * max(1, int(v.sum())):
+            print("WARNING: READ CHECK FAILED for most runs — fix it and re-run before classifying (delete", rc, ")")
     pa = pd.read_parquet(os.path.join(L, "paper_candidates_new.parquet")); b = pd.read_parquet(pc)
     b = b[[c for c in b.columns if c in pa.columns]]
     pd.concat([pa, b], ignore_index=True).drop_duplicates(["study_accession", "paper_id"]).to_parquet(os.path.join(L, "paper_candidates_new.parquet"), index=False)

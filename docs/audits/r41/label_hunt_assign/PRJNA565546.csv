@@ -1,0 +1,58 @@
+sample_key,role,condition,catalog_code,detail
+SAMN12751402,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751403,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751404,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751405,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751406,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751407,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751408,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, postmenopausal woman"
+SAMN12751409,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751410,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751411,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751412,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751413,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751414,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751415,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751416,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751417,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751418,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751419,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751420,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), postmenopausal woman; title: osteopenia female"
+SAMN12751421,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751422,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751423,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751424,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751425,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751426,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751427,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751428,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751429,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751430,case,postmenopausal osteoporosis,other_disease,postmenopausal osteoporosis; title: gut microbiota metagenome from osteoporosis female
+SAMN12751431,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751432,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751433,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751434,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751435,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751436,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751437,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751438,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751439,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751440,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751441,healthy_control,healthy control (normal bone mineral density),healthy_control,"healthy control: normal bone mineral density, man aged >=50 y"
+SAMN12751442,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751443,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751444,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751445,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751446,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751447,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751448,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751449,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751450,case,osteopenia (low bone mass),other_disease,"osteopenia (low bone mass), man aged >=50 y; title: osteopenia male"
+SAMN12751451,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751452,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751453,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751454,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751455,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751456,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751457,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"
+SAMN12751458,case,osteoporosis (man aged >=50 y),other_disease,"osteoporosis, man aged >=50 y; title: gut microbiota metagenome from osteoporosis BMD male"

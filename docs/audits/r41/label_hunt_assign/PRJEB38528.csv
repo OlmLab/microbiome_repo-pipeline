@@ -1,0 +1,218 @@
+sample_key,role,condition,catalog_code,detail
+SAMEA6869294,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869295,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869296,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869305,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869306,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869307,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869312,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869313,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869314,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869319,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869320,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869321,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869326,case,hyperthyroidism,other_disease,hyperthyroidism: recorded in archive attribute host disease status
+SAMEA6869327,case,hyperthyroidism,other_disease,hyperthyroidism: recorded in archive attribute host disease status
+SAMEA6869328,case,hyperthyroidism,other_disease,hyperthyroidism: recorded in archive attribute host disease status
+SAMEA6869333,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869334,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869335,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869340,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869341,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869342,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869347,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869348,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869349,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869354,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869355,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869356,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869361,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869362,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869363,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869368,case,hypertension,cardiometabolic_other,hypertension: recorded in archive attribute host disease status
+SAMEA6869369,case,hypertension,cardiometabolic_other,hypertension: recorded in archive attribute host disease status
+SAMEA6869370,case,hypertension,cardiometabolic_other,hypertension: recorded in archive attribute host disease status
+SAMEA6869375,case,asthma,allergy_or_atopy,asthma: recorded in archive attribute host disease status
+SAMEA6869376,case,asthma,allergy_or_atopy,asthma: recorded in archive attribute host disease status
+SAMEA6869377,case,asthma,allergy_or_atopy,asthma: recorded in archive attribute host disease status
+SAMEA6869382,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869383,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869384,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869396,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869397,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869398,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869410,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869411,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869412,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869417,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869418,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869419,case,hypothyroidism,other_disease,hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869424,case,prolactinoma,other_disease,prolactinoma: recorded in archive attribute host disease status
+SAMEA6869425,case,prolactinoma,other_disease,prolactinoma: recorded in archive attribute host disease status
+SAMEA6869426,case,prolactinoma,other_disease,prolactinoma: recorded in archive attribute host disease status
+SAMEA6869431,case,bipolar disorder,neurological_psychiatric,bipolar disorder: recorded in archive attribute host disease status
+SAMEA6869432,case,bipolar disorder,neurological_psychiatric,bipolar disorder: recorded in archive attribute host disease status
+SAMEA6869433,case,bipolar disorder,neurological_psychiatric,bipolar disorder: recorded in archive attribute host disease status
+SAMEA6869438,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869439,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869440,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869445,case,depression and chronic pain,neurological_psychiatric,depression and chronic pain: recorded in archive attribute host disease status
+SAMEA6869446,case,depression and chronic pain,neurological_psychiatric,depression and chronic pain: recorded in archive attribute host disease status
+SAMEA6869447,case,depression and chronic pain,neurological_psychiatric,depression and chronic pain: recorded in archive attribute host disease status
+SAMEA6869452,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869453,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869454,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869459,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869460,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869461,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869466,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869467,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869468,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869473,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869474,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869475,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869480,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869481,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869482,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869487,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869488,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869489,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869494,case,pregnancy hepatosis,pregnancy_postpartum,pregnancy hepatosis: recorded in archive attribute host disease status
+SAMEA6869495,case,pregnancy hepatosis,pregnancy_postpartum,pregnancy hepatosis: recorded in archive attribute host disease status
+SAMEA6869496,case,pregnancy hepatosis,pregnancy_postpartum,pregnancy hepatosis: recorded in archive attribute host disease status
+SAMEA6869501,case,anxiety,neurological_psychiatric,anxiety: recorded in archive attribute host disease status
+SAMEA6869502,case,anxiety,neurological_psychiatric,anxiety: recorded in archive attribute host disease status
+SAMEA6869503,case,anxiety,neurological_psychiatric,anxiety: recorded in archive attribute host disease status
+SAMEA6869508,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869509,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869510,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869515,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869516,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869517,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869522,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869523,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869524,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869529,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869530,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869531,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869536,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869537,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869538,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869543,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869544,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869545,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869551,case,asthma and pregnancy hypertension,pregnancy_postpartum,asthma and pregnancy hypertension: recorded in archive attribute host disease status
+SAMEA6869552,case,asthma and pregnancy hypertension,pregnancy_postpartum,asthma and pregnancy hypertension: recorded in archive attribute host disease status
+SAMEA6869558,case,ulcerative colitis,ulcerative_colitis,ulcerative colitis: recorded in archive attribute host disease status
+SAMEA6869559,case,ulcerative colitis,ulcerative_colitis,ulcerative colitis: recorded in archive attribute host disease status
+SAMEA6869564,case,asthma,allergy_or_atopy,asthma: recorded in archive attribute host disease status
+SAMEA6869565,case,asthma,allergy_or_atopy,asthma: recorded in archive attribute host disease status
+SAMEA6869571,case,anxiety,neurological_psychiatric,anxiety: recorded in archive attribute host disease status
+SAMEA6869572,case,anxiety,neurological_psychiatric,anxiety: recorded in archive attribute host disease status
+SAMEA6869573,case,anxiety,neurological_psychiatric,anxiety: recorded in archive attribute host disease status
+SAMEA6869578,case,psoriasis,autoimmune_inflammatory,psoriasis: recorded in archive attribute host disease status
+SAMEA6869579,case,psoriasis,autoimmune_inflammatory,psoriasis: recorded in archive attribute host disease status
+SAMEA6869580,case,psoriasis,autoimmune_inflammatory,psoriasis: recorded in archive attribute host disease status
+SAMEA6869585,case,bipolar disorder and ADHD,neurological_psychiatric,bipolar disorder and ADHD: recorded in archive attribute host disease status
+SAMEA6869586,case,bipolar disorder and ADHD,neurological_psychiatric,bipolar disorder and ADHD: recorded in archive attribute host disease status
+SAMEA6869587,case,bipolar disorder and ADHD,neurological_psychiatric,bipolar disorder and ADHD: recorded in archive attribute host disease status
+SAMEA6869592,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869593,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869594,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869599,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869600,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869601,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869606,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869607,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869608,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869613,case,pregnancy anaemia,pregnancy_postpartum,pregnancy anaemia: recorded in archive attribute host disease status
+SAMEA6869614,case,pregnancy anaemia,pregnancy_postpartum,pregnancy anaemia: recorded in archive attribute host disease status
+SAMEA6869615,case,pregnancy anaemia,pregnancy_postpartum,pregnancy anaemia: recorded in archive attribute host disease status
+SAMEA6869620,case,Reinault syndrome (as recorded),other_disease,Reinault syndrome (as recorded): recorded in archive attribute host disease status
+SAMEA6869621,case,Reinault syndrome (as recorded),other_disease,Reinault syndrome (as recorded): recorded in archive attribute host disease status
+SAMEA6869622,case,Reinault syndrome (as recorded),other_disease,Reinault syndrome (as recorded): recorded in archive attribute host disease status
+SAMEA6869627,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869628,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869629,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869634,case,Crohn's disease,crohns_disease,Crohn's disease: recorded in archive attribute host disease status
+SAMEA6869635,case,Crohn's disease,crohns_disease,Crohn's disease: recorded in archive attribute host disease status
+SAMEA6869636,case,Crohn's disease,crohns_disease,Crohn's disease: recorded in archive attribute host disease status
+SAMEA6869641,case,asthma and Hashimoto thyroiditis,autoimmune_inflammatory,asthma and Hashimoto thyroiditis: recorded in archive attribute host disease status
+SAMEA6869642,case,asthma and Hashimoto thyroiditis,autoimmune_inflammatory,asthma and Hashimoto thyroiditis: recorded in archive attribute host disease status
+SAMEA6869643,case,asthma and Hashimoto thyroiditis,autoimmune_inflammatory,asthma and Hashimoto thyroiditis: recorded in archive attribute host disease status
+SAMEA6869648,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869649,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869650,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869655,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869656,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869657,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869662,case,hypothyroidism and parvovirus,other_disease,hypothyroidism and parvovirus: recorded in archive attribute host disease status
+SAMEA6869663,case,hypothyroidism and parvovirus,other_disease,hypothyroidism and parvovirus: recorded in archive attribute host disease status
+SAMEA6869664,case,hypothyroidism and parvovirus,other_disease,hypothyroidism and parvovirus: recorded in archive attribute host disease status
+SAMEA6869670,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869671,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869672,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869677,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869678,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869679,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869684,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869685,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869686,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869691,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869692,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869693,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869698,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869699,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869700,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869705,case,pre-eclampsia,pregnancy_postpartum,pre-eclampsia: recorded in archive attribute host disease status
+SAMEA6869706,case,pre-eclampsia,pregnancy_postpartum,pre-eclampsia: recorded in archive attribute host disease status
+SAMEA6869707,case,pre-eclampsia,pregnancy_postpartum,pre-eclampsia: recorded in archive attribute host disease status
+SAMEA6869712,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869713,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869714,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869719,case,pregnancy hypothyroidism,pregnancy_postpartum,pregnancy hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869720,case,pregnancy hypothyroidism,pregnancy_postpartum,pregnancy hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869721,case,pregnancy hypothyroidism,pregnancy_postpartum,pregnancy hypothyroidism: recorded in archive attribute host disease status
+SAMEA6869726,case,"asthma, hypothyroidism and pregnancy hypertension",pregnancy_postpartum,"asthma, hypothyroidism and pregnancy hypertension: recorded in archive attribute host disease status"
+SAMEA6869733,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869734,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869735,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869740,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869741,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869742,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869747,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869748,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869749,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869754,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869755,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869756,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869761,case,type 1 diabetes,type1_diabetes,type 1 diabetes: recorded in archive attribute host disease status
+SAMEA6869762,case,type 1 diabetes,type1_diabetes,type 1 diabetes: recorded in archive attribute host disease status
+SAMEA6869763,case,type 1 diabetes,type1_diabetes,type 1 diabetes: recorded in archive attribute host disease status
+SAMEA6869768,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869769,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869770,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869775,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869776,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869777,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869782,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869783,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869784,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869789,case,hypothyroidism and increased blood pressure,other_disease,hypothyroidism and increased blood pressure: recorded in archive attribute host disease status
+SAMEA6869790,case,hypothyroidism and increased blood pressure,other_disease,hypothyroidism and increased blood pressure: recorded in archive attribute host disease status
+SAMEA6869791,case,hypothyroidism and increased blood pressure,other_disease,hypothyroidism and increased blood pressure: recorded in archive attribute host disease status
+SAMEA6869796,case,obsessive-compulsive disorder,neurological_psychiatric,obsessive-compulsive disorder: recorded in archive attribute host disease status
+SAMEA6869797,case,obsessive-compulsive disorder,neurological_psychiatric,obsessive-compulsive disorder: recorded in archive attribute host disease status
+SAMEA6869798,case,obsessive-compulsive disorder,neurological_psychiatric,obsessive-compulsive disorder: recorded in archive attribute host disease status
+SAMEA6869803,case,pregnancy hepatosis,pregnancy_postpartum,pregnancy hepatosis: recorded in archive attribute host disease status
+SAMEA6869804,case,pregnancy hepatosis,pregnancy_postpartum,pregnancy hepatosis: recorded in archive attribute host disease status
+SAMEA6869805,case,pregnancy hepatosis,pregnancy_postpartum,pregnancy hepatosis: recorded in archive attribute host disease status
+SAMEA6869810,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869811,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869812,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869817,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869818,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869819,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869824,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869825,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""
+SAMEA6869826,healthy_control,no disease reported,healthy_control,"healthy control: term-delivering woman with host disease status ""none"""

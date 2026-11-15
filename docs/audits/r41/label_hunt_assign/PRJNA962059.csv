@@ -1,0 +1,75 @@
+sample_key,role,condition,catalog_code,detail
+SAMN34377922,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377923,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377926,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377929,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377932,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377933,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377934,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377935,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377936,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377937,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377938,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377939,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377940,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377942,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377943,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377945,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377946,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377947,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377948,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377952,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34377953,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377954,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377955,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377959,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377960,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377962,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377963,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377964,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377965,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377967,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377968,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377972,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377974,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377976,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377977,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377981,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34377982,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377985,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377986,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377987,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34377988,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377989,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34377990,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377995,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34377996,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34377998,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34377999,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378000,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34378002,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378003,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34378004,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378005,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34378006,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378007,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378008,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34378009,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378010,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34378011,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378014,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34378015,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378016,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34378017,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378018,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34378019,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378020,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34378022,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378025,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34378026,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378027,case,Lewy body dementia,neurological_psychiatric,"Lewy body dementia case (OverallGroup=Case, Subgroup=LBD)"
+SAMN34378028,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378029,case,isolated REM sleep behaviour disorder,neurological_psychiatric,"isolated REM sleep behaviour disorder case (OverallGroup=Case, Subgroup=iRBD)"
+SAMN34378030,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378031,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
+SAMN34378034,other_control,"cohabitant of a case, without LBD or iRBD",healthy_control,cohabitant control without LBD or iRBD (OverallGroup=Control)
