@@ -64,8 +64,12 @@ def iso_date(raw):
 
 def load_dossier_archive(cache, ids):
     out = {}
-    monthly = sorted(os.path.basename(x) for x in glob.glob(os.path.join(cache, "large_update", "dossiers_delta?*")))   # R2026.34: monthly intakes
-    for d in ["dossiers_all", "dossiers_recovered", "dossiers_delta"] + monthly:
+    # R2026.34: monthly intakes. R2026.41: any dossiers_<tag> directory — the intake of that month was tagged r41 and its
+    # projects were built without title or description because only dossiers_delta* was read
+    first = ["dossiers_all", "dossiers_recovered", "dossiers_delta"]
+    monthly = sorted(os.path.basename(x) for x in glob.glob(os.path.join(cache, "large_update", "dossiers_*"))
+                     if os.path.isdir(x) and re.fullmatch(r"dossiers_(delta.+|r\d+[a-z]?)", os.path.basename(x)))
+    for d in first + monthly:
         for acc in ids:
             if acc in out:
                 continue
@@ -183,6 +187,9 @@ def main():
             st[c] = pd.to_numeric(st[c], errors="coerce")
         elif st[c].dtype == object:
             st[c] = st[c].map(lambda v: v if v is None or isinstance(v, (str, bool, int, float)) else json.dumps(v))
+    no_title = st[st.study_title.isna() | (st.study_title.astype(str).str.strip() == "")].study_accession.tolist()
+    if no_title:   # R2026.41: an intake whose dossiers were not found was built without titles; stop here instead
+        raise SystemExit(f"prepare_catalog_inputs: {len(no_title)} added projects have no title (dossier not found?): {no_title[:10]}")
     st.to_parquet(os.path.join(a.out, "extra_studies.parquet"), index=False)
     stats["extra_studies"] = len(st)
     stats["extra_studies_from_dossier"] = len(missing)
