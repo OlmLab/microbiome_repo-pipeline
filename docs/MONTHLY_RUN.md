@@ -63,6 +63,9 @@ Run these after step 17e and before step 18 for the projects a month touches; ea
 | Study design for newly linked papers | `scripts/design_passes.py --run-fields`, then `scripts/merge_design_rerun.py` (targets only) | a re-run that loses per-sample groups keeps the earlier result |
 | Verification of catch-up statements (**mandatory before the build**) | sub-agents running `scripts/verify_catchup_rows.py --tag <tag>` on every newly written cohort statement (R3, R4, healthy-control, relatedness) | unverified statements are not built; medication cohort statements are not written (1 of 3 right in the R2026.40 audit) |
 | Condition labels that do not say what the samples are | `scripts/condition_string_context.py` (context for two independent Opus 5 readings per (project, label)) → checked corrections (`dq_adjudication_v2:<release>`) | written only when both readings agree on role and code, each with a verbatim quote |
+| Case / control labels from archive fields (label hunt) | sub-agents with `scripts/label_hunt_context.py` propose a rule per project; second readers verify; decisions in `docs/audits/<release>/label_hunt_decisions.csv`; `scripts/build_dq_corrections_r41.py` writes the checked corrections | the meaning of a value or name pattern must be stated by the project's own text, or fixed exactly and uniquely by stated group sizes; every proposal is re-derived by a second reader |
+| Metadata tables in repositories named in data-availability statements | `scripts/harvest_repo_metadata.py --links <da_links.csv> --out links.csv --pmcids pmcids.csv`, then the supplementary-table chain of step 13 on the `REPO_*` packages, a whole-column check of health, age and sex columns, a spot check | values enter as route R2 through a deep-input shard; the archive cross-check and the column check are mandatory |
+| Unusual library strategies | `enumerate_registry.py --slices S5` with the monthly intake | admit only after the read check; without it, only projects whose median run has at least 0.5 Gbp |
 | Sandpiper gap list | `scripts/sandpiper_gap.py` | report only |
 | Profile measures | `make measures` (`scripts/sandpiper_measures.py` builds the genus matrix out of core) | about 35 minutes under load |
 | Release notices | `docs/release_notices/<release>.md` is printed in the release notes under "Notices" | used for the replication plan hash in R2026.40 |
@@ -97,6 +100,21 @@ in `config/site.yaml` stays off until the CU server is confirmed to serve `.wasm
   (the machine was force-quit on 12 November 2026 when several chats ran builds at once).
 * **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
   page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
+
+## Next run: carried over from R2026.41
+
+* Read check: `scripts/read_check16s.py` needs `minimap2` in the environment. It was missing from 1 November to 14 November 2026
+  and every run was recorded as `error`; the intake now warns. After an intake, confirm that most runs have a verdict.
+* Slice S5 (`enumerate_registry.py --slices S5`): two projects wait for a decision (`large_update/r41b_pending_read_check.txt`:
+  PRJNA1079578, PRJNA950479). PRJEB128068 (admitted in R2026.34) has one amplicon run among 20 checked.
+* Label hunt (`scripts/label_hunt_context.py`, decisions in `docs/audits/r41/`): six projects whose labels were accepted but whose
+  detail wording was not (PRJNA297252, PRJNA1368374, PRJNA728888, PRJEB73590, PRJNA401385, PRJNA637785); 133 projects without a
+  basis in archive fields need a supplementary table or the authors.
+* Repository metadata (`scripts/harvest_repo_metadata.py`, stage 19): integrate the checked values; 15 figshare items could not
+  be downloaded (storage hosts outside the network allowlist).
+* Person and time pass for the 36 projects admitted in R2026.41.
+* A catch-up merge rebuilds the merged statement tables from the shards: anything removed by hand must be removed in the shards
+  (as done for the medication statements of R2026.40), or it returns with the next merge.
 
 ## Next run: carried over from R2026.34
 

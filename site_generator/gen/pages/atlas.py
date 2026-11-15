@@ -40,8 +40,13 @@ POINT_COUNTRIES = {'HK': (114.17, 22.32), 'SG': (103.82, 1.35), 'BB': (-59.54, 1
 # generator as data/undp_hdr2025_hdi_2023.csv (iso2, country_name, hdi_2023, hdi_rank, source; owner-supplied 2026-09-30).
 # Replaces the from-memory HDI 2022 table of R2026.12.  Countries without a UNDP value (PR, TW, GF, IO, TC) have no band.
 HDI_FILE = HERE.parent / 'data' / 'undp_hdr2025_hdi_2023.csv'
+# R2026.41: three territories without a UNDP value take a value from another published source (data/hdi_supplement.csv: Taiwan from
+# its statistics office, Puerto Rico from a published calculation for 2015, French Guiana from the Global Data Lab subnational HDI);
+# two (Turks and Caicos Islands, British Indian Ocean Territory) stay without a value, with the reason in that file.
+HDI_SUPPLEMENT = HERE.parent / 'data' / 'hdi_supplement.csv'
 HDI_SOURCE = ('UNDP Human Development Report 2025, Statistical Annex Table 1 (HDI 2023); band: high >= 0.80, middle 0.70-0.79, low < 0.70; '
-              'countries without a UNDP value (e.g. PR, TW, GF, IO, TC) have no band')
+              'Taiwan (statistics office, 2023), Puerto Rico (published calculation for 2015) and French Guiana (Global Data Lab '
+              'subnational HDI, 2023) are not UNDP values; TC and IO have no value and no band')
 HDI_YEAR = 2023
 
 
@@ -50,7 +55,12 @@ def load_hdi(path=None) -> dict:
     df = pd.read_csv(path or HDI_FILE, keep_default_na=False, na_values=[''])   # keep_default_na: Namibia is iso2 'NA'
     col = 'hdi_2023' if 'hdi_2023' in df.columns else [c for c in df.columns if c.startswith('hdi')][0]
     df = df.dropna(subset=['iso2', col])
-    return {str(k).upper(): float(v) for k, v in zip(df.iso2, df[col])}
+    out = {str(k).upper(): float(v) for k, v in zip(df.iso2, df[col])}
+    if path is None and HDI_SUPPLEMENT.exists():   # the supplement never replaces a UNDP value
+        sp = pd.read_csv(HDI_SUPPLEMENT, keep_default_na=False, na_values=['']).dropna(subset=['iso2', 'hdi'])
+        for k, v in zip(sp.iso2, sp.hdi):
+            out.setdefault(str(k).upper(), float(v))
+    return out
 
 
 HDI_2023 = load_hdi()

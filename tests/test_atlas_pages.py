@@ -173,8 +173,15 @@ def test_build_without_observations(tmp_path):
 
 def test_official_hdi_table():
     """The shipped UNDP table is the HDR 2025 Statistical Annex Table 1 (HDI 2023): 193 countries, values in (0, 1], no from-memory fallback left."""
-    hdi = atlas.load_hdi()
+    hdi = atlas.load_hdi(atlas.HDI_FILE)
     assert len(hdi) == 193 and all(0 < v <= 1 for v in hdi.values()) and hdi['NO'] == 0.970 and hdi['US'] == 0.938 and hdi['NE'] < 0.70
+    # R2026.41: three territories without a UNDP value come from data/hdi_supplement.csv, each with its source; a UNDP value is never replaced
+    full = atlas.load_hdi()
+    assert set(full) - set(hdi) == {'TW', 'PR', 'GF'} and full['TW'] == 0.934 and full['PR'] == 0.845 and full['GF'] == 0.799 and all(full[k] == v for k, v in hdi.items())
+    assert atlas.hdi_band(full['GF']) == 'middle' and 'TC' not in full and 'IO' not in full
+    import pandas as _pd
+    sup = _pd.read_csv(atlas.HDI_SUPPLEMENT, keep_default_na=False)
+    assert (sup[sup.hdi != ''].source != '').all() and (sup[sup.hdi == ''].note.str.startswith('not filled')).all()
     assert not hasattr(atlas, 'HDI_2022') and atlas.hdi_band(hdi['TH']) == 'middle' and atlas.hdi_band(hdi['GA']) == 'middle'
     assert atlas.hdi_band(None) is None and atlas.hdi_band(float('nan')) is None and atlas.hdi_band(0.80) == 'high' and atlas.hdi_band(0.699) == 'low'
 
