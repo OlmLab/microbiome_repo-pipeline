@@ -61,7 +61,7 @@
   var PHYLUM_PALETTE = ['#0072B2', '#D55E00', '#009E73', '#CC79A7', '#117777', '#B07A00', '#7A6FAF', '#8C6D3F'];
   var OVERVIEW_WEDGES = 34;  // folded clades in the opening view of a domain (plus the Archaea panel's)
   var OVERVIEW_MIN_H = 13;   // px per folded clade there, so a small phylum is still a readable band
-  var LIT_LABEL = 'Written by an AI model (Claude Opus 5) from the sources listed; not reviewed by a ' +
+  var LIT_LABEL = 'Written by an AI model from the sources listed; not reviewed by a ' +
     'person. Statements about health conditions are published findings, not results from this catalog.';
   var DIMS = [
     { key: 'site', label: 'Body site' },
@@ -752,7 +752,9 @@
         '<span class="spx-key"><i class="spx-sw spx-ring-V"></i>VANISH</span>' +
         '<span class="spx-key"><i class="spx-sw spx-ring-B"></i>BloSSUM</span>' +
         '<span class="spx-key"><i class="spx-sw spx-ring-S"></i>StIL candidate</span>' +
-        '<span class="spx-key"><i class="spx-sw spx-ring-N"></i>no class</span></div>';
+        '<span class="spx-key"><i class="spx-sw spx-ring-N"></i>no class</span>' +
+        '<span class="spx-key">lifestyle classes — see the <a href="' +
+        esc(CFG.vanishHref || '../vanish.html') + '">VANISH / BloSSUM page</a></span></div>';
   }
 
   /* bring a taxon into view: focus a clade of about REVEAL_TIPS tips around it, then zoom so its row is
@@ -790,7 +792,7 @@
     var box = el('tx-mode');
     if (!box) { return; }
     modeSwitch = SP.segmented(box, {
-      label: 'How to browse', value: VIEW.mode,
+      label: 'Browse as', value: VIEW.mode,
       options: [{ value: 'list', label: 'Taxonomy list', title: 'GTDB taxonomy, opened rank by rank, most carried first' },
                 { value: 'tree', label: 'Tree', title: 'the GTDB reference tree, branch lengths to scale' }],
       onChange: function (v) { if (!VIEW.busy) { setMode(v); } }
@@ -991,7 +993,7 @@
         var q = input.value.replace(/^\s+|\s+$/g, '');
         return q.length >= 2 ? SPX.search(q, 24).map(hitItem) : [];
       },
-      empty: 'No genus or species of this release matches.',
+      empty: 'No genus or species in the catalog matches that name.',
       onPick: function (it) { openTaxon(it.id, { push: true }); if (input.blur) { input.blur(); } }
     });
   }
@@ -1009,7 +1011,7 @@
 
   function panelSkeleton(t) {
     var cls = t.cls ? '<a class="spx-badge spx-badge-' + clsCode(t.cls) + '" href="' +
-      esc(CFG.vanishHref || '../vanish.html') + '#taxon=' + encodeURIComponent(t.name) + '">' + esc(t.cls === 'StIL' ? 'StIL candidate' : t.cls) +
+      esc(CFG.vanishHref || '../vanish.html') + '">' + esc(t.cls === 'StIL' ? 'StIL candidate' : t.cls) +
       '</a>' : '';
     var lin = t.lineageParts.map(function (p, k) {
       var full = p[0] + '__' + p[1];
@@ -1021,7 +1023,7 @@
         '" title="Go to this ' + (RANK_WORD[p[0]] || 'clade') + '">' + esc(p[1]) + '</a>';
     }).join('<span class="spx-lin-sep">›</span>');
     var lead = '<i>' + esc(t.label) + '</i> is a ' + t.rank + ' carried by <b>' + num(t.nSamples) +
-      '</b> of the ' + num(CFG.nSamples || 0) + ' QC-clean samples' +
+      '</b> of the ' + num(CFG.nSamples || 0) + ' checked samples' +
       (t.site ? ', and leads in <b>' + esc(t.siteLabel.toLowerCase()) + '</b> samples' :
         ', and has no body site that passes the display threshold') + '.';
     var back = VIEW.mode === 'list' ? 'Back to the taxonomy list' : 'Back to the tree';
@@ -1259,12 +1261,10 @@
     PANEL.chart = SP.barChart(box, spec);
     box.dataset.ready = '1';
     box.dataset.rows = String(rows.length);
-    var scope = dim === 'site' ? 'all QC-clean specimen samples'
+    var scope = dim === 'site' ? 'all checked specimen samples'
                                : 'among ' + (st.scope ? st.scope.label.toLowerCase() : '') + ' samples';
     note.innerHTML = esc(dimLabel) + ' · ' + esc(scope) +
       (dim === 'country' ? ' · the ' + rows.length + ' highest; the globe has the rest' : '') +
-      ' · groups with fewer than ' + (CFG.minSamples || 30) + ' samples or fewer than ' +
-      (CFG.minProjects || 2) + ' projects are marked “too few samples”' +
       (CFG.presenceDir && window.SPP ? ' · click a bar to list the samples of that group that carry this taxon'
         : (CFG.samplesHref ? ' · click a bar to open the sample table for that group (every sample of the ' +
           'group, with or without this taxon)' : ''));
@@ -1478,8 +1478,9 @@
     var note = el('txp-globe-note');
     if (!note) { return; }
     var n = Object.keys(globeValues(st, PANEL.metric)).length;
-    note.innerHTML = 'Countries — ' + esc(st.scope ? st.scope.label.toLowerCase() : '') + ' samples, ' + n +
-      ' above the threshold. Drag to spin, wheel or the buttons to zoom, click a country for its projects.' +
+    note.innerHTML = 'Countries — ' + esc(st.scope ? st.scope.label.toLowerCase() : '') + ' samples; ' + n +
+      ' countries have enough samples to draw (' + (CFG.minSamples || 30) + ' samples in ' +
+      (CFG.minProjects || 2) + ' projects). Drag to spin, wheel or the buttons to zoom, click a country for its projects.' +
       '<span class="sp-legend"><span class="sp-ramp"></span>' +
       (PANEL.metric === 'prev' ? 'detected (%)' : 'mean relative abundance (%)') + '</span>';
   }
@@ -1629,9 +1630,9 @@
   function notFound(name) {
     var box = el('tx-panel');
     box.hidden = false;
-    box.innerHTML = '<div class="spx-panel-head"><h2>Not in this release</h2>' +
+    box.innerHTML = '<div class="spx-panel-head"><h2>Not in the catalog</h2>' +
       '<p class="spx-sum">No taxon named <span class="mono">' + esc(name) + '</span> is in the catalog\u2019s ' +
-      'profiles for this release. Search for another name above.</p></div>';
+      'community profiles. Search for another name above.</p></div>';
     box.dataset.taxon = '';
     box.dataset.state = 'not-found';
     PANEL.id = -1;

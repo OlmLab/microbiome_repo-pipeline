@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Taxon map — where taxa are carried · {{ site.title }}{% endblock %}
-{% block desc %}Interactive world map of genus and species carriage across {{ meta.n_samples | numint }} human gut metagenomes from {{ meta.n_studies | numint }} studies and {{ meta.n_countries }} countries.{% endblock %}
+{% block desc %}Interactive world map of genus and species carriage across {{ meta.n_samples | numint }} human gut metagenomes from {{ meta.n_studies | numint }} projects and {{ meta.n_countries }} countries.{% endblock %}
 {% block head %}
 <style>
 .atlas{display:grid;grid-template-columns:300px 1fr 320px;gap:1rem;align-items:start}
@@ -35,10 +35,10 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
 </style>
 {% endblock %}
 {% block content %}
-<h1>Taxon map — where taxa are carried</h1>
+<h1>Taxon map — where taxa are carried, gut samples</h1>
 {% set sub="map" %}{% include "_insights_nav.html" %}
-<p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's gut metagenomes.</p>
-<details class="about-page"><summary>About this page</summary><p>Data: Sandpiper 2.0.0 community profiles ({{ meta.taxonomy }}) for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> studies and <b>{{ meta.n_countries }}</b> countries; the whole atlas payload is {{ payload_mb }} MB and loads once per rank.</p></details>
+<p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's gut metagenomes; other body sites are in the <a href="taxa/index.html">Taxon explorer</a>. This view uses {{ meta.n_samples | numint }}{% if stats.n_samples %} of the catalog's {{ stats.n_samples | numint }}{% endif %} samples (gut only); the other Insights pages use different subsets.</p>
+<details class="about-page"><summary>About this page</summary><p>Data: community profiles from {{ profiles_from }} for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> projects and <b>{{ meta.n_countries }}</b> countries; the map downloads {{ payload_mb }} MB the first time, and one more file each time you change rank. Computed in release {{ site.release_id }} from data package {{ site.version }}.</p></details>
 
 <div class="atlas">
 <div class="side">
@@ -54,7 +54,7 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
   <div class="toggles" id="scale-toggle"><button class="btn xs on" data-v="rel">relative (0 – max)</button><button class="btn xs" data-v="fix">fixed (0 – 100 %)</button></div>
   <label>Projection</label>
   <div class="toggles" id="proj-toggle"><button class="btn xs on" data-v="flat">flat map</button><button class="btn xs" data-v="globe">globe (drag)</button></div>
-  <div class="mini">Countries with fewer than {{ meta.min_country_samples }} samples are grey. Prevalence = share of a country's samples with relative abundance ≥ {{ '%.0e' % meta.presence_threshold }} (genus and above) or ≥ {{ '%.0e' % meta.species_threshold }} (species).</div>
+  <div class="mini">Countries with fewer than {{ meta.min_country_samples }} samples are grey. Prevalence = the share of a country's samples carrying the taxon at ≥ {{ "%.2g"|format(100 * meta.presence_threshold) }} % (genus and above) or ≥ {{ "%.2g"|format(100 * meta.species_threshold) }} % (species). The <a href="taxa/index.html">Taxon explorer</a> counts any detection, so its prevalences are higher.</div>
 </div>
 
 <div>
@@ -63,17 +63,22 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
   <div id="country-table"></div>
 </div>
 
-<div class="side" id="dossier"><b>Study dossier</b><div class="mini">Click a country to list its studies, then a study for its dossier (n samples, prevalence, mean abundance, life stages, link to the study page).</div></div>
+<div class="side" id="dossier"><b>Project dossier</b><div class="mini">Click a country to list its projects, then a project for its dossier (n samples, prevalence, mean abundance, age groups, link to the project page).</div></div>
 </div>
 
 <details class="about" id="about" open>
 <summary>About this view — read before interpreting a map</summary>
 <ul>
-<li><b>Study is the master confounder.</b> Most studies sample one country and one life stage with one protocol; a country's colour is the mixture of its few studies (click a country to see them). Compare countries only when the study list looks comparable, and prefer the per-study dossiers.</li>
+<li><b>Project is the master confounder.</b> Most projects sample one country and one age group with one protocol; a country's colour is the mixture of its few projects (click a country to see them). Compare countries only when the project list looks comparable, and prefer the per-project dossiers.</li>
 <li><b>Repeated measures.</b> Longitudinal cohorts contribute many samples per person; n samples overstates the number of people.</li>
-<li><b>Depth.</b> Detection at ≥ 1e-4 depends on sequencing depth; shallow studies under-detect rare taxa.</li>
-<li><b>Which runs are profiled.</b> Sandpiper profiles Illumina runs ≥ 100 Mbp public before its snapshot; runs failing its QC (non-metagenome, synthetic, RNA, predicted non-gut, root coverage &lt; 2) and samples whose body site is not primary gut were excluded ({{ meta.sample_filter }}).</li>
-<li><b>Taxonomy.</b> {{ meta.taxonomy }}: names follow GTDB, so <i>Prevotella copri</i> is <i>Prevotella</i>, <i>Bacteroides vulgatus</i> is <i>Phocaeicola vulgatus</i>, and suffixed genera (Blautia_A) are GTDB placeholders.</li>
+<li><b>Depth.</b> Detection at ≥ 1e-4 depends on sequencing depth; shallow projects under-detect rare taxa.</li>
+<li><b>Which runs are profiled.</b> Sandpiper profiles Illumina runs ≥ 100 Mbp public before its snapshot; runs failing its QC (non-metagenome, synthetic, RNA, predicted non-gut, or a root coverage below 2 — root coverage is how many times over the marker genes were sequenced, so 2 is roughly two genome equivalents) and samples whose body site is not primary gut were excluded.</li>
+<li><b>Taxonomy.</b> Names follow {{ taxonomy_db }}, so <i>Prevotella copri</i> is <i>Prevotella</i>, <i>Bacteroides vulgatus</i> is <i>Phocaeicola vulgatus</i>, and suffixed genera (Blautia_A) are GTDB placeholders.</li>
+</ul>
+</details>
+<details class="about" id="about-files">
+<summary>Downloads and file layout</summary>
+<ul>
 <li><b>Hong Kong and Singapore</b> are drawn as dots (the 110 m base map merges them into larger polygons). Country is missing for {{ ((meta.n_samples - meta.n_samples_with_country) / meta.n_samples * 100) | round(1) }} % of samples.</li>
 <li><b>Boundaries.</b> Country shapes are from Natural Earth (1:110 m) and are shown only to display sample counts; they imply no position on the status of any territory. Crimea is drawn as part of Ukraine (UN General Assembly resolution 68/262). A sample is placed by the country its record states.</li>
 <li><b>Payload.</b> <code>data/atlas/taxa.json</code> (index), <code>countries.json</code>, <code>studies.json</code>, <code>matrix_&lt;rank&gt;.bin</code> — format documented in <code>taxa.json → meta.format</code>; HDI values in <code>country_hdi.csv</code> ({{ meta.hdi_source }}; {{ meta.hdi_n_countries_with_value }} of {{ meta.n_countries }} atlas countries have a value).</li>

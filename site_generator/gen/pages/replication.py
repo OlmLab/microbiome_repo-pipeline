@@ -23,7 +23,7 @@ import json
 import shutil
 from pathlib import Path
 
-CRUMBS = [dict(label="Home", href="../index.html"), dict(label="Insights"),
+CRUMBS = [dict(label="Home", href="../index.html"), dict(label="Insights", href="taxa/index.html"),
           dict(label="Replication of published findings")]
 DATA = "../data/replication/"      # payload, as seen from atlas/replication.html
 

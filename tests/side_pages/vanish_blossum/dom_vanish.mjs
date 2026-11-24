@@ -301,7 +301,7 @@ if (hasSentences) {
   ok("the six sentences: the headed block sits under the plot's note line, not above the plot",
      !!block && !!P.q("#main-chart #vb-reading") &&
      (P.q("#vb-note").compareDocumentPosition(block) & 4) === 4 &&
-     /How to read these lists/.test(text(block.querySelector("h2"))), text(block).slice(0, 60));
+     /How to read this plot/.test(text(block.querySelector("h2"))), text(block).slice(0, 60));
   ok("at most two sentences above the plot, still",
      (P.q(".sp-lead")?.textContent.match(/\./g) || []).length <= 2);
   const sp = S.s4.floors.find((f) => f.level === "species");

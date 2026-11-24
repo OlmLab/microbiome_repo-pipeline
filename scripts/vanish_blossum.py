@@ -1333,7 +1333,7 @@ def page_stage(out, work, package, method=None, background=None, second=None, ca
                 blk = {"contrast": cname, "estimable": bool(a.estimable),
                        "n_ni": int(a.n_ni), "n_ref": int(a.n_ref), "cohorts_ni": int(a.cohorts_ni),
                        "cohorts_ref": int(a.cohorts_ref), "cohorts_distinct": int(a.cohorts_distinct),
-                       "note": ("" if a.estimable else "not estimable in this release"), "points": []}
+                       "note": ("" if a.estimable else "This comparison could not be computed: too few non-industrialized samples at this level."), "points": []}
                 g = res[(res.level == lev) & (res.contrast == cname) & (res.stratum == stratum)] if len(res) else res
                 # "class" is a Python keyword, so itertuples renames it: take the column directly
                 kvals = g["class"].fillna("").astype(str).tolist() if len(g) else []
@@ -1364,10 +1364,10 @@ def page_stage(out, work, package, method=None, background=None, second=None, ca
                     c1 = int(a1.iloc[0].cohorts_ni) if len(a1) else 0
                     blk["view_note"] = (
                         "Infants, model rule: the main definition of non-industrialized leaves %s infant samples "
-                        "from %d cohort%s, too few to fit the model. This view uses the broad definition, which "
+                        "from %d project%s, too few to fit the model. This view uses the broad definition, which "
                         "also counts samples whose stated lifestyle is rural and non-industrialized: %s samples "
-                        "from %d cohorts, against %s from %d cohorts in high-HDI countries (%d permutations). "
-                        "With %d cohorts it is a first look, not a settled list."
+                        "from %d projects, against %s from %d projects in high-HDI countries (%d permutations). "
+                        "With %d projects it is a first look, not a settled list."
                         % (format(n1, ","), c1, "" if c1 == 1 else "s", format(int(a.n_ni), ","),
                            int(a.cohorts_ni), format(int(a.n_ref), ","), int(a.cohorts_ref),
                            int(a.n_perm), int(a.cohorts_ni)))
@@ -1378,7 +1378,7 @@ def page_stage(out, work, package, method=None, background=None, second=None, ca
                     sa = sa.iloc[0]
                     sb = {"estimable": bool(sa.estimable), "n_ind": int(sa.n_ind), "n_nonind": int(sa.n_nonind),
                           "n_trans": int(sa.n_trans), "points": [],
-                          "note": ("" if sa.estimable else "not estimable in this release")}
+                          "note": ("" if sa.estimable else "This comparison could not be computed: too few non-industrialized samples at this level.")}
                     g = sres[(sres.level == lev) & (sres.stratum == stratum)] if len(sres) else sres
                     kvals = g["class"].fillna("").astype(str).tolist() if len(g) else []
                     for i_, r in enumerate(g.itertuples()):

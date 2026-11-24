@@ -87,7 +87,7 @@ def build(render, ctx, out_dir):
     M["has_projects"] = (dst / "projects.bin").exists()
     M["has_presence"] = has_presence
     render("taxa_explorer.html", "atlas/taxa/index.html", "../../", nav="atlas", sub="taxa",
-           M=M, data=DATA, crumbs=crumbs)
+           M=M, data=DATA, stats=ctx.get("stats", {}), crumbs=crumbs)
     return dict(page="atlas/taxa/index.html", n_taxa=man["n_taxa"], n_genera=man["n_genera"],
                 n_species=man["n_species"], n_literature=man["n_literature"],
                 files=copied + (["lit/"] if (dst / "lit").is_dir() else []),

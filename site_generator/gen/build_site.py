@@ -1144,7 +1144,7 @@ def main():
     ap.add_argument('--human-dir', default=None, help='ignored since R2026.31 (one catalog; kept so older Makefiles still run)')
     ap.add_argument('--collections-config', default=str(HERE.parent.parent / 'config' / 'collections.yaml'), help='optional (another track); searched from the home page when present')
     ap.add_argument('--duckdb-vendor-dir', default=str(HERE.parent.parent / 'build' / 'vendor_duckdb'), help='output of scripts/vendor_duckdb_wasm.py; copied into static/vendor/duckdb/ only when hosting.duckdb_self_hosted is true in config/site.yaml')
-    ap.add_argument('--atlas-data', default=None, help='precomputed Atlas payload directory (taxa.json, matrix_*.bin, observations.json, obs/); optional')
+    ap.add_argument('--atlas-data', default=None, help='precomputed taxon-map payload directory (taxa.json, matrix_*.bin); optional')
     ap.add_argument('--allow-placeholder-base-url', action='store_true', help='test builds only')
     ap.add_argument('--build-date', default=None, help='overrides VERSION.json build_date (tests only)')
     ap.add_argument('--max-rows-html', type=int, default=2000)
@@ -2113,7 +2113,7 @@ def main():
     atlas_dir = Path(a.atlas_data) if a.atlas_data else None
     if atlas_dir and (atlas_dir / 'taxa.json').exists():   # precomputed taxon-map payload + observation cards (data/inputs/gut/atlas; make atlas-precompute)
         _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs), out)
-        print(f'[{time.time()-t0:.0f}s] atlas/index + observations from {atlas_dir}', file=sys.stderr)
+        print(f'[{time.time()-t0:.0f}s] atlas/index from {atlas_dir}', file=sys.stderr)
     from pages import measures as _measures   # R2026.36: Atlas › Profile measures (scripts/sandpiper_measures.py payload)
     _gap = pd.read_csv(pkg / 'catalog_sandpiper_gap_by_cause.csv').to_dict('records') if (pkg / 'catalog_sandpiper_gap_by_cause.csv').exists() else []
     _ms = _measures.build(render, dict(measures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'measures'), stats=stats, gap=_gap), out)
@@ -2124,7 +2124,7 @@ def main():
     from pages import taxa as _taxa, vanish as _vanish, replication as _replication
     _site_in = Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site'
     for _nm, _mod in (('taxa', _taxa), ('vanish', _vanish), ('replication', _replication)):
-        _r = _mod.build(render, {_nm + '_dir': str(_site_in / _nm)}, out)
+        _r = _mod.build(render, {_nm + '_dir': str(_site_in / _nm), 'stats': stats}, out)
         print(f'[{time.time()-t0:.0f}s] atlas/{_nm}: {_r}', file=sys.stderr)
     if (pkg / 'catalog_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)

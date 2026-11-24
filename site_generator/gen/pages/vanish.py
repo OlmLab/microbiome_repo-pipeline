@@ -9,7 +9,7 @@ The plot is drawn in the browser (static/sp_core.js + static/sp_vanish.js, d3 fr
 file). No chart image is shipped. The HTML carries the groups, the method in words, the checks and the
 download links, so a reader without JavaScript still gets those.
 
-Round 5 adds the response to a published critique, in two optional payload files written by
+The page also carries the response to a published critique, in two optional payload files written by
 ``scripts/vanish_robustness.py``. The page renders in all three states:
   neither file            exactly as before;
   robustness_sentences.json only   the six plain-language sentences are shown and the Robustness section
@@ -26,8 +26,8 @@ import json
 import shutil
 from pathlib import Path
 
-CRUMBS = [dict(label="Home", href="../index.html"), dict(label="Insights"),
-          dict(label="VANISH and BloSSUM taxa")]
+CRUMBS = [dict(label="Home", href="../index.html"), dict(label="Insights", href="taxa/index.html"),
+          dict(label="VANISH / BloSSUM")]
 DATA = "../data/vanish/"      # payload, as seen from the page
 SENTENCES = "robustness_sentences.json"
 ROBUSTNESS = "robustness.json"
@@ -58,7 +58,7 @@ def build(render, ctx, out_dir):
            M=M, S=S, R=R, data=DATA, crumbs=CRUMBS)
     n_v = sum(b.get("n_vanish", 0) for f in [src / x for x in M["files"] if x.endswith("_model.json")]
               for b in json.loads(f.read_text())["blocks"].values() if b.get("contrast") == "C1")
-    # round 3: the simple rule also carries the StIL candidate class; the model rule's is pending
+    # the simple rule also carries the StIL candidate class; the model rule's is pending
     n_s = sum(b.get("n_stil", 0) for f in [src / x for x in M["files"] if x.endswith("_simple.json")]
               for b in json.loads(f.read_text())["blocks"].values())
     return dict(page="atlas/vanish.html", n_point_files=len(M["files"]), n_vanish_c1=n_v,

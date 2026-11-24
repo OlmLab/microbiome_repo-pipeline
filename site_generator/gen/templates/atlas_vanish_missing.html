@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block title %}VANISH and BloSSUM taxa — {{ site.title }}{% endblock %}
-{% block desc %}VANISH and BloSSUM taxa: not built in this release.{% endblock %}
+{% block title %}VANISH / BloSSUM — {{ site.title }}{% endblock %}
+{% block desc %}VANISH / BloSSUM: not part of this release.{% endblock %}
 {% block content %}
-<div class="page-head"><h1>VANISH and BloSSUM taxa</h1>{% include "_insights_nav.html" %}
-<p>This page is not built in this release: the analysis payload (<span class="mono">vanish.json</span>) was not present when the site was generated. It is produced by <span class="mono">scripts/vanish_blossum.py</span> from the release package and the Sandpiper profiles.</p></div>
+<div class="page-head"><h1>VANISH / BloSSUM</h1>{% set sub="vanish" %}{% include "_insights_nav.html" %}
+<p>This analysis is not part of this release. The last published version is linked from <a href="{{ root }}downloads/index.html#releases">Downloads &amp; releases</a>.</p></div>
 {% endblock %}

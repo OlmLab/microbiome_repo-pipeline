@@ -180,7 +180,7 @@
     render();
     if (missing !== null) {
       el.status.hidden = false;
-      el.status.textContent = '“' + missing + '” is not among the registered claims. Search for a taxon or a condition above.';
+      el.status.textContent = 'No published claim about “' + missing + '” was tested here. Search for a taxon or a condition above.';
     }
   }
 
@@ -300,8 +300,6 @@
         o.replicated + ' of ' + o.testable + ' testable claims replicated. Open its claims.');
     });
     txt(svg, xr + 5, yMainEnd + 11, 'all conditions together', { size: 10, fill: '#555' });
-    var bandKey = $('rp-key-band');
-    if (bandKey) bandKey.hidden = true;          // the overview has no band
     el.plot.dataset.view = 'all';
     el.plot.dataset.ready = String(rows.length);
     el.caption.textContent = 'Each bar is one condition and shows what share of its testable claims got each result; ' +
@@ -465,11 +463,9 @@
         SP.fmtInt(total) + ' rows here. ') +
       'The dot is the pooled estimate and the line its 95 % confidence interval. Rows are ordered from the claim the data agree ' +
       'with most to the one they contradict most, on a scale where 0.5 means no difference and values to the right agree with the claim ' +
-      '(for a claim of “lower in cases” that is 1 minus the AUC). In the shaded band the difference is smaller than the smallest effect of interest. ' +
+      '(for a claim of “lower in cases” that is 1 minus the AUC). The shaded band marks differences smaller than the smallest effect of interest: an AUC ' + f3(M.sesoi_auc) + ' away from 0.5, about as small as a difference can be and still matter. ' +
       (anyOwn ? 'Asterisks mark a row whose test left out the projects the claim itself came from, one asterisk per project, which is why a taxon can appear more than once with different numbers. ' : '') +
       'Click a row for the projects behind it and the paper.';
-    var key = $('rp-key-band');
-    if (key) key.hidden = !anyTest;
     el.under.innerHTML = '';
   }
   function renderList() { drawFilter(); drawList(); }
@@ -726,7 +722,7 @@
     }).catch(function (e) {
       el.status.hidden = false;
       el.status.className = 'spx-status spx-status-error';
-      el.status.textContent = 'The results file could not be read (' + (e && e.message ? e.message : e) + '). The tables are under Downloads at the foot of this page.';
+      el.status.textContent = 'The results could not be loaded. Every number is in the tables under Downloads at the foot of this page.';
       window.SP_REPLICATION.error = e;
       return null;
     });
