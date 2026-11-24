@@ -61,6 +61,32 @@ def member_mask(c, wide: pd.DataFrame):
     return m, notes
 
 
+FILTER_PHRASE = {'body_site_class': 'with a stated body site', 'body_site_code': 'from {v}', 'health_condition': 'whose condition is {v}',
+                 'age_category': 'from people in the {v} age group', 'lifestyle': 'whose lifestyle is recorded as {v}',
+                 'country': 'collected in {v}', 'sex': 'from {v} participants', 'antibiotic_exposure': 'with antibiotic exposure {v}',
+                 'diet': 'whose diet is {v}', 'intervention': 'whose intervention is {v}'}
+
+
+def rule_sentence(c, n_listed, hc_labels, ls_labels):
+    """One sentence saying which samples the collection holds (F068/C57); the yaml keeps the key/value form."""
+    lab = {'health_condition': hc_labels or {}, 'lifestyle': ls_labels or {}}
+    parts = []
+    for k, v in (c.get('filters') or {}).items():
+        if k == 'min_samples_per_subject':
+            n = v.get('min') if isinstance(v, dict) else v
+            parts.append(f'from people with at least {n} samples in the same project')
+            continue
+        if isinstance(v, dict):
+            lo, hi = v.get('min'), v.get('max')
+            rng = (f'{lo} to {hi}' if lo is not None and hi is not None else (f'{lo} or more' if lo is not None else f'{hi} or less'))
+            parts.append(f'with {str(k).replace("_", " ")} {rng}')
+            continue
+        vals = [str(x) for x in (v if isinstance(v, list) else [v])]
+        words = ' or '.join((lab.get(k, {}).get(x) or x.replace('_', ' ')) for x in vals)
+        parts.append(FILTER_PHRASE.get(k, 'whose ' + str(k).replace('_', ' ') + ' is {v}').format(v=words))
+    head = f'Samples of the {n_listed} listed projects' if n_listed else 'Samples'
+    return (head + ' ' + ', '.join(parts) + '.') if parts else (head + '.')
+
 def build(cfg_path, render, wide: pd.DataFrame, studies: pd.DataFrame, out_dir, hc_labels=None, ls_labels=None):
     cols = load(cfg_path)
     out = Path(out_dir)
@@ -93,6 +119,7 @@ def build(cfg_path, render, wide: pd.DataFrame, studies: pd.DataFrame, out_dir, 
                  n_samples=int(m.sum()), n_studies=int(per_study.shape[0]), rows=rows, missing=missing, build_notes=notes,
                  age=facet('age_category'), country=facet('country'), condition=facet('health_condition', hc_labels), lifestyle=facet('lifestyle', ls_labels),
                  explorer=f"../samples/index.html?collection={c['id']}")
+        d['rule_sentence'] = rule_sentence(c, len(listed), hc_labels, ls_labels)
         if d['n_samples'] == 0:
             # R2026.43: a rule that matches no sample in this release gets no card, no page and no explorer entry;
             # its old address forwards to the index so bookmarks keep working.

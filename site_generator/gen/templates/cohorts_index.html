@@ -1,23 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Cohorts — {{ site.title }}{% endblock %}
-{% block desc %}{{ cohorts|length|fmt }} multi-study cohorts of the catalog: groups of catalog projects that share a publication or a curated cohort record.{% endblock %}
+{% block desc %}{{ cohorts|length|fmt }} cohorts of the catalog: groups of catalog projects that share a publication or a curated cohort record.{% endblock %}
 {% block content %}
 <h1>Cohorts ({{ cohorts|length|fmt }})</h1>
-<p class="lead">A cohort groups catalog studies that belong together: BioProjects linked to the <b>same publication</b> (registry paper links: a paper that describes the data of 2–4 catalog studies, or a paper citing 2–4 studies that were all submitted by the same centre) or listed in the same <b>curated cohort record</b> (the infant-extension cohort resolution, which also supplies the cohort name).</p>
-<details class="about-page"><summary>About this page</summary><p>{{ stats.n_studies_in_cohorts|fmt }} of the {{ stats.n_studies|fmt }} catalog studies belong to one of these {{ cohorts|length|fmt }} cohorts; the rest are single-deposit studies. Each cohort page lists its studies with sample counts, the shared papers and a merged sample download. The grouping is deterministic and is recomputed at every release from <span class="mono">registry_study_papers</span>, <span class="mono">study_paper_links</span> and <span class="mono">cohorts.csv</span>; the list is in <a href="../data/catalog_cohorts.csv" download>catalog_cohorts.csv</a>.</p></details>
+<p class="lead">A cohort is a set of archive deposits that belong to the same study: deposits described by one paper, or deposits a curated cohort record lists together.</p>
+<details class="about-page"><summary>About this page</summary><p>{{ stats.n_studies_in_cohorts|fmt }} of the {{ stats.n_studies|fmt }} projects belong to one of these {{ cohorts|length|fmt }} cohorts; the rest are single-deposit projects. Each cohort page lists its projects with sample counts, the shared papers and a merged sample download. The grouping is recomputed at every release; the list is in <a href="../data/catalog_cohorts.csv" download>catalog_cohorts.csv</a>. A paper groups deposits only when it describes the data of two to four of them, or cites two to four deposits that one centre submitted.</p></details>
 <table id="cohorts" class="tbl display compact" style="width:100%">
-<thead><tr><th>Cohort</th><th>Name</th><th class="num">Studies</th><th class="num">Samples</th><th class="num">People (ids)</th><th class="num">Papers</th><th>Age categories</th><th>Countries</th><th>Conditions</th><th>Rule</th></tr></thead>
+<thead><tr><th>Cohort</th><th class="num">Projects</th><th class="num">Samples</th><th class="num">People (ids)</th><th class="num">Papers</th><th>Age categories</th><th>Countries</th><th>Conditions</th><th>Rule</th></tr></thead>
 <tbody>{% for c in cohorts %}<tr>
-<td><a class="mono" href="{{ c.cohort_id }}.html">{{ c.cohort_id }}</a></td>
-<td class="small">{{ c.cohort_name }}</td>
+<td class="small"><a href="{{ c.cohort_id }}.html">{% if c.rule == 'shared own-data paper' %}Projects described by: {{ c.cohort_name|trim('. ') }}{% elif c.rule == 'shared paper, same submitting centre' %}Projects cited together by: {{ c.cohort_name|trim('. ') }}{% else %}{{ c.cohort_name|trim('. ') }}{% endif %}</a></td>
 <td class="num">{{ c.n_studies }}</td>
 <td class="num" data-order="{{ c.n_samples }}">{{ c.n_samples|fmt }}</td>
 <td class="num">{{ c.n_subjects|fmt }}</td>
 <td class="num">{{ c.n_papers }}</td>
 <td class="small mono">{% for k, n in c.age_categories[:3] %}{{ k }}:{{ n|fmt }}{% if not loop.last %} {% endif %}{% endfor %}</td>
-<td class="small mono">{% for k, n in c.countries[:4] %}{{ k }}{% if not loop.last %} {% endif %}{% endfor %}</td>
-<td class="small mono">{% for k, n in c.conditions[:3] %}{{ k }}{% if not loop.last %} {% endif %}{% endfor %}</td>
+<td class="small">{% for k, n in c.countries[:4] %}<span title="{{ k }}">{{ c.country_names.get(k, k) }}</span>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+<td class="small">{% for k, n in c.conditions[:3] %}<span title="{{ k }}">{{ hc_labels.get(k) or k }}</span>{% if not loop.last %}, {% endif %}{% endfor %}</td>
 <td class="small">{{ c.rule }}</td>
 </tr>{% endfor %}</tbody></table>
 {% endblock %}
-{% block scripts %}<script>new DataTable('#cohorts',{pageLength:50,order:[[3,'desc']],lengthMenu:[25,50,100,500]});</script>{% endblock %}
+{% block scripts %}<script>new DataTable('#cohorts',{pageLength:50,order:[[2,'desc']],lengthMenu:[25,50,100,500]});</script>{% endblock %}

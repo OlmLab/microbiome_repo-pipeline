@@ -1,7 +1,8 @@
-# config/contribute.yaml — SINGLE SOURCE for the community-contribution worklist (release R2026.2, package 1.4.0).
-# Read by src/catalog/contribute/build_worklist.py (tables), tests/test_contribute_worklist.py, the site generator
-# (contribute/ pages, "Help complete this study" panel) and the Issue-form installer. docs/CONTRIBUTE.md is the narrative.
-# FROZEN 2026-09-27: both the data track and the site track build against exactly this. Append only; never rename.
+# config/contribute.yaml — SINGLE SOURCE for the community-contribution worklist. The release and package come from
+# VERSION.json, never from this file. Read by src/catalog/contribute/build_worklist.py (tables),
+# src/catalog/contribute/ingest_contributions.py (submitted forms), tests/test_contribute_worklist.py and the site
+# generator (contribute/ pages, "Help complete this project" panel). docs/CONTRIBUTE.md is the narrative.
+# The generator reads only: missing_threshold, contribution_types, contribution_type_labels, blocker_labels, issue_form.
 schema_version: 1
 release_id: R2026.2
 package_version: '1.4.0'
@@ -209,7 +210,7 @@ blocker_labels:
 contribution_type_labels:
   per_sample_table: Per-sample table (CSV/TSV/XLSX keyed by run or BioSample accession)
   id_key: ID key (sample name ↔ BioSample/run accession)
-  paper_pointer: Paper pointer (PMID/DOI of the study's own paper)
+  paper_pointer: Paper pointer (PMID or DOI of the project's own paper)
   age_schedule: Age schedule (timepoint label → age in days)
   verdict_evidence: Verdict evidence (is this study infant gut shotgun metagenomics?)
 issue_form:

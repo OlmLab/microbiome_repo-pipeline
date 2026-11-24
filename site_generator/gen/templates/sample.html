@@ -11,5 +11,5 @@
 <form class="small" action="sample.html" method="get"><label>Another sample, BioSample or run accession <input name="id" class="searchbox" placeholder="e.g. {{ example }}"></label> <button class="btn sec" type="submit">Open</button></form>
 </div>
 {% endblock %}
-{% block scripts %}<script>window.SAMPLE_PAGE = {root: '{{ root }}', example: '{{ example }}', siteTitle: {{ site.title|tojson }}, labels: {{ labels_json|safe }}};</script>
+{% block scripts %}<script>window.SAMPLE_PAGE = {root: '{{ root }}', example: '{{ example }}', siteTitle: {{ site.title|tojson }}, labels: {{ labels_json|safe }}, anchors: {{ anchors_json|safe }}};</script>
 <script src="{{ root }}static/sample_page.js" defer></script>{% endblock %}

@@ -161,8 +161,7 @@ def _shape(s):
     if not _null(sc) and sc != 'unclear':
         if sc.startswith('suggested:'):
             a = [c for c in sc.split(':', 1)[1].split('|') if c]
-            lab = ' or '.join(SHAPE_LABEL.get(c, c.replace('_', ' ')).lower() for c in a)
-            return a[0], lab[:1].upper() + lab[1:], 'two readings of the source differed', SHAPE_HELP.get(a[0], ''), a
+            return a[0], SHAPE_LABEL.get(a[0], a[0].replace('_', ' ')), mode, SHAPE_HELP.get(a[0], ''), a
         return sc, SHAPE_LABEL.get(sc, sc.replace('_', ' ')), 'classified from the paper or abstract', SHAPE_HELP.get(sc, ''), []
     return None, None, None, None, []
 
@@ -520,7 +519,9 @@ def build(s, g, dg, ivarms, design, hc_labels, site_labels, iv_labels):
         top_ = f'<div class="ds-grid">{fig}<div>{checks}</div></div>'
     else:
         top_ = fig or checks
-    more = (f'<details class="ds-more" open><summary>Which variables the design is drawn from</summary>{table}</details>')
+    differed = ('<p class="small muted">Two readings of the source differed; the other reading was '
+                + ' or '.join(SHAPE_LABEL.get(c, c.replace('_', ' ')).lower() for c in alts[1:]) + '.</p>') if len(alts) > 1 else ''
+    more = (f'<details class="ds-more" open><summary>Which variables the design is drawn from</summary>{table}{differed}</details>')
     link = '<p class="small muted" style="margin:.5rem 0 0"><a href="../about/value_sources.html#design-block">How this block is assembled</a></p>'
     grp_html = ''
     dgj = s.get('design_groups')

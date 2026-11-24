@@ -1617,7 +1617,10 @@ def main():
         _csm = _csum(_cx_all).set_index('study_accession').contradiction_summary.to_dict()
         for acc_, g_ in _cx_all.groupby('study_accession'):
             g_ = g_.sort_values(['field_name', 'kind', 'sample_key'])
-            contra_by_study[acc_] = dict(n=int(g_.sample_key.nunique()), n_rows=int(len(g_)), summary=_csm.get(acc_, ''), rows=[dict(
+            _bf = g_.groupby('field_name').agg(n=('sample_key', 'nunique'), h=('handling', lambda x_: sorted(set(x_))[0]))
+            contra_by_study[acc_] = dict(n=int(g_.sample_key.nunique()), n_rows=int(len(g_)), summary=_csm.get(acc_, ''),
+                by_field=[dict(field=str(f_).replace('_at_collection_days', '').replace('_', ' '), n=int(r_.n), handling=str(r_.h))
+                          for f_, r_ in _bf.sort_values('n', ascending=False).iterrows()], rows=[dict(
                 sample=r_.sample_key, field=str(r_.field_name).replace('_at_collection_days', '').replace('_', ' '),
                 a=None if isnull(r_.value_a) else str(r_.value_a), sa=_slab(r_.source_a) if not isnull(r_.source_a) else '',
                 b=None if isnull(r_.value_b) else str(r_.value_b), sb=_slab(r_.source_b) if not isnull(r_.source_b) else '',
@@ -1740,6 +1743,7 @@ def main():
                     'preterm_status': 'preterm', 'gestational_age_weeks': 'GA (wk)', 'birth_weight_grams': 'birth wt (g)', 'maternal_antibiotics': 'maternal abx',
                     'probiotic_exposure': 'probiotic', 'hmo_supplementation': 'HMO', 'nec_status': 'NEC'}
 
+    from pages.atlas import _country_names as _cn_   # ISO-2 -> country name (cohorts, project pages and the sample explorer)
     # ---------- cohorts (all ages): studies linked by a shared paper (own_data / curated links) or a curated cohort record ----------
     parent = {acc: acc for acc in included}
 
@@ -1783,6 +1787,8 @@ def main():
     for acc in included:
         comps.setdefault(find(acc), []).append(acc)
     title_by_acc = cs.set_index('study_accession').study_title.to_dict()
+    # R2026.43 (F050): cohort pages show the clean project title the project page shows
+    short_title_by_acc = {a_: t_ for a_, t_ in cs.set_index('study_accession').get('short_title', pd.Series(dtype=str)).dropna().items() if str(t_).strip()}
     cohorts = []
     used_ids = set()
     for root_acc, accs in sorted(comps.items()):
@@ -1803,9 +1809,13 @@ def main():
         pids = sorted(set(link_papers.loc[link_papers.study_accession.isin(accs), 'paper_id']))
         m = cw[cw.study_accession.isin(accs)]
         rule = 'curated cohort record' if cur else ('shared own-data paper' if any(paper_rule.get(pid) == 'shared own-data paper' for pid in pids) else 'shared paper, same submitting centre')
+        _ctry6 = counts_sorted(m.country.dropna())[:6]
         cohorts.append(dict(cohort_id=cid, cohort_name=str(name)[:160], curated=bool(cur), rule=rule, studies=accs, n_studies=len(accs), n_samples=int(len(m)), paper_ids=pids, n_papers=len(pids),
-                            age_categories=counts_sorted(m.age_category.fillna('unknown')), countries=counts_sorted(m.country.dropna())[:6],
-                            conditions=counts_sorted(m.health_condition.dropna())[:6], n_subjects=int(m.subject_id.nunique())))
+                            age_categories=counts_sorted(m.age_category.fillna('unknown')), countries=_ctry6,
+                            conditions=counts_sorted(m.health_condition.dropna())[:6], n_subjects=int(m.subject_id.nunique()),
+                            # R2026.43 (F061): the facet cards say how many of the samples carry a value, so the columns can be read
+                            n_country=int(m.country.notna().sum()), n_condition=int(m.health_condition.notna().sum()),
+                            country_names={c_: (_cn_([c_]).get(c_) or (c_, None))[0] for c_, _n in _ctry6}))
     cohorts.sort(key=lambda c: (-c['n_samples'], c['cohort_id']))
     cohort_of_study = {acc: c['cohort_id'] for c in cohorts for acc in c['studies']}
     cohort_name_of = {c['cohort_id']: c['cohort_name'] for c in cohorts}
@@ -1891,7 +1901,8 @@ def main():
                 text = SRC_NONE[k]
             res = [dict(id=r_ if r_ in RES_NAME else '', name=RES_NAME.get(r_, 'supplementary tables of other papers that re-analysed this project' if r_ == 'paper' else r_)) for r_ in (x.get('resources') or [])] if k == 'external' else []
             extra = ', '.join(x.get('pmcids') or []) if k == 'fulltext' else (', '.join(r_['name'] for r_ in res) if k == 'external' else '')
-            out.append(dict(key=k, label=SRC_LABELS[k], short=SRC_SHORT[k], status=st, text=text, extra=extra, links=res))
+            out.append(dict(key=k, label=SRC_LABELS[k], short=SRC_SHORT[k], status=st, text=text, extra=extra, links=res,
+                            fields=(', '.join(f.replace('_at_collection_days', '').replace('_label', '').replace('_', ' ') for f in (x.get('fields') or [])) if st == 'used' else '')))
         return out
 
     # ---------- studies ----------
@@ -1936,7 +1947,6 @@ def main():
     # Country column of the project table (R2026.38): the curated per-sample countries, most samples first; the archive's
     # project-level string only where no sample has a curated country. The archive string contradicted the curated value in
     # five projects (PRJEB6456: archive Denmark, samples Sweden) and was absent for 2,358 projects that have curated countries.
-    from pages.atlas import _country_names as _cn_
     _cnames = _cn_(sorted({iso_ for (_a, iso_) in _cc_by.index})) if len(_cc_by) else {}
     _cc_top = {}
     for (acc_, iso_), n_ in _cc_by.items():
@@ -1951,6 +1961,11 @@ def main():
     def _sites_of(s_):   # body-site codes of a project's samples, most samples first (catalog_studies.sample_body_sites)
         d_ = jl(s_.get('sample_body_sites'))
         return [k for k, _ in sorted(d_.items(), key=lambda kv: (-kv[1], kv[0]))] if d_ else [c for c in split_list(s_.get('body_sites')) if c != 'unknown_site']
+    # R2026.43 (F433): free-text condition detail per project, so a disease named only in the detail column is findable
+    _hcd = {}
+    if 'health_condition_detail' in cw.columns:
+        for acc_, g_ in cw.dropna(subset=['health_condition_detail']).groupby('study_accession').health_condition_detail:
+            _hcd[acc_] = ' · '.join(sorted({str(x)[:60] for x in g_})[:4])[:160]
     _ivlab = {c: (v or {}).get('label', c) for c, v in iv_voc.items()}
     _letters = {s['study_accession']: SD.letters(s, cw_by_study.get(s['study_accession'], cw.iloc[0:0])) for s in studies}   # C / S markers
     # sort buttons of the project sheet (R2026.34): metadata completeness = mean share of samples with a value over the core fields
@@ -1963,7 +1978,7 @@ def main():
         _mc = (pd.concat(_hs, axis=1).fillna(0).mean(axis=1) * 100).round(0).astype(int).to_dict()
     _num = lambda v: None if isnull(v) else float(v)
     sidx_rows = [dict(**study_filters(s['study_accession']), np=int(_num(s.get('n_subjects')) or 0), fu=(round(_num(s.get('followup_days_max'))) if _num(s.get('followup_days_max')) else None),
-                      mc=int(_mc.get(s['study_accession'], 0)), **_letters.get(s['study_accession'], {}), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '',
+                      mc=int(_mc.get(s['study_accession'], 0)), **_letters.get(s['study_accession'], {}), ctry=';'.join(sorted(_cc.get(s['study_accession'], []))[:12]), pc=(s.get('population_condition') or '') if not isnull(s.get('population_condition')) else '', hcd=_hcd.get(s['study_accession'], ''),
                       dz=(s.get('intervention_design') or '') if not isnull(s.get('intervention_design')) else '', ags=sorted(k for k in s['age_categories_d'] if k != 'unknown'),
                       bs=_sites_of(s), na=(s.get('nucleic_acid') or 'unclear') if not isnull(s.get('nucleic_acid')) else 'unclear',
                       a=s['study_accession'], t=((s.get('short_title') if not isnull(s.get('short_title')) else None) or s['study_title'] or '')[:160], tf=(s['study_title'] or '')[:300], n=int(s['n_samples_curated'] or 0), ag=s['ages_short'], hc=s['top_condition'],
@@ -1997,12 +2012,14 @@ def main():
     for r_ in sidx_rows:
         for c_ in set(x for x in r_['iv'].split(';') if x) | set(x for x in r_['arms'] if x not in ('placebo', 'no_intervention')):
             _ivc[c_] = _ivc.get(c_, 0) + 1
-    _hcs = sorted({c for r_ in sidx_rows for c in r_['hcs']} | {r_['pc'] for r_ in sidx_rows if r_['pc']})
+    # R2026.43 (F430/F432): the condition dropdown lists the curated vocabulary only; free-text population descriptions
+    # (catalog_studies.population_condition) and the per-sample condition detail are reached through the text box beside it.
+    _hcs = sorted({c for r_ in sidx_rows for c in r_['hcs']} | {r_['pc'] for r_ in sidx_rows if r_['pc'] and r_['pc'] in hc_labels})
     def _site_label(c):
         v_ = vocabs['body_site'].get(c)
         return v_ if isinstance(v_, str) else (v_.get('label') if isinstance(v_, dict) and v_.get('label') else c.replace('_', ' '))
     render('studies_index.html', 'studies/index.html', '../', nav='studies', use_datatables=True, stats=stats, n_rows=len(studies), has_seq=bool(seq_by_study),
-           hc_opts=[(c, hc_labels.get(c, '')) for c in _hcs if c not in ('unknown',)], iv_opts=[(c, (iv_voc.get(c) or {}).get('label', c), _ivc[c]) for c in iv_voc if c in _ivc],
+           hc_opts=[(c, hc_labels.get(c, c)) for c in _hcs if c not in ('unknown',)], iv_opts=[(c, (iv_voc.get(c) or {}).get('label', c), _ivc[c]) for c in iv_voc if c in _ivc],
            design_opts=[d for d in ('randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure') if any(r_['dz'] == d for r_ in sidx_rows)],
            age_opts=[c for c in age_cats if c != 'unknown'],
            site_opts=[(c, _site_label(c), n) for c, n in sorted(Counter(c for r_ in sidx_rows for c in r_['bs'] if c != 'multi_site').items(), key=lambda kv: -kv[1])],   # multi_site is a study-level marker; a project is listed under each of its sites
@@ -2032,7 +2049,8 @@ def main():
             if f == 'body_site_code' and 'body_site_basis' in g.columns:   # per-sample attribute (R1) or the project's single site (R4)
                 _b = g.loc[has, 'body_site_basis']
                 rc = pd.Series({'R1': int((_b == 'sample_attribute').sum()), 'R4': int((_b == 'study_single_site').sum())})
-            cov.append(dict(field=f, label=LABELS.get(f, f), n=n_, frac=float(has.mean()) if n_total else 0.0, routes={r: int(rc.get(r, 0)) for r in ROUTES}, infant=tier == 'infant', tier=tier))
+            cov.append(dict(field=f, label=LABELS.get(f, f), n=n_, frac=float(has.mean()) if n_total else 0.0, routes={r: int(rc.get(r, 0)) for r in ROUTES}, infant=tier == 'infant', tier=tier,
+                            derived=(f in DERIVED and not any(int(rc.get(r, 0)) for r in ROUTES))))
         cov = [c for c in cov if c['tier'] == 'core'] + sorted([c for c in cov if c['tier'] != 'core'], key=lambda c: (-c['n'], c['field']))
         # Sample table: every field with a value (core first, then by coverage), then the empty ones as thin strips
         have_cols = [c['field'] for c in cov if c['n'] > 0]
@@ -2058,7 +2076,9 @@ def main():
         sexes = counts_sorted(g.sex.dropna())
         flag = flag_url(acc, f'studies/{acc}.html')   # item 8: one simple form; the 'Confirm correct' button is gone
         rgr = clean(rg_by.loc[acc].to_dict()) if acc in rg_by.index else {}
-        rg_evidence = [dict(kind=lab, **e) for k, lab in (('host_evidence', 'host'), ('body_site_evidence', 'body site'), ('life_stage_evidence', 'life stage')) for e in ev_rows(rgr.get(k))]
+        # R2026.43 (F404): the infant-triage rows are an earlier phase's bookkeeping and say nothing to a visitor
+        rg_evidence = [dict(kind=lab, **e) for k, lab in (('host_evidence', 'host'), ('body_site_evidence', 'body site'), ('life_stage_evidence', 'life stage')) for e in ev_rows(rgr.get(k))
+                       if 'infant_catalog' not in str(e.get('source') or '')]
         rg_summary = registry_summary(rgr, vocabs['body_site'], vocabs['life_stage'], vocabs['assay']) if rgr else ''
         srows = []   # R2026.18: the sample table is rendered client-side from data/studies/<acc>.csv.gz (static/study_table.js)
         for c in tcols:
@@ -2073,11 +2093,12 @@ def main():
                living=PF.living_table(PF.living_of(s)), exposure=exposure_by_study.get(acc, []), n_subjects=n_subjects,
                n_timepoints=n_timepoints, has_dna=has_dna, has_rna=has_rna,
                design_card=SD.build(s, g, dg, iv_by_study.get(acc), design_by_study.get(acc), hc_labels, vocabs['body_site'], _ivlab),
+               country_names={c_: (_cn_([c_]).get(c_) or (c_, None))[0] for c_, _n in countries}, field_labels=LABELS,
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Projects', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)
 
     # ---------- cohort pages ----------
-    render('cohorts_index.html', 'cohorts/index.html', '../', nav='cohorts', use_datatables=True, cohorts=cohorts, stats=stats,
+    render('cohorts_index.html', 'cohorts/index.html', '../', nav='cohorts', use_datatables=True, cohorts=cohorts, stats=stats, hc_labels=hc_labels,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Cohorts')])
     papers_by_id = {}
     for r in papers.sort_values(['paper_id', 'study_accession']).itertuples(index=False):
@@ -2089,7 +2110,7 @@ def main():
             d['studies'].append(r.study_accession)
     for c in cohorts:
         cid = c['cohort_id']
-        members = [dict(acc=acc, title=title_by_acc.get(acc) or '', n_samples=int(n_by_study.get(acc, 0)), source=cs.loc[cs.study_accession == acc, 'curated_source'].iloc[0]) for acc in c['studies']]
+        members = [dict(acc=acc, title=short_title_by_acc.get(acc) or title_by_acc.get(acc) or '', archive_title=title_by_acc.get(acc) or '', n_samples=int(n_by_study.get(acc, 0))) for acc in c['studies']]
         members.sort(key=lambda m_: (-m_['n_samples'], m_['acc']))
         cpapers = [papers_by_id[pid] for pid in c['paper_ids'] if pid in papers_by_id]
         flag = flag_url(cid, f'cohorts/{cid}.html')
@@ -2136,11 +2157,20 @@ def main():
     for sh_, d_ in lk.items():
         (out / 'data' / 'lookup' / f'{sh_}.json').write_text(json.dumps(d_, separators=(',', ':')), encoding='utf-8')
     (out / 'data' / 'lookup' / 'studies.json').write_text(json.dumps([[a_, str(t_ or '')[:140]] for a_, t_ in zip(lk_studies.study_accession, lk_studies.study_title)], separators=(',', ':')), encoding='utf-8')
-    render('sample.html', 'samples/sample.html', '../', nav='samples', example=str(cw.sample_key.iloc[0]) if len(cw) else '', labels_json=json.dumps({k_: v_ for k_, v_ in LABELS.items()}),
+    # R2026.43 (F491): the Fields page has a row (and an anchor) for exactly these fields — the same test the fields section makes
+    _anchored = [f for f in all_fields if has_col.get(f)]
+    render('sample.html', 'samples/sample.html', '../', nav='samples', example=str(cw.sample_key.iloc[0]) if len(cw) else '', labels_json=json.dumps({k_: v_ for k_, v_ in LABELS.items()}), anchors_json=json.dumps(_anchored),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Samples', href='index.html'), dict(label='Sample')])
     _sc = cw.body_site_code.where(cw.body_site_code != 'unknown_site').dropna().value_counts() if 'body_site_code' in cw.columns else pd.Series(dtype=int)
+    # R2026.43 (F498/F508/F516): filters show the label a visitor reads with the code in brackets; the detail panel gets the
+    # same field-label map as the sample page; country names come from pycountry, as the project sheet already does.
+    _ctry = sorted(cw.country.dropna().unique().tolist())
+    _ctry_nm = _cn_(_ctry)
     render('explorer.html', 'samples/index.html', '../', nav='samples', stats=stats, site_codes=[(c, vocabs['body_site'].get(c) or c.replace('_', ' '), int(n)) for c, n in _sc.items()], age_cats=[c for c in age_cats if (cw.age_category == c).any()], iv_codes=iv_codes, iv_sample_codes=iv_sample_codes,
-           hc_codes=list(hc_rows.index), countries=sorted(cw.country.dropna().unique().tolist()), n_cols=int(cw.shape[1]), has_col=has_col, ls_codes=ls_codes,
+           hc_codes=[(c, hc_labels.get(c, c), int(hc_rows.loc[c, 'ns'])) for c in hc_rows.index],
+           countries=[(c, (_ctry_nm.get(c) or (c, None))[0]) for c in sorted(_ctry, key=lambda c_: (_ctry_nm.get(c_) or (c_, None))[0])],
+           labels_json=json.dumps({k_: v_ for k_, v_ in LABELS.items()}), site_label_map={c: (vocabs['body_site'].get(c) or c.replace('_', ' ')) for c in _sc.index},
+           n_cols=int(cw.shape[1]), has_col=has_col, ls_codes=ls_codes,
            year_min=(years[0] if years else None), year_max=(years[-1] if years else None), n_fields_max=len(CORE_FIELDS) + len(KEY_FIELDS),
            parquet_size=human((pkg / 'catalog_sample_metadata_wide.parquet').stat().st_size), det_size=human((pkg / 'catalog_sample_determinations.parquet').stat().st_size),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Samples')])
@@ -2364,9 +2394,17 @@ def main():
                repo=cspec['issue_form']['repo'], issues_list_url=f"https://github.com/{cspec['issue_form']['repo']}/issues?q=is%3Aissue+label%3A{cspec['issue_form']['label']}")
     cs_['core_fields'] = CORE_FIELDS
     cs_['repo'] = cspec['issue_form']['repo']
-    render('contribute.html', site['contribute_page'], '../', nav='contribute', rows=wl_rows, cs=cs_, stats=stats, field_labels={'body_site_code': 'body site', 'age_category': 'age', 'health_condition': 'health condition', 'subject_id': 'subject', 'country': 'country'},
+    # R2026.43: entry points the page lacked — a blank share form (F106), the blank finding form (F104) and how many
+    # of the listed projects have no paper at all (F103); all three come from values the generator already holds.
+    cs_['blank_form_url'] = contribute_issue_url(cspec, '', 'per_sample_table', release_id)
+    cs_['finding_url'] = simple_issue_url(issue_repo, issue_template, issue_label, '', release_id, base_url + site['contribute_page'])
+    cs_['n_paper_pointer'] = int(sum(1 for r in wl_rows if r['ctype'] == 'paper_pointer'))
+    render('contribute.html', site['contribute_page'], '../', nav='contribute', rows=wl_rows, cs=cs_, stats=stats, field_labels={'body_site_code': 'body site', 'age_category': 'age', 'health_condition': 'health condition', 'subject_id': 'person id', 'country': 'country'},
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Contribute')])
-    (out / 'data' / 'contribute_worklist.json').write_text(dumps([dict(rank=r['rank'], acc=r['acc'], title=r['title'], n=r['n'], missing=r['missing'], coverage=r['coverage'], type=r['ctype'], papers=r['papers'], issue_url=r['issue_url']) for r in wl_rows]), encoding='utf-8')
+    # R2026.43 (F088/F090/C11/C94): the page renders the first 25 rows; the filter box loads the rest from this file,
+    # so the same columns must be here (the published columns are unchanged; the page columns are added).
+    (out / 'data' / 'contribute_worklist.json').write_text(dumps([dict(rank=r['rank'], acc=r['acc'], title=r['title'], n=r['n'], missing=r['missing'], coverage=r['coverage'], type=r['ctype'], papers=r['papers'],
+                                                                      issue_url=r['issue_url'], cohort=r['cohort'], paper_url=r['paper_url'], paper_label=r['paper_label'], supp=r['supp'], ft=r['ft']) for r in wl_rows]), encoding='utf-8')
     assert (out / site['contribute_page']).stat().st_size < 3_000_000, 'contribute/index.html over the 3 MB budget'
 
     # ---------- registry tier pages ----------

@@ -2,15 +2,17 @@
 // for titles), fully client-side, one row per sample. Same boot / failure pattern as registry_explorer.js. Values shown with their
 // source (archive record, supplementary table, paper text, abstract) and confidence; the verbatim evidence quotes
 // live in catalog_sample_determinations.parquet (Downloads) and per study in data/studies/<PRJ>_determinations.csv.gz.
-import { bootDuckDB, DUCKDB_SOURCE } from './duckdb_boot.js';
+import { bootDuckDB } from './duckdb_boot.js';
 const CFG = window.CATALOG_CFG;
 const PAGE = 50;
 // core + key fields come from the field pack through CATALOG_CFG (item 7); detailed_location is derived from location_site/locality/region
 const FIELDS = [...(CFG.coreFields || ['age_at_collection_days', 'sex', 'country', 'health_condition', 'subject_id']), ...(CFG.keyFields || ['detailed_location', 'lifestyle', 'collection_date', 'antibiotic_exposure', 'bmi', 'timepoint_label'])];
 // R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel; R2026.32: body site (core field) is a column
-const SHOW = ['sample_key', 'archive', 'study_accession', 'body_site_code', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
+const SHOW = ['sample_key', 'study_accession', 'body_site_code', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
 const LOC_PARTS = ['location_site', 'location_locality', 'location_region'];
-const HDR = {seq_gbp: 'Gbp', archive: 'archive', body_site_code: 'body site', age_category: 'age cat.', age_at_collection_days: 'age (d)', health_condition: 'condition', antibiotic_exposure: 'abx', subject_id: 'subject', intervention: 'interv.', study_accession: 'project', sample_key: 'sample'};
+const HDR = {seq_gbp: 'sequence data (Gbp)', body_site_code: 'body site', age_category: 'age group', age_at_collection_days: 'age (days)', health_condition: 'condition', antibiotic_exposure: 'antibiotics', subject_id: 'person id', intervention: 'intervention', study_accession: 'project', sample_key: 'sample'};
+// R2026.43 (F517): age_category_basis in words (build_gut_scope.py writes these eight values)
+const AGE_BASIS = {age_at_collection_days: 'from an exact age', sample_life_stage: "from the sample's own age attribute", r3_fulltext_life_stage: 'from a statement in the paper text', r4_abstract_life_stage: 'from a statement in the abstract', study_life_stage: "from the project's single life stage", infant_catalog_age_scope: 'from the curated age range of this project', control_sample: 'a control sample, so no age', unknown: 'not stated'};
 let COLS = new Set();   // columns present in the wide table (filled at boot); absent columns are omitted, never rendered as empty
 const archiveUrl = acc => { if (!acc) return null; const a = String(acc); if (/^[SED]RR\d+$/.test(a)) return CFG.archive.RUN + a; return (CFG.archive[a.slice(0, 4)] || CFG.archive.SAME) + a; };
 const archiveLink = (acc, label) => { const u = archiveUrl(acc); return u ? `<a class="small" href="${u}">${h(label || 'archive')}</a>` : ''; };
@@ -23,7 +25,7 @@ const fmtV = v => { if (v === null || v === undefined) return ''; if (typeof v =
 let duckdb, db, conn, page = 0, total = 0, sortCol = 'study_accession', sortDir = 'ASC', lastFocus = null;
 
 function setBoot(msg) { $('boot-msg').textContent = msg; }
-function bootFail(e) { $('boot').innerHTML = '<b>The explorer could not start.</b> ' + h(e && e.message || e) + '<br>DuckDB-WASM (pinned 1.29.0) is loaded from ' + DUCKDB_SOURCE + '; the tables are plain parquet files under data/ and can be opened with any parquet reader.'; console.error(e); }
+function bootFail(e) { $('boot').innerHTML = '<b>The sample table could not load in this browser.</b> You can download it instead: <a href="../data/catalog_sample_metadata_wide.parquet">catalog_sample_metadata_wide.parquet</a>.'; console.error(e); }
 
 async function init() {
   try {
@@ -140,7 +142,6 @@ function readUrl() {
   if (p.get('page')) page = Math.max(0, parseInt(p.get('page')) - 1);
   if (p.get('sort')) { const [c, d] = p.get('sort').split(':'); if (SORTABLE.has(c)) { sortCol = c; sortDir = d === 'DESC' ? 'DESC' : 'ASC'; } }
 }
-function detUrl(acc) { return ['..', 'data', 'studies', h(acc) + '_determinations.csv.gz'].join('/'); }
 const SRC_WORD = { R1: 'archive record', R2: 'supplementary table', R3: 'paper text', R4: 'abstract' };
 function routeBadge(r, c) { return r ? `<span class="tag ${h(r)}" title="confidence ${fmtV(c)}">${h(SRC_WORD[r] || r)}</span>` : ''; }
 
@@ -160,7 +161,7 @@ async function run() {
     return `<td class="${cls || ''}" title="${h((f || '') + (s ? ': ' + s : '') + (rt ? ' · ' + rt : '') + (cf !== null && cf !== undefined ? ' · confidence ' + fmtV(cf) : ''))}">${h(s)}</td>`; };
   let row_ = null;
   tbody.innerHTML = rows.map(row => { row_ = row; return `<tr data-key="${h(row.sample_key)}" tabindex="0" role="button" aria-label="open details for ${h(row.sample_key)}">` +
-    `<td class="mono">${h(row.sample_key)}</td><td>${archiveLink(row.biosample_accession || row.sample_key, (row.biosample_accession || row.sample_key))}</td><td>${studyLink(row)}</td>` +
+    `<td class="mono">${archiveLink(row.sample_key, row.sample_key) || h(row.sample_key)}${row.biosample_accession && row.biosample_accession !== row.sample_key ? ' ' + archiveLink(row.biosample_accession, row.biosample_accession) : ''}</td><td>${studyLink(row)}</td>` +
     td(row.age_category, 'age_category') + td(row.age_at_collection_days === null || row.age_at_collection_days === undefined ? '' : Math.round(Number(row.age_at_collection_days)), 'age_at_collection_days', 'num') +
     td(row.sex, 'sex') + td(row.country, 'country') + td(row.health_condition, 'health_condition', 'tclip') + td(row.intervention, 'intervention', 'tclip') + td(row.antibiotic_exposure, 'antibiotic_exposure') +
     td(row.subject_id, 'subject_id', 'tclip mono') + `<td class="num" title="${h(row.seq_depth_source || '')}">${row.seq_gbp === null || row.seq_gbp === undefined ? '' : ((g_) => g_ >= 1 ? g_.toFixed(1) : g_ >= 0.01 ? g_.toFixed(3) : g_ > 0 ? g_.toPrecision(2) : '0')(Number(row.seq_gbp))}</td></tr>`; }).join('');
@@ -174,8 +175,10 @@ function studyLink(row) {
   return `<a href="${CFG.studiesUrl}${h(acc)}.html">${h(acc)}</a>`;
 }
 
+const CSV_ROW_CAP = 100000;   // R2026.43 (F514): above this, building the CSV in browser memory is likely to hang the tab
 async function download() {
-  const where = whereClause(), fname = 'gut_samples_slice.csv';
+  const where = whereClause(), fname = 'microbiome_repo_samples.csv';
+  if (total > CSV_ROW_CAP && !confirm('This will build a file of about ' + total.toLocaleString() + ' rows in your browser, which may hang the tab. Cancel to download the whole table as parquet instead (link under the table).')) { $('dl-status').innerHTML = 'Cancelled. The whole table: <a href="../data/catalog_sample_metadata_wide.parquet">catalog_sample_metadata_wide.parquet</a>.'; return; }
   $('dl-status').textContent = `preparing ${fname} (${total.toLocaleString()} rows)…`;
   try {
     await conn.query(`COPY (SELECT s.*, st.study_title ${FROM} ${where} ORDER BY s.study_accession, s.sample_key) TO '${fname}' (HEADER, DELIMITER ',')`);
@@ -194,26 +197,28 @@ async function showDetail(key) {
   const rows = r.toArray(); if (!rows.length) { body.innerHTML = `<p>No sample <b>${h(key)}</b>.</p>`; return; }
   const s = rows[0].toJSON();
   const p = new URLSearchParams(location.search); p.set('sample', key); history.replaceState(null, '', location.pathname + '?' + p.toString() + location.hash);
+  const SITEL = CFG.siteLabels || {};
   let html = `<h2 style="margin-top:0">${h(key)}</h2><p>${studyLink(s)} · ${h(s.study_title)} · <a href="sample.html?id=${encodeURIComponent(key)}">sample page</a></p>
-  <p class="small">${archiveLink(s.biosample_accession || key, 'archive record ' + (s.biosample_accession || key))}${/^[SED]RR\d+$/.test(key) ? '' : ' · <a href="' + CFG.enaSampleUrl + h(s.biosample_accession || key) + '">ENA</a>'} · unit ${h(s.sample_unit)} · body site ${h(s.body_site_code)} (${h(s.body_site_class)}) · source ${h(s.curated_source)}${s.infant_scope ? ' · infant extension' : ''}</p>
-  <h3>Age category</h3><p><b>${h(s.age_category)}</b> <span class="small">(basis: ${h(s.age_category_basis)})</span></p>
+  <p class="small">${archiveLink(s.biosample_accession || key, 'archive record ' + (s.biosample_accession || key))}${/^[SED]RR\d+$/.test(key) ? '' : ' · <a href="' + CFG.enaSampleUrl + h(s.biosample_accession || key) + '">ENA</a>'}${s.body_site_code ? ' · ' + h(SITEL[s.body_site_code] || String(s.body_site_code).replace(/_/g, ' ')) : ''}${s.sample_unit === 'run' ? ' · one sequencing run of a pooled BioSample' : ''}</p>
+  <h3>Age group</h3><p><b>${h(s.age_category)}</b> <span class="small">(${h(AGE_BASIS[s.age_category_basis] || 'not stated')})</span></p>
   <h3>Fields</h3><table class="tbl kv">`;
-  const tierOf = f => (CFG.coreFields || []).includes(f) ? 'core' : 'key';
+  const LBL = CFG.labels || {};
+  const fname_ = f => `${h(LBL[f] || f.replace(/_/g, ' '))} <span class="mono small muted">${h(f)}</span>`;
   for (const f of FIELDS) {
-    if (f === 'detailed_location') { if (LOC_PARTS.some(p => COLS.has(p))) html += `<tr><td>detailed_location <span class="tag tier-key">key</span></td><td>${h(detailedLocation(s))}</td></tr>`; continue; }
+    if (f === 'detailed_location') { if (LOC_PARTS.some(p => COLS.has(p))) html += `<tr><td>${fname_('detailed_location')}</td><td>${h(detailedLocation(s))}</td></tr>`; continue; }
     if (!COLS.has(f)) continue;   // column absent from this package → omitted
-    html += `<tr><td>${f} <span class="tag tier-${tierOf(f)}">${tierOf(f)}</span></td><td>${fmtV(s[f])} ${routeBadge(s[f + '__route'], s[f + '__confidence'])}</td></tr>`;
-    if (f === 'lifestyle' && COLS.has('lifestyle_detail') && s.lifestyle_detail) html += `<tr><td>lifestyle_detail</td><td class="small">${h(s.lifestyle_detail)}</td></tr>`;
+    html += `<tr><td>${fname_(f)}</td><td>${fmtV(s[f])} ${routeBadge(s[f + '__route'], s[f + '__confidence'])}</td></tr>`;
+    if (f === 'lifestyle' && COLS.has('lifestyle_detail') && s.lifestyle_detail) html += `<tr><td>${fname_('lifestyle_detail')}</td><td class="small">${h(s.lifestyle_detail)}</td></tr>`;
   }
-  if (s.health_condition_detail) html += `<tr><td>health_condition_detail</td><td class="small">${h(s.health_condition_detail)}</td></tr>`;
+  if (s.health_condition_detail) html += `<tr><td>${fname_('health_condition_detail')}</td><td class="small">${h(s.health_condition_detail)}</td></tr>`;
   if (COLS.has('latitude') && COLS.has('longitude') && s.latitude !== null && s.latitude !== undefined && s.longitude !== null && s.longitude !== undefined) {
     const la = Number(s.latitude), lo = Number(s.longitude);
-    html += `<tr><td>latitude, longitude</td><td>${la.toFixed(4)}, ${lo.toFixed(4)} ${routeBadge(s.latitude__route, s.latitude__confidence)} · <a href="https://www.openstreetmap.org/?mlat=${la}&mlon=${lo}#map=8/${la}/${lo}">OpenStreetMap</a></td></tr>`;
+    html += `<tr><td>Latitude, longitude <span class="mono small muted">latitude, longitude</span></td><td>${la.toFixed(4)}, ${lo.toFixed(4)} ${routeBadge(s.latitude__route, s.latitude__confidence)} · <a href="https://www.openstreetmap.org/?mlat=${la}&mlon=${lo}#map=8/${la}/${lo}">OpenStreetMap</a></td></tr>`;
   }
   html += '</table>';
   const inf = ['delivery_mode', 'feeding_mode', 'preterm_status', 'gestational_age_weeks', 'birth_weight_grams', 'maternal_antibiotics', 'probiotic_exposure', 'hmo_supplementation', 'nec_status'].filter(f => COLS.has(f) && s[f] !== null && s[f] !== undefined);
-  if (inf.length) html += '<h3>Birth and feeding fields</h3><table class="tbl kv">' + inf.map(f => `<tr><td>${f}</td><td>${fmtV(s[f])}</td></tr>`).join('') + '</table>';
-  html += `<h3>Evidence</h3><p class="small">Every value above has an evidence row (verbatim quote ≤ 12 words, labelled source, locator, confidence): <a href="${detUrl(s.study_accession)}">${h(s.study_accession)}_determinations.csv.gz</a> (this project) or <span class="mono">catalog_sample_determinations.parquet</span> (all). Cohort-wide statements from the paper text or abstract are shown on the <a href="${CFG.studiesUrl}${h(s.study_accession)}.html">project page</a>.</p>`;
+  if (inf.length) html += '<h3>Birth and feeding fields</h3><table class="tbl kv">' + inf.map(f => `<tr><td>${fname_(f)}</td><td>${fmtV(s[f])}</td></tr>`).join('') + '</table>';
+  html += `<h3>Evidence</h3><p class="small">The quote behind each value is on the <a href="sample.html?id=${encodeURIComponent(key)}">sample page</a>. Statements that describe the whole study are on the <a href="${CFG.studiesUrl}${h(s.study_accession)}.html">project page</a>.</p>`;
   body.innerHTML = html;
 }
 

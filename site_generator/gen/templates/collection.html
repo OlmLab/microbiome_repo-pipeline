@@ -3,29 +3,31 @@
 {% block desc %}{{ c.blurb }}{% endblock %}
 {% block content %}
 <h1>{{ c.title }}</h1>
-<p class="small"><a href="index.html#kind-{{ c.kind }}">{{ c.kind_label }}</a> · collection id <span class="mono">{{ c.id }}</span></p>
+<p class="small"><a href="index.html#kind-{{ c.kind }}">{{ c.kind_label }}</a></p>
 <p class="lead">{{ c.blurb }}</p>
 <p><a class="btn" href="{{ c.explorer }}">Open in the sample explorer ({{ c.n_samples|fmt }} samples)</a>{% if c.n_samples %}{% endif %}</p>
 <div class="cards tiles">
-<div class="card"><div class="num">{{ c.n_studies }}</div><div class="lbl">studies with member samples</div></div>
-<div class="card"><div class="num">{{ c.n_samples|fmt }}</div><div class="lbl">member samples in this release</div></div>
+<div class="card"><div class="num">{{ c.n_studies }}</div><div class="lbl">projects</div></div>
+<div class="card"><div class="num">{{ c.n_samples|fmt }}</div><div class="lbl">samples</div></div>
 </div>
 <h2>Membership rule</h2>
+<p>{{ c.rule_sentence }}</p>
+<details class="pg-more"><summary>The rule as it is written</summary>
 <table class="tbl compact"><tbody>
-{% if c.listed %}<tr><td>Studies</td><td class="mono small">{% for s in c.listed_links %}{% if s.linked %}<a href="../studies/{{ s.acc }}.html">{{ s.acc }}</a>{% else %}{{ s.acc }} <span class="small">(not in this release)</span>{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>{% endif %}
+{% if c.listed %}<tr><td>Projects</td><td class="mono small">{% for s in c.listed_links %}{% if s.linked %}<a href="../studies/{{ s.acc }}.html">{{ s.acc }}</a>{% else %}{{ s.acc }} <span class="small" title="Listed in the collection, but not in the current catalog release">(not in this release)</span>{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>{% endif %}
 {% for k, v in c.filters.items() %}<tr><td class="mono">{{ k }}</td><td class="mono small">{% if v is mapping %}{% for kk, vv in v.items() %}{{ kk }} {{ vv }} {% endfor %}{% else %}{{ v|join(' | ') }}{% endif %}</td></tr>{% endfor %}
 {% if not c.listed and not c.filters %}<tr><td colspan="2" class="small">No rule recorded.</td></tr>{% endif %}
-</tbody></table>
+</tbody></table></details>
 {% if c.build_notes %}<p class="note">Some filters could not be evaluated in this release: {{ c.build_notes|join('; ') }}.</p>{% endif %}
-{% if c.missing %}<p class="note">Listed studies with no member samples after the filters: <span class="mono">{{ c.missing|join(', ') }}</span>.</p>{% endif %}
+{% if c.missing %}<p class="note">Listed projects with no samples after the filters: <span class="mono">{{ c.missing|join(', ') }}</span>.</p>{% endif %}
 {% if c.notes %}<p class="small">{{ c.notes }}</p>{% endif %}
 {% if c.n_samples %}
 <h2>Composition</h2>
 <div class="cards">
 {% for lab, f in [('Age category', c.age), ('Country', c.country), ('Health condition', c.condition), ('Lifestyle', c.lifestyle)] %}{% if f %}<div class="card facet"><b>{{ lab }}</b><table class="tbl compact"><tbody>{% for r in f %}<tr><td class="mono">{{ r.v }}{% if r.label %} <span class="small">{{ r.label }}</span>{% endif %}</td><td class="num">{{ r.n|fmt }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}{% endfor %}
 </div>
-<h2>Member studies ({{ c.n_studies }})</h2>
-<table id="members" class="tbl display compact" style="width:100%"><thead><tr><th>Study</th><th>Title</th><th class="num">Member samples</th><th>First public</th></tr></thead>
+<h2>Projects ({{ c.n_studies }})</h2>
+<table id="members" class="tbl display compact" style="width:100%"><thead><tr><th>Project</th><th>Title</th><th class="num">Samples</th><th>First public</th></tr></thead>
 <tbody>{% for r in c.rows %}<tr><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a></td><td class="small">{{ r.title }}</td><td class="num" data-order="{{ r.n }}">{{ r.n|fmt }}</td><td class="mono small">{{ r.first_public }}</td></tr>{% endfor %}</tbody></table>
 {% endif %}
 {% if c.refs %}<h2>References</h2><ul class="small">{% for r in c.refs %}<li><a href="{{ r.url }}">{{ r.label }}</a></li>{% endfor %}</ul>{% endif %}

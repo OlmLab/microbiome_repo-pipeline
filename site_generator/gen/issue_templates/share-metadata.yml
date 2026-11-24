@@ -7,6 +7,8 @@ body:
     attributes:
       value: |
         Thank you! Three things help most: **what** you are sharing, **where** it is (a link, or drag the file into the box below), and **which column holds the sample IDs** (run accessions such as SRR…/ERR…, BioSample accessions such as SAMN…/SAMEA…, or the sample names used in the archive).
+
+        A wrong value on a page? Use **Flag an issue** on that page instead.
   - type: input
     id: accession
     attributes:
@@ -21,7 +23,6 @@ body:
       options:
         - "A table with one row per sample (CSV, TSV or Excel)"
         - "A link to the paper or its supplementary table"
-        - "A correction to values shown on the site"
         - "Something else"
     validations:
       required: true

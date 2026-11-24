@@ -11,7 +11,7 @@ body:
     id: accession
     attributes:
       label: "Project accession"
-      description: "Filled in for you (PRJNA…, PRJEB…, PRJDB…)."
+      description: "Filled in by the link from the site; leave blank otherwise (PRJNA…, PRJEB…, PRJDB…)."
     validations:
       required: true
   - type: checkboxes
@@ -21,8 +21,15 @@ body:
       options:
         - label: "I searched the web for this project's paper(s), supplementary tables and archive records."
           required: true
-        - label: "As far as I can tell, the sample metadata shown on the project page is complete (nothing public is missing)."
-          required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: "What did you find?"
+      options:
+        - "Nothing public is missing"
+        - "I found something missing (I will also use Share metadata)"
+    validations:
+      required: true
   - type: textarea
     id: where
     attributes:
