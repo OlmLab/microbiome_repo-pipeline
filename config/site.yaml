@@ -30,7 +30,7 @@ hosting:
   duckdb_self_hosted_builds: [eh]
   # Hosts that our JavaScript only builds <a href> links to (never fetched); any OTHER absolute host in a script fails check_csp.py
   # until someone confirms it is a link, or it is added to the policy with BIT.
-  js_link_only_hosts: [www.ebi.ac.uk, www.ncbi.nlm.nih.gov, ddbj.nig.ac.jp, github.com, www.openstreetmap.org]
+  js_link_only_hosts: [www.ebi.ac.uk, www.ncbi.nlm.nih.gov, ddbj.nig.ac.jp, github.com, www.openstreetmap.org, doi.org]
 
 github:
   org: OlmLab

@@ -694,7 +694,7 @@ class Cards:
         hi, lo = cn.head(3), cn.tail(3)[::-1]
         return self.card('f_map_prevotella', 'World map: Prevotella prevalence', m.sum() - S.country[m].isna().sum(), S.study_accession[m & S.country.notna().values].nunique(),
                          'Prevotella is carried by nearly every child and adult sampled in low-HDI African, South-Asian and Latin-American countries but by well under half in most of Europe, North America and East Asia '
-                         '(interactive map: Atlas → taxon map). ' + 'Highest: ' + ', '.join(f'{r.country} {r.prevalence * 100:.0f}%' for r in hi.itertuples()) + '; lowest: ' + ', '.join(f'{r.country} {r.prevalence * 100:.0f}%' for r in lo.itertuples()) + '.',
+                         '(interactive map: Insights → Taxon map). ' + 'Highest: ' + ', '.join(f'{r.country} {r.prevalence * 100:.0f}%' for r in hi.itertuples()) + '; lowest: ' + ', '.join(f'{r.country} {r.prevalence * 100:.0f}%' for r in lo.itertuples()) + '.',
                          f'Prevalence = share of child-to-elderly samples (age_category child, adolescent, adult or elderly) with genus relative abundance >= 1e-4 (0.01 %); countries with >= {MIN_COUNTRY_N} such samples '
                          f'(n={len(cn)}). Dot colour = HDI band ({atlas.HDI_SOURCE}); black tick = median of per-study prevalences (studies with >= {MIN_STUDY_N} samples in the country). The CSV adds mean relative abundance and n studies.',
                          'Country-level prevalence is a mixture of a few studies per country, each with its own recruitment (many low-HDI cohorts are disease or malnutrition studies); the 1e-4 threshold detects low-level '

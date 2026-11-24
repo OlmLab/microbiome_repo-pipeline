@@ -2,7 +2,7 @@
 {% block title %}Profile measures — {{ site.title }}{% endblock %}
 {% block desc %}Four measures recomputed each release on the Sandpiper community profiles of the catalog samples: profiling coverage, label versus composition agreement, known versus unknown community, depth and quality.{% endblock %}
 {% block content %}
-<div class="page-head"><h1>Profile measures</h1>{% include "_atlas_nav.html" %}
+<div class="page-head"><h1>Profile measures</h1>{% include "_insights_nav.html" %}
 <p>Four measures on the join between catalog samples and their <a href="https://sandpiper.qut.edu.au">Sandpiper</a> community profiles (SingleM, GTDB taxonomy; Sandpiper {{ M.sandpiper_version }}, Zenodo record {{ M.zenodo_record }}), recomputed with every release. Package {{ M.package_version }} ({{ M.release_id }}). Counts use current samples only. QC-flagged profiles are left out of measures 2 and 3. Every table is downloadable in full as CSV.</p>
 <p class="small"><a href="#coverage">1. Profiling coverage</a> · <a href="#agreement">2. Labels versus composition</a> · <a href="#known">3. Known versus unknown community</a> · <a href="#depth">4. Depth and quality</a></p></div>
 

@@ -150,11 +150,26 @@ def test_nav_order_and_about(site_new):
     nav = html[html.index('<nav class="topnav"'):html.index('</nav>')]
     # R2026.15: grouped drop-down navigation (owner review 2026-10-01)
     top = re.findall(r'(?:<a href="[^"]*" [^>]*>([^<]+)</a>|<button type="button" class="navbtn"[^>]*>([^<]+?) <span)', nav)
-    assert [a or b for a, b in top] == ['Home', 'Projects', 'Samples', 'Contribute', 'Explore', 'About']   # R2026.19 order
+    assert [a or b for a, b in top] == ['Home', 'Projects', 'Samples', 'Contribute', 'Insights', 'About']   # R2026.42 order (Insights replaces Explore)
     assert 'class="navsearch"' in nav and 'name="q"' in nav   # R2026.19: persistent search in the top bar
     items = re.findall(r'role="menuitem" href="([^"]+)"', nav)
     for page in ('registry/index.html', 'atlas/index.html', 'atlas/pca.html', 'downloads/index.html', 'llms/index.html', 'about/methods.html', 'fields/index.html'):
         assert page in items, page
+    # R2026.42 (owner, 2026-11-23): Insights holds exactly these five pages in this order; Registry, Cohorts, Collections and Authors
+    # sit in the About menu under a "Browse" heading; profile measures and figures are built but not in the menu; no "Atlas" label
+    ins = nav[nav.index('>Insights <span'):nav.index('>About <span')]
+    assert re.findall(r'role="menuitem" href="([^"]+)"', ins) == ['atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/index.html', 'atlas/pca.html']
+    assert re.findall(r'role="menuitem" href="[^"]+"[^>]*>([^<]+)<', ins) == ['Taxon explorer', 'VANISH / BloSSUM', 'Replication of published findings', 'Taxon map', 'PCA of community profiles']
+    ab = nav[nav.index('>About <span'):]
+    assert 'Browse' in ab and ab.index('Browse') < ab.index('registry/index.html') < ab.index('cohorts/index.html') < ab.index('collections/index.html') < ab.index('authors/index.html')
+    assert 'atlas/measures.html' not in items and 'atlas/figures.html' not in items and 'Explore' not in nav and 'Atlas' not in nav
+    for page in ('atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/measures.html', 'atlas/figures.html'):
+        assert (site_new / page).exists(), page   # placeholders when a build has no payload
+    for page in ('atlas/index.html', 'atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html'):
+        h = _html(site_new, page)
+        body = re.sub(r'<script[^>]*>.*?</script>', ' ', h, flags=re.S)
+        assert 'Atlas' not in re.sub(r'<[^>]+>', ' ', body), page
+        assert 'Insights' in h[h.index('<div class="crumbs">'):h.index('</div>', h.index('<div class="crumbs">'))], page
     about = _html(site_new, 'about/index.html')
     lead = htmlmod.unescape(about[about.index('<p class="lead">'):about.index('</p>', about.index('<p class="lead">'))])
     a = SITE_CFG['about']

@@ -138,7 +138,7 @@ def build(env, render, ctx, out_dir):
     n_studies = int(pts['study_accession'].nunique()) if 'study_accession' in pts else 0
     field_names = [f['field'] for f in fields]
     render('atlas_pca.html', PAGE_PATH, '../', nav='atlas',
-           crumbs=[dict(label='Home', href='../index.html'), dict(label='Atlas', href='index.html'), dict(label='PCA')],
+           crumbs=[dict(label='Home', href='../index.html'), dict(label='Insights'), dict(label='PCA of community profiles')],
            n_points=n, n_scored=n_scored, n_studies=n_studies, pcs=pcs, fields=fields, field_names=field_names, loadings=load,
            sizes={k: v for k, v in sizes.items()}, total_bytes=total, total_mb=round(total / 1048576, 1),
            n_genera=int(loadings['genus'].nunique()) if 'genus' in loadings.columns else None,

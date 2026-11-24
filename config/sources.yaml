@@ -41,7 +41,7 @@ software:
   terms: MIT.
 - name: D3, TopoJSON and Natural Earth country shapes
   url: https://www.naturalearthdata.com/
-  role: The globe on the home page and the Atlas maps (D3 7.9, topojson-client 3.1, Natural Earth 1:110m via world-atlas). Boundaries are shown only to display sample counts and imply no position on the status of any territory; Crimea is drawn as part of Ukraine (UN General Assembly resolution 68/262), which differs from the Natural Earth default.
+  role: The globe on the home page and the taxon maps (D3 7.9, topojson-client 3.1, Natural Earth 1:110m via world-atlas). Boundaries are shown only to display sample counts and imply no position on the status of any territory; Crimea is drawn as part of Ukraine (UN General Assembly resolution 68/262), which differs from the Natural Earth default.
   terms: ISC / BSD-3-Clause (D3, TopoJSON); Natural Earth is public domain.
 - name: DataTables and jQuery
   url: https://datatables.net/

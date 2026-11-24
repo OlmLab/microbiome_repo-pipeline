@@ -38,7 +38,7 @@ Set `L=~/catalog/cache/large_update` and run from the pipeline root.
 | 18 | Inputs of the catalog build | `PYTHONPATH=src python scripts/prepare_catalog_inputs.py --extra-facts-dirs <summarised pass prefixes>` → `data/inputs/catalog/` (study rows, samples, determinations, paper facts, exposure items, papers, short descriptions, `runs_source.parquet` with `run_origin`) | none |
 | 18b | Short descriptions of projects that have none | sub-agents running `scripts/write_short_descriptions.py` (rubric tier; refused projects once more with `SHORT_DESC_ROLE=adjudicate`) | ≈ $0.01 / project |
 | 18c | Community profiles (R2026.36: rebuilt every run for the current samples, not extended) | `PYTHONPATH=src python scripts/refresh_sandpiper.py --bulk <sandpiperX.gtdb.csv.gz> --per-acc <sandpiperX.per_acc_summary.csv.gz> --version <X> --record <Zenodo record> --catalog-dir <catalog build> --work <work dir> --out data/inputs/catalog/sandpiper --previous data/inputs/catalog/sandpiper --registry-runs data/inputs/registry/registry_runs_sandpiper.parquet` (≈ 5 min after a ≈ 1 min bulk pass; converts the unfilled coverage of Sandpiper ≥ 2.0.1; DNA runs only; QC flags from the per-run summary for every sample; then re-run the gut build so catalog_runs.sandpiper_profiled follows the new flags) | none |
-| 18d | Package, site, verify | `make release` → `make measures` (Atlas › Profile measures) → `make site` → `make verify` (now also runs the release integrity checks, `catalog.release.integrity_checks`, on current rows only, and `check_file_types.py`, which rejects anything the CU server would refuse) (fails when the site passes 950 MB — GitHub Pages refuses sites above 1 GB) | none |
+| 18d | Package, site, verify | `make release` → `make measures` (profile measures) → the Insights payloads, see "Insights pages (R2026.42)" below → `make site` → `make verify` → `make side-page-tests` (now also runs the release integrity checks, `catalog.release.integrity_checks`, on current rows only, and `check_file_types.py`, which rejects anything the CU server would refuse) (fails when the site passes 950 MB — GitHub Pages refuses sites above 1 GB) | none |
 | 18e | Visual and wording review | an Opus 5 sub-agent renders the system pages and a spread of project pages (one per body site, RNA, DNA + RNA) and reports by page and element only | ≈ $5 |
 | 19 | Publish | `make check-credential`, `make publish-branch`, copy the pipeline's `.github/workflows/release.yml` into the data clone and `check-cu-deploy.yml` (+ `deploy-pages.yml`, `verify.yml`) into the site clone, amend, re-tag locally, then push the pipeline `main` FIRST (the site repo's verify fetches `check_links.py` from it; pushed after the site tag, R2026.37's verify ran the old checker and failed), then the two release branches, the two tags and the `release-assets` branch. Within ≈ 20 min https://microbiome-repo.colorado.edu/version.json must show the new `site-v` tag (the site repo's check-cu-deploy workflow fails otherwise); record the Zenodo DOI in `config/releases.yaml` | none |
 
@@ -72,6 +72,28 @@ Run these after step 17e and before step 18 for the projects a month touches; ea
 
 The explorers can load DuckDB-WASM from the site itself (`docs/DUCKDB_SELF_HOSTING.md`); the switch `hosting.duckdb_self_hosted`
 in `config/site.yaml` stays off until the CU server is confirmed to serve `.wasm` files.
+
+## Insights pages (R2026.42)
+
+Three pages are built from payloads under `data/inputs/site/`; without a payload a page renders a placeholder, so a build never
+breaks on them. Their non-release inputs (GTDB R232 trees, 428 literature summaries, method text, published lists, the
+replication run) stay in `~/catalog/projects/side_pages` and `~/catalog/projects/replication` (`SIDE_PAGES`, `REPLICATION` in
+the Makefile).
+
+| Page | Command | Cost |
+|---|---|---|
+| VANISH / BloSSUM (`atlas/vanish.html`) | `make vanish` on the built package (about 11 h at 6 jobs, 3 GB, resumable, no model cost), then `make vanish-page VANISH_CALIBRATION="<which threshold relaxation was adopted, or that none was>"`, which also computes the numbers of the six "how to read these lists" sentences and the three exploratory checks of the Robustness section (`scripts/vanish_robustness.py`, `docs/VANISH_ROBUSTNESS.md`; answer to Ibata et al., bioRxiv 2026.11.17.767315; no class or threshold depends on them) | none |
+| Taxon explorer (`atlas/taxa/index.html`) | `make taxa` after `make vanish` (it reads the classes from `results.csv`; about 70 s, 3.6 GB) | none |
+| Replication of published findings (`atlas/replication.html`) | `make replication-page` (3 s; checks the payload against the checksums of the Replication chat). The test is **not** repeated: its results belong to package 1.34.0 | none |
+
+- Rerun `make vanish` and `make taxa` when the samples, the profiles or `country_hdi.csv` change; a release whose data tables
+  are unchanged can reuse the payloads (the pages print the package they were computed on).
+- Size: the explorer's per-bar sample lists (`data/taxa/presence/`) are about 24 MB and grow with the number of profiled
+  samples. When `make verify` reports more than 950 MB, rebuild with `make taxa TAXA_FLAGS=--skip-presence` (the bars then link
+  to the sample table by group) and say so in the changelog. R2026.42 fits with the lists.
+- `make side-page-tests` runs the three page tests on the built site (jsdom from `$(SIDE_PAGES)/work/node`).
+- Menu and naming (owner, 2026-11-23): the section is "Insights"; the word "Atlas" is not shown to visitors; addresses stay
+  under `atlas/`. `atlas/measures.html` and `atlas/figures.html` are built but not in the menu (`OFF_MENU_PAGES`).
 
 ## Rules that hold every month
 

@@ -1,0 +1,110 @@
+{# Atlas > Replication of published findings. House rule: AT MOST TWO SENTENCES above the graphic. The
+   headline is in those two sentences; what it depends on is ONE click away (the "How firm is that number?"
+   box); method, labels, limits, sensitivity analyses, the plan fixed in advance and the downloads are in the
+   collapsed <details> at the foot. The graphic, the search and the claim panel are drawn in the browser by
+   static/sp_replication.js on top of static/sp_core.js from ONE data file, data/replication/replication.json;
+   no chart image is shipped. Every number in this template comes from that file's "meta" block (M). #}
+{% extends "base.html" %}
+{% set C = M.checks %}
+{% macro n(x) %}{{ "{:,}".format(x) }}{% endmacro %}
+{% macro pct(x, d=1) %}{{ ("%." ~ d ~ "f")|format(100 * x) }} %{% endmacro %}
+{% block title %}Replication of published findings — {{ site.title }}{% endblock %}
+{% block desc %}{{ n(M.registered) }} published claims that a gut microbe is more or less abundant in people with a condition than in healthy controls, put to a test on the catalog's own samples by a plan fixed in advance: {{ n(M.replicated) }} of the {{ n(M.testable) }} testable claims replicated.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ root }}static/side_pages.css">
+<link rel="stylesheet" href="{{ root }}static/sp_replication.css">{% endblock %}
+{% block content %}
+<div class="page-head sp-head"><h1>Replication of published findings</h1>
+{% set ap="" %}{% set sub="replication" %}{% include "_insights_nav.html" %}
+<p class="sp-lead">We took {{ n(M.registered) }} published claims that a gut microbe is more or less abundant in people with a condition than in healthy controls, and tried to test each one on this catalog's samples by a plan fixed before the results were seen. <b>{{ n(M.replicated) }} of the {{ n(M.testable) }} claims that could be tested replicated ({{ pct(M.rate) }})</b> on package {{ M.package }}; click a condition to see its claims, then a claim to see every project behind it.</p>
+</div>
+
+<div class="sp-search" id="rp-search">
+<label for="rp-q" class="visually-hidden">Search a taxon or a condition</label>
+<input id="rp-q" class="searchbox big" type="search" autocomplete="off" spellcheck="false"
+       placeholder="Search a taxon or a condition — e.g. Roseburia, Akkermansia muciniphila, Crohn's disease">
+<ul id="rp-hits" class="sp-hits" role="listbox" aria-label="Matching taxa and conditions"></ul>
+</div>
+
+<details class="rp-firm" id="rp-firm"><summary>How firm is that number?</summary>
+<div class="rp-firm-body">
+<div id="rp-firm-chart" aria-label="The replication rate under stricter readings"></div>
+<ul class="rp-firm-list">
+<li><b>A stricter test.</b> The headline uses the test named in the plan, which is slightly too generous when projects disagree strongly. Under the Hartung-Knapp test, which is very cautious when there are few projects, <b>{{ n(C.stricter.replicated) }} of {{ n(C.stricter.testable) }}</b> replicate ({{ pct(C.stricter.replicated / C.stricter.testable) }}); read it as the cautious bound.</li>
+<li><b>Person identifiers.</b> Using only projects that say which samples come from the same person for at least 90 % of people, <b>{{ n(C.person_id.replicated) }} of {{ n(C.person_id.testable) }}</b> replicate ({{ pct(C.person_id.replicated / C.person_id.testable) }}); the same {{ n(C.person_id.testable) }} claims gave {{ n(C.person_id.same_claims_primary) }} in the headline analysis. The drop mixes two things: fewer projects per claim, and the removal of projects in which repeated samples of one person may have been counted as separate people.</li>
+<li><b>One condition carries much of it.</b> {{ n(C.largest.testable) }} of the {{ n(M.testable) }} testable claims and {{ n(C.largest.replicated) }} of the {{ n(M.replicated) }} replicated ones are about {{ C.largest.name }}. Without it, <b>{{ n(C.without_largest.replicated) }} of {{ n(C.without_largest.testable) }}</b> replicate ({{ pct(C.without_largest.replicated / C.without_largest.testable) }}); the mean over the {{ C.across_conditions.n }} conditions with at least {{ C.across_conditions.min_claims }} testable claims is {{ pct(C.across_conditions.rate) }}.</li>
+<li><b>Most claims could not be tested.</b> {{ n(M.registered - M.testable) }} of the {{ n(M.registered) }} claims had fewer than three independent projects for the condition ({{ n(M.untestable.fewer_than_3_projects_for_condition) }}) or a taxon too rare in them ({{ n(M.untestable.taxon_too_rare_in_projects) }}). They are neither confirmed nor contradicted.</li>
+<li><b>Not replicated is not refuted.</b> Of the {{ n(M.testable - M.replicated) }} testable claims that did not replicate, {{ n(M.sublabels.inconclusive) }} are inconclusive (the data cannot tell a small effect from none), {{ n(M.sublabels.smaller_than_sesoi) }} rule out an effect of meaningful size, and {{ n(M.sublabels.opposite_direction) }} point the other way.</li>
+<li><b>Chance alone.</b> With the case and control labels shuffled inside every project, {{ n(C.shuffled.n) }} reruns gave at most {{ C.shuffled.maximum }} replicated claims (mean {{ "%.2f"|format(C.shuffled.mean) }}), against {{ n(M.replicated) }} with the real labels (p = {{ "%.3f"|format(C.shuffled.p) }}).</li>
+</ul>
+</div></details>
+
+<p class="spx-status" id="rp-status" role="status">Loading the results…</p>
+<noscript><p class="sp-noscript">This page draws its charts in your browser, so it needs JavaScript. Every number is in the tables under Downloads at the foot of this page, starting with <a href="{{ data }}replication_conditions.csv">replication_conditions.csv</a> and <a href="{{ data }}replication_claims.csv.gz">replication_claims.csv.gz</a>.</noscript>
+
+<div class="spx-split" id="rp-split">
+  <section class="sp-main rp-main" id="main-chart" aria-label="Replication of published claims by condition">
+    <div class="sp-controls rp-bar">
+      <div class="sp-crumbs" id="rp-crumbs"></div>
+      <span class="rp-ctl" id="rp-sort-wrap"><span class="sp-ctl-label">Order</span><div id="rp-sort"></div></span>
+    </div>
+    <div id="rp-viewhead" aria-live="polite"></div>
+    <div class="sp-controls" id="rp-filter-wrap" hidden><span class="sp-ctl-label">Show</span><div id="rp-filter"></div></div>
+    <div id="rp-plot" data-ready="" data-view=""></div>
+    <p class="rp-more" id="rp-more" hidden><button type="button" class="sp-seg-btn rp-btn" id="rp-more-btn"></button></p>
+    <p class="sp-legend rp-legend" id="rp-legend"><span class="sp-key"><i style="background:#2F5E8C"></i>replicated</span><span class="sp-key"><i style="background:#8FB3E3"></i>replicated, but the effect is small</span><span class="sp-key"><i style="background:#D9DBDA"></i>not replicated: inconclusive</span><span class="sp-key"><i style="background:#8E9392"></i>not replicated: a meaningful effect is ruled out</span><span class="sp-key"><i style="background:#B4521A"></i>not replicated: opposite direction</span><span class="sp-key" id="rp-key-band" hidden><i style="background:#F3EFE2;border:1px solid #d9d2bb"></i>difference smaller than the smallest effect of interest</span></p>
+    <p class="sp-caption" id="rp-caption"></p>
+    <div id="rp-under"></div>
+  </section>
+  <aside class="spx-panel rp-panel" id="rp-panel" aria-live="polite" hidden></aside>
+</div>
+
+<section class="sp-details" aria-label="Detail">
+<details class="sp-more"><summary>What was tested, and how</summary>
+<p class="small"><b>The claims.</b> {{ M.source }} (<a href="https://doi.org/{{ M.source_doi }}">{{ M.source_doi }}</a>) records {{ n(M.funnel.tier1_claims) }} taxon-level findings in human stool. {{ n(M.funnel.genus_or_species) }} name a genus or a species, {{ n(M.funnel.taxon_mapped) }} of those could be matched to a taxon of GTDB {{ M.gtdb }}, and {{ n(M.funnel.taxon_mapped_and_case_vs_healthy_control) }} compare people who have a condition with healthy controls. Colorectal cancer was set aside because this project had already looked at it, which leaves the <b>{{ n(M.registered) }} registered claims</b> from {{ n(M.n_papers) }} papers on {{ M.n_conditions }} conditions. The list was fixed before any result was computed.</p>
+<p class="small"><b>The data.</b> Stool samples of package {{ M.package }} (release {{ M.release_id }}, <a href="https://doi.org/{{ M.doi }}">{{ M.doi }}</a>) with a community profile and no quality flag: {{ n(M.population.samples) }} samples in {{ n(M.population.projects) }} projects, {{ n(M.population.healthy) }} of them coded as healthy controls ({{ n(M.population.healthy_strict) }} after the two-reading rule below). The catalog's {{ n(M.population.condition_pairs) }} condition labels were each read twice by an AI model and matched to the conditions of the claims; a sample counts as a case only when both readings agree. The profiles are from shotgun metagenomes (Sandpiper, GTDB {{ M.gtdb }}), whatever method the original paper used.</p>
+<p class="small"><b>The test.</b> One sample per person. A project counts for a condition with at least {{ M.min_persons }} cases and {{ M.min_persons }} healthy controls, and for a taxon when at least {{ M.min_detected }} of those people carry it. A claim is testable with at least {{ M.min_projects }} independent projects, after leaving out every project linked to the paper the claim came from. In each project the effect is the AUC: the chance that a randomly chosen case has more of the taxon than a randomly chosen control (0.5 means no difference). The projects are pooled with a random-effects model and tested one-sided in the claimed direction; all {{ n(M.testable) }} tests are corrected together at a false-discovery rate of 5 %.</p>
+</details>
+<details class="sp-more"><summary>What the labels mean</summary>
+<table class="small"><thead><tr><th>Label</th><th>Meaning</th><th class="num">Claims</th></tr></thead><tbody>
+<tr><td>Replicated</td><td>The pooled effect is in the claimed direction and survives the correction for {{ n(M.testable) }} tests.</td><td class="num">{{ n(M.sublabels.replicated) }}</td></tr>
+<tr><td>Replicated, but the effect is small</td><td>As above, and the data also say the effect is smaller than the smallest effect of interest (Cohen's d = {{ M.sesoi_d }}, an AUC {{ "%.3f"|format(M.sesoi_auc) }} away from 0.5).</td><td class="num">{{ n(M.sublabels.replicated_smaller_than_sesoi) }}</td></tr>
+<tr><td>Not replicated: inconclusive</td><td>Neither direction is established, and an effect of meaningful size is not ruled out. More data could change this label.</td><td class="num">{{ n(M.sublabels.inconclusive) }}</td></tr>
+<tr><td>Not replicated: a meaningful effect is ruled out</td><td>The confidence limit on the claimed side is nearer to 0.5 than the smallest effect of interest: if the claimed effect exists here, it is small.</td><td class="num">{{ n(M.sublabels.smaller_than_sesoi) }}</td></tr>
+<tr><td>Not replicated: opposite direction</td><td>The pooled effect is in the opposite direction and survives the same correction, applied to the opposite-direction tests as a family of their own.</td><td class="num">{{ n(M.sublabels.opposite_direction) }}</td></tr>
+<tr><td>Not tested</td><td>Fewer than {{ M.min_projects }} independent projects for the condition, or the taxon is carried by fewer than {{ M.min_detected }} people in too many of them.</td><td class="num">{{ n(M.registered - M.testable) }}</td></tr>
+</tbody></table>
+</details>
+<details class="sp-more"><summary>Limits</summary>
+<p class="small"><b>The claim's own data may be in the test.</b> A project is left out of a claim's test only when the claim's paper could be linked to it. {{ M.links.wms_papers - M.links.wms_linked }} of the {{ M.links.wms_papers }} shotgun-based claim papers have no such link, so if their samples are in the catalog under an unlinked project, those claims were tested partly on the data they came from. Where links exist, removing them matters: without the removal {{ n(C.own_cohort_kept.replicated) }} of {{ n(C.own_cohort_kept.testable) }} claims replicate. One check that was not in the plan bears on this: among testable claims from shotgun studies, those from linked papers replicated at {{ pct(M.wms_split.linked.replicated / M.wms_split.linked.testable) }} ({{ M.wms_split.linked.replicated }} of {{ M.wms_split.linked.testable }}) and those from unlinked papers at {{ pct(M.wms_split.unlinked.replicated / M.wms_split.unlinked.testable) }} ({{ M.wms_split.unlinked.replicated }} of {{ M.wms_split.unlinked.testable }}), so the unlinked papers do not show the higher rate that such leakage would produce.</p>
+<p class="small"><b>Condition labels come from project records</b> and were matched to the claims' conditions by an AI model read twice; a third reading disagreed with {{ M.reader_audit.disagree }} of {{ M.reader_audit.n }} audited labels of the newest release. {{ "None" if M.reader_audit.on_case_or_control == 0 else M.reader_audit.on_case_or_control }} of those disagreements was about the role of a sample (case, control or neither); all were about which condition term fits or how closely ({{ M.reader_audit.other_term }} proposed a different term), and such a change can move samples into or out of a condition's cases. Cases and controls in a project are whoever the depositors sampled; they are not matched, and the headline is not adjusted for age, sex or BMI (where those are recorded, {{ n(C.covariates.adjusted) }} of {{ n(C.covariates.testable) }} claims replicate with adjustment and {{ n(C.covariates.unadjusted) }} without, and {{ C.covariates.changed }} change label).</p>
+<p class="small"><b>The method differs from the papers'.</b> {{ n(M.registered_16s) }} of the {{ n(M.registered) }} claims come from 16S amplicon studies and all were tested on shotgun profiles against GTDB names, so a claim can fail because a name moved or because the two methods see a taxon differently. A claimed taxon is counted as the GTDB taxon of that name together with the other GTDB groups that carry the name with a letter suffix, added together. A claim counts once per paper and taxon, and claims about the same taxon and condition share their data: {{ n(M.units.with_a_replicated_claim) }} of {{ n(M.units.testable) }} taxon-condition pairs have a replicated claim.</p>
+<p class="small"><b>This is a test of direction, not of size or of cause.</b> A replicated claim says that the taxon is shifted the same way in independent public data. It does not say the shift is large, that it is specific to the condition, or that the microbe has anything to do with why people are ill.</p>
+</details>
+<details class="sp-more"><summary>The same test under other choices</summary>
+<p class="small">All of these were named in the plan before the run; none replaces the headline.</p>
+<table class="small"><thead><tr><th>Analysis</th><th class="num">Claims</th><th class="num">Testable</th><th class="num">Replicated</th><th class="num">Rate (95 % CI)</th><th class="num">Opposite direction</th></tr></thead><tbody>
+{% for r in M.sensitivity %}<tr><td>{{ r.label }}</td><td class="num">{{ n(r.claims) }}</td><td class="num">{{ n(r.testable) }}</td><td class="num">{{ n(r.replicated) }}</td><td class="num">{{ pct(r.rate) }} ({{ "%.1f"|format(100 * r.lo) }}–{{ "%.1f"|format(100 * r.hi) }})</td><td class="num">{{ r.opposite }}</td></tr>
+{% endfor %}</tbody></table>
+<p class="small">Other tests on the same estimates: Hartung-Knapp {{ n(C.stricter.replicated) }} replicated; stratified Wilcoxon {{ n(C.looser.replicated) }}. Before any correction, {{ pct(C.unadjusted.claimed.share) }} of the testable claims have p &lt; 0.05 in the claimed direction and {{ pct(C.unadjusted.opposite.share) }} in the opposite one.</p>
+<table class="small"><thead><tr><th>Split of the headline</th><th class="num">Testable</th><th class="num">Replicated</th><th class="num">Rate (95 % CI)</th></tr></thead><tbody>
+{% for k, r in M.by_rank.items() %}<tr><td>Claims about a {{ k }}</td><td class="num">{{ n(r.testable) }}</td><td class="num">{{ n(r.replicated) }}</td><td class="num">{{ pct(r.rate) }} ({{ "%.1f"|format(100 * r.ci95_low) }}–{{ "%.1f"|format(100 * r.ci95_high) }})</td></tr>
+{% endfor %}{% for k, r in M.by_sequencing.items() %}<tr><td>Original study: {{ {"16S": "16S amplicon", "WMS": "shotgun"}.get(k, k) }}</td><td class="num">{{ n(r.testable) }}</td><td class="num">{{ n(r.replicated) }}</td><td class="num">{{ pct(r.rate) }} ({{ "%.1f"|format(100 * r.ci95_low) }}–{{ "%.1f"|format(100 * r.ci95_high) }})</td></tr>
+{% endfor %}</tbody></table>
+</details>
+<details class="sp-more"><summary>The plan was fixed in advance</summary>
+<p class="small">The analysis plan, the list of claims and the code were frozen on {{ M.frozen_at[:10] }}, before any result was computed with the real case and control labels (apart from colorectal cancer, which this project had already examined and which is not part of the headline), and their fingerprint was printed in the notes of catalog release {{ M.hash_printed_in[0] }}, which came out before the test: <code class="rp-hash">{{ M.freeze_hash }}</code> (the SHA-256 of the frozen folder's checksum list). The test ran on {{ M.run_date }} on the newest published package of that day, {{ M.package }}; the frozen files were checked unchanged before and after. The registration was informal: it was not filed with a registry.</p>
+<p class="small">Departures from the plan: the test ran about two weeks earlier than the plan expected; the script that writes the run report, and this page, were written after the freeze and only read the results. Two figures on this page go beyond the plan: the comparison of the same {{ n(C.person_id.testable) }} claims in the headline analysis (under “Person identifiers” in the box above), and the split of shotgun claims by whether their paper is linked to a project (under Limits). The run report marks the second as not registered; the first is given there as a detail of a registered analysis.</p>
+<p class="small">Read the documents: <a href="{{ data }}PREREGISTRATION.md">PREREGISTRATION.md</a> · <a href="{{ data }}SAP.md">SAP.md</a> (statistical analysis plan) · <a href="{{ data }}RUN_REPORT.md">RUN_REPORT.md</a>.</p>
+</details>
+<details class="sp-more"><summary>Downloads</summary>
+<p class="small"><a href="{{ data }}replication_claims.csv.gz">replication_claims.csv.gz</a> (all {{ n(M.registered) }} claims with their result, estimate, interval and p-values; gzip-compressed CSV) · <a href="{{ data }}replication_project_effects.csv.gz">replication_project_effects.csv.gz</a> (every per-project estimate; gzip-compressed CSV) · <a href="{{ data }}replication_conditions.csv">replication_conditions.csv</a> · <a href="{{ data }}replication_sensitivity.csv">replication_sensitivity.csv</a> · <a href="{{ data }}replication.json">replication.json</a> (the file this page reads).</p>
+<p class="small">Results of the run of {{ M.run_date }} on package {{ M.package }}, release {{ M.release_id }}. They are not recomputed when the catalog is updated: a later package was not the one under test. Claims: {{ M.source }}, CC BY 4.0.</p>
+</details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ root }}static/vendor/d3-7.9.0.min.js" integrity="{{ site.sri['d3-7.9.0.min.js'] }}" crossorigin="anonymous"></script>
+<script>window.SP_PAGE={page:'replication',root:'{{ root }}',dataDir:'{{ data }}',taxaHref:'taxa/',studiesHref:'{{ root }}studies/'};</script>
+<script src="{{ root }}static/sp_core.js"></script>
+<script src="{{ root }}static/sp_replication.js"></script>
+{% endblock %}

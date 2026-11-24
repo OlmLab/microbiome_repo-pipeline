@@ -15,3 +15,5 @@ test-results/
 # secrets never live in the tree
 .env
 *.token
+# drawings written by the page tests of the Insights pages
+tests/side_pages/*/out/

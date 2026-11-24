@@ -1,0 +1,69 @@
+{# Atlas > Taxon explorer (round 3). ONE page for every genus and species in the profiles.
+   House rule for this template: AT MOST TWO SENTENCES above the search box and the tree. Everything else —
+   method, limits, downloads — is in the collapsed <details> at the foot. The page contains NO list of taxa:
+   the names live in data/taxa/tree.bin (2.4 MB) and are read in the browser by static/sp_taxdata.js, so the
+   HTML stays a few kilobytes whatever the catalog grows to. The tree, the search, the taxonomy list and the full-width
+   taxon view are drawn by static/sp_explorer.js (round 4: the taxon view replaces the tree while open). #}
+{% extends "base.html" %}
+{% block title %}Taxon explorer — {{ site.title }}{% endblock %}
+{% block desc %}Every genus and species in the catalog's community profiles — {{ "{:,}".format(M.n_genera) }} genera and {{ "{:,}".format(M.n_species) }} species — on the GTDB {{ M.gtdb }} reference tree, with prevalence and relative abundance by body site, age group, country and lifestyle from {{ "{:,}".format(M.n_samples) }} QC-clean samples.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ root }}static/side_pages.css">{% endblock %}
+{% block content %}
+<div class="page-head sp-head">
+<h1>Taxon explorer</h1>
+{% set ap="../" %}{% set sub="taxa" %}{% include "_insights_nav.html" %}
+<p class="sp-lead">Every genus and species the community profiles detect — {{ "{:,}".format(M.n_genera) }} genera and {{ "{:,}".format(M.n_species) }} species from {{ "{:,}".format(M.n_samples) }} QC-clean samples — placed on the GTDB {{ M.gtdb }} reference tree, with the branch lengths kept. Search a name or click into the tree, and that taxon's charts, map and summary open beside it.</p>
+</div>
+
+<div class="sp-search">
+<label for="tx-search" class="visually-hidden">Search a genus or species by its GTDB name or by a name used in the literature</label>
+<input id="tx-search" class="searchbox big" type="search" autocomplete="off" spellcheck="false"
+       placeholder="Search a genus or species — e.g. Bacteroides, Faecalibacterium prausnitzii, Gardnerella">
+<ul id="tx-hits" class="sp-hits" role="listbox" aria-label="Matching taxa"></ul>
+</div>
+
+<p class="spx-status" id="tx-status" role="status">Loading the taxa…</p>
+<noscript><p class="sp-noscript">This page draws the tree and the charts in your browser, so it needs JavaScript. The numbers behind it are in the <a href="{{ root }}downloads/index.html">downloads</a>, and the files this page reads are <a href="{{ data }}tree.bin">tree.bin</a>, <a href="{{ data }}stats.bin">stats.bin</a> and <a href="{{ data }}manifest.json">manifest.json</a>.</p></noscript>
+
+<section class="spx-panel" id="tx-panel" aria-live="polite" hidden></section>
+
+<div id="tx-browse">
+  <div class="sp-controls spx-modebar"><span class="sp-ctl-label">Browse as</span><div id="tx-mode"></div></div>
+  <section class="spx-treebox" id="tx-treebox" aria-label="Tree of the catalog's taxa" hidden>
+    <div class="sp-controls spx-treebar">
+      <div class="sp-crumbs" id="tx-crumbs"></div>
+      <div class="spx-zoom" id="tx-zoom" role="group" aria-label="Zoom the tree"></div>
+    </div>
+    <div id="tx-tree" data-height="700" data-ready=""></div>
+    <div class="spx-legend" id="tx-legend"></div>
+    <p class="sp-note">Horizontal distance is substitutions per site in the GTDB {{ M.gtdb }} reference tree (see the scale bar); vertical position only separates the tips. The opening view is deliberately coarse — about three dozen folded clades, each given enough room to carry its name, so their heights there are <b>not</b> proportional to the tip counts printed on them; from the first zoom or click onwards every height is proportional again. Click a triangle, or use the wheel, to open it.</p>
+  </section>
+  <section class="spx-listbox" id="tx-listbox" aria-label="GTDB taxonomy of the catalog's taxa">
+    <p class="sp-note">GTDB {{ M.gtdb }} taxonomy, limited to the genera and species the profiles detect. Under each name, the most widely carried come first. Open a name to see what is inside it; a genus or species name opens its page. For a name above genus, the count is the samples in which at least one of its genera was detected. <button type="button" class="spx-linkbtn" id="tx-list-collapse">Close all</button></p>
+    <div id="tx-list" data-ready=""></div>
+  </section>
+</div>
+
+<section class="sp-details" aria-label="Detail">
+<details class="sp-more"><summary>How this is computed</summary>
+<p class="small">Community profiles come from <a href="https://sandpiper.qut.edu.au">Sandpiper</a> (SingleM, GTDB {{ M.gtdb }}). A sample counts here when it is a specimen (not a control), has a profile, and carries none of these QC flags: low depth, non-metagenome organism label, synthetic, RNA library, ecological prediction, no genus assigned, low complexity. That leaves {{ "{:,}".format(M.n_samples) }} samples in {{ "{:,}".format(M.n_projects) }} projects.</p>
+<p class="small"><b>Prevalence</b> is the share of samples in a group with a relative abundance above zero. <b>Mean relative abundance</b> averages over every sample in the group, counting undetected samples as zero. The <b>body site</b> chart is over all QC-clean samples; <b>age group</b>, <b>country</b> and <b>lifestyle</b> are computed within the samples of the taxon's leading body site, which is named above each of those charts. A group is drawn only with at least {{ M.min_cell_samples }} samples in at least {{ M.min_cell_projects }} projects; smaller groups are listed as “too few samples”. {{ "{:,}".format(M.n_no_leading_site) }} of the {{ "{:,}".format(M.n_taxa) }} taxa have no body site that passes the threshold and so have no age, country or lifestyle chart. This page shows no result by health condition.</p>
+<p class="small">The tree is the GTDB {{ M.gtdb }} bacterial and archaeal reference tree pruned to these taxa, {{ "{:,}".format(M.n_nodes) }} nodes and {{ "{:,}".format(M.n_tips) }} tips, with every branch length preserved. Bacteria and Archaea are drawn as two trees, each with its own scale bar: the reference trees have no common root, so a distance read across the break would be meaningless. A genus with species in the catalog sits on the common ancestor of those species; {{ "{:,}".format(M.n_genus_only) }} genera with no species row sit on the tip of one representative genome.</p>
+</details>
+<details class="sp-more"><summary>Limits</summary>
+<p class="small">The catalog is a convenience sample of public data, not a survey. Body site, age, country and lifestyle are curated from study metadata and are missing for many samples. Relative abundances depend on the reference database, so a taxon with few reference genomes reads as less abundant than it is. Lifestyle groups are small and come from a handful of projects, and countries differ in which studies were run there, so a difference between groups is not by itself a difference between populations. {{ M.n_literature }} taxa carry a short summary written from the published literature by an AI model; those statements are published findings about the taxon, not results computed here.</p>
+</details>
+<details class="sp-more"><summary>Downloads</summary>
+<p class="small"><a href="{{ data }}tree.bin">tree.bin</a> (the pruned tree, its names and the per-taxon index) · <a href="{{ data }}stats.bin">stats.bin</a> (every group of every taxon) · <a href="{{ data }}projects.bin">projects.bin</a> (most-abundant projects) · <a href="{{ data }}manifest.json">manifest.json</a> (what this build contains) · <a href="{{ root }}downloads/index.html">all downloads</a>. The byte layout of the three binary files, and the reader this page uses, are described in the taxon-explorer FORMAT document that ships with the pipeline.</p>
+</details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ root }}static/vendor/d3-7.9.0.min.js" integrity="{{ site.sri['d3-7.9.0.min.js'] }}" crossorigin="anonymous"></script>
+<script src="{{ root }}static/vendor/topojson-client-3.1.0.min.js" integrity="{{ site.sri['topojson-client-3.1.0.min.js'] }}" crossorigin="anonymous"></script>
+<script>window.SP_PAGE={page:'explorer',root:'{{ root }}',dataDir:'{{ data }}',nSamples:{{ M.n_samples }},minSamples:{{ M.min_cell_samples }},minProjects:{{ M.min_cell_projects }},hasProjects:{{ 'true' if M.has_projects else 'false' }},vanishHref:'../vanish.html',studiesHref:'{{ root }}studies/index.html?country=',samplesHref:'{{ root }}samples/index.html',presenceDir:{% if M.has_presence %}'{{ data }}presence/'{% else %}null{% endif %},samplePage:'{{ root }}samples/sample.html?id=',studyPage:'{{ root }}studies/'};</script>
+<script src="{{ root }}static/sp_core.js"></script>
+<script src="{{ root }}static/sp_taxdata.js"></script>
+<script src="{{ root }}static/sp_presence.js"></script>
+<script src="{{ root }}static/sp_explorer.js"></script>
+{% endblock %}

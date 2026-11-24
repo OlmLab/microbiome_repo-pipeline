@@ -196,5 +196,5 @@
     if (start) await selectTaxon(start);
   }
   if (typeof d3 === 'undefined' || typeof topojson === 'undefined') { $('#taxon-head').innerHTML = '<div class="note">The map needs D3 and topojson-client from cdn.jsdelivr.net; they did not load (offline or blocked). The data files under data/atlas/ are still downloadable.</div>'; return; }
-  main().catch((e) => { $('#taxon-head').innerHTML = `<div class="note">Atlas failed to load: ${esc(e.message)}</div>`; console.error(e); });
+  main().catch((e) => { $('#taxon-head').innerHTML = `<div class="note">The taxon map failed to load: ${esc(e.message)}</div>`; console.error(e); });
 })();

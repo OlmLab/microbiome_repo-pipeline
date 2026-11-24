@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Atlas — where taxa are carried · {{ site.title }}{% endblock %}
+{% block title %}Taxon map — where taxa are carried · {{ site.title }}{% endblock %}
 {% block desc %}Interactive world map of genus and species carriage across {{ meta.n_samples | numint }} human gut metagenomes from {{ meta.n_studies | numint }} studies and {{ meta.n_countries }} countries.{% endblock %}
 {% block head %}
 <style>
@@ -35,8 +35,8 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
 </style>
 {% endblock %}
 {% block content %}
-<h1>Atlas — where taxa are carried</h1>
-{% set sub="map" %}{% include "_atlas_nav.html" %}
+<h1>Taxon map — where taxa are carried</h1>
+{% set sub="map" %}{% include "_insights_nav.html" %}
 <p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's gut metagenomes.</p>
 <details class="about-page"><summary>About this page</summary><p>Data: Sandpiper 2.0.0 community profiles ({{ meta.taxonomy }}) for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> studies and <b>{{ meta.n_countries }}</b> countries; the whole atlas payload is {{ payload_mb }} MB and loads once per rank.
 See also the <a href="figures.html">resource-paper figures</a>.</p></details>

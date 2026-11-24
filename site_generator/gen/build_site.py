@@ -73,8 +73,8 @@ FILE_DESC = {
     'catalog_sample_determinations_conflicts.parquet': 'Values that lost a precedence decision against the published value (kept for audit).',
     'catalog_metadata_contradictions.parquet': 'Samples whose sources disagree; neither value is published.',
     'catalog_pass_coverage.csv': 'Per project: which curation passes ran and which were not applicable.',
-    'catalog_sandpiper_sample_summary.parquet': 'Per profiled sample: Sandpiper QC flags, richness and the metadata used by the Atlas.',
-    'catalog_sandpiper_pca_scores.parquet': 'CLR-PCA scores of the Sandpiper genus profiles (Atlas › PCA).',
+    'catalog_sandpiper_sample_summary.parquet': 'Per profiled sample: Sandpiper QC flags, richness and the metadata used by the Insights pages.',
+    'catalog_sandpiper_pca_scores.parquet': 'CLR-PCA scores of the Sandpiper genus profiles (Insights › PCA of community profiles).',
     'catalog_sandpiper_pca_loadings.parquet': 'Genus loadings of the CLR-PCA.', 'catalog_sandpiper_pca_variance.csv': 'Variance explained per principal component.',
     'catalog_sandpiper_study_coverage.csv': 'Per project: samples with a Sandpiper profile.',
     'CATALOG_SANDPIPER_REPORT.md': 'How the Sandpiper profiles of the catalog samples were assembled and filtered.',
@@ -133,22 +133,26 @@ ORG_LEAK_RE = re.compile(r'SUB\d{6,}|@')
 # Field tiers are NOT hard-coded: config/packs/gut.yaml core_fields / key_fields / derived_fields (read_field_tiers). A study enters the
 # contribute worklist when >= CONTRIB_MIN_MISSING of the CORE fields are below the coverage threshold.
 CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 5 core fields (R2026.32: body site joined the core; R2026.15: core age = life stage, sex is a key field)
-# Top navigation (owner reviews 2026-10-01 / 2026-10-08): Home · Sample sheet · Project sheet · Contribute, then two drop-downs that hold
-# everything else. Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
+# Top navigation (owner reviews 2026-10-01 / 2026-10-08; 2026-11-23: Insights replaces Explore and the name "Atlas"; the page addresses stay
+# under atlas/; atlas/measures.html and atlas/figures.html are built but not in the menu): Home · Projects · Samples · Contribute, then two
+# drop-downs: Insights and About (About ends with a "Browse" section: Registry, Cohorts, Collections, Authors). Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
 # nav=<key>; a group is highlighted when the page's key is one of its children's keys.
 NAV = [('home', 'Home', 'index.html', None),
        ('studies', 'Projects', 'studies/index.html', None),
        ('samples', 'Samples', 'samples/index.html', None),
        ('contribute', 'Contribute', 'contribute/index.html', None),
-       ('explore', 'Explore', None, [('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
-                                     ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html'),
-                                     ('atlas', 'Insights', None), ('atlas', 'Atlas: taxon map', 'atlas/index.html'),
-                                     ('atlas', 'Atlas: PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Atlas: profile measures', 'atlas/measures.html'), ('atlas', 'Figures (resource paper)', 'atlas/figures.html')]),
+       ('insights', 'Insights', None, [('atlas', 'Taxon explorer', 'atlas/taxa/index.html'), ('atlas', 'VANISH / BloSSUM', 'atlas/vanish.html'),
+                                       ('atlas', 'Replication of published findings', 'atlas/replication.html'), ('atlas', 'Taxon map', 'atlas/index.html'),
+                                       ('atlas', 'PCA of community profiles', 'atlas/pca.html')]),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
                                  ('about', 'Where values come from', 'about/value_sources.html'), ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html'),
-                                 ('about', 'Accessibility, privacy & security', 'about/accessibility.html')])]
+                                 ('about', 'Accessibility, privacy & security', 'about/accessibility.html'),
+                                 ('about', 'Browse', None), ('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
+                                 ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html')])]
+# Pages that are built and keep their addresses but are not in the menu (owner, 2026-11-23); like menu entries they must always resolve.
+OFF_MENU_PAGES = [('atlas', 'Profile measures', 'atlas/measures.html'), ('atlas', 'Figures', 'atlas/figures.html')]
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
              'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'human/index.html': '../studies/index.html', 'human/projects/index.html': '../../studies/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'figures.html'}
@@ -2100,6 +2104,14 @@ def main():
     _gap = pd.read_csv(pkg / 'catalog_sandpiper_gap_by_cause.csv').to_dict('records') if (pkg / 'catalog_sandpiper_gap_by_cause.csv').exists() else []
     _ms = _measures.build(render, dict(measures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'measures'), stats=stats, gap=_gap), out)
     print(f'[{time.time()-t0:.0f}s] atlas/measures: {_ms}', file=sys.stderr)
+    # R2026.42: Insights › Taxon explorer, VANISH / BloSSUM, Replication of published findings. Payloads are precomputed
+    # (scripts/taxon_explorer.py, scripts/vanish_blossum.py --stage page, scripts/replication_page.py) under data/inputs/site/;
+    # without a payload each module renders its placeholder, so the menu link always resolves.
+    from pages import taxa as _taxa, vanish as _vanish, replication as _replication
+    _site_in = Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site'
+    for _nm, _mod in (('taxa', _taxa), ('vanish', _vanish), ('replication', _replication)):
+        _r = _mod.build(render, {_nm + '_dir': str(_site_in / _nm)}, out)
+        print(f'[{time.time()-t0:.0f}s] atlas/{_nm}: {_r}', file=sys.stderr)
     if (pkg / 'catalog_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)
         print(f'[{time.time()-t0:.0f}s] atlas/pca: {pca_stats.get("n_points") if isinstance(pca_stats, dict) else pca_stats}', file=sys.stderr)
@@ -2551,18 +2563,18 @@ def main():
     render('index.html', 'index.html', '', nav='home', stats=stats, home=home, readme_version_warning=readme_version_warning, n_releases=len(releases), shard_letters=sorted(shards))
     # item 5: Collections and Atlas pages are produced by other tracks; the nav entries must never be dead links
     for sec, lab, txt in (('collections', 'Collections', 'No collections are configured in this build (config/collections.yaml).'),
-                          ('atlas', 'Atlas', 'The taxon atlas is being prepared. ' + ('The interactive <a href="pca.html">PCA of Sandpiper community profiles</a> is available.' if (out / 'atlas' / 'pca.html').exists() else ''))):
+                          ('atlas', 'Taxon map', 'The taxon map is being prepared. ' + ('The interactive <a href="pca.html">PCA of Sandpiper community profiles</a> is available.' if (out / 'atlas' / 'pca.html').exists() else ''))):
         if not (out / sec / 'index.html').exists():
             (out / sec).mkdir(parents=True, exist_ok=True)
-            render('placeholder.html', f'{sec}/index.html', '../', nav=sec, heading=lab, text=txt, crumbs=[dict(label='Home', href='../index.html'), dict(label=lab)])
+            render('placeholder.html', f'{sec}/index.html', '../', nav=sec, heading=lab, text=txt, crumbs=[dict(label='Home', href='../index.html')] + ([dict(label='Insights')] if sec == 'atlas' else []) + [dict(label=lab)])
     # R2026.15: every drop-down entry must resolve — sub-pages a build does not produce (e.g. atlas/pca.html without Sandpiper PCA
     # tables) get a short placeholder instead of a dead menu link
-    for _k, _lab, _href, _children in NAV:
+    for _k, _lab, _href, _children in NAV + [('offmenu', '', None, OFF_MENU_PAGES)]:
         for _ck, _cl, _ch in (_children or []):
             if _ch and not (out / _ch).exists():
                 (out / _ch).parent.mkdir(parents=True, exist_ok=True)
                 _root = '../' * _ch.count('/')
-                render('placeholder.html', _ch, _root, nav=_ck, heading=_cl, text='This page is not part of this build.', crumbs=[dict(label='Home', href=_root + 'index.html'), dict(label=_cl)])
+                render('placeholder.html', _ch, _root, nav=_ck, heading=_cl, text='This page is not part of this build.', crumbs=[dict(label='Home', href=_root + 'index.html')] + ([dict(label='Insights')] if _ck == 'atlas' else []) + [dict(label=_cl)])
     # R2026.22: project pages of projects that left the catalog (retired gut_studies rows) become stubs pointing to the registry
     # record, so bookmarks and citations of e.g. studies/PRJEB39960.html keep resolving
     retired_ = sorted(set(cs_all.loc[cs_all[RR].notna(), 'study_accession']) - set(cs.study_accession)) if RR in cs_all.columns else []

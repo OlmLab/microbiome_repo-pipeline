@@ -435,6 +435,15 @@ releases:
     doi: 10.5281/zenodo.24241062
     label: "health-condition labels say what the samples are: explicit case and control wording for about 9,400 samples whose stored detail was a code or a group name, per-sample case and control labels read from archive fields in 115 projects; sex, BMI and time points from supplementary and repository tables; registry refresh with 36 newly admitted projects, including deposits filed under unusual library strategies"
 
+  - release_id: R2026.42
+    package_version: '1.34.1'
+    previous_package_version: '1.34.0'
+    previous_release_id: R2026.41
+    notes_file: RELEASE_NOTES_R2026.42.md
+    data_tag: data-v1.34.1
+    site_tag: site-v1.34.1
+    label: "site release: three new Insights pages (taxon explorer, VANISH / BloSSUM taxa, replication of published findings); the Atlas section becomes Insights; the data tables are those of 1.34.0"
+
 # Bitemporal columns appended (in this order) at the END of every fact table.
 columns:
   release_added: release_added        # str; release id (numbered) or historical package semver

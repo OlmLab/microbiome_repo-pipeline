@@ -253,6 +253,52 @@ measures:        ## R2026.36: Atlas › Profile measures payload (scripts/sandpi
 	$(PY) scripts/sandpiper_measures.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --countries $(ATLAS_DATA)/countries.json \
 	  --basemap site_generator/gen/static/vendor/countries-110m.json --cutoff $(SANDPIPER_CUTOFF) --out $(DATA)/site/measures
 
+# R2026.42: the three Insights pages added from the Side pages and Replication chats. Their inputs that are not release data
+# (GTDB trees, literature summaries, method text, published lists, the replication run) stay in ~/catalog/projects; no trailing comments here
+SIDE_PAGES  ?= $(HOME)/catalog/projects/side_pages
+REPLICATION ?= $(HOME)/catalog/projects/replication
+VANISH_OUT  ?= $(DATA)/site/vanish_work
+VANISH_JOBS ?= 6
+TAXA_FLAGS  ?=
+VANISH_ARGS = --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --hdi $(ATLAS_DATA)/country_hdi.csv \
+	  --external-labels scripts/external_labels_carter_s4.csv --out $(VANISH_OUT) \
+	  --levels species,genus,family --cap 100 --jobs $(VANISH_JOBS) --memory-limit 1GB \
+	  --permutations 200 --permutations-sens 100 --perm-block 25 --q 0.05 --min-score 2 --min-dprev 0.10 --p-loco 0.01 \
+	  --stil-min-prev 0.20 --stil-max-score 1.0 --published-lists $(SIDE_PAGES)/track_a/lit/published_lists.csv \
+	  --carter-mapped $(SIDE_PAGES)/track_a/impl1/carter_mapped.csv --carter-lists $(SIDE_PAGES)/track_a/lit/carter_lists.csv \
+	  --carter-cohort-check $(SIDE_PAGES)/for_editor/lifestyle_candidates/carter_s4_bioprojects_in_catalog.csv \
+	  --method $(SIDE_PAGES)/track_a/METHOD_v2.md
+
+vanish:          ## R2026.42: Insights › VANISH / BloSSUM — full run on the built package (≈ 11 h at 6 jobs, no model cost, resumable; 3 GB RAM); then `make vanish-page`
+	$(PY) scripts/vanish_blossum.py $(VANISH_ARGS) --stage all
+
+vanish-page:     ## R2026.42: page payload of the VANISH / BloSSUM run, with the critique sentences and the exploratory checks → $(DATA)/site/vanish (seconds; VANISH_CALIBRATION="<text>" records the threshold choice)
+	$(PY) scripts/vanish_blossum.py $(VANISH_ARGS) --stage page --background $(SIDE_PAGES)/track_a/lit/background.json \
+	  --second-implementation-summary $(SIDE_PAGES)/track_a/second_implementation_summary.json --calibration-choice "$(VANISH_CALIBRATION)"
+	@# R2026.42: the numbers of the page's "how to read these lists" sentences and the three exploratory checks of its Robustness section
+	@# (docs/VANISH_ROBUSTNESS.md; seconds, 2 GB). --hdi must be the table the run used: the script stops when the groups differ.
+	for st in sentences checks; do $(PY) scripts/vanish_robustness.py --stage $$st --vanish-out $(VANISH_OUT) --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) \
+	  --hdi $(ATLAS_DATA)/country_hdi.csv --external-labels scripts/external_labels_carter_s4.csv --threads 4 --memory-limit 2GB || exit 1; done
+	rm -rf $(DATA)/site/vanish && cp -R $(VANISH_OUT)/page $(DATA)/site/vanish
+
+taxa:            ## R2026.42: Insights › Taxon explorer payload → $(DATA)/site/taxa (≈ 70 s, 3.6 GB RAM; after `make vanish`; TAXA_FLAGS=--skip-presence when the site would pass 950 MB)
+	rm -rf $(DATA)/site/taxa
+	$(PY) scripts/taxon_explorer.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --countries $(ATLAS_DATA)/countries.json \
+	  --basemap site_generator/gen/static/vendor/countries-110m.json --gtdb-dir $(SIDE_PAGES)/work/gtdb \
+	  --literature $(SIDE_PAGES)/for_editor/taxon_explorer/literature --vanish-results $(VANISH_OUT)/results.csv \
+	  --out $(DATA)/site/taxa --memory-limit 2GB $(TAXA_FLAGS)
+
+replication-page: ## R2026.42: Insights › Replication of published findings payload → $(DATA)/site/replication (3 s). The run is NOT repeated: its results belong to the package under test (1.34.0)
+	$(PY) scripts/replication_page.py --replication $(REPLICATION) --out $(DATA)/site/replication
+	cd $(DATA)/site/replication && shasum -a 256 -c $(REPLICATION)/for_editor/replication_page/payload/SHA256SUMS.txt
+
+side-page-tests: ## R2026.42: page tests of the three Insights pages on the built site (jsdom; node_modules in $(SIDE_PAGES)/work/node)
+	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/taxon_explorer/dom_explorer.mjs $(abspath $(SITE_OUT))
+	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/vanish_blossum/dom_vanish.mjs $(abspath $(SITE_OUT))
+	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication.mjs $(abspath $(SITE_OUT))
+	$(PY) tests/side_pages/vanish_blossum/check_vanish_urls.py --root $(abspath $(SITE_OUT))
+	$(PY) tests/side_pages/replication/check_urls.py --root $(abspath $(SITE_OUT))
+
 verify:          ## local subset of .github/workflows/verify.yml (link check + duckdb read + manifest/zip check); Playwright runs in Actions
 	$(PY) -m catalog.release.integrity_checks --package $(PKG_OUT) --out $(BUILD)/integrity_checks.json --sandpiper-genus $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet
 	$(PY) site_generator/gen/check_links.py $(SITE_OUT)
