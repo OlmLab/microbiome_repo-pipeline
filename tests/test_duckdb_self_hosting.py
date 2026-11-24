@@ -1,5 +1,6 @@
 """R2026.40: the explorers can load DuckDB-WASM from the site itself; the switch stays off (and .wasm stays out of releases)
 until the owner confirms that the CU server serves .wasm files."""
+import re
 import json, re
 from pathlib import Path
 import yaml
@@ -22,7 +23,7 @@ def test_both_explorers_use_the_shared_boot_module():
     assert 'custom_extension_repository' in boot and 'getJsDelivrBundles' in boot and "DUCKDB_VERSION = '1.29.0'" in boot
     for fn in ['explorer.js', 'registry_explorer.js']:
         s = (GEN / 'static' / fn).read_text()
-        assert "import { bootDuckDB, DUCKDB_SOURCE } from './duckdb_boot.js';" in s and 'await bootDuckDB()' in s
+        assert re.search(r"import \{ bootDuckDB(, DUCKDB_SOURCE)? \} from './duckdb_boot.js';", s) and 'await bootDuckDB()' in s   # R2026.43: explorer.js no longer prints the source
         assert 'jsdelivr' not in s
     for tn in ['explorer.html', 'registry.html']:
         t = (GEN / 'templates' / tn).read_text()
