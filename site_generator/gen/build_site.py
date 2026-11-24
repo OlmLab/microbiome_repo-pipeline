@@ -76,21 +76,24 @@ FILE_DESC = {
     'catalog_relations.parquet': 'Explicit relations between sampled people (mother–child, twins, partners, donor–recipient) with evidence.',
     'catalog_sample_determinations_conflicts.parquet': 'Values that lost a precedence decision against the published value (kept for audit).',
     'catalog_metadata_contradictions.parquet': 'Samples whose sources disagree; neither value is published.',
-    'catalog_pass_coverage.csv': 'Per project: which curation passes ran and which were not applicable.',
+    'catalog_pass_coverage.csv': 'Per project: which metadata sources were searched (archive record, supplementary table, paper text, abstract) and which did not apply.',
     'catalog_sandpiper_sample_summary.parquet': 'Per profiled sample: Sandpiper QC flags, richness and the metadata used by the Insights pages.',
     'catalog_sandpiper_pca_scores.parquet': 'CLR-PCA scores of the Sandpiper genus profiles (Insights › PCA of community profiles).',
     'catalog_sandpiper_pca_loadings.parquet': 'Genus loadings of the CLR-PCA.', 'catalog_sandpiper_pca_variance.csv': 'Variance explained per principal component.',
     'catalog_sandpiper_study_coverage.csv': 'Per project: samples with a Sandpiper profile.',
+    'catalog_rejected_values.parquet': 'Values taken out by the plausibility checks: the original row with the rule and the reason it was rejected.',
+    'catalog_sandpiper_unprofiled.parquet': 'One row per current catalog sample without a Sandpiper community profile, with the reason where it can be known.',
+    'catalog_sandpiper_gap_by_cause.csv': 'Why current samples have no community profile, counted per reason (summary of catalog_sandpiper_unprofiled).',
     'CATALOG_SANDPIPER_REPORT.md': 'How the Sandpiper profiles of the catalog samples were assembled and filtered.',
     'catalog_studies.parquet': 'Start here (projects). One row per catalog project: body sites, nucleic acid (DNA / RNA) of its data sets, registry classification, linked papers, methods and setting read from the paper, per-field coverage (cov_*), age-category and health-condition distributions, curated depth and source.',
-    'catalog_sample_metadata_wide.parquet': 'Start here (samples). One row per sample: identifiers, body-site code/class, DNA / RNA data sets (has_dna, has_rna), age_category (+ basis), every field with __route and __confidence, infant extension fields, infant_scope flag.',
+    'catalog_sample_metadata_wide.parquet': 'Start here (samples). One row per sample: identifiers, body-site code/class, DNA / RNA data sets (has_dna, has_rna), age_category (+ basis), and every field with its source and confidence.',
     'catalog_sample_determinations.parquet': 'Long form: one row per sample × field with route, scope, confidence, evidence_source, evidence_locator and a verbatim evidence quote (≤ 12 words).',
     'registry_studies.parquet': 'Registry tier: one row per screened ENA study with a human-associated metagenome signal — host, body sites (UBERON-anchored codes), life stages, assay, access, classification stage, scope memberships, harvested-sample roll-ups.',
     'registry_biosamples.parquet': 'Registry sample tier: one row per harvested BioSample with normalised body site, life stage / age, sex, country.',
     'registry_study_papers.parquet': 'Study ↔ paper links of the registry studies (PMID/PMCID/DOI, relation own_data/unsure, method, confidence).',
     'registry_authors.parquet': 'Study × author × paper rows for the registry studies (Europe PMC author lists).',
     'registry_bioproject_records.parquet': 'NCBI BioProject records (title, description, umbrella, organisation) for the registry studies.',
-    'registry_universe_audit.csv': 'Registry enumeration audit: per ENA slice, archive count vs rows pulled and completeness.',
+    'registry_universe_audit.csv': 'Completeness check of the screening: per archive query, how many studies the archive reports and how many were pulled.',
     'sample_metadata_wide.parquet': 'Infant extension: the deep infant-gut curation (delivery mode, feeding, gestational age, birth weight …) for the infant studies; these rows are also in catalog_sample_metadata_wide (curated_source = infant_catalog).',
     'sample_metadata_wide.csv.gz': 'Infant extension table as gzip-compressed CSV.',
     'sample_determinations.parquet': 'Infant extension: evidence rows of the infant-field curation.',
@@ -114,7 +117,7 @@ FILE_DESC = {
     'contribute_worklist.csv': 'Infant extension: contribution worklist of the infant fields.', 'contribute_worklist_fields.csv': 'Infant extension: worklist study × field.',
     'releases.csv': 'Release registry: one row per release id (release date, package version, tags, DOI, headline counts).',
     'VERSION.json': 'Package version, release id, release tag, build date, sha256 + rows per table.',
-    'DATA_DICTIONARY.md': 'Every column, every vocabulary.', 'README.md': 'Package overview and how to read a value.',
+    'DATA_DICTIONARY.md': 'Columns and vocabularies of every table; a full generated schema for the wide tables.', 'README.md': 'Package overview and how to read a value.',
     'CHANGELOG.md': 'Version history.', 'getting_started.ipynb': 'Notebook: load, filter, join, plot.',
     'SANDPIPER_REPORT.md': 'Sandpiper join: source, method, validation, caveats.', 'AUTHORS_REPORT.md': 'Author index: sources, coverage, caveats.',
     'DATA_MODEL_FIX_REPORT.md': 'v1.2 data-model fix (age scope, parents, history).', 'EXTRACTION_REPORT.md': 'Infant-field extraction report.', 'REGISTRY_REPORT.md': 'Registry build report.',
@@ -172,6 +175,26 @@ def archive_url(acc):
     if re.match(r'^[SED]RR\d+$', a):
         return ARCHIVE_URLS['RUN'] + a
     return ARCHIVE_URLS.get(a[:4], ARCHIVE_URLS['SAME']) + a
+
+
+# R2026.43: sections of the generated release notes that are build bookkeeping, not a reader's question (F160, F171-F173, F184, F185).
+# The markdown shipped in the package is published unchanged under releases/; only the copy rendered on the Downloads page is trimmed.
+NOTE_SECTIONS_DROPPED = ('Infant extension', 'Triage verdict flips', 'Gold metrics', 'Token cost')
+NOTE_SECTION_RENAMED = {'Bitemporal columns': 'Which release each value came from'}
+
+
+def trim_release_note(md):
+    """Drop the build-bookkeeping sections from a release note and rename the bitemporal heading (R2026.43)."""
+    parts, keep = re.split(r'(?m)^(?=## )', md), []
+    for part in parts:
+        head = part.split('\n', 1)[0]
+        if head.startswith('## ') and any(head[3:].startswith(t) for t in NOTE_SECTIONS_DROPPED):
+            continue
+        for old, new in NOTE_SECTION_RENAMED.items():
+            if head.startswith('## ' + old):
+                part = part.replace(head, '## ' + new, 1)
+        keep.append(part)
+    return ''.join(keep).rstrip() + '\n'
 
 
 def read_field_tiers(pack):
@@ -1432,7 +1455,8 @@ def main():
         meta = vj['tables'].get(f.name, {})
         pkg_files.append(dict(name=f.name, size=human(f.stat().st_size), bytes=f.stat().st_size, rows=meta.get('rows'),
                               sha256=meta.get('sha256', ''), href=('data/' if f.name in IN_DATA else 'data/package/') + f.name,
-                              desc=FILE_DESC.get(f.name, ''), group=_grp))
+                              desc=(FILE_DESC.get(f.name) or ('Per-field diff of this release against the one before it (generated); the notes of this release are rendered below.'
+                                    if f.name.startswith('RELEASE_NOTES_') else '')), group=_grp))
     zip_name, zip_size, zip_href = None, None, None
     if a.package_zip:
         zip_name = f'data_package_v{version}.zip'
@@ -1475,7 +1499,8 @@ def main():
         html = re.sub(r'<(/?)h([1-5])\b', lambda m: f'<{m.group(1)}h{int(m.group(2)) + 1}', html)  # accessibility: one h1 per page
         return re.sub(r'<a href="([^"]+)">', lambda m: m.group(0) if m.group(1).startswith(('http', '#')) else '<a>', html)
     dictionary = (pkg / 'DATA_DICTIONARY.md').read_text(encoding='utf-8')
-    docs = [('README.md', readme, 'README'), ('DATA_DICTIONARY.md', dictionary, 'Data dictionary'), ('CHANGELOG.md', (pkg / 'CHANGELOG.md').read_text(encoding='utf-8'), 'Changelog')]
+    docs = [('README.md', readme, f'Data package README ({version})'), ('DATA_DICTIONARY.md', dictionary, 'Data dictionary'),
+            ('CHANGELOG.md', (pkg / 'CHANGELOG.md').read_text(encoding='utf-8'), 'Changelog')]
     # R2026.43: the infant-phase reports (SANDPIPER_REPORT, AUTHORS_REPORT, DATA_MODEL_FIX_REPORT, CATALOG_REPORT, EXTRACTION_REPORT) are no longer
     # rendered under docs/; the four package ones stay in the data package zip.
     for name, title in [('REGISTRY_REPORT.md', 'Registry report')]:
@@ -1491,7 +1516,13 @@ def main():
     doc_list = []
     for name, text, title in docs:
         (out / 'docs' / name).write_text(text, encoding='utf-8')
-        render('doc.html', f'docs/{name[:-3]}.html', '../', nav='about', doc_title=title, md_name=name, body=md_to_html(text),
+        body = md_to_html(text)
+        note, toc = '', []
+        if name == 'CHANGELOG.md':
+            # F143: one entry per package, linked; F144: the entries below keep the names the site used when they were written
+            toc = [(m.group(1), m.group(2)) for m in re.finditer(r'<h3 id="([^"]+)">(Package [^<]+)</h3>', body)]
+            note = f'Entries before package {version} use the former section name “Atlas” for what the site now calls Insights.'
+        render('doc.html', f'docs/{name[:-3]}.html', '../', nav='about', doc_title=title, md_name=name, body=body, doc_note=note, doc_toc=toc,
                crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='../about/index.html'), dict(label='Methods', href='../about/methods.html'), dict(label=title)])
         doc_list.append(dict(name=name, title=title, href=f'docs/{name[:-3]}.html'))
 
@@ -2248,7 +2279,10 @@ def main():
         d = {k: (v if v != '' else None) for k, v in r._asdict().items()}
         d['data_url'] = rspec['site_pages']['data_release_url'].format(data_tag=d['data_tag']) if d['data_tag'] else None
         d['site_url'] = rspec['site_pages']['site_release_url'].format(site_tag=d['site_tag']) if d['site_tag'] else None
-        d['notes_html'] = md_to_html(notes_by_release[d['release_id']], idp='n' + re.sub(r'[^0-9A-Za-z]+', '-', str(d['release_id']))) if d['release_id'] in notes_by_release else None
+        d['has_notes'] = d['release_id'] in notes_by_release
+        # only the current release's note is shown on the page; the earlier ones are linked as markdown and as a Changes page
+        d['notes_html'] = (md_to_html(trim_release_note(notes_by_release[d['release_id']]), idp='n' + re.sub(r'[^0-9A-Za-z]+', '-', str(d['release_id'])))
+                           if d['has_notes'] and d['release_id'] == release_id else None)
         d['changes_href'] = rspec['site_pages']['changes_release'].format(release_id=d['release_id']).split('/')[-1]
         d['current'] = d['release_id'] == release_id
         releases.append(d)
@@ -2263,7 +2297,7 @@ def main():
             REDIRECTS[rspec['site_pages']['changes_release'].format(release_id=d['release_id'])] = 'index.html'
     releases_desc = list(reversed(releases))
     for d in releases:
-        if d['notes_html'] is not None:
+        if d['has_notes']:
             (out / 'releases' / f"RELEASE_NOTES_{d['release_id']}.md").write_text(notes_by_release[d['release_id']], encoding='utf-8')
     # item 6: the release list lives on downloads/index.html (rendered below, after the file inventory); the old releases page redirects there
 
@@ -2401,8 +2435,9 @@ def main():
         dict(path='authors/idx/<letter>.json', desc='Author index shards', **dirstat('authors/idx')),
     ]
     offsite = [dict(o, name=o['name'].replace('{v}', version), desc=o['desc'].replace('{v}', version)) for o in OFFSITE]
-    groups = [('catalog', 'Catalog tables (every body site, DNA and RNA, all ages)'), ('registry', 'Registry tables (every screened study)'), ('release', 'Release documents')]
-    render('downloads.html', 'downloads/index.html', '../', nav='downloads', files=pkg_files, groups=groups, n_zip_only=len(pkg_not_on_site), zip_only_size=human(sum(x['bytes'] for x in pkg_not_on_site)), zip_name=zip_name, zip_size=zip_size, zip_href=zip_href, sitedata=sitedata, offsite=offsite, vj=vj,
+    groups = [('catalog', 'Catalog tables'), ('registry', 'Registry tables'), ('release', 'Release documents')]
+    doc_pages = {d['name']: d['href'] for d in doc_list}   # F175: a package document that is also rendered under docs/ is linked as a page, not only as a download
+    render('downloads.html', 'downloads/index.html', '../', nav='downloads', files=pkg_files, groups=groups, doc_pages=doc_pages, n_zip_only=len(pkg_not_on_site), zip_only_size=human(sum(x['bytes'] for x in pkg_not_on_site)), zip_name=zip_name, zip_size=zip_size, zip_href=zip_href, sitedata=sitedata, offsite=offsite, vj=vj,
            releases=releases_desc, n_releases=len(releases), first_numbered=rspec['release_id']['first_numbered'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases')])
     manifest = dict(site=site['title'], package_version=version, release_tag=vj['release_tag'], release_id=release_id, build_date=build_date, generator_git_sha=gen_sha, base_url=base_url,

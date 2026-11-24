@@ -327,28 +327,27 @@ def main():
     by_age = w.assign(p=w.sample_key.isin(set(s.sample_key))).groupby(w.age_category.fillna("unknown")).p.agg(["size", "sum"]).reset_index()
     flag_rows = [(c, int(s[c].sum()), pct(int(s[c].sum()), len(s))) for c in FLAGS + ["qc_any_flag"]]
     L = [f"# CATALOG_SANDPIPER_REPORT — Sandpiper {a.version} profiles for the current catalog samples",
-         "", f"Built by `scripts/refresh_sandpiper.py` (one pass, all tables rebuilt). Inputs: `{os.path.basename(a.bulk)}` (GTDB {a.taxonomy_version}, Zenodo record {a.record}), "
-         f"`{os.path.basename(a.per_acc)}`, `catalog_runs.parquet` and `catalog_sample_metadata_wide.parquet` from `{a.catalog_dir}`. "
-         f"Only current samples (release_retired null) are used: {len(w):,} of {n_wide:,} wide-table rows.", "",
-         "## 1. Streaming pass", "", "| quantity | value |", "|---|---|",
-         f"| bulk rows scanned | {flog['rows_scanned']:,} |", f"| rows kept | {flog['rows_kept']:,} |",
-         f"| candidate runs (DNA runs of current samples) | {flog['matched_runs_expected']:,} |", f"| runs with a profile | {flog['runs_kept']:,} |",
-         f"| coverage format in the bulk file | {flog.get('coverage_format', 'filled')} |", f"| wall time | {flog['seconds']} s |", "",
-         f"Unfilled coverage rows below −0.02: {blog['negative_unfilled_rows']}. Genus sum-check (min, max, n): {blog['genus']['sum_check']}.", "",
-         "## 2. Coverage", "",
+         "", f"How the profiles were joined to the catalog samples. Inputs: `{os.path.basename(a.bulk)}` (GTDB {a.taxonomy_version}, Zenodo record {a.record}), "
+         f"`{os.path.basename(a.per_acc)}`, `catalog_runs.parquet` and `catalog_sample_metadata_wide.parquet`. "
+         f"Only current samples (release_retired null) are used: {len(w):,} of {n_wide:,} wide-table rows. "
+         f"Of the {flog['matched_runs_expected']:,} DNA runs of those samples, {flog['runs_kept']:,} have a profile.", "",
+         "## 1. Coverage", "",
          f"**{len(s):,} of {len(w):,} current samples ({pct(len(s), len(w))}) in {s.study_accession.nunique():,} of {w.study_accession.nunique():,} projects; "
          f"{len(pr):,} of {len(runs):,} runs ({pct(len(pr), len(runs))}).** Profiled runs without per-run metadata: {n_runs_no_meta:,}.", "",
          by_prefix.to_markdown(index=False), "", "Coverage classes (frac_samples_profiled; complete ≥ 0.95, majority ≥ 0.5, partial > 0): "
          + ", ".join(f"{k} {v:,}" for k, v in cov.coverage_class.value_counts().items()) + ".", "",
          "By age category:", "", by_age.rename(columns={"age_category": "age_category", "size": "n_samples", "sum": "n_profiled"}).assign(
              frac_profiled=lambda d: (d.n_profiled / d.n_samples).round(3)).to_markdown(index=False), "",
-         "## 3. QC flags per sample (flagged, never dropped; now computed for every sample)", "", "| flag | n_samples | pct |", "|---|---|---|"]
+         "## 2. QC flags per sample (flagged, never dropped; computed for every sample)", "", "| flag | n_samples | pct |", "|---|---|---|"]
     L += [f"| {c} | {n:,} | {p} |" for c, n, p in flag_rows]
     L += ["", "Definitions as in the 1.x report: low_depth = summed root coverage < 2; low_complexity / readfraction_warning / predicted_ecological "
           "(host_or_not = ecological) = on any run; non_metagenome = organism names a single non-human species on any run (strict rule minus "
           "'Homo sapiens'); non_metagenome_strict includes 'Homo sapiens'; synthetic = organism synthetic/simulat or library_source SYNTHETIC; "
           "rna = RNA library strategy/source; partial = n_runs_profiled < n_runs_total (DNA runs); no_genus_assigned = richness 0.", "",
-          "## 4. PCA", "", f"Matrix: {pmeta['n_matrix_samples']:,} samples with root coverage ≥ 2; {len(loadings)} genera detected (≥ 0.001) in ≥ 1 % of them; "
+          "Three caveats for anyone using these columns: the per-run flags are this resource's application of Sandpiper's rules, not "
+          "Sandpiper's own output; the `sp_miss_reason` values are inferences from the run metadata, not statements by Sandpiper; and the "
+          "relative abundances are fractions of prokaryotic coverage, not of all reads.", "",
+          "## 3. PCA", "", f"Matrix: {pmeta['n_matrix_samples']:,} samples with root coverage ≥ 2; {len(loadings)} genera detected (≥ 0.001) in ≥ 1 % of them; "
           f"{pmeta['n_unscored_no_kept_genus']:,} samples contain none of the kept genera → **{len(scores):,} scored samples**. Kept genera hold a median "
           f"{pmeta['kept_share_median']:.3f} (5th percentile {pmeta['kept_share_p5']:.3f}) of a sample's root coverage. Method unchanged from 1.x.", "",
           "Explained variance ratio: " + ", ".join(f"{r.pc.upper()} {r.explained_variance_ratio:.4f}" for r in var.itertuples()) + f" (cumulative {var.cumulative.iloc[-1]:.4f}).", ""]
@@ -356,12 +355,8 @@ def main():
         lo = loadings.sort_values(f"pc{k}")
         L.append(f"- **PC{k}** + " + ", ".join(f"{r.genus} {getattr(r, f'pc{k}'):.3f}" for r in lo.tail(6)[::-1].itertuples())
                  + "; − " + ", ".join(f"{r.genus} {getattr(r, f'pc{k}'):.3f}" for r in lo.head(5).itertuples()))
-    if chg:
-        L += ["", "## 5. Changes against the previous tables", "", "| quantity | value |", "|---|---|"]
-        L += [f"| {k} | {v:,} |" if isinstance(v, int) else f"| {k} | {v} |" for k, v in chg.items()]
-    if reg:
-        L += ["", "## 6. Registry run flags", "", f"`registry_runs_sandpiper.parquet`: {reg['registry_runs']:,} runs; sandpiper_profiled "
-              f"{reg['profiled_before']:,} → {reg['profiled_after']:,} (run list of `{os.path.basename(a.per_acc)}`)."]
+    # R2026.43 (site review, F130): the before/after table and the registry run-flag line are build bookkeeping; they stay in the
+    # refresh log (gut_sandpiper_refresh_log.json), not in the published report.
     open(f"{a.out}/GUT_SANDPIPER_REPORT.md", "w", encoding="utf-8").write("\n".join(L) + "\n")
     out = {"version": a.version, "record": a.record, "current_samples": len(w), "samples_profiled": len(s), "projects_profiled": int(s.study_accession.nunique()),
            "runs": len(runs), "runs_profiled": len(pr), "pca_scored": len(scores), "pca_genera": len(loadings), "filter": {k: v for k, v in flog.items() if k != "matched_runs_missing_from_bulk_sample"},

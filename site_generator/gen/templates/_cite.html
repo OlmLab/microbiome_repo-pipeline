@@ -5,6 +5,7 @@
 <a href="{{ site.zenodo_latest }}"><img src="{{ site.zenodo_badge }}" alt="Zenodo DOI badge (latest release of OlmLab/microbiome_repo-data)" height="20"></a>
 {% if site.concept_doi %} Concept DOI (all versions, resolves to the latest archived release): <a href="https://doi.org/{{ site.concept_doi }}">{{ site.concept_doi }}</a>.{% endif %}{% if site.doi %} Release DOI: <a href="https://doi.org/{{ site.doi }}">{{ site.doi }}</a>.{% elif not site.concept_doi %} <b>DOI: pending Zenodo integration</b> — the badge resolves to the latest archived DOI of the data repository (GitHub repository id {{ site.data_repo_id }}) once the owner enables the GitHub–Zenodo integration; until then releases are citable by release id, data tag{% if site.data_release_url %} (<a href="{{ site.data_release_url }}">{{ site.release_tag }}</a>){% endif %} and sha256 (VERSION.json).{% endif %}
 </div>
-<div class="small" style="margin-top:.3rem">Also cite the upstream sources this catalog is built on:
-<ul style="margin:.2rem 0 0 1rem">{% for u in site.upstream %}<li>{{ u.text }} <a href="{{ u.url }}">{{ u.url }}</a></li>{% endfor %}</ul></div>
+<div class="small" style="margin-top:.3rem">{% if site.upstream %}Also cite the upstream sources this resource is built on:
+<ul style="margin:.2rem 0 0 1rem">{% for u in site.upstream %}<li>{{ u.text }} <a href="{{ u.url }}">{{ u.url }}</a></li>{% endfor %}</ul>
+{% else %}Upstream sources to cite alongside this release: <a href="{{ root }}about/sources.html">Sources &amp; acknowledgements</a>.{% endif %}</div>
 </div>

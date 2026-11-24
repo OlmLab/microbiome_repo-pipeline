@@ -3,26 +3,46 @@
 GitHub Pages serves static files only, so the API is a set of small, predictable JSON / CSV files written at build time:
 
   api/index.json                        what exists, field definitions, how to search
-  api/projects.json                     one record per catalog project (≈ 2 MB — scripts; LLMs should start from a slice)
+  api/projects.json                     one record per catalog project (≈ 2 MB — scripts; LLMs should start from a smaller selection)
   api/by-intervention/<code>.json       projects that administered <code> (e.g. probiotic, fmt)
   api/by-condition/<code>.json          projects with samples (or a trial population) of health condition <code>
   api/by-age/<category>.json            projects with samples of an age category
   api/vocabularies.json                 every code with its label (conditions, interventions, age categories, designs …)
   api/samples/<PRJ>.csv                 plain-text per-sample sheet of one project (key columns only; full columns in data/studies/)
 
-Every project record carries the same keys, so an agent can filter a slice without reading documentation twice. llms.txt (root)
+Every project record carries the same keys, so an agent can filter a selection without reading documentation twice. llms.txt (root)
 states the procedure in plain words with worked examples; llms/index.html is the human page with the copy-paste prompt.
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
 
 SAMPLE_COLS = ['sample_key', 'study_accession', 'subject_id', 'timepoint_label', 'age_category', 'age_at_collection_days', 'sex', 'country',
                'health_condition', 'health_condition_detail', 'intervention', 'intervention_detail', 'antibiotic_exposure', 'collection_date',
                'body_site_class', 'n_runs', 'seq_gbp']
+SAMPLE_COL_DESC = {
+    'sample_key': 'identifier of the sample in this resource: its BioSample accession, or the run accession where the project is keyed by run',
+    'study_accession': 'BioProject accession of the project the sample belongs to',
+    'subject_id': "the submitter's identifier of the person sampled (never a sample id)",
+    'timepoint_label': "the source's own label for the timepoint (D6, M4, baseline); it is a label, not an age",
+    'age_category': 'life stage of the person at collection: neonate, infant, child, adolescent, adult, elderly (empty when not known)',
+    'age_at_collection_days': 'age of the person at collection, in days',
+    'sex': 'sex as stated by the source',
+    'country': 'ISO-2 code of the country the sample was collected or the person recruited in (not the laboratory)',
+    'health_condition': 'condition of this sample, as a code (codes and labels in api/vocabularies.json)',
+    'health_condition_detail': 'free text behind the code: diagnosis, group label or criterion',
+    'intervention': "the arm recorded for this sample; 'placebo' and 'no_intervention' are the controls and baselines",
+    'intervention_detail': 'short free text naming the agent or regimen',
+    'antibiotic_exposure': "yes / no: whether a source documents antibiotics before or at sampling ('no' needs a source that documents no exposure)",
+    'collection_date': 'date of collection, as specific as the source gives it (YYYY, YYYY-MM, YYYY-MM-DD or an interval)',
+    'body_site_class': "whether a body site is stated for this sample ('primary') or not ('unknown')",
+    'n_runs': 'number of sequencing runs of this sample',
+    'seq_gbp': 'sequenced bases of this sample, in gigabases',
+}
 DESIGNS = ['randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure', 'none', 'unknown']
 
 
@@ -142,14 +162,16 @@ def build(render, out: Path, ctx: dict):
         name=ctx['site_title'], release=ctx['release_id'], package_version=ctx['version'], base_url=base,
         description='Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages. A project = an INSDC BioProject; a sample = a BioSample (rarely a run).',
         how_to_search=[
-            'Pick the most specific slice: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
-            'Filter its projects on the other keys (health_conditions counts, interventions, intervention_design, has_cases_and_healthy_controls, has_treated_and_control_arms, n_samples, countries).',
+            'Pick the most specific selection: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
+            'Filter its `projects` on the other keys (health_conditions counts, interventions, intervention_design, has_cases_and_healthy_controls, has_treated_and_control_arms, n_samples, countries).',
             'For each candidate open urls.samples_csv to see the samples, their arms (intervention column), conditions and sequencing depth (seq_gbp).',
-            'Cite the project page (urls.page) and the ENA accession; values carry evidence on the project page.'],
+            'Cite the project page (urls.page) and the ENA accession; values carry evidence on the project page.',
+            'The code "unknown" in api/vocabularies.json means the value is not known for a sample; no file is written for it.'],
         endpoints=dict(projects=f'{base}api/projects.json', vocabularies=f'{base}api/vocabularies.json',
-                       by_intervention={c: f'{base}api/by-intervention/{c}.json' for c in slices['intervention']},
-                       by_condition={c: f'{base}api/by-condition/{c}.json' for c in slices['condition']},
-                       by_age={c: f'{base}api/by-age/{c}.json' for c in slices['age']},
+                       # the file names are unchanged; a code with a space or a slash is percent-encoded so the URL can be fetched verbatim
+                       by_intervention={c: f'{base}api/by-intervention/{quote(c)}.json' for c in slices['intervention']},
+                       by_condition={c: f'{base}api/by-condition/{quote(c)}.json' for c in slices['condition']},
+                       by_age={c: f'{base}api/by-age/{quote(c)}.json' for c in slices['age']},
                        samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/catalog_sample_metadata_wide.parquet'),
         project_keys=dict(accession='BioProject accession', title='project title', n_samples='curated catalog samples',
                           gbp_per_sample_median='median sequencing depth per sample (Gbp)', health_conditions='code -> number of samples',
@@ -161,7 +183,7 @@ def build(render, out: Path, ctx: dict):
                           has_cases_and_healthy_controls='>= 3 healthy_control samples and >= 3 samples with a disease code',
                           has_treated_and_control_arms='>= 3 samples in an active arm and >= 3 placebo / no_intervention samples (archive attributes)',
                           papers='up to 5 linked papers', urls='page, samples_csv (plain CSV), samples_full_csv_gz, evidence_csv_gz, ena'),
-        sample_columns={c: '' for c in cols},
+        sample_columns={c: SAMPLE_COL_DESC.get(c, '') for c in cols},
         counts=dict(projects=len(recs), interventions=slices['intervention'], conditions=slices['condition'], age=slices['age']))
     _dump(index, api / 'index.json')
     txt = llms_txt(index, ctx)
@@ -181,36 +203,38 @@ def llms_txt(index, ctx):
 Use ONLY the files below; fetch them, do not guess accessions or counts. All files are plain JSON / CSV at stable URLs.
 
 ## How to search (do this in order)
-1. Choose the most specific slice and fetch it:
-   - by intervention the study administered: {b}api/by-intervention/<code>.json   (codes: {ivs})
+1. Choose the most specific selection and fetch it:
+   - by intervention the project administered: {b}api/by-intervention/<code>.json   (codes: {ivs})
    - by health condition: {b}api/by-condition/<code>.json   (codes in {b}api/vocabularies.json, e.g. ulcerative_colitis, crohns_disease, ibd_unspecified, colorectal_cancer, type2_diabetes, obesity, healthy_control)
    - by age category: {b}api/by-age/<neonate|infant|child|adolescent|adult|elderly>.json
    - everything (large, ~2 MB): {b}api/projects.json
-2. Filter the slice's `projects` on the other keys: `health_conditions` (code -> samples), `interventions`, `intervention_design`, `trial_population_condition`,
+2. Filter its `projects` on the other keys: `health_conditions` (code -> samples), `interventions`, `intervention_design`, `trial_population_condition`,
    `sample_intervention_arms`, `has_cases_and_healthy_controls`, `has_treated_and_control_arms`, `n_samples`, `countries`, `age_categories`, `gbp_per_sample_median`.
 3. For each candidate fetch `urls.samples_csv` ({b}api/samples/<ACCESSION>.csv): one row per sample with subject_id, timepoint_label, age_category,
    age_at_collection_days, sex, country, health_condition, intervention (this sample's arm), antibiotic_exposure, collection_date, n_runs, seq_gbp.
 4. Answer with accessions, sample counts per group/arm, and links (`urls.page`, `urls.ena`). Say when a value is missing rather than inferring it.
 
 ## Meaning of the key fields
-- `interventions` = what the investigators ADMINISTERED (FMT, probiotic, diet, drug …), study level, read from the abstract / BioProject description. [] = none stated.
+- `interventions` = what the investigators ADMINISTERED (FMT, probiotic, diet, drug …), project level, read from the abstract / BioProject description. [] = none stated.
 - `sample_intervention_arms` / sample column `intervention` = the arm recorded in the archive for that sample; `placebo` and `no_intervention` are the controls / baselines.
 - `health_conditions` counts each sample's own condition; `trial_population_condition` is the condition of a trial's participants (e.g. ulcerative_colitis for a UC FMT trial).
-- An "IBD + FMT study" = by-intervention/fmt.json filtered to projects whose health_conditions or trial_population_condition include ulcerative_colitis, crohns_disease or ibd_unspecified.
+- An "IBD + FMT project" = by-intervention/fmt.json filtered to projects whose health_conditions or trial_population_condition include ulcerative_colitis, crohns_disease or ibd_unspecified.
 
 ## Worked examples
 - "Probiotic trials where both treated and control samples have metagenomes": fetch {b}api/by-intervention/probiotic.json; keep projects with
   intervention_design in (randomized_controlled_trial, crossover, non_randomized_controlled) OR has_treated_and_control_arms = true. has_treated_and_control_arms = true
   means the archive labels each sample's arm (best case); for the others read the samples_csv (intervention, timepoint_label, subject_id) and the paper to split arms.
-- "Ulcerative colitis FMT studies": fetch {b}api/by-intervention/fmt.json; keep trial_population_condition = ulcerative_colitis or health_conditions containing ulcerative_colitis.
+- "Ulcerative colitis FMT projects": fetch {b}api/by-intervention/fmt.json; keep trial_population_condition = ulcerative_colitis or health_conditions containing ulcerative_colitis.
 - "Adult colorectal-cancer case-control cohorts with healthy controls": fetch {b}api/by-condition/colorectal_cancer.json; keep has_cases_and_healthy_controls = true and age_categories containing adult.
 - "Infant gut samples from Finland": fetch {b}api/by-age/infant.json; keep countries containing Finland; then read samples_csv.
 
 ## For code-running agents
 DuckDB can query the full per-sample table over HTTP:
   INSTALL httpfs; LOAD httpfs;
-  SELECT study_accession, intervention, count(*) FROM read_parquet('{b}data/catalog_sample_metadata_wide.parquet') WHERE health_condition IN ('ulcerative_colitis','crohns_disease') GROUP BY ALL;
-Study-level columns (interventions, intervention_design, population_condition …): {b}data/catalog_studies.parquet. Field definitions: {b}fields/index.html.
+  SELECT study_accession, intervention, count(*) FROM read_parquet('{b}data/catalog_sample_metadata_wide.parquet')
+   WHERE release_retired IS NULL AND health_condition IN ('ulcerative_colitis','crohns_disease') GROUP BY ALL;
+  The table keeps the rows retired in earlier releases; `release_retired IS NULL` selects the samples of this release.
+Project-level columns (interventions, intervention_design, population_condition …): {b}data/catalog_studies.parquet. Field definitions: {b}fields/index.html.
 
 ## Caveats
 Values are evidence-linked claims (the archive record wins over the supplementary table, then the paper text, then the abstract), not ground truth; project-level

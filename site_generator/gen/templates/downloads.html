@@ -3,15 +3,17 @@
 {% block content %}
 <h1>Downloads &amp; releases</h1>
 <p class="lead">Data package <b>{{ site.version }}</b> (release {{ site.release_id }}, built {{ site.build_date }}).</p>
-<details class="about-page"><summary>About this page</summary><p>Start with <span class="mono">catalog_studies.parquet</span> (one row per catalog study) and <span class="mono">catalog_sample_metadata_wide.parquet</span> (one row per sample); the evidence behind every value is in <span class="mono">catalog_sample_determinations.parquet</span>; the registry of every screened public study is <span class="mono">registry_studies.parquet</span>. Row counts are table rows: the catalog tables keep the rows retired in earlier releases (<span class="mono">release_retired</span> set) next to the current ones. Column definitions: <a href="../docs/DATA_DICTIONARY.html">data dictionary</a>.</p></details>
+<details class="about-page"><summary>About this page</summary><p>Start with <span class="mono">catalog_studies.parquet</span> (one row per catalog project) and <span class="mono">catalog_sample_metadata_wide.parquet</span> (one row per sample); the evidence behind every value is in <span class="mono">catalog_sample_determinations.parquet</span>; the registry of every screened public study is <span class="mono">registry_studies.parquet</span>. Row counts are table rows: the catalog tables keep the rows retired in earlier releases (<span class="mono">release_retired</span> set) next to the current ones. Column definitions: <a href="../docs/DATA_DICTIONARY.html">data dictionary</a>.</p></details>
 {% if zip_name %}<div class="btns"><a class="btn" href="{{ zip_href }}">Whole package: {{ zip_name }} ({{ zip_size }})</a> {% if site.data_release_url %}<a class="btn sec" href="{{ site.data_release_url }}">GitHub Release {{ site.release_tag }}</a>{% endif %}</div>{% endif %}
+{% set cur = releases|selectattr('current')|first %}
 {% for gid, glabel in groups %}
 <h2>{{ glabel }}</h2>
-<table class="tbl small"><thead><tr><th>file</th><th class="num">rows</th><th class="num">size</th><th>description</th></tr></thead><tbody>
-{% for f in files if f.group == gid %}<tr><td><a class="mono" href="../{{ f.href }}" download>{{ f.name }}</a></td><td class="num">{{ f.rows|fmt if f.rows is not none else '' }}</td><td class="num">{{ f.size }}</td><td class="small">{{ f.desc }}</td></tr>{% endfor %}
+<table class="tbl small"><thead><tr><th>file</th><th class="num">rows (incl. retired)</th><th class="num">size</th><th>description</th></tr></thead><tbody>
+{% for f in files if f.group == gid %}<tr><td><a class="mono" href="../{{ f.href }}" download>{{ f.name }}</a></td><td class="num">{{ f.rows|fmt if f.rows is not none else '' }}</td><td class="num">{{ f.size }}</td><td class="small">{{ f.desc }}{% if doc_pages and doc_pages.get(f.name) %} <a href="../{{ doc_pages[f.name] }}">Read it as a page.</a>{% endif %}</td></tr>{% endfor %}
 </tbody></table>
+{% if gid == 'catalog' and cur %}<p class="small">Row counts include rows retired in earlier releases. This release has {{ cur.n_studies_included|fmt }} projects and {{ cur.n_samples|fmt }} samples: add <span class="mono">WHERE release_retired IS NULL</span> to a query to get them.</p>{% endif %}
 {% endfor %}
-{% if n_zip_only %}<p class="small">The package holds {{ n_zip_only }} further files ({{ zip_only_size }}): the tables of the first, infant-only phase of this resource and build records. They are in the whole-package zip above and on Zenodo, and are described in the package README; their content is also in the catalog tables.</p>{% endif %}
+{% if n_zip_only %}<p class="small">The package holds {{ n_zip_only }} further files ({{ zip_only_size }}): the tables of this resource's earlier birth-cohort curation, and records of the build. They are not listed here, because their content is also in the catalog tables; they are in the whole-package zip above{% if site.data_release_url %} (<a href="{{ site.data_release_url }}">GitHub release</a>){% endif %} and on Zenodo, and the package README describes them.</p>{% endif %}
 <h2>Release assets not on this site</h2>
 <table class="tbl small"><thead><tr><th>file</th><th>description</th></tr></thead><tbody>
 {% for o in offsite %}<tr><td class="mono">{{ o.name }}</td><td class="small">{{ o.desc }}{% if site.data_release_url %} — <a href="{{ site.data_release_url }}">release page</a>{% endif %}</td></tr>{% endfor %}
@@ -20,21 +22,25 @@
 <table class="tbl small"><thead><tr><th>path</th><th class="num">files</th><th class="num">size</th><th>description</th></tr></thead><tbody>
 {% for d in sitedata %}<tr><td class="mono">{{ d.path }}</td><td class="num">{{ d.n }}</td><td class="num">{{ d.size }}</td><td class="small">{{ d.desc }}</td></tr>{% endfor %}
 </tbody></table>
-<p class="small">Integrity: <a href="../data/manifest.json">manifest.json</a> (SHA-256 of every data file) · <a href="../data/VERSION.json">VERSION.json</a> (package tables with row counts and SHA-256). Licence: curated tables CC-BY-4.0; archive metadata under INSDC terms.</p>
+<p class="small">Integrity: <a href="../data/manifest.json">manifest.json</a> (SHA-256 of every file under <span class="mono">/data/</span>) · <a href="../data/VERSION.json">VERSION.json</a> (package tables with row counts and SHA-256). Licence: curated tables CC-BY-4.0; archive metadata under INSDC terms.</p>
 {% include "_cite.html" %}
 <h2 id="releases">Releases</h2>
 <p class="small">Every release is frozen and archived as a GitHub Release of the data repository (tag <span class="mono">data-v&lt;package&gt;</span>), with a matching site tag (<span class="mono">site-v&lt;package&gt;</span>) and a Zenodo version DOI. Every fact row carries <span class="mono">release_added</span> / <span class="mono">release_retired</span>; the <a href="../changes/index.html">Changes</a> page lists what changed in each release.</p>
 <table class="tbl compact" id="release-table"><thead><tr><th>Release</th><th>Date</th><th>Package</th><th>Data tag</th><th>Site tag</th><th>DOI</th><th class="num">Projects</th><th class="num">Samples</th><th class="num">Sample × field values</th><th>Sandpiper</th><th>Changes</th></tr></thead><tbody>
 {% for r in releases %}<tr{% if r.current %} class="final"{% endif %} id="rel-{{ r.release_id }}"><td class="mono">{{ r.release_id }}{% if r.current %} <b>current</b>{% endif %}</td><td>{{ r.release_date or '' }}</td><td class="mono">{{ r.package_version }}</td>
 <td class="mono">{% if r.data_url %}<a href="{{ r.data_url }}">{{ r.data_tag }}</a>{% else %}—{% endif %}</td><td class="mono">{% if r.site_url %}<a href="{{ r.site_url }}">{{ r.site_tag }}</a>{% else %}—{% endif %}</td>
-<td>{% if r.doi %}<a href="https://doi.org/{{ r.doi }}">{{ r.doi }}</a>{% else %}<span class="small">pending</span>{% endif %}</td>
+<td>{% if r.doi %}<a href="https://doi.org/{{ r.doi }}">{{ r.doi }}</a>{% elif r.current and site.concept_doi %}<a href="https://doi.org/{{ site.concept_doi }}">{{ site.concept_doi }}</a> <span class="small">(concept DOI)</span>{% else %}<span class="small">—</span>{% endif %}</td>
 <td class="num">{{ r.n_studies_included|fmt }}</td><td class="num">{{ r.n_samples|fmt }}</td><td class="num">{{ r.n_determinations_current|fmt }}</td><td class="mono">{{ r.sandpiper_version or '—' }}</td>
 <td><a href="../changes/{{ r.changes_href }}">changes</a></td></tr>{% endfor %}
 </tbody></table>
-<p class="small">Earlier package versions stay archived as GitHub Releases of the data repository and on Zenodo (the concept DOI resolves to the newest version).</p>
+<p class="small">Earlier package versions stay archived as GitHub Releases of the data repository and on Zenodo (the concept DOI resolves to the newest version). A version DOI is minted when Zenodo archives the release tag.</p>
 <h2 id="release-notes">Release notes</h2>
 {% for r in releases %}{% if r.notes_html %}
-<details{% if r.current %} open{% endif %} id="notes-{{ r.release_id }}"><summary><b>{{ r.release_id }}</b> — package {{ r.package_version }}, {{ r.release_date }} (<a href="../releases/RELEASE_NOTES_{{ r.release_id }}.md">markdown</a>)</summary>
+<details open id="notes-{{ r.release_id }}"><summary><b>{{ r.release_id }}</b> — package {{ r.package_version }}, {{ r.release_date }} (<a href="../releases/RELEASE_NOTES_{{ r.release_id }}.md">markdown</a>)</summary>
 <div class="doc">{{ r.notes_html|safe }}</div></details>
 {% endif %}{% endfor %}
+<p class="small">Notes of the earlier releases, each a per-field diff against the release before it:</p>
+<ul class="small">
+{% for r in releases %}{% if r.has_notes and not r.current %}<li><b>{{ r.release_id }}</b> — package {{ r.package_version }}, {{ r.release_date }}: <a href="../releases/RELEASE_NOTES_{{ r.release_id }}.md">notes (markdown)</a> · <a href="../changes/{{ r.changes_href }}">what changed</a></li>{% endif %}{% endfor %}
+</ul>
 {% endblock %}
