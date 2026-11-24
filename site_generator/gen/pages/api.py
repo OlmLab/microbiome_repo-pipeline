@@ -17,12 +17,32 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
 
 SAMPLE_COLS = ['sample_key', 'study_accession', 'subject_id', 'timepoint_label', 'age_category', 'age_at_collection_days', 'sex', 'country',
                'health_condition', 'health_condition_detail', 'intervention', 'intervention_detail', 'antibiotic_exposure', 'collection_date',
                'body_site_class', 'n_runs', 'seq_gbp']
+SAMPLE_COL_DESC = {
+    'sample_key': 'identifier of the sample in this resource: its BioSample accession, or the run accession where the project is keyed by run',
+    'study_accession': 'BioProject accession of the project the sample belongs to',
+    'subject_id': "the submitter's identifier of the person sampled (never a sample id)",
+    'timepoint_label': "the source's own label for the timepoint (D6, M4, baseline); it is a label, not an age",
+    'age_category': 'life stage of the person at collection: neonate, infant, child, adolescent, adult, elderly (empty when not known)',
+    'age_at_collection_days': 'age of the person at collection, in days',
+    'sex': 'sex as stated by the source',
+    'country': 'ISO-2 code of the country the sample was collected or the person recruited in (not the laboratory)',
+    'health_condition': 'condition of this sample, as a code (codes and labels in api/vocabularies.json)',
+    'health_condition_detail': 'free text behind the code: diagnosis, group label or criterion',
+    'intervention': "the arm recorded for this sample; 'placebo' and 'no_intervention' are the controls and baselines",
+    'intervention_detail': 'short free text naming the agent or regimen',
+    'antibiotic_exposure': "yes / no: whether a source documents antibiotics before or at sampling ('no' needs a source that documents no exposure)",
+    'collection_date': 'date of collection, as specific as the source gives it (YYYY, YYYY-MM, YYYY-MM-DD or an interval)',
+    'body_site_class': "whether a body site is stated for this sample ('primary') or not ('unknown')",
+    'n_runs': 'number of sequencing runs of this sample',
+    'seq_gbp': 'sequenced bases of this sample, in gigabases',
+}
 DESIGNS = ['randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure', 'none', 'unknown']
 
 
@@ -146,11 +166,13 @@ def build(render, out: Path, ctx: dict):
             'Pick the most specific selection: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
             'Filter its projects on the other keys (health_conditions counts, interventions, intervention_design, has_cases_and_healthy_controls, has_treated_and_control_arms, n_samples, countries).',
             'For each candidate open urls.samples_csv to see the samples, their arms (intervention column), conditions and sequencing depth (seq_gbp).',
-            'Cite the project page (urls.page) and the ENA accession; values carry evidence on the project page.'],
+            'Cite the project page (urls.page) and the ENA accession; values carry evidence on the project page.',
+            'The code "unknown" in api/vocabularies.json means the value is not known for a sample; no file is written for it.'],
         endpoints=dict(projects=f'{base}api/projects.json', vocabularies=f'{base}api/vocabularies.json',
-                       by_intervention={c: f'{base}api/by-intervention/{c}.json' for c in slices['intervention']},
-                       by_condition={c: f'{base}api/by-condition/{c}.json' for c in slices['condition']},
-                       by_age={c: f'{base}api/by-age/{c}.json' for c in slices['age']},
+                       # the file names are unchanged; a code with a space or a slash is percent-encoded so the URL can be fetched verbatim
+                       by_intervention={c: f'{base}api/by-intervention/{quote(c)}.json' for c in slices['intervention']},
+                       by_condition={c: f'{base}api/by-condition/{quote(c)}.json' for c in slices['condition']},
+                       by_age={c: f'{base}api/by-age/{quote(c)}.json' for c in slices['age']},
                        samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/catalog_sample_metadata_wide.parquet'),
         project_keys=dict(accession='BioProject accession', title='project title', n_samples='curated catalog samples',
                           gbp_per_sample_median='median sequencing depth per sample (Gbp)', health_conditions='code -> number of samples',
@@ -164,7 +186,7 @@ def build(render, out: Path, ctx: dict):
                           papers='up to 5 linked papers', urls='page, samples_csv (plain CSV), samples_full_csv_gz, evidence_csv_gz, ena'),
         licence='Curated values CC-BY-4.0; archive metadata under INSDC terms; Sandpiper community profiles CC-BY.',
         citation=ctx.get('citation', ''),
-        sample_columns={c: '' for c in cols},
+        sample_columns={c: SAMPLE_COL_DESC.get(c, '') for c in cols},
         counts=dict(projects=len(recs), interventions=slices['intervention'], conditions=slices['condition'], age=slices['age']))
     _dump(index, api / 'index.json')
     txt = llms_txt(index, ctx)

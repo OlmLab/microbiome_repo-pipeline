@@ -3,5 +3,7 @@
 {% block content %}
 <h1>{{ doc_title }}</h1>
 <p class="small">Rendered from <a href="{{ md_name }}">{{ md_name }}</a>.</p>
+{% if doc_note %}<p class="note small">{{ doc_note }}</p>{% endif %}
+{% if doc_toc %}<nav class="small" aria-label="Contents"><b>On this page:</b> {% for id, label in doc_toc %}<a href="#{{ id }}">{{ label }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</nav>{% endif %}
 <div class="md">{{ body|safe }}</div>
 {% endblock %}

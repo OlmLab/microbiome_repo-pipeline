@@ -550,6 +550,261 @@ def qualify_infant_verdicts(pkg: str) -> int:
             open(r, "w", encoding="utf-8").write(t); n += 1
     return n
 
+# ---------------------------------------------------------------------------
+# R2026.43 (site review): the README and the DATA_DICTIONARY are carried from release to release, so the
+# corrections below are applied on every build. Each one is a literal replacement that is a no-op once applied.
+# ---------------------------------------------------------------------------
+LEGACY_SECTION_HEADING = "## Birth and feeding fields (earlier birth-cohort curation)"
+LEGACY_SECTION = LEGACY_SECTION_HEADING + """
+Nine further fields — delivery mode, feeding mode, preterm status, gestational age, birth weight, maternal
+antibiotics, probiotic exposure, HMO supplementation and NEC status — were curated for the birth-cohort projects
+before the catalog covered every age. Their values are in the `catalog_*` tables (`curated_source = infant_catalog`);
+`infant_scope = true` selects those samples. The deeper tables of that curation (`sample_metadata_wide`,
+`sample_determinations`, `study_metadata_wide`, `cohorts`, `sandpiper_*`, …) are in this package and every column of
+them, including `age_scope` (what is known about a sample's age, and the filter their headline coverage is computed
+on), is documented in `DATA_DICTIONARY.md`.
+
+Read those tables with these caveats:
+
+* An age is recoverable for a minority of their samples, and per project it is all-or-nothing: some projects'
+  supplementary tables are keyed by identifiers that are absent from the archive and can only be joined with the
+  submitter's help.
+* `antibiotic_exposure` means *any* antibiotics before or at sampling; sources that record only current use disagree
+  with that definition.
+* `feeding_mode` categories differ between sources.
+* Probiotic exposure, HMO supplementation, NEC status, birth weight and maternal antibiotics have no external truth
+  set; they were audited by a blind automated re-reading only.
+* Projects that sampled several age groups carry many of the exposure values on adults — filter on `age_scope`
+  before using those fields.
+* Sandpiper relative abundances (`*_ra`) are fractions of prokaryotic coverage, not of all reads, and the per-run QC
+  flags are this resource's application of Sandpiper's rules, not Sandpiper's own output.
+* Some projects have no author on record in the author index.
+"""
+
+README_REWRITES = [
+    # F125 / F140: the site has not called the section "Atlas" since 2026-11-23
+    ("the data behind Atlas \u203a PCA", "the data behind Insights \u203a PCA of community profiles"),
+    # F146: "pack" is an internal name for the field set
+    ("cov_<field> for every pack field", "cov_<field> for every curated field"),
+    # F138: the package ships one notes file per release, not RELEASE_NOTES_R2026.1.md
+    ("| `RELEASE_NOTES_R2026.1.md` | | Generated diff report vs the previous package (studies/samples, coverage, verdict flips, findings, Sandpiper, gold, schema) |",
+     "| `RELEASE_NOTES_<release>.md` | | Per-field diff of a release against the release before it (one file per release), generated |"),
+    # F141 / F142: model names, pass names and pipeline file paths a reader cannot open
+    ("ages below 0 or above 122 years; Opus-checked corrections in data/inputs/gut/plausibility_corrections.csv of the pipeline",
+     "ages below 0 or above 122 years, and corrections checked against the source text"),
+    ("(utility-model pass over distinct attribute pairs, docs/REGISTRY_S2_PILOT.md)",
+     "(normalised by an automated check of the distinct attribute pairs)"),
+    ("(deterministic relation classes; docs/REGISTRY_S2_PAPERS.md)", "(deterministic relation classes)"),
+    ("Every triage-stage verdict per study (screen, rubric, Sonnet replicates, Opus adjudication, growth waves, BioSample re-judge, human-review rounds, final) with model, confidence, evidence and source artifact",
+     "Every classification a screened study passed through (rule, rubric, automated re-readings, re-judgement of the BioSamples, human review, final) with confidence, evidence and where it came from"),
+    ("`DATA_DICTIONARY.md` 'Release columns' and the pipeline's `docs/RELEASES.md`.", "`DATA_DICTIONARY.md`, 'Release columns'."),
+    ("(see `AUTHORS_REPORT.md`)", "(see `AUTHORS_REPORT.md`, a file in this package)"),
+    # F142 / removed reports: the five working reports of the birth-cohort phase are package files, not pages of the site
+    ("see `SANDPIPER_REPORT.md` \u00a73 and the DATA_DICTIONARY", "see `SANDPIPER_REPORT.md` (a file in this package) and the DATA_DICTIONARY"),
+    ("scope_memberships (config/scope.yaml)", "scope memberships"),
+    # the four sources are named, not coded, wherever a reader reads them (the `route` column keeps R1-R4)
+    ("value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; infant-catalog rows copied verbatim (src_track infant_catalog)",
+     "value, normalised value, where it came from (archive record / supplementary table / paper text / abstract), confidence, verbatim evidence quote and source; the rows of the earlier birth-cohort curation are carried over verbatim"),
+    ("`infant_scope` (== the infant catalog's catalog_scope filter)", "`infant_scope` (selects the samples of the earlier birth-cohort curation)"),
+    # F157: two files whose names differ from the catalog tables by one word
+    ("| Infant extension: One row per sample: identifiers, body-site class,",
+     "| Birth-cohort projects only \u2014 for the whole catalog use `catalog_sample_metadata_wide.parquet`. One row per sample: identifiers, body-site class,"),
+    # the sources, in words, in the one paragraph that defines them
+    ("Every value carries a **route** (R1 = archive sample attribute or sample-name convention (per sample); R2 = supplementary table row (per sample; 'subject_level_join' in parse_note when copied from a per-subject row); R3 = statement in the paper text applied to a defined group; R4 = abstract/ENA description statement (group; confidence \u22640.5).) and a **confidence**.",
+     "Every value says where it came from and how reliable it is. It comes from one of four sources: the **archive record** "
+     "(the sample's own attribute or a sample-name convention, per sample), a **supplementary table** of a linked paper "
+     "(per sample; `subject_level_join` in `parse_note` when the row was per subject), the **paper text** (a statement about a "
+     "defined group) or the **abstract** (a statement in the abstract or in the archive's project description; confidence \u2264 0.5). "
+     "The archive record wins over the supplementary table, then the paper text, then the abstract; the `route` column carries "
+     "these four as the codes `R1`, `R2`, `R3` and `R4`."),
+    ("For most analyses: use R1/R2 values at any confidence, and R3/R4 values only when `confidence \u2265 0.5`",
+     "For most analyses: use archive-record and supplementary-table values at any confidence, and paper-text and abstract values only when `confidence \u2265 0.5`"),
+]
+
+DICTIONARY_REWRITES = [
+    # F131: the first vocabulary a reader meets is about the birth-cohort tables, not the catalog's own column
+    ("| `body_site_class` | str | infant extension tables only \u2014 vocabulary:",
+     "| `body_site_class` | str | birth-cohort tables only (the catalog's own `body_site_class` is under 'Catalog tier') \u2014 vocabulary:"),
+    ("| `body_site_class` | str | infant extension tables only \u2014 body-site scope class \u2014 vocabulary:",
+     "| `body_site_class` | str | birth-cohort tables only \u2014 body-site scope class \u2014 vocabulary:"),
+    # F132 / F135: stage and scope codes a reader cannot resolve
+    ("### registry_biosamples.parquet (637,397 rows) \u2014 one row per harvested BioSample of a registry study (S2: human_all studies outside the curated infant catalog)",
+     "### registry_biosamples.parquet (637,397 rows) \u2014 one row per harvested BioSample of a registry study, excluding studies already curated in the catalog"),
+    ("; 4,217 human_all studies outside the curated infant catalog", "; registry studies that are not curated in the catalog"),
+    ("| `scope_memberships` | string | ';'-joined scope ids from config/scope.yaml |",
+     "| `scope_memberships` | string | ';'-joined ids of the named scopes the study belongs to |"),
+    # F145: 'universe' and 'enumeration channel' are internal words for the screening
+    ("| `universe_slice` | enumeration channel that found the study |",
+     "| `universe_slice` | which archive query first returned the study (the queries are listed in `registry_universe_audit.csv`) |"),
+    ("| `universe_slice` | string | Enumeration slice that found the study |",
+     "| `universe_slice` | string | which archive query first returned the study (the queries are listed in `registry_universe_audit.csv`) |"),
+    ("| `universe_slice` | str | enumeration channel |",
+     "| `universe_slice` | str | which archive query first returned the study |"),
+    # F133: the catalog Sandpiper table is built on the 2.0.1 snapshot, and the parenthetical counts something else
+    ("### catalog_sandpiper_sample_summary.parquet (415,757 rows) \u2014 one row per catalog sample with >= 1 run in the Sandpiper 2.0.0 snapshot (339,626 samples / 2,084 studies)",
+     "### catalog_sandpiper_sample_summary.parquet (415,757 rows) \u2014 one row per catalog sample with >= 1 run in the Sandpiper 2.0.1 snapshot"),
+    # F146: 'field pack' is an internal name
+    ("| `field_name` | string | Field of the catalog field pack |", "| `field_name` | string | Name of the metadata field |"),
+    ("(the catalog field pack age_categories)", "(the catalog's age categories)"),
+    # F147: 'R3b' is a pass name that appears nowhere else; the sources are named in words
+    ("| `fulltext` | string | full-text cohort statements (R3 + R3b):", "| `fulltext` | string | cohort statements in the paper text:"),
+    ("| `abstract` | string | abstract / ENA-description statements (R4 + R4b) |",
+     "| `abstract` | string | statements in the abstract or in the archive's project description |"),
+    # the README section this pointed at is gone; the values are enumerated in this row
+    ("\u2014 see README \"Age scope and roles\". Precedence:", "\u2014 precedence:"),
+    # repository paths, model names and the internal word 'universe' in the one paragraph that introduces the registry
+    ("The registry is the **outer tier** of the catalog (docs/EXPANSION.md): every ENA study with a human shotgun-metagenome signal, any body site,\n"
+     "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration slices: S1 `library_source=METAGENOMIC` \u00d7\n"
+     "`WGS|WXS`; S2 misfiled `GENOMIC` on verified human-metagenome taxa; S3 `OTHER|Targeted-Capture|WGA` adjudication (per-slice completeness in\n"
+     "`registry_universe_audit.csv`). Classification stages: `deterministic_prior` (infant-universe verdict carried over), `deterministic_rule`,\n"
+     "`sonnet_x2` (two rubric replicates agree), `opus_adjudicated` (replicates disagreed \u2192 adjudication), `pending`. Vocabularies: the pipeline's\n"
+     "`config/vocab/{body_sites,life_stages,assay,population_flags}.yaml`; scope rules: `config/scope.yaml`. `in_infant_catalog` mirrors `universe_studies_all.triage_verdict`).",
+     "The registry is the **outer tier** of the catalog: every ENA study with a human shotgun-metagenome signal, any body site, any age,\n"
+     "classified at STUDY level from the archive's own study / sample / run metadata (no paper is read). It is enumerated on three archive\n"
+     "queries, which are the values of `universe_slice`: `S1` (`library_source=METAGENOMIC` \u00d7 `WGS|WXS`), `S2` (misfiled `GENOMIC` on verified\n"
+     "human-metagenome taxa) and `S3` (`OTHER|Targeted-Capture|WGA`, adjudicated); how complete each one is, is in `registry_universe_audit.csv`.\n"
+     "Classification stages: `deterministic_prior` (a classification carried over from the earlier screen), `deterministic_rule`, `sonnet_x2`\n"
+     "(two automated readings of the rubric agree), `opus_adjudicated` (the two readings disagreed and a third decided), `pending`.\n"
+     "`in_infant_catalog` mirrors `universe_studies_all.triage_verdict`."),
+]
+
+
+def apply_doc_rewrites(pkg: str) -> int:
+    """R2026.43: literal corrections to the carried-forward README / DATA_DICTIONARY (no-op once applied)."""
+    n = 0
+    for fname, rules in (("README.md", README_REWRITES), ("DATA_DICTIONARY.md", DICTIONARY_REWRITES)):
+        path = os.path.join(pkg, fname)
+        if not os.path.exists(path):
+            continue
+        t = open(path, encoding="utf-8").read()
+        before = t
+        for a, b in rules:
+            if a in t:
+                n += t.count(a)
+                t = t.replace(a, b)
+        if t != before:
+            open(path, "w", encoding="utf-8").write(t)
+    return n
+
+
+README_ROW_RE = re.compile(r"^\| `([^`]+)`((?: / `[^`]+`)*) \| ([^|]*)\|", re.M)
+
+
+def refresh_readme_file_rows(pkg: str) -> int:
+    """F123 / F126: the Rows column of the README 'Files' table is the row count VERSION.json records, never typed."""
+    path, vpath = os.path.join(pkg, "README.md"), os.path.join(pkg, "VERSION.json")
+    if not (os.path.exists(path) and os.path.exists(vpath)):
+        return 0
+    tables = (json.load(open(vpath, encoding="utf-8")) or {}).get("tables") or {}
+    n = [0]
+
+    def _sub(m):
+        rows = (tables.get(m.group(1)) or {}).get("rows")
+        if rows is None:
+            return m.group(0)
+        cell = f"{rows:,} "
+        n[0] += cell != m.group(3)
+        return f"| `{m.group(1)}`{m.group(2)} | {cell}|"
+
+    t = open(path, encoding="utf-8").read()
+    t2 = README_ROW_RE.sub(_sub, t)
+    if t2 != t:
+        open(path, "w", encoding="utf-8").write(t2)
+    return n[0]
+
+
+def collapse_readme_legacy_sections(pkg: str) -> bool:
+    """F128 / F136: the three '## Infant extension: …' sections become one short section at the end of the README,
+    with the caveats a reader of those tables needs; the column detail is in DATA_DICTIONARY.md."""
+    path = os.path.join(pkg, "README.md")
+    if not os.path.exists(path):
+        return False
+    t = open(path, encoding="utf-8").read()
+    if LEGACY_SECTION_HEADING in t and "## Infant extension:" not in t:
+        return False
+    parts = re.split(r"(?m)^(?=## )", t)
+    kept = [p for p in parts if not p.startswith("## Infant extension:")]
+    if len(kept) == len(parts) and LEGACY_SECTION_HEADING in t:
+        return False
+    out = "".join(kept).rstrip()
+    if LEGACY_SECTION_HEADING not in out:
+        out += "\n\n" + LEGACY_SECTION
+    open(path, "w", encoding="utf-8").write(out.rstrip() + "\n")
+    return True
+
+
+def set_readme_citation(pkg: str, package_version: str, release_id: str, release_date: str, site_cfg: dict) -> bool:
+    """F124 / F127: one citation string, the one the site prints, instead of the 2026-09 placeholder."""
+    path = os.path.join(pkg, "README.md")
+    if not os.path.exists(path):
+        return False
+    title = ((site_cfg.get("site") or {}).get("title")) or "Microbiome Repo"
+    lab = ((site_cfg.get("about") or {}).get("lab_name")) or ""
+    doi = ((site_cfg.get("github") or {}).get("zenodo_concept_doi")) or ""
+    cite = f"Cite: {title}, release {release_id} (data package {package_version})"
+    cite += f", {lab}" if lab else ""
+    cite += f", {release_date}." if release_date else "."
+    cite += f" DOI {doi}." if doi else ""
+    t = open(path, encoding="utf-8").read()
+    t2 = re.sub(r"Citation placeholder: \*[^*]*\*", cite, t)
+    t2 = re.sub(r"(?m)^Cite: .*?(?:DOI [0-9.]+/zenodo\.[0-9]+\.|\.)$", cite, t2)
+    t2 = re.sub(r"Cite: [^\n]*?DOI [0-9.]+/zenodo\.[0-9]+\.", cite, t2)
+    if t2 == t:
+        return False
+    open(path, "w", encoding="utf-8").write(t2)
+    return True
+
+
+README_PROVENANCE = (
+    "Built with an LLM-assisted pipeline and deterministic parsers; every value links to its source, its verbatim "
+    "evidence quote and a confidence, and the undecidable residue went through two rounds of automated review of the "
+    "paper text. Full methods: the Methods and 'Where values come from' pages of the site. The working reports of this "
+    "resource's earlier birth-cohort phase (`CATALOG_REPORT.md`, `EXTRACTION_REPORT.md`, `SANDPIPER_REPORT.md`, "
+    "`AUTHORS_REPORT.md`, `DATA_MODEL_FIX_REPORT.md`) are files in this package; they are not pages of the site. "
+    "Licence: CC-BY-4.0 for the curated tables (archive metadata remains under INSDC terms). "
+)
+
+
+def rewrite_readme_provenance(pkg: str) -> bool:
+    """F141 / F142 / the five removed reports: model names, pass names and site pointers that no longer exist."""
+    path = os.path.join(pkg, "README.md")
+    if not os.path.exists(path):
+        return False
+    t = open(path, encoding="utf-8").read()
+    m = re.search(r"(?ms)^(## Provenance and licence\n)(.*?)(?=\n## |\Z)", t)
+    if not m or m.group(2).startswith(README_PROVENANCE[:60]):
+        return False
+    cite = re.search(r"(Citation placeholder: \*[^*]*\*|Cite: [^\n]*)", m.group(2))
+    body = README_PROVENANCE + (cite.group(1) if cite else "")
+    open(path, "w", encoding="utf-8").write(t[:m.start(2)] + body.rstrip() + "\n" + t[m.end(2):])
+    return True
+
+
+DICT_TOC_MARK = "**On this page.**"
+
+
+def dictionary_contents(pkg: str) -> bool:
+    """F119 / F120: the dictionary opens with the birth-cohort tables and had no contents list, so a reader who starts
+    at the top documents the wrong table. The order of the document is unchanged; the top now says where to go."""
+    path = os.path.join(pkg, "DATA_DICTIONARY.md")
+    if not os.path.exists(path):
+        return False
+    t = open(path, encoding="utf-8").read()
+    t = t.replace("\n## sample_metadata_wide.parquet\n",
+                  "\n## sample_metadata_wide.parquet (birth-cohort tables, not the catalog sample table)\n", 1)
+    if DICT_TOC_MARK in t:
+        open(path, "w", encoding="utf-8").write(t)
+        return False
+    heads = [h for h in re.findall(r"(?m)^## (.+)$", t)]
+    lead = ("\n" + DICT_TOC_MARK + " The tables the site and every download are built on are under **Catalog tier**; every screened\n"
+            "study is under **Registry tier**. The document opens with the deeper tables of the earlier birth-cohort curation\n"
+            "(`sample_metadata_wide.parquet` and `study_metadata_wide.parquet` — not the catalog's `catalog_*` tables).\n\n"
+            + "Sections: " + " · ".join(h.split(" (")[0] for h in heads) + "\n")
+    i = t.index("\n", t.index("# "))
+    open(path, "w", encoding="utf-8").write(t[:i + 1] + lead + t[i + 1:])
+    return True
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--package", required=True)
@@ -578,6 +833,23 @@ def main(argv=None):
     json.dump(counts, open(os.path.join(a.package, "build_counts.json"), "w"), indent=1, sort_keys=True)
     changed = prepend_changelog(a.package, a.changelog_entry)
     refresh_row_counts(a.package)
+    # R2026.43 (site review): corrections to the carried-forward package documents
+    site_cfg = {}
+    _site_path = os.path.join(CONFIG_DIR, "site.yaml")
+    if os.path.exists(_site_path):
+        site_cfg = yaml.safe_load(open(_site_path, encoding="utf-8")) or {}
+    _rel_date = ""
+    _reg = os.path.join(a.package, cfg["files"]["registry"])
+    if os.path.exists(_reg):
+        _rr = pd.read_csv(_reg)
+        _rr = _rr[_rr.release_id == a.release_id]
+        _rel_date = str(_rr.release_date.iloc[0]) if len(_rr) and "release_date" in _rr.columns else ""
+    apply_doc_rewrites(a.package)
+    rewrite_readme_provenance(a.package)
+    set_readme_citation(a.package, a.package_version, a.release_id, _rel_date or a.build_date, site_cfg)
+    collapse_readme_legacy_sections(a.package)
+    refresh_readme_file_rows(a.package)
+    dictionary_contents(a.package)
     sanitised = sanitise_session_tokens(a.package)  # F7
     print(json.dumps({k: counts[k] for k in ("package_version", "release_id", "n_samples", "n_studies", "n_catalog_scope", "n_determinations_current")} | {"changelog_prepended": changed, "worklist_documented": worklist_doc, "registry_documented": registry_doc, "readme_intro_rewritten": intro_doc, "session_tokens_stripped": sanitised}))
     return 0

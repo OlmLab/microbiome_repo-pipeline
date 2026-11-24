@@ -32,7 +32,7 @@ codes:
   other_disease: {label: Other disease / condition, match_terms: [disease, patient, case, syndrome, disorder]}
   unknown: {label: Unknown / not stated, match_terms: []}
   # legacy infant codes (config of the curated infant catalog; kept verbatim on infant rows)
-  preterm_nicu: {label: Preterm / NICU (infant), legacy_infant: true}
-  nec: {label: Necrotising enterocolitis (infant), legacy_infant: true}
-  sepsis_or_infection: {label: Sepsis / infection (infant), legacy_infant: true}
-  ibd_or_gi_disease: {label: IBD or GI disease (infant), legacy_infant: true}
+  preterm_nicu: {label: Preterm / NICU, legacy_infant: true}
+  nec: {label: Necrotising enterocolitis, legacy_infant: true}
+  sepsis_or_infection: {label: Sepsis / infection, legacy_infant: true}
+  ibd_or_gi_disease: {label: IBD or GI disease, legacy_infant: true}

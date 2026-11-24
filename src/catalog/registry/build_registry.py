@@ -412,14 +412,19 @@ def write_report(df: pd.DataFrame, path: str, release_id: str, fixture: bool, au
         return lines
 
     scopes = Counter(s for v in df.scope_memberships for s in (v.split(";") if v else []))
+    # R2026.43: the report says what it counts in words (F455, F479); the retired infant screen is no longer a facet (F447)
     lines = [f"# REGISTRY_REPORT — registry_studies ({release_id})", "",
-             f"*{'FIXTURE RUN — 200-study sample drawn from the 1.5.0 infant universe; counts are provisional and describe the fixture, not the registry universe.' if fixture else 'Full registry universe.'}*",
-             "", f"Studies: **{len(df):,}** · runs: **{int(df.n_runs.sum()):,}** · samples: **{int(df.n_samples.sum()):,}** · needs-LLM (stage pending): **{int((df.classification_stage == 'pending').sum()):,}**", ""]
+             f"*{'FIXTURE RUN — a 200-study sample; the counts describe the fixture, not the registry.' if fixture else f'Every public study screened for the registry in release {release_id}, counted by each classification facet.'}*",
+             "", f"Studies: **{len(df):,}** · runs: **{int(df.n_runs.sum()):,}** · samples: **{int(df.n_samples.sum()):,}** · "
+             f"**{int((df.classification_stage == 'pending').sum()):,}** not yet classified beyond the deterministic rules", ""]
     lines += table("host_human", "host_human") + table("body_site_primary", "body_site_primary") + table("life_stage_primary", "life_stage_primary")
-    lines += table("assay", "assay") + table("classification_stage", "classification_stage") + table("in_infant_catalog", "in_infant_catalog") + table("access", "access")
+    lines += table("assay", "assay") + table("classification_stage", "classification_stage") + table("access", "access")
     lines += ["### scope_memberships (a study can be in several)", "", "| scope | studies |", "|---|---:|"] + [f"| {k} | {v:,} |" for k, v in sorted(scopes.items(), key=lambda kv: -kv[1])] + [""]
     if audit is not None:
-        lines += ["### registry_universe_audit (enumeration track)", "", audit.to_markdown(index=False), ""]
+        # F456: the queries themselves are in the shipped table, one row each, not pasted here
+        lines += ["### How the registry was enumerated", "",
+                  f"The registry is enumerated on {len(audit):,} archive queries. `registry_universe_audit.csv` lists them, "
+                  "each with the number of studies the archive reports for it and the number pulled.", ""]
     open(path, "w", encoding="utf-8").write("\n".join(lines))
 
 
