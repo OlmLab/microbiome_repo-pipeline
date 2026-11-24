@@ -2,16 +2,17 @@
 {% block title %}Registry scope: {{ s.label }} — {{ site.title }}{% endblock %}
 {% block desc %}Registry scope {{ s.id }}: {{ s.definition }}{% endblock %}
 {% block content %}
-<h1>{{ s.label }} <span class="small mono">{{ s.id }}</span>{% if s.curated %} <span class="tag included">curated scope</span>{% endif %}</h1>
+<h1>{{ s.label }}{% if s.curated %} <span class="tag included">curated scope</span>{% endif %}</h1>
 <p class="lead">{{ s.definition }}</p>
-<p class="small">Membership rule (<span class="mono">config/scope.yaml</span>): <span class="mono">{{ s.rule }}</span>. Memberships derive deterministically from host, body sites, life stages and assay; a study can belong to several scopes.{% if s.curated %} This scope is curated: every included study has a <a href="../../studies/index.html">study page</a> with per-sample metadata.{% endif %}</p>
+<p class="small">Scope code: <span class="mono">{{ s.id }}</span> (used in the registry table and the API).</p>
+<p class="small">A study is in this scope {{ s.rule }}. Memberships derive deterministically from host, body sites, life stages and assay; a study can belong to several scopes.{% if s.curated %} Studies of this scope that are in the catalog link to a <a href="../../studies/index.html">project page</a> with per-sample metadata; the rest are registry-only — the table below marks which is which.{% endif %}</p>
 <div class="cards">
 <div class="card"><div class="num">{{ s.n_studies|fmt }}</div><div class="lbl">studies</div></div>
 <div class="card"><div class="num">{{ s.n_runs|fmt }}</div><div class="lbl">runs</div></div>
 <div class="card"><div class="num">{{ s.n_biosamples|fmt }}</div><div class="lbl">BioSamples</div></div>
 {% if s.n_harvested %}<div class="card"><div class="num">{{ s.n_harvested|fmt }}</div><div class="lbl">BioSamples with harvested attributes — site known {{ (100 * s.n_with_site / s.n_harvested)|round|int }} %, age {{ (100 * s.n_with_age / s.n_harvested)|round|int }} %, sex {{ (100 * s.n_with_sex / s.n_harvested)|round|int }} %</div></div>{% endif %}
 {% if s.n_runs_sandpiper %}<div class="card"><div class="num">{{ s.n_runs_sandpiper|fmt }}</div><div class="lbl">runs with a Sandpiper profile ({{ (100 * s.n_runs_sandpiper / s.n_runs)|round|int if s.n_runs else 0 }} %)</div></div>{% endif %}
-<div class="card"><div class="num">{{ s.n_classified|fmt }}</div><div class="lbl">classified · {{ s.n_pending|fmt }} pending</div></div>
+<div class="card"><div class="num">{{ s.n_classified|fmt }}</div><div class="lbl">classified in the registry · {{ s.n_pending|fmt }} still to check — a study still to check keeps the body site, life stage and assay read from its archive record</div></div>
 </div>
 <p><a class="btn" href="../index.html?scope={{ s.id }}#explorer">Open in the registry explorer (pre-filtered)</a> <a class="btn sec" href="../index.html#scopes">All scopes</a></p>
 
@@ -20,14 +21,15 @@
 {% for f in facets %}
 <div class="card"><b>{{ f.label }}</b> <span class="small">(<span class="mono">{{ f.column }}</span>)</span>
 <table class="tbl small" style="margin-top:.4rem"><thead><tr><th>value</th><th class="num">studies</th><th class="num">runs</th></tr></thead><tbody>
-{% for k, ns, nr in f.rows %}<tr><td class="mono">{{ k }}</td><td class="num">{{ ns|fmt }}</td><td class="num">{{ nr|fmt }}</td></tr>{% endfor %}
+{% for k, ns, nr in f.rows %}<tr><td><span class="mono">{{ k }}</span>{% if f.labels.get(k) %} <span class="small">{{ f.labels.get(k) }}</span>{% endif %}</td><td class="num">{{ ns|fmt }}</td><td class="num">{{ nr|fmt }}</td></tr>{% endfor %}
 </tbody></table></div>
 {% endfor %}
 </div>
 
 <h2>Largest studies by BioSamples (top {{ top|length }})</h2>
-<table class="tbl"><thead><tr><th>study</th><th>title</th><th class="num">BioSamples</th><th class="num">runs</th><th>sites</th><th>stages</th><th>assay</th><th>stage</th></tr></thead><tbody>
-{% for r in top %}<tr><td class="mono">{% if r.has_page %}<a href="../../studies/{{ r.study_accession }}.html">{{ r.study_accession }}</a>{% else %}{{ r.study_accession }}{% endif %} <a class="small" href="https://www.ebi.ac.uk/ena/browser/view/{{ r.study_accession }}">ENA</a></td><td>{{ (r.study_title or '')|truncate(110) }}</td><td class="num">{{ r.n_samples|fmt }}</td><td class="num">{{ r.n_runs|fmt }}</td><td class="small">{{ r.body_sites or '' }}</td><td class="small">{{ r.life_stages or '' }}</td><td class="small mono">{{ r.assay }}</td><td><span class="tag">{{ r.classification_stage }}</span></td></tr>{% endfor %}
+<p class="small"><span class="tag incat">✓</span> = in the curated catalog; — = registry only (open the row in the explorer for the reason).</p>
+<table class="tbl"><thead><tr><th>in catalog</th><th>study</th><th>title</th><th class="num">BioSamples</th><th class="num">runs</th><th>sites</th><th>stages</th><th>assay</th><th>stage</th></tr></thead><tbody>
+{% for r in top %}<tr><td>{% if r.has_page %}<span class="tag incat">✓</span>{% else %}<a class="small" href="../index.html?study={{ r.study_accession }}">—</a>{% endif %}</td><td class="mono">{% if r.has_page %}<a href="../../studies/{{ r.study_accession }}.html">{{ r.study_accession }}</a>{% else %}{{ r.study_accession }}{% endif %} <a class="small" href="https://www.ebi.ac.uk/ena/browser/view/{{ r.study_accession }}">ENA</a></td><td>{{ (r.study_title or '')|truncate(110) }}</td><td class="num">{{ r.n_samples|fmt }}</td><td class="num">{{ r.n_runs|fmt }}</td><td class="small">{{ r.body_sites or '' }}</td><td class="small">{{ r.life_stages or '' }}</td><td class="small mono">{{ r.assay }}</td><td><span class="tag">{{ r.classification_stage }}</span></td></tr>{% endfor %}
 </tbody></table>
 <p class="small">Counts are computed from <span class="mono">data/registry_studies.parquet</span> at build time (release {{ site.release_id }}).</p>
 {% endblock %}
