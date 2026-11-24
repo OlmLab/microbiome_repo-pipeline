@@ -14,7 +14,7 @@
 <a class="card" href="../contribute/index.html"><b>Contribute</b><br>Projects whose core fields are still missing, and how a per-sample table or a paper pointer unlocks them.</a>
 </div>
 <h2 id="funnel">Registry → catalog in numbers</h2>
-<table class="tbl small" style="max-width:720px"><tbody>{% for label, n in funnel %}<tr><td>{{ label }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</tbody></table>
+<p>How the registry's screened studies become the catalog's {{ stats.n_studies|fmt }} projects, step by step, is on <a href="scope.html#funnel">Scope</a>.</p>
 <h2 id="cite">How to cite</h2>
 {% include "_cite.html" %}
 <h2 id="docs">Documents</h2>

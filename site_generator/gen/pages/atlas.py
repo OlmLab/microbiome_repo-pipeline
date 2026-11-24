@@ -254,12 +254,18 @@ def build(env, render, ctx, out_dir):
     obs = dict(meta={}, cards=[])
     (out_dir / 'atlas').mkdir(parents=True, exist_ok=True)
     payload_mb = round(taxa_meta.get('payload_bytes_total', 0) / 1e6, 1)
-    # F318: the payload stores one string, 'GTDB R232 (Sandpiper 2.0.0, Zenodo 20419175)'; the page prints the
-    # tool first and the taxonomy once, so neither name is repeated inside a bracket
+    # F318: the page prints the tool first and the taxonomy once, so neither name is repeated inside a
+    # bracket. R2026.43: the rebuilt payload carries the parts in meta.generated_from; older payloads carry
+    # only the one string 'GTDB R232 (Sandpiper 2.0.1, Zenodo 21287531)', which is split here.
     _tax = str(taxa_meta.get('taxonomy') or '')
+    _g = taxa_meta.get('generated_from') or {}
     _m = re.match(r'^\s*([^(]+?)\s*\(\s*([^,]+?)\s*,\s*([^)]+?)\s*\)\s*$', _tax)
-    profiles_from = f'{_m.group(2)} ({_m.group(1)}, {_m.group(3)})' if _m else _tax
-    taxonomy_db = _m.group(1) if _m else _tax
+    if _g.get('sandpiper_version') and _g.get('taxonomy_db') and _g.get('taxonomy_version'):
+        taxonomy_db = f"{_g['taxonomy_db']} {_g['taxonomy_version']}"
+        profiles_from = f"Sandpiper {_g['sandpiper_version']} ({taxonomy_db}" + (f", Zenodo {_g['zenodo_record']})" if _g.get('zenodo_record') else ')')
+    else:
+        profiles_from = f'{_m.group(2)} ({_m.group(1)}, {_m.group(3)})' if _m else _tax
+        taxonomy_db = _m.group(1) if _m else _tax
     render('atlas.html', 'atlas/index.html', '../', nav='atlas', meta=taxa_meta, payload_mb=payload_mb, n_obs=len(obs['cards']), stats=ctx.get('stats', {}),
            profiles_from=profiles_from, taxonomy_db=taxonomy_db,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Insights', href='taxa/index.html'), dict(label='Taxon map')])

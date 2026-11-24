@@ -22,7 +22,7 @@
 <table class="tbl small"><thead><tr><th>path</th><th class="num">files</th><th class="num">size</th><th>description</th></tr></thead><tbody>
 {% for d in sitedata %}<tr><td class="mono">{{ d.path }}</td><td class="num">{{ d.n }}</td><td class="num">{{ d.size }}</td><td class="small">{{ d.desc }}</td></tr>{% endfor %}
 </tbody></table>
-<p class="small">Integrity: <a href="../data/manifest.json">manifest.json</a> (SHA-256 of every file under <span class="mono">/data/</span>) · <a href="../data/VERSION.json">VERSION.json</a> (package tables with row counts and SHA-256). Licence: curated tables CC-BY-4.0; archive metadata under INSDC terms.</p>
+<p class="small">Integrity: <a href="../data/manifest.json">manifest.json</a> (SHA-256 of every file under <span class="mono">/data/</span>) · <a href="../data/VERSION.json">VERSION.json</a> (package tables with row counts and SHA-256). Licence: curated tables (<span class="mono">catalog_*</span> and <span class="mono">registry_*</span>) are released under CC-BY-4.0; archive metadata remains under INSDC terms; Sandpiper community profiles under CC-BY.</p>
 {% include "_cite.html" %}
 <h2 id="releases">Releases</h2>
 <p class="small">Every release is frozen and archived as a GitHub Release of the data repository (tag <span class="mono">data-v&lt;package&gt;</span>), with a matching site tag (<span class="mono">site-v&lt;package&gt;</span>) and a Zenodo version DOI. Every fact row carries <span class="mono">release_added</span> / <span class="mono">release_retired</span>; the <a href="../changes/index.html">Changes</a> page lists what changed in each release.</p>

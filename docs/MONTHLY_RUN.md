@@ -84,6 +84,8 @@ the Makefile).
 |---|---|---|
 | VANISH / BloSSUM (`atlas/vanish.html`) | `make vanish` on the built package (about 11 h at 6 jobs, 3 GB, resumable, no model cost), then `make vanish-page VANISH_CALIBRATION="<which threshold relaxation was adopted, or that none was>"`, which also computes the numbers of the six "how to read these lists" sentences and the three exploratory checks of the Robustness section (`scripts/vanish_robustness.py`, `docs/VANISH_ROBUSTNESS.md`; answer to Ibata et al., bioRxiv 2026.11.17.767315; no class or threshold depends on them) | none |
 | Taxon explorer (`atlas/taxa/index.html`) | `make taxa` after `make vanish` (it reads the classes from `results.csv`; about 70 s, 3.6 GB) | none |
+| Taxon map (`atlas/index.html`) | `make taxon-map` after `make release` and before `make measures`, `make taxa` and `make site` (about 40 s, 3 GB; `scripts/build_taxon_map.py`). **Every release** (R2026.43): until then the map kept showing the page data of September 2026 | none |
+| Profile coverage and quality (`atlas/measures.html`) | `make measures` after `make taxon-map` (it reads `countries.json`) | none |
 | Replication of published findings (`atlas/replication.html`) | `make replication-page` (3 s; checks the payload against the checksums of the Replication chat). The test is **not** repeated: its results belong to package 1.34.0 | none |
 
 - Rerun `make vanish` and `make taxa` when the samples, the profiles or `country_hdi.csv` change; a release whose data tables
@@ -93,7 +95,11 @@ the Makefile).
   to the sample table by group) and say so in the changelog. R2026.42 fits with the lists.
 - `make side-page-tests` runs the three page tests on the built site (jsdom from `$(SIDE_PAGES)/work/node`).
 - Menu and naming (owner, 2026-11-23): the section is "Insights"; the word "Atlas" is not shown to visitors; addresses stay
-  under `atlas/`. `atlas/measures.html` and `atlas/figures.html` are built but not in the menu (`OFF_MENU_PAGES`).
+  under `atlas/`. Since R2026.43 (owner, 2026-11-24) `atlas/measures.html` is in the menu as "Profile coverage and quality";
+  `atlas/figures.html` and `atlas/observations.html` are gone and redirect to the Taxon explorer.
+- The Taxon explorer, the Taxon map and Profile coverage and quality print the release and package their page data were
+  computed from: rerun `make taxon-map`, `make measures` and `make taxa` on the built package of every release, also when
+  the data did not change, so that the stamp is the release being published.
 
 ## Rules that hold every month
 

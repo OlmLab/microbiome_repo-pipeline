@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Taxon map — where taxa are carried · {{ site.title }}{% endblock %}
-{% block desc %}Interactive world map of genus and species carriage across {{ meta.n_samples | numint }} human gut metagenomes from {{ meta.n_studies | numint }} projects and {{ meta.n_countries }} countries.{% endblock %}
+{% block desc %}Interactive world map of genus and species carriage across {{ meta.n_samples | numint }} human metagenomes from {{ meta.n_studies | numint }} projects and {{ meta.n_countries }} countries.{% endblock %}
 {% block head %}
 <style>
 .atlas{display:grid;grid-template-columns:300px 1fr 320px;gap:1rem;align-items:start}
@@ -35,10 +35,10 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
 </style>
 {% endblock %}
 {% block content %}
-<h1>Taxon map — where taxa are carried, gut samples</h1>
+<h1>Taxon map — where taxa are carried</h1>
 {% set sub="map" %}{% include "_insights_nav.html" %}
-<p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's gut metagenomes; other body sites are in the <a href="taxa/index.html">Taxon explorer</a>. This view uses {{ meta.n_samples | numint }}{% if stats.n_samples %} of the catalog's {{ stats.n_samples | numint }}{% endif %} samples (gut only); the other Insights pages use different subsets.</p>
-<details class="about-page"><summary>About this page</summary><p>Data: community profiles from {{ profiles_from }} for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> projects and <b>{{ meta.n_countries }}</b> countries; the map downloads {{ payload_mb }} MB the first time, and one more file each time you change rank. {% if meta.generated_from and meta.generated_from.release_id %}Computed in release {{ meta.generated_from.release_id }} from data package {{ meta.generated_from.package_version }}.{% endif %}</p></details>
+<p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's metagenomes. This view uses {{ meta.n_samples | numint }}{% if stats.n_samples %} of the catalog's {{ stats.n_samples | numint }}{% endif %} samples: every profiled sample that states a body site and passes the profile quality flags, at all body sites; the other Insights pages use different subsets, and <a href="measures.html">Profile coverage and quality</a> counts every profiled sample.</p>
+<details class="about-page"><summary>About this page</summary><p>Data: community profiles from {{ profiles_from }}, rebuilt in every release, for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> projects and <b>{{ meta.n_countries }}</b> countries; the map downloads {{ payload_mb }} MB the first time, and one more file each time you change rank. {% if meta.generated_from and meta.generated_from.release_id %}Computed in release {{ meta.generated_from.release_id }} from data package {{ meta.generated_from.package_version }}.{% endif %}</p></details>
 
 <div class="atlas">
 <div class="side">
@@ -71,8 +71,8 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
 <ul>
 <li><b>Project is the master confounder.</b> Most projects sample one country and one age group with one protocol; a country's colour is the mixture of its few projects (click a country to see them). Compare countries only when the project list looks comparable, and prefer the per-project dossiers.</li>
 <li><b>Repeated measures.</b> Longitudinal cohorts contribute many samples per person; n samples overstates the number of people.</li>
-<li><b>Depth.</b> Detection at ≥ 1e-4 depends on sequencing depth; shallow projects under-detect rare taxa.</li>
-<li><b>Which runs are profiled.</b> Sandpiper profiles Illumina runs ≥ 100 Mbp public before its snapshot; runs failing its QC (non-metagenome, synthetic, RNA, predicted non-gut, or a root coverage below 2 — root coverage is how many times over the marker genes were sequenced, so 2 is roughly two genome equivalents) and samples whose body site is not primary gut were excluded.</li>
+<li><b>Depth.</b> Detection at the threshold above depends on sequencing depth; shallow projects under-detect rare taxa.</li>
+<li><b>Which samples are mapped.</b> Sandpiper profiles Illumina runs ≥ 100 Mbp public before its snapshot. A sample is on the map when its record states a body site — any site — and its profile carries none of six quality flags: non-metagenome organism label, synthetic, RNA library, ecological prediction, no genus assigned, and low depth (a root coverage below 2 — root coverage is how many times over the marker genes were sequenced, so 2 is roughly two genome equivalents). Low-complexity profiles are kept here; the Taxon explorer and Profile coverage and quality leave them out.</li>
 <li><b>Taxonomy.</b> Names follow {{ taxonomy_db }}, so <i>Prevotella copri</i> is <i>Prevotella</i>, <i>Bacteroides vulgatus</i> is <i>Phocaeicola vulgatus</i>, and suffixed genera (Blautia_A) are GTDB placeholders.</li>
 </ul>
 </details>

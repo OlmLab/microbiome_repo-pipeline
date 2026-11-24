@@ -30,7 +30,7 @@
 <a class="brand" href="{{ root }}index.html">{{ site.short_title }}</a>
 {% for key, label, href, children in site.nav %}{% if children %}{% set grp_active = nav in children|map(attribute=0)|list %}<div class="navdd{% if grp_active %} active{% endif %}"><button type="button" class="navbtn" aria-haspopup="true" aria-expanded="false">{{ label }} <span aria-hidden="true">▾</span></button><div class="navmenu" role="menu">{% for ck, cl, ch in children %}{% if ch %}<a role="menuitem" href="{{ root }}{{ ch }}"{% if page_path == ch %} class="active"{% endif %}>{{ cl }}</a>{% else %}<span class="navhead">{{ cl }}</span>{% endif %}{% endfor %}</div></div>
 {% else %}<a href="{{ root }}{{ href }}" {% if nav==key %}class="active"{% endif %}>{{ label }}</a>
-{% endif %}{% endfor %}<form class="navsearch" action="{{ root }}index.html" method="get" role="search"><input name="q" type="search" placeholder="Search projects, samples, authors…" aria-label="Search the repository" autocomplete="off"></form></div></nav>
+{% endif %}{% endfor %}<form class="navsearch" action="{{ root }}index.html" method="get" role="search"><input name="q" type="search" placeholder="Search projects, cohorts, authors…" aria-label="Search projects, cohorts, authors and accessions" autocomplete="off"></form></div></nav>
 <main id="main" tabindex="-1">
 {% if crumbs %}<div class="crumbs">{% for c in crumbs %}{% if not loop.first %} › {% endif %}{% if c.href %}<a href="{{ c.href }}">{{ c.label }}</a>{% else %}{{ c.label }}{% endif %}{% endfor %}</div>{% endif %}
 {% block content %}{% endblock %}
