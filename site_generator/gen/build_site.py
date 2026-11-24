@@ -45,22 +45,30 @@ LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life sta
           'collection_date': 'Collection date', 'location_region': 'Location (region)', 'location_locality': 'Location (locality)', 'location_site': 'Location (site)',
           'detailed_location': 'Detailed location', 'latitude': 'Latitude', 'longitude': 'Longitude', 'lifestyle': 'Lifestyle', 'lifestyle_detail': 'Lifestyle (detail)'}
 FIELD_CAVEATS = {
+    # R2026.43 (F210, F211, F215): a definition in the definition column, the value list in the vocabulary column, no repository paths.
+    'detailed_location': "The most specific place below the country the source gives — 'site, locality, region' with empty parts dropped. It is not a value of its own: its parts are location_site, location_locality and location_region, each with its own evidence row.",
+    'smoking_status': 'Smoking status of the sampled person, as the source states it.',
+    'family_role': 'Role of the sampled person in the family, dyad, household or twin pair the source names.',
+    'shared_setting_type': 'A place or group below the project that at least two sampled people share — never the whole cohort or the city of recruitment.',
+    'intervention_detail': "Free text behind the intervention code, in the source's own words.",
+    'diet_detail': "Free text behind the diet code, in the source's own words.",
+    'medication_detail': "Free text behind the medication code, in the source's own words.",
     'body_site_code': "Where on the body the sample was taken (gut / stool, mouth, skin, nose, airway, urogenital, milk, blood / tissue, eye / ear, other, several sites). From the sample's own archive record or, when the project sampled a single site, the project's site from the scope classification of the archive description and abstract. 'unknown_site' (no site stated) counts as not covered.",
     'collection_date': 'As specific as the source gives it (YYYY, YYYY-MM, YYYY-MM-DD or an ISO interval for a stated sampling period); placeholders (missing / not collected / restricted) stay unknown.',
     'location_region': 'First-level administrative region below the country (state, province, prefecture …); English exonym, no country name.',
     'location_locality': 'City, town, village or district where subjects were recruited — not where the laboratory is.',
     'location_site': 'Named recruitment site (hospital, clinic, school, cohort field station, community name) in the source\'s own words.',
     'latitude': 'Decimal degrees from lat_lon / geographic-location attributes of the archive record or a supplementary table, rounded to 4 decimals.', 'longitude': 'Decimal degrees; same source row as latitude.',
-    'lifestyle': 'Controlled vocabulary (config/vocab/lifestyle.yaml); committed only when the source states it — never inferred from the country.',
+    'lifestyle': 'Controlled vocabulary; committed only when the source states it — never inferred from the country.',
     'lifestyle_detail': 'Named population or the source\'s own words behind the lifestyle code (Hadza, Hutterite colony, elite rugby players …).',
-    'age_at_collection_days': 'Age at sample collection in days. Archive ages without a unit are read as years for projects outside the in-depth curation (rule recorded in the field map); ranges and timepoint lists are never values. The age category (neonate … elderly) is derived from this value, else from the sample\'s or project\'s stated life stage (basis column).',
-    'sex': 'Archive attribute, table column or a single-sex cohort statement in the paper text; no external truth set.',
+    'age_at_collection_days': 'Age at sample collection in days. Archive ages without a unit are read as years for projects outside the in-depth curation; ranges and timepoint lists are never values. The age category (neonate … elderly) is derived from this value, else from the sample\'s or project\'s stated life stage (basis column).',
+    'sex': 'Archive attribute, table column or a single-sex cohort statement in the paper text. Not checked against an independent source.',
     'bmi': 'Body-mass index from archive attributes or tables; plausibility window 10–80; never derived from a cohort mean.',
     'country': 'ISO-2 of the sampling / recruitment country from archive attributes, tables or paper text (not the laboratory or ethics-committee country).',
-    'health_condition': 'Controlled vocabulary (config/vocab/health_conditions.yaml). Cohort-wide codes from the paper text or abstract are committed only when every sequenced person shares the condition; case–control cohorts stay unknown at sample level unless the table or attribute names the group.',
+    'health_condition': 'Controlled vocabulary. Cohort-wide codes from the paper text or abstract are committed only when every sequenced person shares the condition; case–control cohorts stay unknown at sample level unless the table or attribute names the group.',
     'health_condition_detail': 'Free text behind the code (diagnosis, group label, criterion).',
     'antibiotic_exposure': '"yes"/"no". "no" from a source that documents no exposure (attribute, table, or an exclusion window ≥ 1 month in the Methods), never from "no mention".',
-    'subject_id': 'Submitter identifier of the individual (host_subject_id, participant, donor …); never a sample id. Not evaluated.',
+    'subject_id': 'Submitter identifier of the individual (host_subject_id, participant, donor …); never a sample id. Not checked against an independent source.',
     'timepoint_label': 'Compact tokens (D6, M4, baseline) are labels, not ages, unless the project confirms the unit.',
     'comparison_group': "The group of the project's own comparison, in the paper's wording; assigned from a sample attribute or name stem only where two independent readings of the paper agreed on every value's group.",
     'delivery_mode': 'Infant field: vaginal / caesarean; categories as stated by the source.', 'feeding_mode': 'Infant field: breast / mixed / formula as stated; boolean feeding columns never become a value.',
@@ -136,6 +144,10 @@ FRAME_TOKEN_RE = re.compile(r'\s*\((?:frame|session)\s+[0-9a-f]{6,}[^)]*\)|\b(?:
 ORG_LEAK_RE = re.compile(r'SUB\d{6,}|@')
 # Field tiers are NOT hard-coded: config/packs/gut.yaml core_fields / key_fields / derived_fields (read_field_tiers). A study enters the
 # contribute worklist when >= CONTRIB_MIN_MISSING of the CORE fields are below the coverage threshold.
+# F210: value lists for fields whose package note carried them in the definition text instead of a vocabulary.
+FIELD_VOCAB = {'smoking_status': 'never, former, current',
+               'family_role': 'mother, father, parent, child, twin, sibling, partner, grandparent, other_relative, household_member',
+               'shared_setting_type': 'household, village / community, tribe, daycare / school, care home, ward, military unit, team, workplace'}
 CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 5 core fields (R2026.32: body site joined the core; R2026.15: core age = life stage, sex is a key field)
 # Top navigation (owner reviews 2026-10-01 / 2026-10-08; 2026-11-23: Insights replaces Explore and the name "Atlas"; the page addresses stay
 # under atlas/; R2026.43: atlas/measures.html is "Profile coverage and quality" in the Insights menu, atlas/figures.html is removed): Home · Projects · Samples · Contribute, then two
@@ -2178,6 +2190,7 @@ def main():
             vocab_txt = 'derived: ' + ', '.join(spec['compose'])
         elif spec.get('life_stage'):
             vocab_txt = ', '.join(spec.get('values') or [])
+        vocab_txt = vocab_txt or FIELD_VOCAB.get(f, '')
         by_cat = {c: (float(has[cw.age_category == c].mean()) if (cw.age_category == c).any() else None) for c in age_cats}
         if f == 'age_category' and 'age_category_basis' in cw.columns:
             # coverage of age_category inside its own categories is 100 % by definition (owner question 2026-10-08); show instead how
@@ -2199,25 +2212,38 @@ def main():
         m_ = cd[cd.route == r]
         conf_rows.append(dict(route=r, label=ROUTE_LABELS[r], what=ROUTE_WHAT[r], n=len(m_), bins=[int(((m_.confidence >= lo) & (m_.confidence < hi)).sum()) for lo, hi, _ in cbins], n_group=int((m_.scope == 'study_all').sum())))
     render('fields.html', 'fields/index.html', '../', nav='about', contrib_min_missing=CONTRIB_MIN_MISSING, fields=fields, field_groups=field_groups, age_cats=age_cats, conf_rows=conf_rows, cbins=[b[2] for b in cbins], stats=stats,
-           dictionary_html=md_to_html(dictionary), hc_rows=[(k, hc_labels.get(k, ''), int(v.ns), int(v.nst)) for k, v in hc_rows.iterrows()],
+           hc_rows=[(k, hc_labels.get(k, ''), int(v.ns), int(v.nst)) for k, v in hc_rows.iterrows() if k in hcv],
+           hc_free=dict(n=int(sum(1 for k in hc_rows.index if k not in hcv)),
+                        samples=int(sum(int(v.ns) for k, v in hc_rows.iterrows() if k not in hcv))),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Fields')])
 
     # ---------- scope (how the catalog is cut from the registry) ----------
     hum = rg[rg.host_human.isin(['yes', 'mixed'])]
-    funnel = [('registry studies (every ENA study reached by the enumeration)', len(rg)), ('host human = yes or mixed', len(hum)),
-              ('… of them in the catalog', int(hum.study_accession.isin(inc_set).sum())),
-              ('catalog projects (including projects found outside the registry slices)', len(cs))]
+    _n_screened_in_cat = int(hum.study_accession.isin(inc_set).sum())
+    funnel = [('studies screened in ENA, NCBI SRA and DDBJ', len(rg)), ('host human = yes or mixed', len(hum)),
+              ('… of them in the catalog', _n_screened_in_cat),
+              (f'catalog projects ({_n_screened_in_cat:,} from the screen above, {len(cs) - _n_screened_in_cat:,} found through papers)', len(cs)),
+              ('catalog samples', int(stats['n_samples']))]
     not_in = hum[~hum.study_accession.isin(inc_set)]
+    # F542: one plain reason per project, in the order the registry explorer applies them (assay, then review, then pending).
+    def _excl_reason(r_):
+        if r_.get('assay') not in ('shotgun_dna', 'mixed', 'rna'):
+            return 'not shotgun DNA or RNA sequencing'
+        if r_.get('classification_stage') == 'owner_decision':
+            return 'excluded by a review of the archive record'
+        if r_.get('classification_stage') == 'pending':
+            return 'not classified yet'
+        return 'no catalog samples in this release'
+    _reasons = not_in.apply(lambda r_: _excl_reason(r_), axis=1) if len(not_in) else not_in.get('assay', pd.Series(dtype=object))
     excl_reasons = []
-    for (h, asy, stg), g_ in not_in.groupby([not_in.host_human.fillna(''), not_in.assay.fillna(''), not_in.classification_stage.fillna('')]):
-        excl_reasons.append(dict(host=h, assay=asy, stage=stg, n=len(g_), n_runs=int(g_.n_runs.fillna(0).sum())))
-    excl_reasons.sort(key=lambda d: (-d['n'], d['host'], d['assay'], d['stage']))
-    excl_rows = [clean(x) for x in not_in.sort_values(['n_runs', 'study_accession'], ascending=[False, True], kind='mergesort').head(300)[['study_accession', 'study_title', 'host_human', 'assay', 'body_sites', 'life_stages', 'classification_stage', 'n_runs', 'n_samples']].to_dict('records')]
+    for why, g_ in not_in.groupby(_reasons):
+        excl_reasons.append(dict(reason=why, n=len(g_), n_runs=int(g_.n_runs.fillna(0).sum())))
+    excl_reasons.sort(key=lambda d: -d['n'])
     other_scopes = []
     for sc in sspec['scopes']:
         m_ = rg[rg.scope_memberships.map(lambda v: sc['id'] in split_list(v))]
         other_scopes.append(dict(id=sc['id'], label=sc['label'], n_studies=len(m_), n_runs=int(m_.n_runs.fillna(0).sum()), curated=bool(sc.get('curated'))))
-    render('scope.html', 'about/scope.html', '../', nav='about', use_datatables=True, funnel=funnel, excl_reasons=excl_reasons, excl_rows=excl_rows, n_excl=len(not_in), scopes=other_scopes, stats=stats,
+    render('scope.html', 'about/scope.html', '../', nav='about', funnel=funnel, excl_reasons=excl_reasons, n_excl=len(not_in), scopes=other_scopes, stats=stats,
            pack=dict(study_rule=pack.get('study_rule', ''), sample_rule=pack.get('sample_rule', ''), age_categories=pack['age_categories']), site_labels=vocabs['body_site'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Scope')])
 
@@ -2320,6 +2346,10 @@ def main():
     stage_labels = {'deterministic_prior': 'prior carried over from an earlier triage (reason code / body-site call) or deterministic term match',
                     'deterministic_rule': 'ENA-field rule (host taxon 9606, library fields, numeric age with unit)', 'sonnet_x2': 'two replicate model classifications in agreement',
                     'opus_adjudicated': 'replicate disagreement adjudicated by the stronger model', 'pending': 'not yet classified', 'curator_audit': 'study-level host/assay audit of the archive records (config/registry_overrides.yaml)', 'owner_decision': 'study-level decision by the catalog owner (config/registry_overrides.yaml)'}
+    # F458/F468: the short word for each stage — shown in the filter and on the badge, with the code in the tooltip.
+    stage_short = {'deterministic_prior': 'carried over from an earlier screen', 'deterministic_rule': 'archive-field rule',
+                   'sonnet_x2': 'two model readings', 'opus_adjudicated': 'adjudicated', 'pending': 'not yet classified',
+                   'owner_decision': 'excluded by review', 'curator_audit': 'curator audit'}
     host_counts = {k: int((rg.host_human == k).sum()) for k in sspec['host_human_values']}
     n_pending = int((rg.classification_stage == 'pending').sum())
     _sp = rg['n_runs_sandpiper'].fillna(0) if 'n_runs_sandpiper' in rg.columns else pd.Series(0, index=rg.index)
@@ -2336,6 +2366,8 @@ def main():
                   n_human=int(rg.host_human.isin(['yes', 'mixed']).sum()), n_runs_human=int(rg.loc[rg.host_human.isin(['yes', 'mixed']), 'n_runs'].fillna(0).sum()),
                   n_runs_sandpiper=int(_sp.sum()), n_studies_sandpiper=int((_sp > 0).sum()), has_biosamples=(pkg / 'registry_biosamples.parquet').exists(), **_sample_tier(rg),
                   n_pending=n_pending, n_classified=len(rg) - n_pending, pct_classified=int(round(100 * (len(rg) - n_pending) / max(1, len(rg)))),
+                  n_human_pending=int((rg.host_human.isin(['yes', 'mixed']) & (rg.classification_stage == 'pending')).sum()),
+                  n_human_classified=int((rg.host_human.isin(['yes', 'mixed']) & (rg.classification_stage != 'pending')).sum()),
                   n_catalog=len(cs), n_scopes=len(sspec['scopes']))
     scope_rows, scope_pages = [], []
     for sc in sspec['scopes']:
@@ -2355,17 +2387,18 @@ def main():
     assert sum(n for _, n, _ in facets[0]['rows']) == int(rg.body_site_primary.notna().sum()), 'F13: body-site facet must sum to the rows with a primary site'
     assert sum(n for _, n, _ in facets[4]['rows']) == len(rg), 'F13: classification-stage facet must sum to the registry rows'
     rvocab = dict(body_site=list(vocabs['body_site'].items()), life_stage=list(vocabs['life_stage'].items()), assay=list(vocabs['assay'].items()),
-                  access=list(sspec['access_values']), host_human=list(sspec['host_human_values']), classification_stage=list(sspec['classification_stages']))
+                  access=list(sspec['access_values']), host_human=list(sspec['host_human_values']),
+                  classification_stage=[(v, stage_short.get(v, v)) for v in sspec['classification_stages'] if (rg.classification_stage == v).any()])
     render('registry.html', site['registry_page'], '../', nav='registry', rs=rstats, scopes=scope_rows, facets=facets, vocab=rvocab,
            parquet_size=human(reg_path.stat().st_size), n_cols=int(rg.shape[1]), audit_name=sspec['files']['audit'],
            package_version=version, runs_asset_url=f"https://github.com/{site['data_repo']}/releases/download/data-v{version}/registry_runs_v{version}.parquet",
-           scope_labels={sc['id']: sc['label'] for sc in sspec['scopes']}, site_labels=vocabs['body_site'], stage_labels=stage_labels, included_accs=included, assay_labels=dict(vocabs['assay']), study_rule=str(pack.get('study_rule', '')),
+           scope_labels={sc['id']: sc['label'] for sc in sspec['scopes']}, site_labels=vocabs['body_site'], stage_labels=stage_labels, stage_short=stage_short, included_accs=included, assay_labels=dict(vocabs['assay']), study_rule=re.sub(r',?\s*plus the projects of earlier releases[^.]*', '', str(pack.get('study_rule', ''))),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Registry')])
     TOP_COLS = ['study_accession', 'study_title', 'n_samples', 'n_runs', 'body_sites', 'life_stages', 'assay', 'classification_stage']
     for d, m_ in scope_pages:
         top = m_.sort_values(['n_samples', 'study_accession'], ascending=[False, True], kind='mergesort', na_position='last').head(25)
         top_rows = [dict(clean(r), has_page=r['study_accession'] in inc_set) for r in top[TOP_COLS].to_dict('records')]
-        sf = [facet(m_, 'body_site_primary'), facet(m_, 'life_stage_primary'), facet(m_, 'assay'), facet(m_, 'classification_stage')]
+        sf = [facet(m_, 'body_site_primary', vocabs['body_site']), facet(m_, 'life_stage_primary', vocabs['life_stage']), facet(m_, 'assay', vocabs['assay']), facet(m_, 'classification_stage', stage_short)]
         for f_, lab in zip(sf, ('Primary body site', 'Primary life stage', 'Assay', 'Classification stage')):
             f_['label'] = lab
         render('registry_scope.html', f"registry/scopes/{d['id']}.html", '../../', nav='registry', s=d, top=top_rows, facets=sf,
@@ -2414,20 +2447,31 @@ def main():
     (out / 'version.json').write_text(json.dumps(dict(tag=f'site-v{version}', package_version=version, release_id=release_id, build_date=build_date), indent=1, sort_keys=True) + '\n', encoding='utf-8')
 
     # ---------- methods ----------
-    depth_counts = counts_sorted(cs.curated_depth.fillna('none'))
+    _depth = cs.curated_depth.fillna('none')
+    # F376: the shape of the curated depth in three numbers — projects with any curated value, projects a paper (its tables,
+    # its text or its abstract) contributed to, and projects with no value from any source.
+    depth = dict(none=int((_depth == 'none').sum()), any=int((_depth != 'none').sum()),
+                 paper=int(_depth.str.contains('R2|R3|R4', regex=True).sum()))
     route_field = {f: {r: int(route_by_field.get((f, r), 0)) for r in ROUTES} for f in CORE_FIELDS + KEY_FIELDS if has_col.get(f)}
+    # F355/F361: derived fields (body site, age category, detailed location) are credited to no source; an all-zero row reads as missing data.
+    route_field = {f: d_ for f, d_ in route_field.items() if any(d_.values())}
     tier_cov = []
     if 'curated_source' in cw.columns:
         for f in ('age_at_collection_days', 'subject_id', 'timepoint_label', 'sex', 'health_condition', 'antibiotic_exposure'):
             if f in cw.columns:
                 tier_cov.append(dict(field=f, **{src: round(100 * float(cw.loc[cw.curated_source == src, f].notna().mean()), 1) for src in ('infant_catalog', 'catalog_v1')}))
-    src_avail = []
+    src_avail, src_empty = [], []
     for k in SRC_ORDER:
         c_ = f'src_{k}'
         if c_ in cs.columns:
             vc = cs[c_].fillna('none').value_counts()
-            src_avail.append(dict(label=SRC_LABELS[k], used=int(vc.get('used', 0)), checked=int(vc.get('checked', 0)), none=int(vc.get('none', 0))))
-    render('methods.html', 'about/methods.html', '../', nav='about', tier_cov=tier_cov, src_avail=src_avail, reg=reg_methods, stats=stats, depth_counts=depth_counts, route_field=route_field, docs=doc_list, pack=pack,
+            _row = dict(label=SRC_LABELS[k], used=int(vc.get('used', 0)), checked=int(vc.get('checked', 0)), none=int(vc.get('none', 0)))
+            # F366: a source that has produced nothing yet is named in one line below the table, not counted as "not available".
+            if _row['used'] or _row['checked']:
+                src_avail.append(_row)
+            else:
+                src_empty.append(_row['label'])
+    render('methods.html', 'about/methods.html', '../', nav='about', tier_cov=tier_cov, src_avail=src_avail, src_empty=src_empty, reg=reg_methods, stats=stats, depth=depth, route_field=route_field, docs=doc_list, pack=pack,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Methods')])
 
     # ---------- sources and acknowledgements (config/sources.yaml) ----------

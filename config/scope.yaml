@@ -27,7 +27,7 @@ vocabularies:
 scopes:
   - id: human_all
     label: All human shotgun metagenomes (registry)
-    definition: Every ENA study with ≥ 1 human-host shotgun metagenome run; archive-only metadata (route R1), Sandpiper profiles, papers and authors.
+    definition: Every screened study with at least one human-host shotgun metagenome run — the human studies minus those whose deposits are amplicon, isolate or assembly-only; metadata from the archive record alone, plus Sandpiper profiles, papers and authors.
     tier: registry
     body_sites: ["*"]
     life_stages: ["*"]
@@ -35,7 +35,7 @@ scopes:
     field_pack: core
   - id: infant_gut
     label: Infant gut (0–3 y)
-    definition: Human gut/stool shotgun metagenomes from subjects aged 0–1,100 days (with the deep infant-field curation).
+    definition: Human gut/stool shotgun metagenomes from people aged 0–1,100 days.
     tier: curated
     body_sites: [gut_stool]
     life_stages: [neonate, infant]
@@ -53,7 +53,7 @@ scopes:
     field_pack: gut
   - id: gut_adult
     label: Adult gut (≥ 18 y)
-    definition: Human gut/stool shotgun metagenomes from adults and the elderly (external gold standard — curatedMetagenomicData).
+    definition: Human gut/stool shotgun metagenomes from adults and the elderly; this scope is checked against curatedMetagenomicData.
     tier: registry
     body_sites: [gut_stool]
     life_stages: [adult, elderly]
@@ -117,7 +117,7 @@ scopes:
     field_pack: core
   - id: unknown_site
     label: Body site unknown
-    definition: Human studies whose body site could not be determined from the archive record.
+    definition: Human studies whose body site is not stated in the archive record.
     tier: registry
     body_sites: [unknown_site]
     life_stages: ["*"]
@@ -237,40 +237,42 @@ vocab_dir: config/vocab
 release_id: R2026.4          # release in which the registry tier first ships
 package_version: "1.6.0"
 scope_rules:
+  human_all:
+    rule: if the archive record names a human or mixed host and shotgun DNA sequencing, or the study is in one of the curated scopes
+    site: null
   infant_gut:
-    rule: in_infant_catalog == include
+    rule: if it was curated in the infant gut set — the one scope whose membership comes from the curation rather than from the archive record
     site: https://microbiome-repo.colorado.edu/
   gut_child:
-    rule: gut_stool in body_sites AND (child in life_stages OR adolescent in life_stages)
+    rule: if the archive record puts it in the gut or stool and names a child or adolescent
     site: null
   gut_adult:
-    rule: gut_stool in body_sites AND (adult in life_stages OR elderly in life_stages)
+    rule: if the archive record puts it in the gut or stool and names an adult or elderly person
     site: null
   oral:
-    rule: oral in body_sites
+    rule: if the archive record puts it in the oral cavity
     site: null
   skin:
-    rule: skin in body_sites
+    rule: if the archive record puts it on the skin
     site: null
   vaginal_urogenital:
-    rule: vaginal_urogenital in body_sites
+    rule: if the archive record puts it in the vaginal or urogenital tract
     site: null
   respiratory:
-    rule: nasal_nasopharyngeal in body_sites OR respiratory_lower in body_sites
+    rule: if the archive record puts it in the nose, nasopharynx or lower airway
     site: null
   milk:
-    rule: milk in body_sites
+    rule: if the archive record puts it in human milk
     site: null
   blood_tissue:
-    rule: blood_tissue in body_sites
+    rule: if the archive record puts it in blood, a tissue biopsy or a sterile-site fluid
     site: null
   other_site:
-    rule: other_site in body_sites OR eye_ear in body_sites
+    rule: if the archive record names the eye, the ear or another human site not covered by the scopes above
     site: null
   unknown_site:
-    rule: unknown_site in body_sites OR body_sites empty
+    rule: if the archive record names no body site
     site: null
-
 # ---- further keys from the registry-site track (audit table columns etc.) ----
 human_signal_rules:
 - A

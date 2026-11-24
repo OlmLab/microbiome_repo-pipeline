@@ -113,12 +113,12 @@ function catalogReasons(s) {
       : {short: 'human host not established', long: `The archive metadata do not establish a human host (host_human = ${s.host_human || 'unknown'}).`});
   if (!['shotgun_dna', 'mixed', 'rna'].includes(s.assay)) out.push({short: `not shotgun DNA / RNA sequencing (${lab(s.assay)})`,
       long: `The sequencing is not shotgun DNA or RNA sequencing of a microbial community: assay = ${s.assay} (${lab(s.assay)})${s.library_sources ? '; library source ' + s.library_sources : ''}${s.library_strategies ? ', strategy ' + s.library_strategies : ''}.`});
-  if (s.classification_stage === 'owner_decision') out.push({short: 'owner decision', long: 'Excluded by a study-level owner decision (config/registry_overrides.yaml).'});
+  if (s.classification_stage === 'owner_decision') out.push({short: 'excluded by review', long: 'A manual review excluded this study (for example amplicon data filed as shotgun). Tell us if you think that is wrong.'});
   if (s.classification_stage === 'pending') out.push({short: 'classification pending', long: 'The study has not been classified yet (stage pending); it will be reconsidered next cycle.'});
   if (!out.length) out.push({short: 'no catalog samples', long: 'The study passes the archive rule but has no catalog samples in this release: its samples are catalogued under another project, were excluded (amplicon or single-cell data sets only, non-human or synthetic samples), or the project has not been read from its paper yet.'});
   return {inCat: false, reasons: out};
 }
-function stageBadge(v) { return v ? `<span class="tag ${STAGE_CLASS[v] || ''}" title="${h(CFG.stageLabels[v] || v)}">${h(v)}</span>` : ''; }
+function stageBadge(v) { return v ? `<span class="tag ${STAGE_CLASS[v] || ''}" title="${h(v)} — ${h(CFG.stageLabels[v] || '')}">${h((CFG.stageShort || {})[v] || v)}</span>` : ''; }
 function accLink(acc, verdict) {
   const ena = `<a class="small" href="${CFG.enaUrl}${h(acc)}">ENA</a>`;
   return INCLUDED.has(acc) ? `<a href="${CFG.studiesUrl}${h(acc)}.html">${h(acc)}</a> ${ena}` : `<span class="mono">${h(acc)}</span> ${ena}`;
@@ -134,7 +134,7 @@ async function run() {
   const rows = r.toArray().map(x => x.toJSON());
   const thead = $('result-table').querySelector('thead'), tbody = $('result-table').querySelector('tbody');
   thead.innerHTML = '<tr>' + SHOW_COLS.map(col => SORTABLE.has(col)
-    ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${col}" style="cursor:pointer">${col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
+    ? `<th data-col="${col}" tabindex="0" role="columnheader button" aria-sort="${col === sortCol ? (sortDir === 'ASC' ? 'ascending' : 'descending') : 'none'}" title="sort by ${COL_LABELS[col] || col}" style="cursor:pointer">${COL_LABELS[col] || col}${col === sortCol ? (sortDir === 'ASC' ? ' ▲' : ' ▼') : ''}</th>`
     : `<th>${COL_LABELS[col] || col}</th>`).join('') + '</tr>';
   tbody.innerHTML = rows.map(row => `<tr data-key="${h(row.study_accession)}" tabindex="0" role="button" aria-label="open details for ${h(row.study_accession)}">` +
     `<td>${(() => { const c = catalogReasons(row); return c.inCat ? '<span class="tag incat" title="in the catalog — project page with per-sample metadata">✓</span>' : '<span class="small muted" title="registry only — open the row to see why">—</span>'; })()}</td>` +
@@ -189,7 +189,7 @@ async function showDetail(acc) {
   <tr><td>Population flags</td><td>${h(s.population_flags)}</td></tr>
   <tr><td>Health context</td><td>${h(s.health_context)}</td></tr>
   <tr><td>Scopes</td><td>${scopes.map(x => `<a href="scopes/${h(x)}.html">${h(CFG.scopeLabels[x] || x)}</a>`).join(' · ')}</td></tr>
-  <tr><td>Stage · confidence · model</td><td>${stageBadge(s.classification_stage)} ${fmtV(s.classification_confidence)} ${h(s.classification_model)}</td></tr>
+  <tr><td>Classified by</td><td>${stageBadge(s.classification_stage)} ${fmtV(s.classification_confidence)}</td></tr>
   </table>
   <h3>Evidence</h3><p class="small">Every committed host / site / stage value carries a labelled source and a ≤ 12-word quote; confidence is the classifier's tier, not a calibrated probability.</p>`;
   for (const [col, label] of EVIDENCE_COLS) html += `<h4>${label}</h4>${evidenceTable(s[col])}`;
@@ -202,7 +202,7 @@ async function showDetail(acc) {
   <tr><td>Instrument platforms</td><td class="mono">${h(s.instrument_platforms)}</td></tr>
   <tr><td>Top scientific names</td><td class="small">${h(s.scientific_names_top)}</td></tr>
   <tr><td>Host tax ids</td><td class="mono">${h(s.host_tax_ids)} <span class="small">(${fmtV(s.n_runs_host_9606)} runs host 9606, ${fmtV(s.n_runs_nonhuman_host)} non-human host)</span></td></tr>
-  <tr><td>Universe slice · release added</td><td class="mono">${h(s.universe_slice)} · ${h(s.release_added)}</td></tr>
+  <tr><td>First release</td><td class="mono">${h(s.release_added)}</td></tr>
   </table>`;
   body.innerHTML = html;
 }
