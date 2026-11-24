@@ -3,5 +3,5 @@
 {% block content %}
 <h1>{{ heading }}</h1>
 <p class="lead">{{ text|safe }}</p>
-<p class="small">Until then: <a href="../studies/index.html">Studies</a> · <a href="../samples/index.html">Samples</a> · <a href="../cohorts/index.html">Cohorts</a>.</p>
+<p class="small">Until then: <a href="{{ root }}studies/index.html">Projects</a> · <a href="{{ root }}samples/index.html">Samples</a> · <a href="{{ root }}cohorts/index.html">Cohorts</a>.</p>
 {% endblock %}

@@ -3,12 +3,12 @@
 
 Tiers on the site: the REGISTRY (registry_studies.parquet: every ENA shotgun-metagenome study reached by the enumeration — INSDC
 BioProjects from ENA / NCBI SRA / DDBJ — classified for human host, body site, life stage, assay, access; the headline number is
-the HUMAN count, host_human in {yes, mixed}) and the CATALOG = the curated gut_all scope (gut_studies / gut_sample_metadata_wide /
-gut_sample_determinations: every human gut shotgun study, all ages, per-sample evidence-linked metadata). Navigation (NAV):
-Home · Browse ▾ (Studies, Samples, Cohorts, Collections, Authors) · Insights ▾ (Atlas) · Registry · Data ▾ (Downloads, Contribute) ·
-About ▾ (Overview, Scope, Methods, Fields, Sources); Scope, Methods and Sources live under about/, Downloads and Releases are one page, old URLs redirect (REDIRECTS). Field tiers (core / key /
-infant extension) come from config/packs/gut.yaml; columns the package does not carry yet are omitted, never shown as 0 %.
-The former infant-only tables remain in the package as the infant extension and surface only as fields.
+the HUMAN count, host_human in {yes, mixed}) and the CATALOG = the curated scope (gut_studies / gut_sample_metadata_wide /
+gut_sample_determinations: every curated project, all ages and body sites, per-sample evidence-linked metadata). Navigation: see
+NAV below — Home · Projects · Samples · Contribute · Insights ▾ · About ▾ (which ends with a Browse section). Scope, Methods and
+Sources live under about/, Downloads and Releases are one page, old URLs redirect (REDIRECTS). Field tiers (core / key / birth and
+feeding fields) come from config/packs/gut.yaml; columns the package does not carry yet are omitted, never shown as 0 %.
+The former infant-only tables remain in the package and surface only as fields.
 
 Usage:  python build_site.py --package PKG_DIR --out site [--reports DIR] [--package-zip ZIP] [--base-url URL]
 
@@ -32,8 +32,12 @@ from pages import study_design as SD  # noqa: E402 — site 1.27.1 study-design 
 
 HERE = Path(__file__).resolve().parent
 ROUTES = ['R1', 'R2', 'R3', 'R4']
-ROUTE_LABELS = {'R1': 'archive attribute', 'R2': 'supplementary table', 'R3': 'paper full text', 'R4': 'abstract / description'}
-LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life stage)', 'age_at_collection_days': 'Age at collection (days, exact)', 'intervention': 'Intervention (sample arm)', 'interventions': 'Interventions (study)', 'sex': 'Sex', 'bmi': 'BMI', 'country': 'Country', 'health_condition': 'Health condition',
+# R2026.43: one fixed word per source, shown instead of the R-codes wherever a visitor reads them (the codes stay as `route` values in the package and the API).
+ROUTE_LABELS = {'R1': 'archive record', 'R2': 'supplementary table', 'R3': 'paper text', 'R4': 'abstract'}
+# What each source is, for the one definition sentence the glossary allows (Fields / Where values come from).
+ROUTE_WHAT = {'R1': "the sample's own archive attributes (BioSample, run, sample name)", 'R2': 'supplementary tables of the linked papers, and external resources',
+              'R3': 'the body of open-access papers (Methods / Results)', 'R4': "the paper abstract or the archive's study description"}
+LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life stage)', 'age_at_collection_days': 'Age at collection (days, exact)', 'intervention': 'Intervention (sample arm)', 'interventions': 'Interventions (project)', 'sex': 'Sex', 'bmi': 'BMI', 'country': 'Country', 'health_condition': 'Health condition',
           'health_condition_detail': 'Health condition (detail)', 'antibiotic_exposure': 'Antibiotic exposure', 'subject_id': 'Subject id', 'timepoint_label': 'Timepoint label', 'comparison_group': 'Comparison group (study design)',
           'delivery_mode': 'Delivery mode', 'feeding_mode': 'Feeding mode', 'preterm_status': 'Preterm status', 'gestational_age_weeks': 'Gestational age (weeks)',
           'birth_weight_grams': 'Birth weight (g)', 'maternal_antibiotics': 'Maternal antibiotics', 'probiotic_exposure': 'Probiotic exposure',
@@ -41,24 +45,24 @@ LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life sta
           'collection_date': 'Collection date', 'location_region': 'Location (region)', 'location_locality': 'Location (locality)', 'location_site': 'Location (site)',
           'detailed_location': 'Detailed location', 'latitude': 'Latitude', 'longitude': 'Longitude', 'lifestyle': 'Lifestyle', 'lifestyle_detail': 'Lifestyle (detail)'}
 FIELD_CAVEATS = {
-    'body_site_code': "Where on the body the sample was taken (gut / stool, mouth, skin, nose, airway, urogenital, milk, blood / tissue, eye / ear, other, several sites). From the sample's own archive attribute (R1) or, when the project sampled a single site, the project's site from the scope classification of the archive description and abstract (R4). 'unknown_site' (no site stated) counts as not covered.",
+    'body_site_code': "Where on the body the sample was taken (gut / stool, mouth, skin, nose, airway, urogenital, milk, blood / tissue, eye / ear, other, several sites). From the sample's own archive record or, when the project sampled a single site, the project's site from the scope classification of the archive description and abstract. 'unknown_site' (no site stated) counts as not covered.",
     'collection_date': 'As specific as the source gives it (YYYY, YYYY-MM, YYYY-MM-DD or an ISO interval for a stated sampling period); placeholders (missing / not collected / restricted) stay unknown.',
     'location_region': 'First-level administrative region below the country (state, province, prefecture …); English exonym, no country name.',
     'location_locality': 'City, town, village or district where subjects were recruited — not where the laboratory is.',
     'location_site': 'Named recruitment site (hospital, clinic, school, cohort field station, community name) in the source\'s own words.',
-    'latitude': 'Decimal degrees from lat_lon / geographic-location attributes (R1/R2 only), rounded to 4 decimals.', 'longitude': 'Decimal degrees; same source row as latitude.',
+    'latitude': 'Decimal degrees from lat_lon / geographic-location attributes of the archive record or a supplementary table, rounded to 4 decimals.', 'longitude': 'Decimal degrees; same source row as latitude.',
     'lifestyle': 'Controlled vocabulary (config/vocab/lifestyle.yaml); committed only when the source states it — never inferred from the country.',
     'lifestyle_detail': 'Named population or the source\'s own words behind the lifestyle code (Hadza, Hutterite colony, elite rugby players …).',
-    'age_at_collection_days': 'Age at sample collection in days. Archive ages without a unit are read as years for non-infant studies (rule recorded in the field map); ranges and timepoint lists are never values. The age category (neonate … elderly) is derived from this value, else from the sample\'s or study\'s stated life stage (basis column).',
-    'sex': 'Archive attribute, table column or single-sex cohort statement (R3); no external truth set.',
+    'age_at_collection_days': 'Age at sample collection in days. Archive ages without a unit are read as years for projects outside the in-depth curation (rule recorded in the field map); ranges and timepoint lists are never values. The age category (neonate … elderly) is derived from this value, else from the sample\'s or project\'s stated life stage (basis column).',
+    'sex': 'Archive attribute, table column or a single-sex cohort statement in the paper text; no external truth set.',
     'bmi': 'Body-mass index from archive attributes or tables; plausibility window 10–80; never derived from a cohort mean.',
     'country': 'ISO-2 of the sampling / recruitment country from archive attributes, tables or paper text (not the laboratory or ethics-committee country).',
-    'health_condition': 'Controlled vocabulary (config/vocab/health_conditions.yaml). Cohort-wide codes (R3/R4) are committed only when every sequenced subject shares the condition; case–control cohorts stay unknown at sample level unless the table or attribute names the group.',
+    'health_condition': 'Controlled vocabulary (config/vocab/health_conditions.yaml). Cohort-wide codes from the paper text or abstract are committed only when every sequenced person shares the condition; case–control cohorts stay unknown at sample level unless the table or attribute names the group.',
     'health_condition_detail': 'Free text behind the code (diagnosis, group label, criterion).',
     'antibiotic_exposure': '"yes"/"no". "no" from a source that documents no exposure (attribute, table, or an exclusion window ≥ 1 month in the Methods), never from "no mention".',
     'subject_id': 'Submitter identifier of the individual (host_subject_id, participant, donor …); never a sample id. Not evaluated.',
-    'timepoint_label': 'Compact tokens (D6, M4, baseline) are labels, not ages, unless the study confirms the unit.',
-    'comparison_group': "The group of the study's own comparison, in the paper's wording; assigned from a sample attribute or name stem only where two independent readings of the paper agreed on every value's group.",
+    'timepoint_label': 'Compact tokens (D6, M4, baseline) are labels, not ages, unless the project confirms the unit.',
+    'comparison_group': "The group of the project's own comparison, in the paper's wording; assigned from a sample attribute or name stem only where two independent readings of the paper agreed on every value's group.",
     'delivery_mode': 'Infant field: vaginal / caesarean; categories as stated by the source.', 'feeding_mode': 'Infant field: breast / mixed / formula as stated; boolean feeding columns never become a value.',
     'preterm_status': 'Infant field: term requires ≥ 37 weeks when derived from a criterion.', 'gestational_age_weeks': 'Infant field: completed weeks at birth.',
     'birth_weight_grams': 'Infant field; no external truth set.', 'maternal_antibiotics': 'Infant field: intrapartum or pregnancy antibiotics to the mother.',
@@ -126,7 +130,7 @@ SP_PALETTE = ['#CFB87C', '#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', 
 ISSUE_REPO = 'https://github.com/OlmLab/microbiome_repo/issues/new'   # default; main() replaces both from config/site.yaml github.issues
 ISSUE_TEMPLATE = 'catalog-finding.yml'
 SIMPLE_ISSUE_TEMPLATE = 'simple-finding.yml'   # site_generator/gen/issue_templates/simple-finding.yml (installed into the Issues repo)
-PUBLIC_REPORT_DOCS = [('CATALOG_REPORT.md', 'Infant-extension catalog report'), ('EXTRACTION_REPORT.md', 'Infant-field extraction report')]
+PUBLIC_REPORT_DOCS = []   # R2026.43: CATALOG_REPORT.md and EXTRACTION_REPORT.md (infant phase) are no longer published on the site
 NEVER_PUBLISH_DOCS = {'NEXT_STAGE.md', 'SCALE_UP_PLAN.md', 'RUNBOOK.md', 'STATE_BRIEF.md'}
 FRAME_TOKEN_RE = re.compile(r'\s*\((?:frame|session)\s+[0-9a-f]{6,}[^)]*\)|\b(?:frame|session)\s+[0-9a-f]{8,}\b')
 ORG_LEAK_RE = re.compile(r'SUB\d{6,}|@')
@@ -149,7 +153,7 @@ NAV = [('home', 'Home', 'index.html', None),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
                                  ('about', 'Where values come from', 'about/value_sources.html'), ('about', 'External resources', 'about/external.html'), ('about', 'Sources & acknowledgements', 'about/sources.html'),
                                  ('about', 'Accessibility, privacy & security', 'about/accessibility.html'),
-                                 ('about', 'Browse', None), ('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
+                                 ('about', 'Browse', None), ('registry', 'Registry', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
                                  ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html')])]
 # Pages that are built and keep their addresses but are not in the menu (owner, 2026-11-23); like menu entries they must always resolve.
 OFF_MENU_PAGES = []   # R2026.43: Profile coverage and quality is in the Insights menu; the Figures page is removed (old address redirects)
@@ -1366,9 +1370,9 @@ def main():
         if x != x:
             return '—'
         return f'{x:,.2f} Gbp' if x >= 0.1 else (f'{x * 1000:,.1f} Mbp' if x > 0 else '0')
-    env.filters.update(fmt=f_fmt, pct=f_pct, pct1=f_pct1, num2=f_num2, numint=f_numint, gbp=f_gbp)
+    env.filters.update(fmt=f_fmt, pct=f_pct, pct1=f_pct1, num2=f_num2, numint=f_numint, gbp=f_gbp, srcword=lambda r: ROUTE_LABELS.get(str(r), str(r) if r else ''))
     site['analytics'] = read_analytics(a.config)
-    env.globals.update(site=site)
+    env.globals.update(site=site, ROUTE_LABELS=ROUTE_LABELS)
     written = []
 
     def render(tpl, path, root, nav=None, crumbs=None, **ctx):
@@ -1472,7 +1476,9 @@ def main():
         return re.sub(r'<a href="([^"]+)">', lambda m: m.group(0) if m.group(1).startswith(('http', '#')) else '<a>', html)
     dictionary = (pkg / 'DATA_DICTIONARY.md').read_text(encoding='utf-8')
     docs = [('README.md', readme, 'README'), ('DATA_DICTIONARY.md', dictionary, 'Data dictionary'), ('CHANGELOG.md', (pkg / 'CHANGELOG.md').read_text(encoding='utf-8'), 'Changelog')]
-    for name, title in [('REGISTRY_REPORT.md', 'Registry report'), ('SANDPIPER_REPORT.md', 'Sandpiper report'), ('AUTHORS_REPORT.md', 'Authors report (infant extension)'), ('DATA_MODEL_FIX_REPORT.md', 'Data-model fix report (infant extension)')]:
+    # R2026.43: the infant-phase reports (SANDPIPER_REPORT, AUTHORS_REPORT, DATA_MODEL_FIX_REPORT, CATALOG_REPORT, EXTRACTION_REPORT) are no longer
+    # rendered under docs/; the four package ones stay in the data package zip.
+    for name, title in [('REGISTRY_REPORT.md', 'Registry report')]:
         if (pkg / name).exists():
             docs.append((name, (pkg / name).read_text(encoding='utf-8'), title))
     for name, title in PUBLIC_REPORT_DOCS:
@@ -1747,7 +1753,7 @@ def main():
         else:
             cid = 'PC' + hashlib.sha1(('|'.join(accs)).encode()).hexdigest()[:8].upper()
             shared = link_papers[link_papers.study_accession.isin(accs)].groupby('paper_id').agg(n=('study_accession', 'nunique'), title=('title', 'first')).sort_values(['n', 'title'], ascending=[False, True])
-            name = (shared.title.dropna().iloc[0] if len(shared.title.dropna()) else f'Studies sharing papers ({accs[0]} …)')
+            name = (shared.title.dropna().iloc[0] if len(shared.title.dropna()) else f'Projects sharing papers ({accs[0]} …)')
         while cid in used_ids:
             cid += '_'
         used_ids.add(cid)
@@ -1806,13 +1812,13 @@ def main():
 
     # ---------- per-project source checkmarks (R2026.18; gut_studies.src_* from catalog.scopes.study_sources) ----------
     SRC_ORDER = ('archive', 'abstract', 'fulltext', 'supplement', 'external', 'contribution', 'verified')
-    SRC_LABELS = {'archive': 'Sequence archive', 'abstract': 'Abstract / description', 'fulltext': 'Full text',
-                  'supplement': 'Supplementary tables', 'external': 'External resources', 'contribution': 'User contribution',
+    SRC_LABELS = {'archive': 'Archive record', 'abstract': 'Abstract', 'fulltext': 'Paper text',
+                  'supplement': 'Supplementary table', 'external': 'External resource', 'contribution': 'User contribution',
                   'verified': 'Human verified'}
-    SRC_SHORT = {'archive': 'Archive', 'abstract': 'Abstract', 'fulltext': 'Full text', 'supplement': 'Supp.', 'external': 'External',
+    SRC_SHORT = {'archive': 'Archive', 'abstract': 'Abstract', 'fulltext': 'Paper text', 'supplement': 'Supp.', 'external': 'External',
                  'contribution': 'User', 'verified': 'Verified'}
     SRC_NONE = {'archive': 'no usable values in the archive records', 'abstract': 'no abstract or project description',
-                'fulltext': 'no open-access full text linked', 'supplement': 'no supplementary tables available (or none open access)',
+                'fulltext': 'no open-access paper text linked', 'supplement': 'no supplementary tables available (or none open access)',
                 'external': 'not covered by the external resources we ingest', 'contribution': 'nothing uploaded yet',
                 'verified': 'not yet checked by a person'}
     SRC_CHECKED = {'archive': 'records read; no usable sample values', 'abstract': 'read; no usable statement',
@@ -1959,7 +1965,7 @@ def main():
            site_opts=[(c, _site_label(c), n) for c, n in sorted(Counter(c for r_ in sidx_rows for c in r_['bs'] if c != 'multi_site').items(), key=lambda kv: -kv[1])],   # multi_site is a study-level marker; a project is listed under each of its sites
            na_opts=[(k, PF.NA_LABEL[k]) for k in ('dna', 'rna', 'both', 'conflict', 'unclear') if any(r_['na'] == k for r_ in sidx_rows)],
            site_label_map={c: _site_label(c) for r_ in sidx_rows for c in r_['bs']},
-           crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies')])
+           crumbs=[dict(label='Home', href='../index.html'), dict(label='Projects')])
     for s in studies:
         acc = s['study_accession']
         g = cw_by_study.get(acc, cw.iloc[0:0])
@@ -2024,7 +2030,7 @@ def main():
                living=PF.living_table(PF.living_of(s)), exposure=exposure_by_study.get(acc, []), n_subjects=n_subjects,
                n_timepoints=n_timepoints, has_dna=has_dna, has_rna=has_rna,
                design_card=SD.build(s, g, dg, iv_by_study.get(acc), design_by_study.get(acc), hc_labels, vocabs['body_site'], _ivlab),
-               crumbs=[dict(label='Home', href='../index.html'), dict(label='Studies', href='index.html'), dict(label=acc)])
+               crumbs=[dict(label='Home', href='../index.html'), dict(label='Projects', href='index.html'), dict(label=acc)])
     print(f'[{time.time()-t0:.0f}s] {len(studies)} study pages', file=sys.stderr)
 
     # ---------- cohort pages ----------
@@ -2100,6 +2106,8 @@ def main():
     sys.path.insert(0, str(HERE))
     from pages import collections as _collections, pca as _pca
     coll_stats = _collections.build(a.collections_config, render, cw, cs, out, hc_labels=hc_labels, ls_labels=ls_labels)
+    for _cid in coll_stats.get('empty', []):   # R2026.43: collections whose rule matches no sample forward to the index
+        REDIRECTS[f'collections/{_cid}.html'] = 'index.html'
     print(f'[{time.time()-t0:.0f}s] collections: {coll_stats}', file=sys.stderr)
     from pages import atlas as _atlas
     atlas_dir = Path(a.atlas_data) if a.atlas_data else None
@@ -2183,13 +2191,13 @@ def main():
                            route_segs=segs, nR=nR, by_cat=by_cat))
     TIER_ORDER = {'core': 0, 'key': 1, 'other': 2, 'infant': 3}
     fields.sort(key=lambda f: (TIER_ORDER[f['tier']], (CORE_FIELDS + KEY_FIELDS).index(f['name']) if f['name'] in CORE_FIELDS + KEY_FIELDS else 99, -f['samples'], f['name']))
-    field_groups = [(t_, lab, [f for f in fields if f['tier'] == t_]) for t_, lab in (('core', 'Core fields'), ('key', 'Key fields'), ('other', 'Further fields'), ('infant', 'Infant extension'))]
+    field_groups = [(t_, lab, [f for f in fields if f['tier'] == t_]) for t_, lab in (('core', 'Core fields'), ('key', 'Key fields'), ('other', 'Further fields'), ('infant', 'Birth and feeding fields'))]
     field_groups = [g_ for g_ in field_groups if g_[2]]
     conf_rows = []
     cbins = [(0.0, 0.5, '< 0.5'), (0.5, 0.7, '0.5–0.69'), (0.7, 0.85, '0.7–0.84'), (0.85, 1.01, '≥ 0.85')]
     for r in ROUTES:
         m_ = cd[cd.route == r]
-        conf_rows.append(dict(route=r, label=ROUTE_LABELS[r], n=len(m_), bins=[int(((m_.confidence >= lo) & (m_.confidence < hi)).sum()) for lo, hi, _ in cbins], n_group=int((m_.scope == 'study_all').sum())))
+        conf_rows.append(dict(route=r, label=ROUTE_LABELS[r], what=ROUTE_WHAT[r], n=len(m_), bins=[int(((m_.confidence >= lo) & (m_.confidence < hi)).sum()) for lo, hi, _ in cbins], n_group=int((m_.scope == 'study_all').sum())))
     render('fields.html', 'fields/index.html', '../', nav='about', contrib_min_missing=CONTRIB_MIN_MISSING, fields=fields, field_groups=field_groups, age_cats=age_cats, conf_rows=conf_rows, cbins=[b[2] for b in cbins], stats=stats,
            dictionary_html=md_to_html(dictionary), hc_rows=[(k, hc_labels.get(k, ''), int(v.ns), int(v.nst)) for k, v in hc_rows.iterrows()],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Fields')])
@@ -2380,15 +2388,15 @@ def main():
         return dict(n=len(fs), size=human(sum(f.stat().st_size for f in fs)), bytes=sum(f.stat().st_size for f in fs))
     sitedata = [
         dict(path='data/catalog_sample_metadata_wide.parquet', desc='Sample table loaded by the explorer (one row per catalog sample)', **dirstat('data', 'catalog_sample_metadata_wide.parquet')),
-        dict(path='data/catalog_studies.parquet', desc='Study table loaded by the explorer', **dirstat('data', 'catalog_studies.parquet')),
+        dict(path='data/catalog_studies.parquet', desc='Project table loaded by the explorer', **dirstat('data', 'catalog_studies.parquet')),
         dict(path='data/catalog_sample_determinations.parquet', desc='Evidence rows (sample × field with verbatim quote)', **dirstat('data', 'catalog_sample_determinations.parquet')),
         dict(path='data/registry_studies.parquet', desc='Registry tier, loaded by the registry explorer', **dirstat('data', 'registry_studies.parquet')),
         dict(path='data/studies/<PRJ>.csv.gz|.parquet', desc='Per-study sample slices (gzip CSV + parquet)', **dirstat('data/studies', '*[0-9].csv.gz')),
         dict(path='data/studies/<PRJ>_determinations.csv.gz', desc='Per-study evidence rows (gzip CSV, mtime 0)', **dirstat('data/studies', '*_determinations.csv.gz')),
         dict(path='data/cohorts/<COH>.csv.gz|.parquet', desc='Per-cohort sample slices (multi-study cohorts)', **dirstat('data/cohorts')),
         dict(path='data/catalog_cohorts.csv', desc='Cohort list (id, name, studies, papers)', **dirstat('data', 'catalog_cohorts.csv')),
-        dict(path='data/studies_index.json', desc='Study index used by the Studies table', **dirstat('data', 'studies_index.json')),
-        dict(path='data/contribute_worklist.json', desc='Contribution worklist (one object per open study)', **dirstat('data', 'contribute_worklist.json')),
+        dict(path='data/studies_index.json', desc='Project index used by the project table', **dirstat('data', 'studies_index.json')),
+        dict(path='data/contribute_worklist.json', desc='Contribution worklist (one object per open project)', **dirstat('data', 'contribute_worklist.json')),
         dict(path='data/package/', desc='The catalog, registry and release files of the package, file by file', **dirstat('data/package')),
         dict(path='authors/idx/<letter>.json', desc='Author index shards', **dirstat('authors/idx')),
     ]
@@ -2439,7 +2447,7 @@ def main():
         ext_stats[rid] = dict(n_values=int(len(gg)), n_samples=int(gg.sample_key.nunique()), studies=sorted(set(gg.study_accession) & inc_set))
     ext_list = [dict(r, stats=ext_stats.get(r['resource_id'], dict(n_values=0, n_samples=0, studies=[]))) for r in src['related_efforts'] if r.get('ingestion') == 'used']
     # R2026.22 (owner request): how many catalog values each evidence source contributes — computed from the shipped current
-    # determinations (one winning row per sample x field; precedence archive R1 > supplement R2 > full text R3 > abstract R4)
+    # determinations (one winning row per sample x field; precedence archive record R1 > supplementary table R2 > paper text R3 > abstract R4)
     sys.path.insert(0, str(repo_root / 'src')) if str(repo_root / 'src') not in sys.path else None
     from catalog.scopes.study_sources import classify_rows as _classify, LABELS as _SRC_LABELS
     _v = cd[cd.value_normalized.notna() & (cd.value_normalized.astype(str) != 'unknown')][['sample_key', 'study_accession', 'field_name', 'value_normalized', 'route', 'scope', 'determined_by', 'evidence_source', 'src_track']].copy()
@@ -2447,11 +2455,11 @@ def main():
     _v = _v[_v.source != '']
     VS_ORDER = ['archive', 'supplement', 'fulltext', 'abstract', 'external', 'contribution']
     VS_COLOR = {'archive': '#565A5C', 'supplement': '#CFB87C', 'fulltext': '#4477AA', 'abstract': '#88CCEE', 'external': '#AA3377', 'contribution': '#228833'}
-    VS_DESC = {'archive': 'BioSample attributes, sample names / titles and run fields in ENA / SRA / DDBJ (route R1)',
-               'supplement': "supplementary tables and data files of the project's papers, and of other papers that tabulate its samples (route R2)",
-               'fulltext': 'methods prose and tables in the body of open-access papers (route R3)',
-               'abstract': "paper abstracts and the archive's project description (route R4)",
-               'external': 'curated external resources such as curatedMetagenomicData and GMrepo (route R2, evidence_source external.*)',
+    VS_DESC = {'archive': 'BioSample attributes, sample names / titles and run fields in ENA / SRA / DDBJ',
+               'supplement': "supplementary tables and data files of the project's papers, and of other papers that tabulate its samples",
+               'fulltext': 'methods prose and tables in the body of open-access papers',
+               'abstract': "paper abstracts and the archive's project description",
+               'external': 'external resources such as curatedMetagenomicData and GMrepo, counted with the supplementary tables',
                'contribution': 'metadata contributed by users through the Contribute form'}
     # Count FACTS, not columns (owner review 2026-10-10): related columns form one concept (country + region + locality + site +
     # latitude + longitude = one location; a code + its detail text = one value), identifiers are not metadata (subject_id is
@@ -2580,7 +2588,7 @@ def main():
             if _ch and not (out / _ch).exists():
                 (out / _ch).parent.mkdir(parents=True, exist_ok=True)
                 _root = '../' * _ch.count('/')
-                render('placeholder.html', _ch, _root, nav=_ck, heading=_cl, text='This page is not part of this build.', crumbs=[dict(label='Home', href=_root + 'index.html')] + ([dict(label='Insights')] if _ck == 'atlas' else []) + [dict(label=_cl)])
+                render('placeholder.html', _ch, _root, nav=_ck, heading=_cl, text='This page is not available in this release.', crumbs=[dict(label='Home', href=_root + 'index.html')] + ([dict(label='Insights')] if _ck == 'atlas' else []) + [dict(label=_cl)])
     # R2026.22: project pages of projects that left the catalog (retired gut_studies rows) become stubs pointing to the registry
     # record, so bookmarks and citations of e.g. studies/PRJEB39960.html keep resolving
     retired_ = sorted(set(cs_all.loc[cs_all[RR].notna(), 'study_accession']) - set(cs.study_accession)) if RR in cs_all.columns else []
@@ -2597,7 +2605,7 @@ def main():
     for old_, new_ in REDIRECTS.items():
         (out / old_).parent.mkdir(parents=True, exist_ok=True)
         (out / old_).write_text(f'<!DOCTYPE html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={new_}"><link rel="canonical" href="{base_url}{posixpath.normpath(posixpath.join(posixpath.dirname(old_), new_))}"><title>moved</title><p>This page moved to <a href="{new_}">{new_}</a>.</p>', encoding='utf-8')
-    urls = ''.join(f'<url><loc>{base_url}{p}</loc></url>' for p in sorted(written))
+    urls = ''.join(f'<url><loc>{base_url}{p}</loc><lastmod>{str(build_date)[:10]}</lastmod></url>' for p in sorted(written))
     (out / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + '</urlset>', encoding='utf-8')
     (out / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {base_url}sitemap.xml\n', encoding='utf-8')
     # R2026.37: /404.html for missing addresses (nginx on the CU server, GitHub Pages). Rendered outside render() so it has no canonical

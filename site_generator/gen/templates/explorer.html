@@ -27,8 +27,8 @@
   {% if has_col.has_rna %}<label for="f-has_rna">RNA data set</label><select id="f-has_rna" data-field="has_rna"><option value="">(any)</option><option value="true">yes</option><option value="false">no</option></select>
   <label for="f-has_dna">DNA data set</label><select id="f-has_dna" data-field="has_dna"><option value="">(any)</option><option value="true">yes</option><option value="false">no</option></select>{% endif %}
   <label><input type="checkbox" id="f-has_age"> has numeric age</label>
-  <label><input type="checkbox" id="f-has_subject"> has subject id</label>
-  <label><input type="checkbox" id="f-infant"> infant-extension samples only <span class="small">(samples with the deep infant-field curation)</span></label>
+  <label><input type="checkbox" id="f-has_subject"> has a person id</label>
+  <label><input type="checkbox" id="f-infant"> samples with birth and feeding fields <span class="small">(delivery mode, feeding, gestational age and the rest)</span></label>
   <label for="f-min_fields">Minimum fields with a value</label><input id="f-min_fields" type="number" min="0" max="{{ n_fields_max }}" placeholder="e.g. 3">
   <div class="btns"><button class="btn" id="apply">Apply</button><button class="btn sec" id="reset">Reset</button></div>
 </aside>
@@ -41,7 +41,7 @@
   </div>
   <div class="status" id="dl-status"></div>
   <div id="result-wrap"><table class="tbl" id="result-table"><thead></thead><tbody></tbody></table></div>
-  <p class="small">Route badges: R1 archive attribute · R2 supplementary table · R3 paper full text · R4 abstract / description. Click a row for every field; the <b>archive</b> link opens the BioSample record (NCBI / ENA / DDBJ). The CSV export carries all {{ n_cols }} columns of the filtered rows.</p>
+  <p class="small">Each value carries a badge saying where it came from: archive record · supplementary table · paper text · abstract. Click a row for every field; the <b>archive</b> link opens the BioSample record (NCBI / ENA / DDBJ). The CSV export carries all {{ n_cols }} columns of the filtered rows.</p>
 </section>
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="false" aria-label="Sample details" tabindex="-1"><button class="close" id="detail-close" title="close (Escape)" aria-label="close sample details">×</button><div id="detail-body"></div></div>

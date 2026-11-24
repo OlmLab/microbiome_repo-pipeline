@@ -7,7 +7,7 @@
   const C = window.SAMPLE_PAGE || {};
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const ROUTE = { R1: 'Sequence archive', R2: 'Supplementary table / external resource', R3: 'Paper full text', R4: 'Abstract / description' };
+  const ROUTE = { R1: 'archive record', R2: 'supplementary table', R3: 'paper text', R4: 'abstract' };
   const LABEL = C.labels || {};
   const SKIP = new Set(['sample_key', 'study_accession', 'biosample_accession', 'secondary_sample', 'release_added', 'release_retired', 'package_added', 'in_infant_catalog', 'curated_source', 'n_fields_with_value', 'sample_unit', 'body_site_basis', 'infant_scope', 'seq_depth_source', 'seq_reads', 'n_runs', 'seq_gbp', 'age_category_basis', 'sp_low_depth']);
   function parseCSV(text) {
@@ -81,7 +81,7 @@
         const gen = e && /^generated:/.test(e.note || '');
         trs.push('<tr><td><a class="mono" href="' + C.root + 'fields/index.html#' + esc(f) + '" title="' + esc(LABEL[f] || f) + '">' + esc(f) + '</a></td><td>' + esc(fmtVal(f, v)) + (gen ? ' <span class="tag" title="' + esc(e.note) + '">generated</span>' : '') + '</td><td>' + (rt ? '<span class="tag ' + rt + '" title="' + esc(ROUTE[rt] || '') + '">' + rt + '</span>' : '<span class="muted small">derived</span>') + '</td><td class="num">' + (cf ? (+cf).toFixed(2) : '') + '</td><td class="small">' + (e ? '<span class="mono">' + esc(e.src) + '</span>' + (e.loc && /^http/.test(e.loc) ? ' <a href="' + esc(e.loc) + '">source</a>' : (e.loc ? ' <span class="muted">' + esc(e.loc) + '</span>' : '')) + (e.quote ? '<div class="quote">“' + esc(e.quote) + '”</div>' : '') : '') + '</td></tr>');
       }
-      $('sp-fields').innerHTML = '<table class="tbl small compact"><thead><tr><th>field</th><th>value</th><th>route</th><th class="num">conf.</th><th>evidence</th></tr></thead><tbody>' + trs.join('') + '</tbody></table>';
+      $('sp-fields').innerHTML = '<table class="tbl small compact"><thead><tr><th>field</th><th>value</th><th>where it came from</th><th class="num">conf.</th><th>evidence</th></tr></thead><tbody>' + trs.join('') + '</tbody></table>';
       // same subject / same family within the project
       const subj = S.get(row, 'subject_id'), fam = S.get(row, 'family_id');
       const rel = [];

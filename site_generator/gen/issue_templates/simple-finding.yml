@@ -4,7 +4,7 @@
 # "filled automatically". INSTALL into the Issues repo (config/site.yaml github.issues.repo): `make install-workflows` copies
 # .github/ISSUE_TEMPLATE/*.yml; add this file there or copy it by hand — see docs/CONTRIBUTE.md §"Flag an issue".
 name: Flag an issue
-description: "Something on a study, cohort or sample page is wrong or missing — two questions, one minute."
+description: "Something on a project, cohort or sample page is wrong or missing — two questions, one minute."
 title: "[finding] <accession>"
 labels: ["finding"]
 body:
@@ -12,7 +12,7 @@ body:
     id: problem
     attributes:
       label: "What is wrong or missing?"
-      options: ["a value is wrong", "a value is missing", "the study should not be in the catalog", "something else"]
+      options: ["a value is wrong", "a value is missing", "the project should not be in the catalog", "something else"]
     validations: { required: true }
   - type: textarea
     id: details

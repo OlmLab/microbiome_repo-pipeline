@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ site.title }}{% endblock %}</title>
 <meta name="description" content="{% block desc %}{{ site.description }}{% endblock %}">
-<meta name="catalog-release" content="{{ site.release_tag }}">
-<meta name="catalog-release-id" content="{{ site.release_id }}">
+<meta name="repo-release" content="{{ site.release_tag }}">
+<meta name="repo-release-id" content="{{ site.release_id }}">
 {% if page_path %}<link rel="canonical" href="{{ site.base_url }}{{ page_path }}">{% endif %}
-<meta name="catalog-package-version" content="{{ site.version }}">
-<meta name="catalog-build-date" content="{{ site.build_date }}">
+<meta name="repo-package-version" content="{{ site.version }}">
+<meta name="repo-build-date" content="{{ site.build_date }}">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="{{ root }}static/icons/favicon.svg" type="image/svg+xml">
@@ -37,9 +37,8 @@
 </main>
 <footer role="contentinfo">
 <div class="site-policies"><a href="{{ root }}about/accessibility.html">Accessibility</a> · <a href="{{ root }}about/accessibility.html#privacy">Privacy &amp; analytics</a> · <a href="{{ root }}about/accessibility.html#security">Security</a> · <a href="{{ root }}about/accessibility.html#contact">Contact</a></div>
-<div id="release-line"><b>{{ site.title }}</b> · release <a href="{{ root }}downloads/index.html#rel-{{ site.release_id }}"><span class="mono">{{ site.release_id }}</span></a> · package <span class="mono">{{ site.version }}</span> · build <span class="mono">{{ site.sha8 }}</span>{% if site.doi %} · <a href="https://doi.org/{{ site.doi }}">DOI</a>{% elif site.concept_doi %} · <a href="https://doi.org/{{ site.concept_doi }}">DOI</a>{% endif %} · <a href="{{ root }}changes/{{ site.release_id }}.html">what changed</a> · <a href="{{ root }}about/index.html">About &amp; citation</a> · <a href="{{ root }}about/methods.html#limitations">Limitations</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a> · <a href="{{ site.about.lab_url }}">{{ site.about.lab_name }}</a></div>
-<div class="muted">Built with an LLM-assisted pipeline: every value links to its source, route and confidence — treat values as evidence-linked claims{% if site.has_contribute %}; corrections and missing metadata are welcome via <a href="{{ root }}{{ site.contribute_page }}">Contribute</a>{% endif %}.</div>
-<div class="muted small">Site icon: microbe from <a href="https://github.com/googlefonts/noto-emoji">Noto Emoji</a> (Apache License 2.0).</div>
+<div id="release-line"><b>{{ site.title }}</b> · release <a href="{{ root }}downloads/index.html#rel-{{ site.release_id }}"><span class="mono">{{ site.release_id }}</span></a> · package <span class="mono">{{ site.version }}</span>{% if site.doi %} · <a href="https://doi.org/{{ site.doi }}">DOI</a>{% elif site.concept_doi %} · <a href="https://doi.org/{{ site.concept_doi }}">DOI</a>{% endif %} · <a href="{{ root }}changes/{{ site.release_id }}.html">what changed</a> · <a href="{{ root }}about/index.html">About &amp; citation</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a> · <a href="{{ site.about.lab_url }}">{{ site.about.lab_name }}</a></div>
+<div class="muted">Built with an LLM-assisted pipeline: every value links to the text it was read from, with its source and confidence — treat values as evidence-linked claims{% if site.has_contribute %}; corrections and missing metadata are welcome via <a href="{{ root }}{{ site.contribute_page }}">Contribute</a>{% endif %}.</div>
 </footer>
 
 {% if use_datatables %}

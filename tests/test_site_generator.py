@@ -260,7 +260,7 @@ def test_study_page_sections(site_new):
     t2 = _html(site_new, 'studies/PRJTEST000002.html')
     assert 'https://www.ebi.ac.uk/ena/browser/view/' in js and 'https://ddbj.nig.ac.jp/resource/biosample/' in js
     assert 'Confirm correct' not in t and 'template=simple-finding.yml' in t and 'accession=PRJTEST000001' in t and 'release_id=' in t and 'page_url=' in t
-    assert 'infant extension' in t2 and 'infant field' not in t2.replace('infant fields', '')
+    assert 'birth and feeding' in t2 and 'infant extension' not in t2   # R2026.43: the phase name is gone from visitor text
 
 
 def test_archive_url_helper():
@@ -338,7 +338,7 @@ def test_issue_template_and_config():
     ids = [b['id'] for b in tpl['body'] if 'id' in b]
     assert ids == ['problem', 'details', 'accession', 'release_id', 'page_url']
     dd = [b for b in tpl['body'] if b['type'] == 'dropdown']
-    assert len(dd) == 1 and dd[0]['attributes']['options'] == ['a value is wrong', 'a value is missing', 'the study should not be in the catalog', 'something else']
+    assert len(dd) == 1 and dd[0]['attributes']['options'] == ['a value is wrong', 'a value is missing', 'the project should not be in the catalog', 'something else']
     assert sum(1 for b in tpl['body'] if b['type'] == 'textarea') == 1
     assert SITE_CFG['github']['issues']['template'] == 'simple-finding.yml'
     url = bs.simple_issue_url('https://github.com/OlmLab/microbiome_repo/issues/new', 'simple-finding.yml', 'finding', 'PRJTEST000001', 'R2026.12', 'https://x/studies/PRJTEST000001.html')

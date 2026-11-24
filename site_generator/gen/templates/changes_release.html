@@ -13,7 +13,7 @@
 <table class="tbl small" style="max-width:760px"><thead><tr><th>field</th><th class="num">values</th><th class="num">samples</th><th class="num">studies</th></tr></thead><tbody>
 {% for f in c.fields_added %}<tr><td><a class="mono" href="../fields/index.html#{{ f.field }}">{{ f.field }}</a></td><td class="num">{{ f.n|fmt }}</td><td class="num">{{ f.n_samples|fmt }}</td><td class="num">{{ f.n_studies|fmt }}</td></tr>{% endfor %}
 </tbody></table>
-<p class="small">By route: {% for r, n in c.routes_added %}<span class="tag {{ r }}">{{ r }}</span> {{ n|fmt }}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+<p class="small">Where the values came from: {% for r, n in c.routes_added %}<span class="tag {{ r }}">{{ r|srcword }}</span> {{ n|fmt }}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
 {% if c.per_study %}<h2>Studies with the most added values</h2>
 <table class="tbl small"><thead><tr><th>study</th><th>title</th><th class="num">values</th><th class="num">samples touched</th><th class="num">samples in study</th><th>fields</th><th>routes</th></tr></thead><tbody>
 {% for s in c.per_study %}<tr><td><a class="mono" href="../studies/{{ s.acc }}.html">{{ s.acc }}</a></td><td class="small">{{ s.title }}</td><td class="num">{{ s.n_rows|fmt }}</td><td class="num">{{ s.n_samples|fmt }}</td><td class="num">{{ s.n_samples_study|fmt }}</td><td class="small mono">{{ s.fields }}</td><td class="small mono">{{ s.routes }}</td></tr>{% endfor %}

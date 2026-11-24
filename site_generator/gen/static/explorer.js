@@ -1,6 +1,6 @@
 // Sample explorer — the catalog (every body site, all ages): DuckDB-WASM over data/catalog_sample_metadata_wide.parquet (+ catalog_studies.parquet
 // for titles), fully client-side, one row per sample. Same boot / failure pattern as registry_explorer.js. Values shown with their
-// route (R1 archive attribute, R2 supplementary table, R3 paper full text, R4 abstract) and confidence; the verbatim evidence quotes
+// source (archive record, supplementary table, paper text, abstract) and confidence; the verbatim evidence quotes
 // live in catalog_sample_determinations.parquet (Downloads) and per study in data/studies/<PRJ>_determinations.csv.gz.
 import { bootDuckDB, DUCKDB_SOURCE } from './duckdb_boot.js';
 const CFG = window.CATALOG_CFG;
@@ -141,7 +141,8 @@ function readUrl() {
   if (p.get('sort')) { const [c, d] = p.get('sort').split(':'); if (SORTABLE.has(c)) { sortCol = c; sortDir = d === 'DESC' ? 'DESC' : 'ASC'; } }
 }
 function detUrl(acc) { return ['..', 'data', 'studies', h(acc) + '_determinations.csv.gz'].join('/'); }
-function routeBadge(r, c) { return r ? `<span class="tag ${h(r)}" title="route ${h(r)}, confidence ${fmtV(c)}">${h(r)}</span>` : ''; }
+const SRC_WORD = { R1: 'archive record', R2: 'supplementary table', R3: 'paper text', R4: 'abstract' };
+function routeBadge(r, c) { return r ? `<span class="tag ${h(r)}" title="confidence ${fmtV(c)}">${h(SRC_WORD[r] || r)}</span>` : ''; }
 
 async function run() {
   const where = whereClause();
@@ -211,8 +212,8 @@ async function showDetail(key) {
   }
   html += '</table>';
   const inf = ['delivery_mode', 'feeding_mode', 'preterm_status', 'gestational_age_weeks', 'birth_weight_grams', 'maternal_antibiotics', 'probiotic_exposure', 'hmo_supplementation', 'nec_status'].filter(f => COLS.has(f) && s[f] !== null && s[f] !== undefined);
-  if (inf.length) html += '<h3>Infant extension fields</h3><table class="tbl kv">' + inf.map(f => `<tr><td>${f}</td><td>${fmtV(s[f])}</td></tr>`).join('') + '</table>';
-  html += `<h3>Evidence</h3><p class="small">Every value above has an evidence row (verbatim quote ≤ 12 words, labelled source, locator, route, confidence): <a href="${detUrl(s.study_accession)}">${h(s.study_accession)}_determinations.csv.gz</a> (this study) or <span class="mono">catalog_sample_determinations.parquet</span> (all). Cohort-wide statements (R3/R4) are shown on the <a href="${CFG.studiesUrl}${h(s.study_accession)}.html">study page</a>.</p>`;
+  if (inf.length) html += '<h3>Birth and feeding fields</h3><table class="tbl kv">' + inf.map(f => `<tr><td>${f}</td><td>${fmtV(s[f])}</td></tr>`).join('') + '</table>';
+  html += `<h3>Evidence</h3><p class="small">Every value above has an evidence row (verbatim quote ≤ 12 words, labelled source, locator, confidence): <a href="${detUrl(s.study_accession)}">${h(s.study_accession)}_determinations.csv.gz</a> (this project) or <span class="mono">catalog_sample_determinations.parquet</span> (all). Cohort-wide statements from the paper text or abstract are shown on the <a href="${CFG.studiesUrl}${h(s.study_accession)}.html">project page</a>.</p>`;
   body.innerHTML = html;
 }
 

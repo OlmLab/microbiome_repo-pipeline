@@ -12,7 +12,7 @@
 {% for label, n in funnel %}<tr><td>{{ label }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}
 </tbody></table>
 <h2>Age categories</h2>
-<p class="small">Age at collection in days → category: {% for k, v in pack.age_categories.items() %}<span class="mono">{{ k }}</span> {{ v[0] }}–{{ v[1] if v[1] is not none else '∞' }} d{% if not loop.last %} · {% endif %}{% endfor %}. Without a numeric age the category falls back to the sample's stated life stage, then to a cohort-wide statement (R3/R4), then to the study's primary life stage; the basis is recorded per sample.</p>
+<p class="small">Age at collection in days → category: {% for k, v in pack.age_categories.items() %}<span class="mono">{{ k }}</span> {{ v[0] }}–{{ v[1] if v[1] is not none else '∞' }} d{% if not loop.last %} · {% endif %}{% endfor %}. Without a numeric age the category falls back to the sample's stated life stage, then to a cohort-wide statement from the paper text or abstract, then to the project's primary life stage; the basis is recorded per sample.</p>
 <h2>Human projects of the registry not in the catalog ({{ n_excl|fmt }})</h2>
 <p class="small">Registry projects with a human host (yes or mixed) that are not in the catalog — typically amplicon, human-genome or isolate sequencing, or a classification still pending. They stay in the registry with their evidence and enter the catalog when a later cycle admits them.</p>
 <table class="tbl small" style="max-width:820px"><thead><tr><th>host human</th><th>assay</th><th>classification stage</th><th class="num">studies</th><th class="num">runs</th></tr></thead><tbody>

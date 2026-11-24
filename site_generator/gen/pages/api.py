@@ -154,7 +154,7 @@ def build(render, out: Path, ctx: dict):
         project_keys=dict(accession='BioProject accession', title='project title', n_samples='curated catalog samples',
                           gbp_per_sample_median='median sequencing depth per sample (Gbp)', health_conditions='code -> number of samples',
                           age_categories='life stage -> number of samples', countries='country -> number of samples', sex='sex -> number of samples',
-                          interventions='interventions the study ADMINISTERED (study level, from abstract / description; [] = none stated)',
+                          interventions='interventions the project ADMINISTERED (project level, from abstract / description; [] = none stated)',
                           intervention_design='randomized_controlled_trial | non_randomized_controlled | crossover | single_arm_before_after | observational_with_procedure | none | unknown',
                           intervention_detail='short free text naming agent / regimen', trial_population_condition="underlying condition of the trial population",
                           sample_intervention_arms='code -> number of samples whose own archive record states the arm (placebo / no_intervention = controls / baselines)',
@@ -213,6 +213,6 @@ DuckDB can query the full per-sample table over HTTP:
 Study-level columns (interventions, intervention_design, population_condition …): {b}data/catalog_studies.parquet. Field definitions: {b}fields/index.html.
 
 ## Caveats
-Values are evidence-linked claims (route R1 archive attribute > R2 supplementary table > R3 paper text > R4 abstract), not ground truth; study-level
+Values are evidence-linked claims (the archive record wins over the supplementary table, then the paper text, then the abstract), not ground truth; project-level
 interventions come from abstracts and may miss arms; every value's evidence is on the project page. Cite: {ctx.get('citation', '')}
 """

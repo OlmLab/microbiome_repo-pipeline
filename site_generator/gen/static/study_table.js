@@ -1,13 +1,13 @@
 /* Project-page sample table (R2026.18): rendered in the browser from data/studies/<ACC>.csv.gz (the same file as the
    download), so every sample and every field is shown without inflating the static pages. Columns come from the page
    (window.STUDY_TABLE.cols: only the fields this project has values for). Each cell's tooltip names the
-   field, value, route and confidence. */
+   field, value, where the value came from and confidence. */
 (function () {
   'use strict';
   const cfg = window.STUDY_TABLE; if (!cfg) return;
   cfg.cols = (cfg.cols || []).filter((c) => !c.empty);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const ROUTE = { R1: 'archive', R2: 'supplementary table / external', R3: 'paper full text', R4: 'abstract / description' };
+  const ROUTE = { R1: 'archive record', R2: 'supplementary table', R3: 'paper text', R4: 'abstract' };
   function parseCSV(text) {
     const rows = []; let row = [], f = '', q = false;
     for (let i = 0; i < text.length; i++) {
@@ -55,7 +55,7 @@
         out._row = row; return out;
       });
       const tipOf = (row, c, v) => { if (!v) return c.label; const rt = get(row, c.f + '__route'), cf = get(row, c.f + '__confidence');
-        return c.label + ': ' + v + (rt ? ' · ' + rt + ' (' + (ROUTE[rt] || '') + ')' : '') + (cf ? ' · confidence ' + (+cf).toFixed(2) : ''); };
+        return c.label + ': ' + v + (rt ? ' · ' + (ROUTE[rt] || rt) : '') + (cf ? ' · confidence ' + (+cf).toFixed(2) : ''); };
       const columns = [
         { title: 'sample', render: (d, t) => t === 'display' ? '<a class="mono" href="../samples/sample.html?id=' + encodeURIComponent(d) + '">' + esc(d) + '</a>' : d },
         { title: 'archive', render: (d, t) => { if (t !== 'display') return d; const u = archiveUrl(d); return u ? '<a class="mono" href="' + u + '">' + esc(d) + '</a>' : esc(d); } }];

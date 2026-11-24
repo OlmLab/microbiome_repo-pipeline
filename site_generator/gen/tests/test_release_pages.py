@@ -79,7 +79,7 @@ def test_new_pages_exist_and_footer_shows_release_id():
     for page in ['index.html', 'releases/index.html', 'studies/index.html', 'samples/index.html']:
         t = (SITE / page).read_text()
         assert f'release <a' in t and f'>{rid}</span>' in t and f'package <span class="mono">{vj["package_version"]}</span>' in t and 'build <span class="mono">' in t, page
-        assert f'<meta name="catalog-release-id" content="{rid}">' in t
+        assert f'<meta name="repo-release-id" content="{rid}">' in t
         assert 'USERNAME.github.io' not in t
     idx = (SITE / 'index.html').read_text()
     assert 'zenodo.org/badge/1389758854.svg' in idx and 'zenodo.org/badge/latestdoi/1389758854' in idx

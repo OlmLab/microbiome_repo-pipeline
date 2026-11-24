@@ -70,6 +70,7 @@ def build(cfg_path, render, wide: pd.DataFrame, studies: pd.DataFrame, out_dir, 
     hc_labels = hc_labels or {}
     ls_labels = ls_labels or {}
     cards, detail_ctx, expo = [], [], {}
+    empty = []
     for c in cols:
         m, notes = member_mask(c, wide)
         sub = wide[m]
@@ -92,6 +93,11 @@ def build(cfg_path, render, wide: pd.DataFrame, studies: pd.DataFrame, out_dir, 
                  n_samples=int(m.sum()), n_studies=int(per_study.shape[0]), rows=rows, missing=missing, build_notes=notes,
                  age=facet('age_category'), country=facet('country'), condition=facet('health_condition', hc_labels), lifestyle=facet('lifestyle', ls_labels),
                  explorer=f"../samples/index.html?collection={c['id']}")
+        if d['n_samples'] == 0:
+            # R2026.43: a rule that matches no sample in this release gets no card, no page and no explorer entry;
+            # its old address forwards to the index so bookmarks keep working.
+            empty.append(d['id'])
+            continue
         cards.append(d)
         expo[c['id']] = dict(title=d['title'], studies=listed, filters=d['filters'])
     (out / 'data').mkdir(parents=True, exist_ok=True)
@@ -104,4 +110,4 @@ def build(cfg_path, render, wide: pd.DataFrame, studies: pd.DataFrame, out_dir, 
     for d in cards:
         render('collection.html', f"collections/{d['id']}.html", '../', nav='collections', c=d, use_datatables=True,
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Collections', href='index.html'), dict(label=d['title'])])
-    return dict(n_collections=len(cards), n_samples=int(sum(d['n_samples'] for d in cards)))
+    return dict(n_collections=len(cards), n_samples=int(sum(d['n_samples'] for d in cards)), empty=empty)

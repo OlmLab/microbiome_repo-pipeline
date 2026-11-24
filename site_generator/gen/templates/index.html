@@ -39,7 +39,7 @@ window.addEventListener('load', () => {
     const letter = /^[a-z]/.test(n) ? n[0] : '_'; if (!shards.includes(letter)) return [];
     const a = await shard(letter);
     return Object.keys(a).filter(k => norm(k).startsWith(n) || norm(a[k].n).includes(n)).sort((x, y) => a[y].s.length - a[x].s.length || x.localeCompare(y)).slice(0, 6)
-      .map(k => '<li><span class="tag">author</span> <a href="authors/index.html?q=' + encodeURIComponent(a[k].n) + '">' + h(a[k].n) + '</a> <span class="small">' + a[k].s.length + ' stud' + (a[k].s.length === 1 ? 'y' : 'ies') + '</span></li>');
+      .map(k => '<li><span class="tag">author</span> <a href="authors/index.html?q=' + encodeURIComponent(a[k].n) + '">' + h(a[k].n) + '</a> <span class="small">' + a[k].s.length + ' project' + (a[k].s.length === 1 ? '' : 's') + '</span></li>');
   }
   async function run(){
     const raw = q.value.trim(), s = raw.toLowerCase(); out.innerHTML = '';
@@ -53,7 +53,7 @@ window.addEventListener('load', () => {
     const rh = reg.filter(x => { const k = (x[0] + ' ' + x[1] + ' ' + x[2]).toLowerCase(); return ws.every(w => k.includes(w)); }).slice(0, 15)
       .map(x => '<li><span class="tag" title="screened, not in the curated catalog: ' + h(x[3]) + '">registry</span> <a href="registry/index.html?study=' + encodeURIComponent(x[0]) + '">' + h(x[0]) + '</a> ' + h(x[2]) + ' <span class="small muted">— not in the catalog: ' + h(x[3]) + '</span></li>');
     if (q.value.trim().toLowerCase() !== s) return;
-    out.innerHTML = hits.map(x => '<li><span class="tag">' + h(x.t) + '</span> <a href="' + h(x.u) + '">' + h(x.id) + '</a> ' + h(x.n) + '</li>').join('') + au.join('') + rh.join('')
+    out.innerHTML = hits.map(x => '<li><span class="tag">' + h(x.t === 'study' ? 'project' : x.t) + '</span> <a href="' + h(x.u) + '">' + h(x.id) + '</a> ' + h(x.n) + '</li>').join('') + au.join('') + rh.join('')
       || '<li>No study, cohort, collection or author matches — try the <a href="registry/index.html?q=' + encodeURIComponent(raw) + '">registry explorer</a> (all screened studies).</li>';
   }
   q.addEventListener('input', () => { clearTimeout(q._t); q._t = setTimeout(run, 150); });
