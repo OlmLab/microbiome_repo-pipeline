@@ -134,7 +134,7 @@ ORG_LEAK_RE = re.compile(r'SUB\d{6,}|@')
 # contribute worklist when >= CONTRIB_MIN_MISSING of the CORE fields are below the coverage threshold.
 CONTRIB_MIN_SAMPLES, CONTRIB_MIN_MISSING = 50, 2   # 2 of the 5 core fields (R2026.32: body site joined the core; R2026.15: core age = life stage, sex is a key field)
 # Top navigation (owner reviews 2026-10-01 / 2026-10-08; 2026-11-23: Insights replaces Explore and the name "Atlas"; the page addresses stay
-# under atlas/; atlas/measures.html and atlas/figures.html are built but not in the menu): Home · Projects · Samples · Contribute, then two
+# under atlas/; R2026.43: atlas/measures.html is "Profile coverage and quality" in the Insights menu, atlas/figures.html is removed): Home · Projects · Samples · Contribute, then two
 # drop-downs: Insights and About (About ends with a "Browse" section: Registry, Cohorts, Collections, Authors). Entries are (key, label, href, children); a child with href None is a section heading inside a menu. Pages pass
 # nav=<key>; a group is highlighted when the page's key is one of its children's keys.
 NAV = [('home', 'Home', 'index.html', None),
@@ -143,7 +143,7 @@ NAV = [('home', 'Home', 'index.html', None),
        ('contribute', 'Contribute', 'contribute/index.html', None),
        ('insights', 'Insights', None, [('atlas', 'Taxon explorer', 'atlas/taxa/index.html'), ('atlas', 'VANISH / BloSSUM', 'atlas/vanish.html'),
                                        ('atlas', 'Replication of published findings', 'atlas/replication.html'), ('atlas', 'Taxon map', 'atlas/index.html'),
-                                       ('atlas', 'PCA of community profiles', 'atlas/pca.html')]),
+                                       ('atlas', 'PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Profile coverage and quality', 'atlas/measures.html')]),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
                                  ('downloads', 'Downloads & releases', 'downloads/index.html'), ('about', 'Scope', 'about/scope.html'),
                                  ('about', 'Methods', 'about/methods.html'), ('about', 'Fields & vocabularies', 'fields/index.html'),
@@ -152,10 +152,10 @@ NAV = [('home', 'Home', 'index.html', None),
                                  ('about', 'Browse', None), ('registry', 'Registry (every screened ENA study)', 'registry/index.html'), ('cohorts', 'Cohorts', 'cohorts/index.html'),
                                  ('collections', 'Collections', 'collections/index.html'), ('authors', 'Authors', 'authors/index.html')])]
 # Pages that are built and keep their addresses but are not in the menu (owner, 2026-11-23); like menu entries they must always resolve.
-OFF_MENU_PAGES = [('atlas', 'Profile measures', 'atlas/measures.html'), ('atlas', 'Figures', 'atlas/figures.html')]
+OFF_MENU_PAGES = []   # R2026.43: Profile coverage and quality is in the Insights menu; the Figures page is removed (old address redirects)
 # Old URLs → new homes (item 5/6): every entry is written as a redirect stub so bookmarks keep working.
 REDIRECTS = {'scope.html': 'about/scope.html', 'methods.html': 'about/methods.html', 'sources.html': 'about/sources.html', 'downloads.html': 'downloads/index.html',
-             'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'human/index.html': '../studies/index.html', 'human/projects/index.html': '../../studies/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'figures.html'}
+             'releases/index.html': '../downloads/index.html#releases', 'gut/index.html': '../samples/index.html', 'human/index.html': '../studies/index.html', 'human/projects/index.html': '../../studies/index.html', 'universe.html': 'about/scope.html', 'atlas/observations.html': 'taxa/index.html', 'atlas/figures.html': 'taxa/index.html'}
 ARCHIVE_URLS = {'SAMN': 'https://www.ncbi.nlm.nih.gov/biosample/', 'SAMD': 'https://ddbj.nig.ac.jp/resource/biosample/', 'SAME': 'https://www.ebi.ac.uk/ena/browser/view/',
                 'RUN': 'https://www.ebi.ac.uk/ena/browser/view/'}
 
@@ -1412,17 +1412,23 @@ def main():
             IN_DATA.append(name)
     for name in IN_DATA:
         shutil.copyfile(pkg / name, out / 'data' / name)
-    pkg_files = []
+    pkg_files, pkg_not_on_site = [], []
     for f in sorted(pkg.iterdir()):
         if not f.is_file() or f.name == 'build_counts.json':
+            continue
+        _grp = ('catalog' if f.name.startswith('catalog_') or f.name == 'CATALOG_SANDPIPER_REPORT.md' else 'registry' if f.name.startswith('registry_') else
+                'release' if f.name in ('releases.csv', 'VERSION.json', 'README.md', 'DATA_DICTIONARY.md', 'CHANGELOG.md', 'getting_started.ipynb') or f.name.startswith('RELEASE_NOTES_') else 'infant')
+        if _grp == 'infant':
+            # R2026.43 (owner, 2026-11-24): the tables of the infant phase are no longer listed or hosted on the site; they stay in the
+            # package zip (GitHub release, Zenodo). The site keeps the catalog, registry and release files.
+            pkg_not_on_site.append(dict(name=f.name, bytes=f.stat().st_size))
             continue
         if f.name not in IN_DATA:
             shutil.copyfile(f, out / 'data' / 'package' / f.name)
         meta = vj['tables'].get(f.name, {})
         pkg_files.append(dict(name=f.name, size=human(f.stat().st_size), bytes=f.stat().st_size, rows=meta.get('rows'),
                               sha256=meta.get('sha256', ''), href=('data/' if f.name in IN_DATA else 'data/package/') + f.name,
-                              desc=FILE_DESC.get(f.name, ''), group=('catalog' if f.name.startswith('catalog_') or f.name == 'CATALOG_SANDPIPER_REPORT.md' else 'registry' if f.name.startswith('registry_') else
-                                                                     'release' if f.name in ('releases.csv', 'VERSION.json', 'README.md', 'DATA_DICTIONARY.md', 'CHANGELOG.md', 'getting_started.ipynb') or f.name.startswith('RELEASE_NOTES_') else 'infant')))
+                              desc=FILE_DESC.get(f.name, ''), group=_grp))
     zip_name, zip_size, zip_href = None, None, None
     if a.package_zip:
         zip_name = f'data_package_v{version}.zip'
@@ -2098,7 +2104,7 @@ def main():
     from pages import atlas as _atlas
     atlas_dir = Path(a.atlas_data) if a.atlas_data else None
     if atlas_dir and (atlas_dir / 'taxa.json').exists():   # precomputed taxon-map payload + observation cards (data/inputs/gut/atlas; make atlas-precompute)
-        _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs, figures_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'figures')), out)
+        _atlas.build(env, render, dict(atlas_data_dir=atlas_dir, stats=stats, gut_studies=cs), out)
         print(f'[{time.time()-t0:.0f}s] atlas/index + observations from {atlas_dir}', file=sys.stderr)
     from pages import measures as _measures   # R2026.36: Atlas › Profile measures (scripts/sandpiper_measures.py payload)
     _gap = pd.read_csv(pkg / 'catalog_sandpiper_gap_by_cause.csv').to_dict('records') if (pkg / 'catalog_sandpiper_gap_by_cause.csv').exists() else []
@@ -2383,12 +2389,12 @@ def main():
         dict(path='data/catalog_cohorts.csv', desc='Cohort list (id, name, studies, papers)', **dirstat('data', 'catalog_cohorts.csv')),
         dict(path='data/studies_index.json', desc='Study index used by the Studies table', **dirstat('data', 'studies_index.json')),
         dict(path='data/contribute_worklist.json', desc='Contribution worklist (one object per open study)', **dirstat('data', 'contribute_worklist.json')),
-        dict(path='data/package/', desc='The complete package, file by file, plus the zip', **dirstat('data/package')),
+        dict(path='data/package/', desc='The catalog, registry and release files of the package, file by file', **dirstat('data/package')),
         dict(path='authors/idx/<letter>.json', desc='Author index shards', **dirstat('authors/idx')),
     ]
     offsite = [dict(o, name=o['name'].replace('{v}', version), desc=o['desc'].replace('{v}', version)) for o in OFFSITE]
-    groups = [('catalog', 'Catalog tables (every body site, DNA and RNA, all ages)'), ('registry', 'Registry tables (every screened study)'), ('release', 'Release documents'), ('infant', 'Infant extension tables (deep infant-field curation of the infant studies; also present in the catalog tables)')]
-    render('downloads.html', 'downloads/index.html', '../', nav='downloads', files=pkg_files, groups=groups, zip_name=zip_name, zip_size=zip_size, zip_href=zip_href, sitedata=sitedata, offsite=offsite, vj=vj,
+    groups = [('catalog', 'Catalog tables (every body site, DNA and RNA, all ages)'), ('registry', 'Registry tables (every screened study)'), ('release', 'Release documents')]
+    render('downloads.html', 'downloads/index.html', '../', nav='downloads', files=pkg_files, groups=groups, n_zip_only=len(pkg_not_on_site), zip_only_size=human(sum(x['bytes'] for x in pkg_not_on_site)), zip_name=zip_name, zip_size=zip_size, zip_href=zip_href, sitedata=sitedata, offsite=offsite, vj=vj,
            releases=releases_desc, n_releases=len(releases), first_numbered=rspec['release_id']['first_numbered'],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases')])
     manifest = dict(site=site['title'], package_version=version, release_tag=vj['release_tag'], release_id=release_id, build_date=build_date, generator_git_sha=gen_sha, base_url=base_url,

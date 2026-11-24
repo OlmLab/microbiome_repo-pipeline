@@ -155,14 +155,14 @@ def test_nav_order_and_about(site_new):
     items = re.findall(r'role="menuitem" href="([^"]+)"', nav)
     for page in ('registry/index.html', 'atlas/index.html', 'atlas/pca.html', 'downloads/index.html', 'llms/index.html', 'about/methods.html', 'fields/index.html'):
         assert page in items, page
-    # R2026.42 (owner, 2026-11-23): Insights holds exactly these five pages in this order; Registry, Cohorts, Collections and Authors
+    # R2026.42 / R2026.43 (owner, 2026-11-23 and 2026-11-24): Insights holds exactly these six pages in this order; Registry, Cohorts, Collections and Authors
     # sit in the About menu under a "Browse" heading; profile measures and figures are built but not in the menu; no "Atlas" label
     ins = nav[nav.index('>Insights <span'):nav.index('>About <span')]
-    assert re.findall(r'role="menuitem" href="([^"]+)"', ins) == ['atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/index.html', 'atlas/pca.html']
-    assert re.findall(r'role="menuitem" href="[^"]+"[^>]*>([^<]+)<', ins) == ['Taxon explorer', 'VANISH / BloSSUM', 'Replication of published findings', 'Taxon map', 'PCA of community profiles']
+    assert re.findall(r'role="menuitem" href="([^"]+)"', ins) == ['atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/index.html', 'atlas/pca.html', 'atlas/measures.html']
+    assert re.findall(r'role="menuitem" href="[^"]+"[^>]*>([^<]+)<', ins) == ['Taxon explorer', 'VANISH / BloSSUM', 'Replication of published findings', 'Taxon map', 'PCA of community profiles', 'Profile coverage and quality']
     ab = nav[nav.index('>About <span'):]
     assert 'Browse' in ab and ab.index('Browse') < ab.index('registry/index.html') < ab.index('cohorts/index.html') < ab.index('collections/index.html') < ab.index('authors/index.html')
-    assert 'atlas/measures.html' not in items and 'atlas/figures.html' not in items and 'Explore' not in nav and 'Atlas' not in nav
+    assert 'atlas/figures.html' not in items and 'Explore' not in nav and 'Atlas' not in nav   # R2026.43: Figures removed, measures in the menu
     for page in ('atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/measures.html', 'atlas/figures.html'):
         assert (site_new / page).exists(), page   # placeholders when a build has no payload
     for page in ('atlas/index.html', 'atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html'):

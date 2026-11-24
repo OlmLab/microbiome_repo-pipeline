@@ -24,7 +24,7 @@ def build(render, ctx, out_dir):
     out_dir = Path(out_dir)
     if not (src / "measures.json").exists():   # build without the payload: keep the Atlas nav link resolvable
         render("atlas_measures_missing.html", "atlas/measures.html", "../", nav="atlas", sub="measures",
-               crumbs=[dict(label="Home", href="../index.html"), dict(label="Insights"), dict(label="Profile measures")])
+               crumbs=[dict(label="Home", href="../index.html"), dict(label="Insights"), dict(label="Profile coverage and quality")])
         return dict(page="atlas/measures.html", placeholder=True)
     study_pages = {q.stem for q in (out_dir / "studies").glob("*.html")}   # link only projects with a page in this build
     dst = out_dir / "data" / "measures"
@@ -49,5 +49,5 @@ def build(render, ctx, out_dir):
     render("atlas_measures.html", "atlas/measures.html", "../", nav="atlas", sub="measures", use_datatables=True, M=M,
            head=dict(n_current=n_cur, n_profiled=n_prof, share=_pct(n_prof / n_cur)), reasons=reasons, per_site=per_site,
            by_site=by_site, spf=spf, kn_big=kn_big, stats=ctx.get("stats", {}), study_pages=study_pages, gap=ctx.get("gap") or [],
-           crumbs=[dict(label="Home", href="../index.html"), dict(label="Insights"), dict(label="Profile measures")])
+           crumbs=[dict(label="Home", href="../index.html"), dict(label="Insights"), dict(label="Profile coverage and quality")])
     return dict(page="atlas/measures.html", n_current=n_cur, n_profiled=n_prof)

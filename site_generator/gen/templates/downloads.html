@@ -11,6 +11,7 @@
 {% for f in files if f.group == gid %}<tr><td><a class="mono" href="../{{ f.href }}" download>{{ f.name }}</a></td><td class="num">{{ f.rows|fmt if f.rows is not none else '' }}</td><td class="num">{{ f.size }}</td><td class="small">{{ f.desc }}</td></tr>{% endfor %}
 </tbody></table>
 {% endfor %}
+{% if n_zip_only %}<p class="small">The package holds {{ n_zip_only }} further files ({{ zip_only_size }}): the tables of the first, infant-only phase of this resource and build records. They are in the whole-package zip above and on Zenodo, and are described in the package README; their content is also in the catalog tables.</p>{% endif %}
 <h2>Release assets not on this site</h2>
 <table class="tbl small"><thead><tr><th>file</th><th>description</th></tr></thead><tbody>
 {% for o in offsite %}<tr><td class="mono">{{ o.name }}</td><td class="small">{{ o.desc }}{% if site.data_release_url %} — <a href="{{ site.data_release_url }}">release page</a>{% endif %}</td></tr>{% endfor %}

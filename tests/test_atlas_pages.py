@@ -95,7 +95,7 @@ def built(tmp_path_factory):
 def test_precompute_payload_shape(built):
     out, meta = built['out'], built['meta']
     d = out / 'data' / 'atlas'
-    assert {'taxa.json', 'countries.json', 'studies.json', 'country_hdi.csv', 'observations.json'} <= {p.name for p in d.iterdir()}
+    assert {'taxa.json', 'countries.json', 'studies.json', 'country_hdi.csv'} <= {p.name for p in d.iterdir()}
     for r in atlas.RANKS:
         assert (d / f'matrix_{r}.bin').exists()
     tj = json.loads((d / 'taxa.json').read_text())
@@ -146,14 +146,13 @@ def test_binary_matrix_roundtrip(built):
 
 def test_pages_render(built):
     out = built['out']
-    assert built['pages'] == ['atlas/index.html', 'atlas/figures.html'] == built['written']
+    assert built['pages'] == ['atlas/index.html'] == built['written']   # R2026.43: the Figures page is removed
     a = (out / 'atlas' / 'index.html').read_text()
     assert 'id="map"' in a and 'static/atlas.js' in a and 'static/vendor/d3-7.9.0.min.js' in a and 'static/vendor/topojson-client-3.1.0.min.js' in a and 'integrity="sha384-' in a   # self-hosted since R2026.37
     assert 'About this view' in a and 'master confounder' in a and 'Repeated measures' in a and '100 Mbp' in a
     assert '289' in a and 'class="active"' in a and 'atlas/index.html' in a  # nav link present + active
-    f = (out / 'atlas' / 'figures.html').read_text()   # R2026.25: Observations replaced by the manuscript Figures page
-    assert 'Figure 1. A test figure.' in f and 'figures/figure1_web.png' in f and 'href="figures/figure1.png"' in f
-    assert (out / 'atlas' / 'figures' / 'figure1.png').exists()
+    assert not (out / 'atlas' / 'figures.html').exists() and not (out / 'atlas' / 'figures').exists()   # R2026.43: removed
+    assert not (out / 'data' / 'atlas' / 'obs').exists() and not (out / 'data' / 'atlas' / 'observations.json').exists()   # observation cards are not published
     assert (GEN / 'static' / 'vendor' / 'countries-110m.json').exists() and 'countries-110m.json' in json.loads((GEN / 'static' / 'vendor' / 'SRI.json').read_text())
 
 

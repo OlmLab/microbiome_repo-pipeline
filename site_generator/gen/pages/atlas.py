@@ -244,28 +244,16 @@ def build(env, render, ctx, out_dir):
     shutil.copytree(src, dst)
     if ctx.get('gut_studies') is not None:
         attach_study_titles(dst, ctx['gut_studies'])
+    # R2026.43: the observation cards (obs/, observations.json) are no longer shown anywhere on the site and are not published
+    if (dst / 'obs').is_dir():
+        shutil.rmtree(dst / 'obs')
+    if (dst / 'observations.json').exists():
+        (dst / 'observations.json').unlink()
     taxa_meta = json.loads((dst / 'taxa.json').read_text())['meta']
-    obs = json.loads((dst / 'observations.json').read_text()) if (dst / 'observations.json').exists() else dict(meta={}, cards=[])
-    for c in obs['cards']:
-        c['figure_href'] = f"../data/atlas/obs/{c['figure']}"
-        c['csv_href'] = f"../data/atlas/obs/{c['csv']}"
+    obs = dict(meta={}, cards=[])
     (out_dir / 'atlas').mkdir(parents=True, exist_ok=True)
     payload_mb = round(taxa_meta.get('payload_bytes_total', 0) / 1e6, 1)
     render('atlas.html', 'atlas/index.html', '../', nav='atlas', meta=taxa_meta, payload_mb=payload_mb, n_obs=len(obs['cards']), stats=ctx.get('stats', {}),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Insights'), dict(label='Taxon map')])
-    # R2026.25: the Observations page is replaced by the manuscript Figures page (owner request); old URL redirects (build_site.REDIRECTS)
-    figs_src = Path(ctx.get('figures_dir') or '')
-    if figs_src.is_dir() and (figs_src / 'figures.json').exists():
-        fj = json.loads((figs_src / 'figures.json').read_text())
-        (out_dir / 'atlas' / 'figures').mkdir(parents=True, exist_ok=True)
-        figs = []
-        for f in fj['figures']:
-            web = f['file'].replace('.png', '_web.png')
-            for fn in (f['file'], web):
-                if (figs_src / fn).exists():
-                    shutil.copy(figs_src / fn, out_dir / 'atlas' / 'figures' / fn)
-            figs.append(dict(f, web=web if (figs_src / web).exists() else f['file']))
-        render('figures.html', 'atlas/figures.html', '../', nav='atlas', sub='figs', figures=figs, stats=ctx.get('stats', {}),
-               crumbs=[dict(label='Home', href='../index.html'), dict(label='Insights'), dict(label='Figures')])
-        return ['atlas/index.html', 'atlas/figures.html']
+    # R2026.43: the Figures page is removed (owner, 2026-11-24); atlas/figures.html and atlas/observations.html redirect (build_site.REDIRECTS)
     return ['atlas/index.html']
