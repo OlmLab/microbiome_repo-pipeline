@@ -4,8 +4,8 @@
 {% block content %}
 <h1>Sources and acknowledgements</h1>
 <p class="small"><a href="index.html">About</a> › Sources &amp; acknowledgements</p>
-<p class="lead">Everything on this site is derived from public archives and open literature; this page names those sources and their terms, the software and models the pipeline uses, the funding, and the other projects that curate human-microbiome metadata — with an honest assessment of what each could add to the catalog and how it would join.</p>
-<details class="about-page"><summary>About this page</summary><p>Last reviewed {{ src.updated }}.</p></details>
+<p class="small muted">Source list reviewed {{ src.updated }}.</p>
+<p class="lead">Everything on this site is derived from public archives and open literature; this page names those sources and their terms, the software and models the pipeline uses, the funding, and the other projects whose curation is incorporated here.</p>
 {% for f in src.funding %}<p class="note">{{ f.text }}</p>{% endfor %}
 
 <h2 id="data">Data sources</h2>
@@ -20,16 +20,10 @@
 
 <h2 id="external">External curated resources incorporated</h2>
 <p>Each resource, what it offers, how we join it and the projects that use it: <a href="external.html">External resources</a>.</p>
-<p class="small">Other groups have curated human microbiome metadata before us. Where their per-sample or per-project annotations join our samples through archive accessions, we incorporate them as evidence rows counted with the supplementary tables — <span class="mono">evidence_source = external.&lt;resource&gt;</span>, the locator a link to the record at the source, the quote the source's raw value — after the project's own supplementary tables in precedence (a sample's own archive record always wins). We are grateful to these projects; please cite them when you use values that carry their evidence source.</p>
-<p class="note"><b>Acknowledgement.</b> We gratefully acknowledge the teams behind {% for r in src.related_efforts if r.ingestion == 'used' %}<a href="{{ r.url }}">{{ r.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}: their curation work is incorporated here as external-resource evidence, every incorporated value links back to its source record (<span class="mono">evidence_source = external.&lt;resource&gt;</span>), and users of those values should cite the reference listed for the resource alongside this catalog. Resources that publish no licence are redistributed with attribution only; if you maintain one of them and prefer different terms, <a href="https://github.com/{{ site.issue_repo }}/issues/new">open an issue</a> and we will comply.</p>
-<table class="tbl small"><thead><tr><th>resource</th><th>what we incorporated</th><th>reference · terms</th></tr></thead><tbody>
-{% for r in src.related_efforts if r.ingestion == 'used' %}<tr id="{{ r.resource_id }}"><td><a href="{{ r.url }}"><b>{{ r.name }}</b></a><br><span class="mono small">external.{{ r.resource_id }}</span></td><td class="small">{{ r.ingested }}</td><td class="small">{{ r.reference }}<br>{{ r.licence }}</td></tr>{% endfor %}
-</tbody></table>
-{% if src.related_efforts|rejectattr('ingestion', 'equalto', 'used')|list %}<p class="small">Also consulted, not incorporated (out of scope or no per-sample archive-linked metadata): {% for r in src.related_efforts if r.ingestion != 'used' %}<a href="{{ r.url }}">{{ r.name }}</a>{% if not loop.last %} · {% endif %}{% endfor %}.</p>{% endif %}
-
+<p class="note"><b>Acknowledgement.</b> We gratefully acknowledge the teams behind {% for r in src.related_efforts if r.ingestion == 'used' %}<a href="{{ r.url }}">{{ r.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}: their curation is incorporated here as external-resource values, each one named as coming from that resource and linking back to its record there, and users of those values should cite the reference listed for the resource alongside this catalog. Resources that publish no licence are redistributed with attribution only; if you maintain one of them and prefer different terms, <a href="{{ site.issue_repo }}">open an issue</a> and we will comply.</p>
 <p class="small">Site icon: microbe from <a href="https://github.com/googlefonts/noto-emoji">Noto Emoji</a> (Apache License 2.0).</p>
 
 <h2 id="cite">Citing and licence</h2>
-{% include "_cite.html" %}
-<p class="small">Curated tables (<span class="mono">registry_*</span> and <span class="mono">gut_*</span>) are released under CC-BY-4.0; archive metadata remains under INSDC terms; community profiles from Sandpiper (CC-BY). When you use values from this catalog, please also cite the primary studies — every project page lists its papers.</p>
+<p>How to cite this release: <a href="index.html#cite">About › How to cite</a>.</p>
+<p class="small">Curated tables (<span class="mono">catalog_*</span> and <span class="mono">registry_*</span>) are released under CC-BY-4.0; archive metadata remains under INSDC terms; Sandpiper community profiles under CC-BY. When you use values from this catalog, please also cite the primary studies — every project page lists its papers.</p>
 {% endblock %}

@@ -2,24 +2,23 @@
 {% block title %}What changed in {{ c.release_id }} — {{ site.title }}{% endblock %}
 {% block content %}
 <h1>What changed in {{ c.release_id }} <span class="small">(package {{ c.package_version }}, {{ c.release_date }})</span></h1>
-{% if c.nothing %}<p class="lead">No catalog value, catalog study or registry study carries <span class="mono">release_added = {{ c.release_id }}</span> — this release changed documents, machinery or tables outside the current fact tables.</p>
-<details class="about-page"><summary>About this page</summary><p>See the <a href="../downloads/index.html#rel-{{ c.release_id }}">release notes</a>.</p></details>{% else %}
+{% if c.nothing %}<p class="lead">{{ c.release_id }} added no new metadata. It changed the site and the documents only — see the release notes below.</p>{% else %}
 <div class="cards">
-<div class="card"><div class="num">{{ c.n_added|fmt }}</div><div class="lbl">sample × field values added ({{ c.n_samples_added|fmt }} samples, {{ c.n_studies_changed|fmt }} studies)</div></div>
-<div class="card"><div class="num">{{ c.n_studies_added|fmt }}</div><div class="lbl">catalog studies added</div></div>
+<div class="card"><div class="num">{{ c.n_added|fmt }}</div><div class="lbl">sample × field values added ({{ c.n_samples_added|fmt }} samples, {{ c.n_studies_changed|fmt }} projects)</div></div>
+<div class="card"><div class="num">{{ c.n_studies_added|fmt }}</div><div class="lbl">catalog projects added</div></div>
 <div class="card"><div class="num">{{ c.n_registry_added|fmt }}</div><div class="lbl">registry studies added</div></div>
 </div>
 {% if c.fields_added %}<h2>Values added, by field</h2>
-<table class="tbl small" style="max-width:760px"><thead><tr><th>field</th><th class="num">values</th><th class="num">samples</th><th class="num">studies</th></tr></thead><tbody>
+<table class="tbl small" style="max-width:760px"><thead><tr><th>field</th><th class="num">values</th><th class="num">samples</th><th class="num">projects</th></tr></thead><tbody>
 {% for f in c.fields_added %}<tr><td><a class="mono" href="../fields/index.html#{{ f.field }}">{{ f.field }}</a></td><td class="num">{{ f.n|fmt }}</td><td class="num">{{ f.n_samples|fmt }}</td><td class="num">{{ f.n_studies|fmt }}</td></tr>{% endfor %}
 </tbody></table>
 <p class="small">Where the values came from: {% for r, n in c.routes_added %}<span class="tag {{ r }}">{{ r|srcword }}</span> {{ n|fmt }}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
-{% if c.per_study %}<h2>Studies with the most added values</h2>
-<table class="tbl small"><thead><tr><th>study</th><th>title</th><th class="num">values</th><th class="num">samples touched</th><th class="num">samples in study</th><th>fields</th><th>routes</th></tr></thead><tbody>
-{% for s in c.per_study %}<tr><td><a class="mono" href="../studies/{{ s.acc }}.html">{{ s.acc }}</a></td><td class="small">{{ s.title }}</td><td class="num">{{ s.n_rows|fmt }}</td><td class="num">{{ s.n_samples|fmt }}</td><td class="num">{{ s.n_samples_study|fmt }}</td><td class="small mono">{{ s.fields }}</td><td class="small mono">{{ s.routes }}</td></tr>{% endfor %}
+{% if c.per_study %}<h2>Projects with the most added values</h2>
+<table class="tbl small"><thead><tr><th>project</th><th>title</th><th class="num">values</th><th class="num">samples changed</th><th class="num">samples in project</th><th>fields</th><th>where the values came from</th></tr></thead><tbody>
+{% for s in c.per_study %}<tr><td><a class="mono" href="../studies/{{ s.acc }}.html">{{ s.acc }}</a></td><td class="small">{{ s.title }}</td><td class="num">{{ s.n_rows|fmt }}</td><td class="num">{{ s.n_samples|fmt }}</td><td class="num">{{ s.n_samples_study|fmt }}</td><td class="small mono">{{ s.fields }}</td><td class="small">{{ s.routes }}</td></tr>{% endfor %}
 </tbody></table>{% endif %}
-{% if c.studies_added %}<h2>Catalog studies added</h2>
-<table class="tbl small"><thead><tr><th>study</th><th>title</th><th class="num">samples</th></tr></thead><tbody>
+{% if c.studies_added %}<h2>Catalog projects added</h2>
+<table class="tbl small"><thead><tr><th>project</th><th>title</th><th class="num">samples</th></tr></thead><tbody>
 {% for s in c.studies_added %}<tr><td><a class="mono" href="../studies/{{ s.acc }}.html">{{ s.acc }}</a></td><td class="small">{{ s.title }}</td><td class="num">{{ s.n|fmt }}</td></tr>{% endfor %}
 </tbody></table>{% if c.n_studies_added > 25 %}<p class="small">First 25 of {{ c.n_studies_added|fmt }}.</p>{% endif %}{% endif %}
 {% endif %}

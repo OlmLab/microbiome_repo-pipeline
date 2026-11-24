@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """Static site generator v3 for Microbiome Repo — all ages, one catalog.
 
-Tiers on the site: the REGISTRY (registry_studies.parquet: every ENA shotgun-metagenome study reached by the enumeration — INSDC
-BioProjects from ENA / NCBI SRA / DDBJ — classified for human host, body site, life stage, assay, access; the headline number is
-the HUMAN count, host_human in {yes, mixed}) and the CATALOG = the curated scope (gut_studies / gut_sample_metadata_wide /
-gut_sample_determinations: every curated project, all ages and body sites, per-sample evidence-linked metadata). Navigation: see
-NAV below — Home · Projects · Samples · Contribute · Insights ▾ · About ▾ (which ends with a Browse section). Scope, Methods and
-Sources live under about/, Downloads and Releases are one page, old URLs redirect (REDIRECTS). Field tiers (core / key / birth and
-feeding fields) come from config/packs/gut.yaml; columns the package does not carry yet are omitted, never shown as 0 %.
-The former infant-only tables remain in the package and surface only as fields.
+Tiers on the site: the REGISTRY (registry_studies.parquet: every shotgun-metagenome study screened in ENA / NCBI SRA / DDBJ —
+INSDC BioProjects — classified for human host, body site, life stage, assay, access; the headline number is the HUMAN count,
+host_human in {yes, mixed}) and the CATALOG (gut_studies / gut_sample_metadata_wide / gut_sample_determinations: the curated
+human-associated shotgun DNA and RNA projects, every body site and every age, with per-sample evidence-linked metadata).
+Navigation: see NAV below — Home · Projects · Samples · Contribute · Insights ▾ · About ▾ (which ends with a Browse section).
+Scope, Methods and Sources live under about/, Downloads and Releases are one page, old URLs redirect (REDIRECTS). Field tiers
+(core / key / further / birth and feeding fields) come from config/packs/gut.yaml; columns the package does not carry yet are
+omitted, never shown as 0 %. The tables carried over from the infant curation stay in the package and surface only as fields.
 
 Usage:  python build_site.py --package PKG_DIR --out site [--reports DIR] [--package-zip ZIP] [--base-url URL]
 
@@ -1357,7 +1357,7 @@ def main():
                 zenodo_badge=f'https://zenodo.org/badge/{data_repo_id}.svg', zenodo_latest=f'https://zenodo.org/badge/latestdoi/{data_repo_id}', data_repo_id=data_repo_id,
                 releases_page=rspec['site_pages']['releases_index'], changes_page=rspec['site_pages']['changes_index'],
                 description=f"{names['title']}: a curated, evidence-linked catalog of human-associated shotgun metagenomes and metatranscriptomes — every body site, all ages — with per-sample metadata, and a registry of every screened public study.",
-                citation=f'{names["title"]}, release {release_id} (data package {version}), OlmLab, {cur_rel["release_date"]}.' + (f' doi:{doi}' if doi else ''),
+                citation=f'{names["title"]}, release {release_id} (data package {version}), Olm Lab, University of Colorado Boulder, {cur_rel["release_date"]}.' + (f' DOI {doi or concept_doi}' if (doi or concept_doi) else ''),
                 sri=json.loads((HERE / 'static' / 'vendor' / 'SRI.json').read_text()), has_contribute=True, contribute_page='contribute/index.html',
                 has_registry=True, registry_page='registry/index.html', data_repo=read_github_repo(a.config, 'data'))
 
@@ -2204,9 +2204,9 @@ def main():
 
     # ---------- scope (how the catalog is cut from the registry) ----------
     hum = rg[rg.host_human.isin(['yes', 'mixed'])]
-    funnel = [('registry studies (every ENA study reached by the enumeration)', len(rg)), ('host human = yes or mixed', len(hum)),
+    funnel = [('studies screened in ENA / SRA / DDBJ', len(rg)), ('… of them with a human host', len(hum)),
               ('… of them in the catalog', int(hum.study_accession.isin(inc_set).sum())),
-              ('catalog projects (including projects found outside the registry slices)', len(cs))]
+              ('projects in the catalog (a few were added outside the screened set)', len(cs))]
     not_in = hum[~hum.study_accession.isin(inc_set)]
     excl_reasons = []
     for (h, asy, stg), g_ in not_in.groupby([not_in.host_human.fillna(''), not_in.assay.fillna(''), not_in.classification_stage.fillna('')]):
@@ -2278,7 +2278,7 @@ def main():
         rg_added = rg[rg[RA].astype(str) == rid]
         per_study = []
         if len(added):
-            agg = added.groupby('study_accession').agg(n_rows=('sample_key', 'size'), n_samples=('sample_key', 'nunique'), fields=('field_name', lambda x: ', '.join(sorted(set(x)))), routes=('route', lambda x: ', '.join(sorted(set(x)))))
+            agg = added.groupby('study_accession').agg(n_rows=('sample_key', 'size'), n_samples=('sample_key', 'nunique'), fields=('field_name', lambda x: ', '.join(sorted(set(x)))), routes=('route', lambda x: ', '.join(ROUTE_LABELS.get(r_, r_) for r_ in sorted(set(x)))))
             agg = agg.sort_values(['n_rows'], ascending=False, kind='mergesort')
             for acc, r in agg.head(25).iterrows():
                 per_study.append(dict(acc=acc, title=(title_by_acc.get(acc) or '')[:100], n_rows=int(r.n_rows), n_samples=int(r.n_samples), n_samples_study=int(n_by_study.get(acc, 0)), fields=r.fields, routes=r.routes))
@@ -2293,7 +2293,7 @@ def main():
         changes.append(c)
         render('changes_release.html', rspec['site_pages']['changes_release'].format(release_id=d['release_id']), '../', nav='downloads', c=c, rel=d,
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases', href='../downloads/index.html#releases'), dict(label='Changes', href='index.html'), dict(label=d['release_id'])])
-    render('changes_index.html', rspec['site_pages']['changes_index'], '../', nav='downloads', changes=changes,
+    render('changes_index.html', rspec['site_pages']['changes_index'], '../', nav='downloads', changes=changes, public_from=(_pub_from if _pub_from in _ids else None),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases', href='../downloads/index.html#releases'), dict(label='Changes')])
     print(f'[{time.time()-t0:.0f}s] releases + {len(changes)} changes pages', file=sys.stderr)
 
@@ -2439,13 +2439,16 @@ def main():
     order = ['used', 'candidate_high', 'candidate_medium', 'candidate_low', 'not_applicable']
     src['related_efforts'] = sorted(src['related_efforts'], key=lambda r: (order.index(r['ingestion']), r['name'].lower()))
     # External resources page (R2026.20): one section per incorporated resource with what it is, what we took, and the projects using it
-    _ce = cd[['study_accession', 'sample_key', 'evidence_source']].copy() if 'evidence_source' in cd.columns else pd.DataFrame(columns=['study_accession', 'sample_key', 'evidence_source'])
+    _ecols = [c for c in ('study_accession', 'sample_key', 'evidence_source', 'field_name', 'scope') if c in cd.columns]
+    _ce = cd[_ecols].copy() if 'evidence_source' in cd.columns else pd.DataFrame(columns=['study_accession', 'sample_key', 'evidence_source'])
     _ce = _ce[_ce.evidence_source.fillna('').str.startswith('external.')]
     _ce['res'] = _ce.evidence_source.str.replace(r'^external\.', '', regex=True).str.split(r'[.:\[]').str[0]
     ext_stats = {}
     for rid, gg in _ce.groupby('res'):
-        ext_stats[rid] = dict(n_values=int(len(gg)), n_samples=int(gg.sample_key.nunique()), studies=sorted(set(gg.study_accession) & inc_set))
-    ext_list = [dict(r, stats=ext_stats.get(r['resource_id'], dict(n_values=0, n_samples=0, studies=[]))) for r in src['related_efforts'] if r.get('ingestion') == 'used']
+        ext_stats[rid] = dict(n_values=int(len(gg)), n_samples=int(gg.sample_key.nunique()), studies=sorted(set(gg.study_accession) & inc_set),
+                              n_study_level=int((gg.scope == 'study_all').sum()) if 'scope' in gg.columns else 0,
+                              fields=[dict(label=LABELS.get(f_, f_), n=int(n_)) for f_, n_ in gg.field_name.value_counts().head(8).items()] if 'field_name' in gg.columns else [])
+    ext_list = [dict(r, stats=ext_stats.get(r['resource_id'], dict(n_values=0, n_samples=0, studies=[], n_study_level=0, fields=[]))) for r in src['related_efforts'] if r.get('ingestion') == 'used']
     # R2026.22 (owner request): how many catalog values each evidence source contributes — computed from the shipped current
     # determinations (one winning row per sample x field; precedence archive record R1 > supplementary table R2 > paper text R3 > abstract R4)
     sys.path.insert(0, str(repo_root / 'src')) if str(repo_root / 'src') not in sys.path else None
@@ -2576,8 +2579,8 @@ def main():
     (out / 'registry_search.json').write_text(dumps(reg_idx), encoding='utf-8')
     render('index.html', 'index.html', '', nav='home', stats=stats, home=home, readme_version_warning=readme_version_warning, n_releases=len(releases), shard_letters=sorted(shards))
     # item 5: Collections and Atlas pages are produced by other tracks; the nav entries must never be dead links
-    for sec, lab, txt in (('collections', 'Collections', 'No collections are configured in this build (config/collections.yaml).'),
-                          ('atlas', 'Taxon map', 'The taxon map is being prepared. ' + ('The interactive <a href="pca.html">PCA of Sandpiper community profiles</a> is available.' if (out / 'atlas' / 'pca.html').exists() else ''))):
+    for sec, lab, txt in (('collections', 'Collections', 'No collections yet — see <a href="../contribute/index.html">Contribute</a> to propose one.'),
+                          ('atlas', 'Taxon map', 'The taxon map is not in this release. ' + ('The <a href="pca.html">PCA of community profiles</a> is.' if (out / 'atlas' / 'pca.html').exists() else ''))):
         if not (out / sec / 'index.html').exists():
             (out / sec).mkdir(parents=True, exist_ok=True)
             render('placeholder.html', f'{sec}/index.html', '../', nav=sec, heading=lab, text=txt, crumbs=[dict(label='Home', href='../index.html')] + ([dict(label='Insights')] if sec == 'atlas' else []) + [dict(label=lab)])

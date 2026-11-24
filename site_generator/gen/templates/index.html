@@ -2,15 +2,15 @@
 {% block content %}
 <section class="hero">
 <h1>{{ site.title }}</h1>
-<p class="hero-lead">Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site. <a href="samples/index.html" title="Open the sample sheet: one row per sample with its metadata and evidence">{{ stats.n_samples|fmt }} samples</a> from <a href="studies/index.html" title="Open the project sheet: one row per BioProject">{{ stats.n_studies|fmt }} projects</a>.</p>
+<p class="hero-lead">Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site and every age. <a href="samples/index.html" title="One row per sample, with its metadata and evidence">{{ stats.n_samples|fmt }} samples</a> from <a href="studies/index.html" title="One row per project (an INSDC BioProject)">{{ stats.n_studies|fmt }} projects</a> in {{ stats.n_countries|fmt }} countries.</p>
 <div class="hero-search">
-<label for="q" class="visually-hidden">Search projects, samples, authors and accessions</label>
-<input id="q" aria-label="Search the repository" class="searchbox big" type="search" placeholder="Search — e.g. probiotic, Crohn's, Hadza, PRJNA400115, SAMN…, an author" autocomplete="off">
+<label for="q" class="visually-hidden">Search projects, cohorts, authors and accessions</label>
+<input id="q" aria-label="Search projects, cohorts, authors and accessions" class="searchbox big" type="search" placeholder="Search — e.g. probiotic, Crohn's, Hadza, PRJNA400115, SAMN…, an author" autocomplete="off">
 <ul id="search-results"></ul>
 </div>
 <p class="hero-try small">Try: <a href="studies/index.html?intervention=fmt&amp;condition=ulcerative_colitis" title="Projects of ulcerative colitis patients that received faecal microbiota transplantation">ulcerative colitis × FMT trials</a> · <a href="studies/index.html?intervention=probiotic&amp;design=__controlled__" title="Probiotic intervention projects with a control arm (randomised, non-randomised or crossover)">controlled probiotic trials</a> · <a href="samples/index.html?age_category=infant" title="Samples from infants (29 days to 3 years)">infant samples</a> · <a href="studies/index.html?condition=colorectal_cancer" title="Projects that include colorectal cancer patients">colorectal cancer projects</a> · <a href="studies/index.html?sampling=mother_infant" title="Projects that sampled mothers and their infants — data on mother-to-infant transmission">mother–infant transmission</a> · <a href="studies/index.html?sampling=lg" title="Projects that sampled the same people repeatedly over time">longitudinal projects</a></p>
 <div class="home-globe-wrap"><div id="home-globe" class="home-globe" role="img" aria-label="Globe of catalog projects per country — drag to spin, click a country to open its projects"></div><p class="home-globe-cap small muted">Drag to spin · click a country to see its projects</p></div>
-<nav class="hero-links" aria-label="main sections"><a href="studies/index.html" title="Projects: the {{ stats.n_studies|fmt }} BioProjects (public sequencing projects in ENA / SRA / DDBJ) in the catalog, one row per project with its papers, sample counts and metadata coverage — filter by condition, intervention, age or country">Projects</a><a href="samples/index.html" title="Samples: the {{ stats.n_samples|fmt }} samples, one row per sample with every metadata value (age, sex, condition, country, …) and the evidence each value came from — filter and download">Samples</a><a href="atlas/taxa/index.html" title="Insights: what the microbes look like across the catalog — a taxon explorer, VANISH and BloSSUM taxa, a replication test of published findings, a taxon map and a PCA of community profiles">Insights</a><a href="about/value_sources.html" title="Sources: how many metadata values come from each kind of evidence — sequence archive records, supplementary tables, paper full text, abstracts and external resources — overall and per field">Sources</a><a href="llms/index.html" title="For LLMs &amp; API: how to use the catalog from a language model or a script (llms.txt, machine-readable data files)">For LLMs &amp; API</a><a href="about/index.html" title="About: what the Microbiome Repo is, its scope and methods, field definitions, downloads and releases">About</a></nav>
+<nav class="hero-links" aria-label="main sections"><a href="studies/index.html" title="One row per project: papers, sample counts, metadata coverage">Projects</a><a href="samples/index.html" title="One row per sample: every value and the evidence behind it">Samples</a><a href="atlas/taxa/index.html" title="What the microbes look like across the catalog">Insights</a><a href="about/value_sources.html" title="How many values come from each kind of evidence">Where values come from</a><a href="llms/index.html" title="Use the catalog from an assistant or a script">For LLMs &amp; API</a><a href="about/index.html" title="Scope, methods, fields, downloads and how to cite">About</a></nav>
 <p class="hero-credit">Built by the <a href="{{ site.about.lab_url }}" title="The Olm Lab at the University of Colorado Boulder, which builds and maintains the Microbiome Repo">Olm Lab</a> (University of Colorado Boulder), funded by the <a href="{{ site.about.funder_url }}" title="The program that funds this work">Anthropic AI for Science program</a>.</p>
 </section>
 {% if readme_version_warning %}<p class="note">{{ readme_version_warning }}</p>{% endif %}
@@ -23,7 +23,7 @@
 window.addEventListener('load', () => {
   const el = document.getElementById('home-globe'); if (!el || !window.MiniGlobe || !window.d3) return;
   fetch('data/home_globe.json').then(r => r.json()).then(cnt => window.MiniGlobe.render(el, {countries: cnt, unit: 'projects', size: 300, spin: true,
-    onClick: (iso) => { location.href = 'studies/index.html?country=' + encodeURIComponent(iso); }})).catch(() => { el.style.display = 'none'; });
+    onClick: (iso) => { location.href = 'studies/index.html?country=' + encodeURIComponent(iso); }})).catch(() => { el.style.display = 'none'; const cap = document.querySelector('.home-globe-cap'); if (cap) cap.style.display = 'none'; });
 });
 </script>
 <script>
@@ -53,8 +53,9 @@ window.addEventListener('load', () => {
     const rh = reg.filter(x => { const k = (x[0] + ' ' + x[1] + ' ' + x[2]).toLowerCase(); return ws.every(w => k.includes(w)); }).slice(0, 15)
       .map(x => '<li><span class="tag" title="screened, not in the curated catalog: ' + h(x[3]) + '">registry</span> <a href="registry/index.html?study=' + encodeURIComponent(x[0]) + '">' + h(x[0]) + '</a> ' + h(x[2]) + ' <span class="small muted">— not in the catalog: ' + h(x[3]) + '</span></li>');
     if (q.value.trim().toLowerCase() !== s) return;
-    out.innerHTML = hits.map(x => '<li><span class="tag">' + h(x.t === 'study' ? 'project' : x.t) + '</span> <a href="' + h(x.u) + '">' + h(x.id) + '</a> ' + h(x.n) + '</li>').join('') + au.join('') + rh.join('')
-      || '<li>No study, cohort, collection or author matches — try the <a href="registry/index.html?q=' + encodeURIComponent(raw) + '">registry explorer</a> (all screened studies).</li>';
+    const rnote = rh.length ? '<li class="small muted">Results tagged registry were screened but are not in the catalog.</li>' : '';
+    out.innerHTML = hits.map(x => '<li><span class="tag">' + h(x.t === 'study' ? 'project' : x.t) + '</span> <a href="' + h(x.u) + '">' + h(x.id) + '</a> ' + h(x.n) + '</li>').join('') + au.join('') + rnote + rh.join('')
+      || '<li>Nothing in the catalog matches — try the <a href="registry/index.html?q=' + encodeURIComponent(raw) + '">registry</a> (every study screened).</li>';
   }
   q.addEventListener('input', () => { clearTimeout(q._t); q._t = setTimeout(run, 150); });
   const init = new URLSearchParams(location.search).get('q'); if (init) { q.value = init; run(); }

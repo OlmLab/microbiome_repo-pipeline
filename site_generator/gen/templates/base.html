@@ -7,7 +7,7 @@
 <meta name="description" content="{% block desc %}{{ site.description }}{% endblock %}">
 <meta name="repo-release" content="{{ site.release_tag }}">
 <meta name="repo-release-id" content="{{ site.release_id }}">
-{% if page_path %}<link rel="canonical" href="{{ site.base_url }}{{ page_path }}">{% endif %}
+{% if page_path %}<link rel="canonical" href="{{ site.base_url }}{{ '' if page_path == 'index.html' else page_path }}">{% endif %}
 <meta name="repo-package-version" content="{{ site.version }}">
 <meta name="repo-build-date" content="{{ site.build_date }}">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; upgrade-insecure-requests">

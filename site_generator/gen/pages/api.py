@@ -3,14 +3,14 @@
 GitHub Pages serves static files only, so the API is a set of small, predictable JSON / CSV files written at build time:
 
   api/index.json                        what exists, field definitions, how to search
-  api/projects.json                     one record per catalog project (≈ 2 MB — scripts; LLMs should start from a slice)
+  api/projects.json                     one record per catalog project (≈ 2 MB — scripts; LLMs should start from a selection)
   api/by-intervention/<code>.json       projects that administered <code> (e.g. probiotic, fmt)
-  api/by-condition/<code>.json          projects with samples (or a trial population) of health condition <code>
+  api/by-condition/<code>.json          projects with samples (or a trial population) of health condition <code> (vocabulary codes only)
   api/by-age/<category>.json            projects with samples of an age category
   api/vocabularies.json                 every code with its label (conditions, interventions, age categories, designs …)
   api/samples/<PRJ>.csv                 plain-text per-sample sheet of one project (key columns only; full columns in data/studies/)
 
-Every project record carries the same keys, so an agent can filter a slice without reading documentation twice. llms.txt (root)
+Every project record carries the same keys, so an agent can filter a selection without reading documentation twice. llms.txt (root)
 states the procedure in plain words with worked examples; llms/index.html is the human page with the copy-paste prompt.
 """
 from __future__ import annotations
@@ -105,7 +105,8 @@ def build(render, out: Path, ctx: dict):
         if sel:
             _dump(dict(release=ctx['release_id'], filter=dict(intervention=c), n_projects=len(sel), projects=sel), api / 'by-intervention' / f'{c}.json')
             slices['intervention'][c] = len(sel)
-    hcs = sorted({k for r in recs for k in r['health_conditions']} | {r['trial_population_condition'] for r in recs if r['trial_population_condition']})
+    hc_vocab = set(ctx['hc_labels'])
+    hcs = sorted(({k for r in recs for k in r['health_conditions']} | {r['trial_population_condition'] for r in recs if r['trial_population_condition']}) & hc_vocab)
     for c in hcs:
         if c in ('unknown',):
             continue
@@ -142,7 +143,7 @@ def build(render, out: Path, ctx: dict):
         name=ctx['site_title'], release=ctx['release_id'], package_version=ctx['version'], base_url=base,
         description='Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages. A project = an INSDC BioProject; a sample = a BioSample (rarely a run).',
         how_to_search=[
-            'Pick the most specific slice: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
+            'Pick the most specific selection: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
             'Filter its projects on the other keys (health_conditions counts, interventions, intervention_design, has_cases_and_healthy_controls, has_treated_and_control_arms, n_samples, countries).',
             'For each candidate open urls.samples_csv to see the samples, their arms (intervention column), conditions and sequencing depth (seq_gbp).',
             'Cite the project page (urls.page) and the ENA accession; values carry evidence on the project page.'],
@@ -161,6 +162,8 @@ def build(render, out: Path, ctx: dict):
                           has_cases_and_healthy_controls='>= 3 healthy_control samples and >= 3 samples with a disease code',
                           has_treated_and_control_arms='>= 3 samples in an active arm and >= 3 placebo / no_intervention samples (archive attributes)',
                           papers='up to 5 linked papers', urls='page, samples_csv (plain CSV), samples_full_csv_gz, evidence_csv_gz, ena'),
+        licence='Curated values CC-BY-4.0; archive metadata under INSDC terms; Sandpiper community profiles CC-BY.',
+        citation=ctx.get('citation', ''),
         sample_columns={c: '' for c in cols},
         counts=dict(projects=len(recs), interventions=slices['intervention'], conditions=slices['condition'], age=slices['age']))
     _dump(index, api / 'index.json')
@@ -181,38 +184,42 @@ def llms_txt(index, ctx):
 Use ONLY the files below; fetch them, do not guess accessions or counts. All files are plain JSON / CSV at stable URLs.
 
 ## How to search (do this in order)
-1. Choose the most specific slice and fetch it:
-   - by intervention the study administered: {b}api/by-intervention/<code>.json   (codes: {ivs})
+1. Choose the most specific selection and fetch it:
+   - by intervention the project administered: {b}api/by-intervention/<code>.json   (codes: {ivs})
    - by health condition: {b}api/by-condition/<code>.json   (codes in {b}api/vocabularies.json, e.g. ulcerative_colitis, crohns_disease, ibd_unspecified, colorectal_cancer, type2_diabetes, obesity, healthy_control)
    - by age category: {b}api/by-age/<neonate|infant|child|adolescent|adult|elderly>.json
    - everything (large, ~2 MB): {b}api/projects.json
-2. Filter the slice's `projects` on the other keys: `health_conditions` (code -> samples), `interventions`, `intervention_design`, `trial_population_condition`,
+2. Filter the selection's `projects` on the other keys: `health_conditions` (code -> samples), `interventions`, `intervention_design`, `trial_population_condition`,
    `sample_intervention_arms`, `has_cases_and_healthy_controls`, `has_treated_and_control_arms`, `n_samples`, `countries`, `age_categories`, `gbp_per_sample_median`.
-3. For each candidate fetch `urls.samples_csv` ({b}api/samples/<ACCESSION>.csv): one row per sample with subject_id, timepoint_label, age_category,
+3. For each candidate fetch `urls.samples_csv` ({b}api/samples/<ACCESSION>.csv): one row per sample with sample_key, study_accession, subject_id, timepoint_label, age_category,
    age_at_collection_days, sex, country, health_condition, intervention (this sample's arm), antibiotic_exposure, collection_date, n_runs, seq_gbp.
 4. Answer with accessions, sample counts per group/arm, and links (`urls.page`, `urls.ena`). Say when a value is missing rather than inferring it.
 
 ## Meaning of the key fields
-- `interventions` = what the investigators ADMINISTERED (FMT, probiotic, diet, drug …), study level, read from the abstract / BioProject description. [] = none stated.
+- `interventions` = what the investigators ADMINISTERED (FMT, probiotic, diet, drug …), project level, read from the abstract / BioProject description. [] = none stated.
 - `sample_intervention_arms` / sample column `intervention` = the arm recorded in the archive for that sample; `placebo` and `no_intervention` are the controls / baselines.
 - `health_conditions` counts each sample's own condition; `trial_population_condition` is the condition of a trial's participants (e.g. ulcerative_colitis for a UC FMT trial).
-- An "IBD + FMT study" = by-intervention/fmt.json filtered to projects whose health_conditions or trial_population_condition include ulcerative_colitis, crohns_disease or ibd_unspecified.
+- An "IBD + FMT project" = by-intervention/fmt.json filtered to projects whose health_conditions or trial_population_condition include ulcerative_colitis, crohns_disease or ibd_unspecified.
 
 ## Worked examples
 - "Probiotic trials where both treated and control samples have metagenomes": fetch {b}api/by-intervention/probiotic.json; keep projects with
   intervention_design in (randomized_controlled_trial, crossover, non_randomized_controlled) OR has_treated_and_control_arms = true. has_treated_and_control_arms = true
   means the archive labels each sample's arm (best case); for the others read the samples_csv (intervention, timepoint_label, subject_id) and the paper to split arms.
-- "Ulcerative colitis FMT studies": fetch {b}api/by-intervention/fmt.json; keep trial_population_condition = ulcerative_colitis or health_conditions containing ulcerative_colitis.
+- "Ulcerative colitis FMT projects": fetch {b}api/by-intervention/fmt.json; keep trial_population_condition = ulcerative_colitis or health_conditions containing ulcerative_colitis.
 - "Adult colorectal-cancer case-control cohorts with healthy controls": fetch {b}api/by-condition/colorectal_cancer.json; keep has_cases_and_healthy_controls = true and age_categories containing adult.
 - "Infant gut samples from Finland": fetch {b}api/by-age/infant.json; keep countries containing Finland; then read samples_csv.
 
 ## For code-running agents
 DuckDB can query the full per-sample table over HTTP:
   INSTALL httpfs; LOAD httpfs;
-  SELECT study_accession, intervention, count(*) FROM read_parquet('{b}data/catalog_sample_metadata_wide.parquet') WHERE health_condition IN ('ulcerative_colitis','crohns_disease') GROUP BY ALL;
-Study-level columns (interventions, intervention_design, population_condition …): {b}data/catalog_studies.parquet. Field definitions: {b}fields/index.html.
+  SELECT study_accession, intervention, count(*) FROM read_parquet('{b}data/catalog_sample_metadata_wide.parquet')
+  WHERE release_retired IS NULL AND health_condition IN ('ulcerative_colitis','crohns_disease') GROUP BY ALL;
+The table keeps the rows retired in earlier releases beside the current ones; `release_retired IS NULL` is the current catalog.
+Project-level columns (interventions, intervention_design, population_condition …): {b}data/catalog_studies.parquet. Field definitions: {b}fields/index.html.
 
 ## Caveats
 Values are evidence-linked claims (the archive record wins over the supplementary table, then the paper text, then the abstract), not ground truth; project-level
-interventions come from abstracts and may miss arms; every value's evidence is on the project page. Cite: {ctx.get('citation', '')}
+interventions come from abstracts and may miss arms; every value's evidence is on the project page.
+Licence: curated values CC-BY-4.0; archive metadata under INSDC terms; Sandpiper community profiles CC-BY. Cite the primary study of each project as well.
+Cite: {ctx.get('citation', '')}
 """

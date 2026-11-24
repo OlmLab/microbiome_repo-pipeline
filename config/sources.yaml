@@ -8,7 +8,7 @@ funding:
 data_sources:
 - name: European Nucleotide Archive (ENA) / INSDC (SRA, DDBJ)
   url: https://www.ebi.ac.uk/ena/browser/
-  role: Study, sample, run and BioSample records and attributes for every registry study (portal API); the archive metadata is route R1.
+  role: Study, sample, run and BioSample records and attributes for every screened study (portal API); these are the archive records values are read from.
   terms: 'INSDC: free and unrestricted access to all records.'
 - name: NCBI BioProject and BioSample
   url: https://www.ncbi.nlm.nih.gov/bioproject/
@@ -16,19 +16,15 @@ data_sources:
   terms: NCBI public-domain data policy.
 - name: Europe PMC
   url: https://europepmc.org/
-  role: Paper ↔ accession links, abstracts, open-access full text (JATS) and supplementary files behind routes R2, R3 and R4; author lists.
+  role: Paper ↔ accession links, abstracts, open-access full text (JATS) and supplementary files — the supplementary table, paper text and abstract a value can come from; author lists.
   terms: Europe PMC open-access subset; individual article licences apply to reuse of text.
 - name: Sandpiper (SingleM community profiles of public metagenomes)
   url: https://sandpiper.qut.edu.au/
-  role: Per-run community profiles and the count of profiled runs per study; profiles shown for the infant studies.
+  role: Per-run community profiles for every catalog project that Sandpiper has profiled, and the count of profiled runs per project.
   terms: CC-BY (Woodcroft et al. 2025).
-- name: curatedMetagenomicData (cMD)
-  url: https://waldronlab.io/curatedMetagenomicData/
-  role: Gold standard for the infant-field extraction evaluation (age, delivery mode, preterm status precision) and the 22 infant BioProjects used for study-level recall.
-  terms: Artistic-2.0 (Bioconductor package); data via ExperimentHub.
 - name: UBERON
   url: https://obophenotype.github.io/uberon/
-  role: Anchors of the body-site vocabulary (config/vocab/body_sites.yaml).
+  role: Anchors of the body-site vocabulary.
   terms: CC-BY 3.0.
 - name: GTDB
   url: https://gtdb.ecogenomic.org/
@@ -53,8 +49,8 @@ software:
   terms: Apache-2.0 / BSD / MIT (see the repository).
 - name: Anthropic Claude models
   url: https://www.anthropic.com/
-  role: Model-assisted classification (registry), key triage (R1), value normalisation, cohort-statement extraction (R3, R4) and adjudication — always with a verbatim evidence quote; roles and model ids
-    in config/models.yaml and on every model-derived row.
+  role: Model-assisted classification and extraction of values from archive records and papers, always with a verbatim quote; the role and the model id are recorded on every
+    model-derived value.
   terms: Anthropic usage policies.
 related_efforts:
 - name: curatedMetagenomicData 3 (cMD 3)
