@@ -1,12 +1,14 @@
-# RESTART_HERE — Microbiome Repo (v14, 2026-11-15, after the catalog deep pass and R2026.41)
+# RESTART_HERE — Microbiome Repo (v15, 2026-11-24, after R2026.42)
 
-**State**: R2026.41 / 1.34.0 is published (15 November 2026 UTC; DOI 10.5281/zenodo.24241062; site https://microbiome-repo.colorado.edu/;
-813,356 samples, 5,086 projects, 4,814,518 values). R2026.40 / 1.33.0 (DOI 10.5281/zenodo.24224449) and R2026.39 / 1.32.0
-(DOI 10.5281/zenodo.24209247) precede it. The deep pass is finished; its report is `~/catalog/projects/editor/REPORT.md`, its
-decisions `~/catalog/projects/editor/DECISIONS.md`. `build/` holds the R2026.41 package and site. What the next run inherits is in
-`docs/MONTHLY_RUN.md`, section "Next run: carried over from R2026.41". The DuckDB self-hosting switch stays off until the owner
-confirms that the CU server serves `.wasm` files. Publishing steps that rewrite a tag or copy workflow files need the owner's
-explicit Yes on a card that names the action.
+**State**: R2026.42 / 1.34.1 is published (24 November 2026; DOI 10.5281/zenodo.24508002; site https://microbiome-repo.colorado.edu/;
+813,356 samples, 5,086 projects, 4,814,518 values — the data of 1.34.0). It is a site release: the Insights menu with three new pages
+(taxon explorer, VANISH / BloSSUM, replication of published findings), and the name "Atlas" is gone from what visitors see. R2026.41 /
+1.34.0 (DOI 10.5281/zenodo.24241062) precedes it. **`~/catalog` is read-only to chat code since 23 November 2026**: R2026.42 was
+built in a chat workspace and pushed from there, so the local clones and `build/` in `~/catalog` are behind GitHub. Read
+`docs/MONTHLY_RUN.md`, sections "Next run: carried over from R2026.42" (what is newer than `~/catalog` and where it is) and "When
+`~/catalog` is read-only to code" (how to build and publish), before anything else. The Editor's report is
+`~/catalog/projects/editor/REPORT.md`, its decisions `~/catalog/projects/editor/DECISIONS.md`. The DuckDB self-hosting switch stays
+off until the owner confirms that the CU server serves `.wasm` files. Publishing needs the owner at the machine to approve the cards.
 
 **Where things are**: pipeline `~/catalog/catalog-pipeline` (GitHub OlmLab/microbiome_repo-pipeline), site clone
 `~/catalog/infant-gut-catalog` (OlmLab/microbiome_repo), data clone `~/catalog/infant-gut-catalog-data` (OlmLab/microbiome_repo-data);

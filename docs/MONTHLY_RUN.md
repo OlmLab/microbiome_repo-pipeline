@@ -123,6 +123,64 @@ the Makefile).
 * **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
   page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
 
+## Next run: carried over from R2026.42
+
+**Start state.** R2026.42 was built in a chat workspace because `~/catalog` was read-only to code (see "When `~/catalog` is
+read-only to code" below). GitHub holds everything that is tracked. What is not tracked and is newer than `~/catalog`:
+
+| What | Where the current copy is | In `~/catalog` |
+|---|---|---|
+| Previous package for the next `make release` (`PKG_ZIP`) | `data_package_v1.34.1.zip`: GitHub release `data-v1.34.1`, Zenodo 10.5281/zenodo.24508002, session file of the Editor chat (sha256 `af9c3a64853290c49ff7a4fb3207f84b841516691a9518082c80e2ecfa23c51d`) | `build/` ends at `data_package_v1.34.0.zip` |
+| Page data of the Insights pages and the profile measures (`data/inputs/site/{taxa,vanish,replication,measures}`), `data/inputs/gut/atlas/observations.json` with the renamed map reference | session file `site_inputs_R2026.42.tar.gz` (untar inside `data/inputs/`) | `site/taxa`, `site/vanish`, `site/replication` absent; `site/measures` and `observations.json` are those of R2026.41 |
+| VANISH/BloSSUM run on 1.34.0 with its permutation cache (`VANISH_OUT`, default `data/inputs/site/vanish_work`) | session file `vanish_run_1.34.0_full.tar.gz` (its `vanish_out/` is the run directory; `country_hdi_used.csv` is the HDI table of the run) | absent |
+| `data/inputs/catalog/sandpiper/` | rebuilt by every `make release`; the R2026.42 tables differ from those in `~/catalog` only in the last decimal places | R2026.41 tables (usable as `--previous`) |
+| `build/package`, `build/site` | not kept (rebuilt by `make release`, `make site`) | R2026.41 |
+
+All other input tables under `data/inputs/` are unchanged since R2026.41: R2026.42 added no data.
+
+* **Not checked in a browser.** The three new pages passed their scripted page tests only. After the owner has looked at them,
+  apply what he reports.
+* **VANISH / BloSSUM, long checks not done** (listed on the page): a detection-threshold sweep, a hunter-gatherer-only
+  contrast, a rerun without samples from subjects with a recorded condition. The quick checks on the page (`docs/VANISH_ROBUSTNESS.md`)
+  show that many classes do not hold in every lifestyle, that the simple rule compares studies with each other (7 of 655 adult
+  cohorts hold both HDI bands) and that it moves with sequencing depth. Whether the lists stay as they are is the owner's call.
+* **Second implementation** of the VANISH/BloSSUM method was compared on package 1.31.0 only; the page says so.
+* **Build defects found by comparing 1.34.1 with 1.34.0 table by table** (no data value is wrong; fix before the next data release):
+  1. `catalog_rejected_values` and `catalog_sample_determinations_conflicts`: most rows get the current release in
+     `release_added` / `package_added` at every build (2,680 of 3,081 and 6,072 of 184,012 rows in 1.34.1).
+  2. 320 health-condition rows whose IBD code was refined carry the current release id in `parse_note` ("R2026.42; was
+     ibd_unspecified"): the note should name the release in which the refinement was first made.
+  3. One project note in `study_metadata_wide` grows by a repeated "auditor_review … excluded→excluded" line at every build.
+  4. The profile tables are not bit-reproducible between builds (differences up to 4e-8).
+* `scripts/vanish_blossum.py` in the pipeline differs from the Side pages chat's copy in the HDI note of the page stage only
+  (a full run reads the release's own HDI table); the analysis stages are identical to the file that was run.
+* The explorer's `data_check.py` compares against the round-2 per-taxon pages of package 1.31.0 (`--out721`); on a newer
+  package those three comparisons fail by design (8,752 of them on 1.34.0) while every structural check passes. Use
+  `reader_check.mjs` (91,647 pass) and `presence_check.mjs` (75,523 pass) as the data tests.
+* GitHub Pages: `deploy-pages` can fail with "No artifacts named github-pages" right after the upload (it did for R2026.42). A
+  re-run of the failed job then finds two artifacts and fails again: delete the run's `github-pages` artifacts, then re-run.
+* Everything in "Next run: carried over from R2026.41" below still stands.
+
+### When `~/catalog` is read-only to code
+
+Since 23 November 2026 the chat sandbox makes `~/catalog` read-only to cells (also `.git`), and git works only in
+`<workspace>/repos/<name>`. R2026.42 was made like this, and it works:
+
+1. `git clone` the three repositories from GitHub into `<workspace>/repos/` (site and data clones with `--depth 1`; then
+   `git remote set-branches origin main` and `git fetch --depth 1 origin`, because `make publish-branch` starts from `origin/main`).
+2. Copy the untracked inputs into the pipeline clone: `cp -Rc ~/catalog/catalog-pipeline/data ~/catalog/catalog-pipeline/build`
+   (copy-on-write, seconds), then restore the session files of the table above over `data/inputs/` and put the previous package
+   zip into `build/`.
+3. Build as usual. Publish with `make publish-branch SITE_CLONE=<ws>/repos/infant-gut-catalog DATA_CLONE=<ws>/repos/infant-gut-catalog-data
+   ASSETS_WT=<ws>/repos/release_assets_<version>` (set `git config user.name/user.email` in the two clones first), then the
+   workflow copy, amend, re-tag and the pushes as in step 19.
+4. The publish step raises an approval request and waits for the owner; it expires after six hours. Publish when he is at the
+   machine. Keep the session active until then (a long idle session loses its workspace): save the package zip, the page
+   data and a `git bundle` of the pipeline commit as session files as soon as the build is verified.
+5. Afterwards the owner brings his local clones up to date in his own terminal (`git fetch` and `git reset --hard origin/main`
+   in the pipeline; the site and data clones are only publishing areas). Files can be put into `~/catalog` one at a time with
+   `host.save_to_folder`; it refuses JSON, YAML, `Makefile`, dot-files, archives and `.bin`.
+
 ## Next run: carried over from R2026.41
 
 * Read check: `scripts/read_check16s.py` needs `minimap2` in the environment. It was missing from 1 November to 14 November 2026

@@ -442,6 +442,7 @@ releases:
     notes_file: RELEASE_NOTES_R2026.42.md
     data_tag: data-v1.34.1
     site_tag: site-v1.34.1
+    doi: 10.5281/zenodo.24508002
     label: "site release: three new Insights pages (taxon explorer, VANISH / BloSSUM taxa, replication of published findings); the Atlas section becomes Insights; the data tables are those of 1.34.0"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.
