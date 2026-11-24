@@ -38,7 +38,7 @@ details.crumb summary{cursor:pointer;color:var(--muted);font-size:.8rem}
 <h1>Taxon map — where taxa are carried, gut samples</h1>
 {% set sub="map" %}{% include "_insights_nav.html" %}
 <p class="lead">Pick a taxon and the map recolours every country by how often it is detected in that country's gut metagenomes; other body sites are in the <a href="taxa/index.html">Taxon explorer</a>. This view uses {{ meta.n_samples | numint }}{% if stats.n_samples %} of the catalog's {{ stats.n_samples | numint }}{% endif %} samples (gut only); the other Insights pages use different subsets.</p>
-<details class="about-page"><summary>About this page</summary><p>Data: community profiles from {{ profiles_from }} for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> projects and <b>{{ meta.n_countries }}</b> countries; the map downloads {{ payload_mb }} MB the first time, and one more file each time you change rank. Computed in release {{ site.release_id }} from data package {{ site.version }}.</p></details>
+<details class="about-page"><summary>About this page</summary><p>Data: community profiles from {{ profiles_from }} for <b>{{ meta.n_samples | numint }}</b> catalog samples in <b>{{ meta.n_studies | numint }}</b> projects and <b>{{ meta.n_countries }}</b> countries; the map downloads {{ payload_mb }} MB the first time, and one more file each time you change rank. {% if meta.generated_from and meta.generated_from.release_id %}Computed in release {{ meta.generated_from.release_id }} from data package {{ meta.generated_from.package_version }}.{% endif %}</p></details>
 
 <div class="atlas">
 <div class="side">
