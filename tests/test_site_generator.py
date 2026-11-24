@@ -241,7 +241,7 @@ def test_study_page_sections(site_new):
     # R2026.18 redesign: registry entry in a collapsed Details section; coverage = core fields always, then every field with values
     assert 'How this project entered the catalog' in t and 'Registry classification</h2>' not in t
     assert 'The registry (archive-only classification) lists it as human' in t and 'by a deterministic rule on the archive labels with confidence 0.90' in t
-    assert 'sample.attr.host' in t and '“Homo sapiens”' in t
+    assert '“Homo sapiens”' in t and 'sample.attr.host' not in t   # R2026.43 (F404): the quote stays, the internal key path goes
     assert 'registry/index.html?study=PRJTEST000001' in t
     cov_rows = re.findall(r'<tr( class="core")?><td><a class="mono" href="../fields/index.html#([a-z_]+)"', t)
     assert [f for c, f in cov_rows if c] == CORE
@@ -282,7 +282,7 @@ def test_contribute_worklist_uses_pack_core_fields(site_new):
     assert 'Share metadata' in page and 'share-metadata.yml' in page and 'PRJTEST000001' in page
     assert 'five core fields' not in page and 'antibiotic exposure.' not in page
     study = _html(site_new, 'studies/PRJTEST000001.html')
-    assert f'of the {len(CORE)} core fields are below' in study
+    assert f'of the {len(CORE)} core fields' in study and 'Most samples of this project have no' in study   # R2026.43 (F414): field labels, not column names
 
 
 # ---------------------------------------------------------------- item 7: new columns present vs absent
@@ -338,7 +338,7 @@ def test_issue_template_and_config():
     ids = [b['id'] for b in tpl['body'] if 'id' in b]
     assert ids == ['problem', 'details', 'accession', 'release_id', 'page_url']
     dd = [b for b in tpl['body'] if b['type'] == 'dropdown']
-    assert len(dd) == 1 and dd[0]['attributes']['options'] == ['a value is wrong', 'a value is missing', 'the project should not be in the catalog', 'something else']
+    assert len(dd) == 1 and dd[0]['attributes']['options'] == ['a value is wrong', 'a value is missing', 'this project should not be in Microbiome Repo', 'something else']   # R2026.43 (F094)
     assert sum(1 for b in tpl['body'] if b['type'] == 'textarea') == 1
     assert SITE_CFG['github']['issues']['template'] == 'simple-finding.yml'
     url = bs.simple_issue_url('https://github.com/OlmLab/microbiome_repo/issues/new', 'simple-finding.yml', 'finding', 'PRJTEST000001', 'R2026.12', 'https://x/studies/PRJTEST000001.html')

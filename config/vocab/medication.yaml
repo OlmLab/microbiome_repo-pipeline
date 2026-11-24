@@ -19,6 +19,6 @@ codes:
   antidepressant_or_antipsychotic: {label: Antidepressant / antipsychotic, match_terms: [antidepressant, SSRI, sertraline, fluoxetine, antipsychotic, olanzapine, risperidone, clozapine]}
   probiotic_or_prebiotic: {label: Probiotic / prebiotic supplement, match_terms: [probiotic, prebiotic, synbiotic, Lactobacillus supplement]}
   hormonal_contraceptive_or_hrt: {label: Hormonal contraceptive / HRT, match_terms: [contraceptive, "birth control", "hormone replacement", HRT]}
-  other_medication: {label: Other medication (see medication_detail), match_terms: [medication, drug]}
+  other_medication: {label: Other medication, match_terms: [medication, drug]}
   none_reported: {label: No medication reported (stated), match_terms: ["no medication", "none", "not taking"]}
   unknown: {label: Unknown / not stated, match_terms: []}

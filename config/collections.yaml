@@ -9,8 +9,8 @@ collections:
   title: HMP1 healthy adult reference (Human Microbiome Project, WGS)
   kind: benchmark
   blurb: The NIH Human Microbiome Project phase 1 shotgun metagenomes of clinically healthy US adults (Houston and
-    St Louis), the most reused healthy-adult reference set; the BioProject spans all HMP body sites, so restrict
-    to gut samples with body_site_class.
+    St Louis), the most reused healthy-adult reference set; the BioProjects span all HMP body sites, so this set
+    is not gut-only.
   studies:
   - PRJNA48479
   - PRJNA275349
@@ -23,7 +23,7 @@ collections:
   - label: Lloyd-Price et al. 2017, Nature (expanded HMP1-II)
     url: https://doi.org/10.1038/nature23889
   notes: PRJNA275349 is the HMP phase III WGS deposit (JCVI). Both BioProjects contain oral, skin and vaginal samples;
-    the body_site_class filter keeps the gut ones.
+    the rule keeps every sample with a stated body site, so those are included.
 - id: hmp2-ibdmdb
   title: HMP2 / IBDMDB longitudinal IBD multi-omics cohort
   kind: benchmark
@@ -63,10 +63,10 @@ collections:
   notes: Single-subject MetaHIT BioProjects (PRJNA33049 … 'Human Gut Subject MH6 Metagenome', 1 sample each) exist
     in the catalog but are not listed here.
 - id: healthy-adult-reference
-  title: Curated healthy adult gut samples (all studies)
+  title: Curated healthy adult samples (all body sites)
   kind: benchmark
-  blurb: Every gut sample in the curated catalog whose source states the subject is healthy or a control and whose
-    age at collection falls in the adult band (18–65 y). The catalog's own counterpart of the curatedMetagenomicData
+  blurb: Every sample in the curated catalog whose source states the person is healthy or a control and whose age at
+    collection falls in the adult band (18–65 y). The rule keeps every body site, not the gut alone. The catalog's own counterpart of the curatedMetagenomicData
     healthy-adult set; membership is evidence-backed per sample.
   filters:
     health_condition:
@@ -78,8 +78,8 @@ collections:
   references:
   - label: Pasolli et al. 2017, Nature Methods (curatedMetagenomicData)
     url: https://doi.org/10.1038/nmeth.4468
-  notes: 'Not the cMD study list: the set is defined by the catalog''s per-sample health_condition and age_category
-    determinations, so it grows with every release.'
+  notes: 'Not the cMD study list: the set is defined by the catalog''s per-sample condition and age values, so it grows
+    with every release.'
 - id: protocol-benchmarks-mock-controls
   title: Protocol benchmarks with mock-community controls
   kind: benchmark
@@ -98,7 +98,7 @@ collections:
   - label: DNA extraction kits for long-read shotgun metagenomics (PRJEB75510)
     url: https://doi.org/10.1038/s41598-024-80660-3
   notes: Selected by the word 'mock' in the ENA study description; the mock-community runs themselves are not human
-    samples and may be classified body_site_class excluded/unknown.
+    samples, so they may carry no body site.
 - id: american-gut-shotgun
   title: American Gut Project shotgun subset
   kind: population
@@ -146,8 +146,7 @@ collections:
     url: https://doi.org/10.1016/j.cell.2023.05.046
   - label: Olm et al. 2022, Science
     url: https://doi.org/10.1126/science.abj2972
-  notes: lifestyle is a 1.12.0 field; until it is populated the explicit study list defines the collection. PRJEB49206
-    also holds Nepali Chepang/Raji/Raute/Tharu samples.
+  notes: The study list defines this collection. PRJEB49206 also holds Nepali Chepang/Raji/Raute/Tharu samples.
 - id: olm-2022-lifestyle-infants
   title: Olm 2022 Hadza infant cohort (lifestyle spectrum)
   kind: lifestyle
@@ -166,8 +165,8 @@ collections:
   - label: bioRxiv preprint (data statement)
     url: https://doi.org/10.1101/2022.03.30.486467
   notes: The paper's global lifestyle comparison used public 16S data (not in this shotgun catalog); its shotgun
-    comparators are industrialized infant cohorts already present as separate studies (use age_category=infant with
-    country filters).
+    comparators are industrialized infant cohorts already present as separate projects (filter the samples by age
+    group and country).
 - id: amazonian-amerindian
   title: Amazonian and Amerindian communities
   kind: population
@@ -193,8 +192,7 @@ collections:
     url: https://doi.org/10.1126/sciadv.1500183
   - label: Wayampi resistome (PRJEB101387)
     url: https://doi.org/10.1186/s40168-026-02345-5
-  notes: PRJNA418044 is a fecal virome of uncontacted Amerindian children (shotgun, but virus-enriched). lifestyle
-    filter becomes effective in 1.12.0.
+  notes: PRJNA418044 is a fecal virome of uncontacted Amerindian children (shotgun, but virus-enriched).
 - id: industrialization-gradients
   title: Industrialised vs non-industrialised comparisons
   kind: lifestyle
@@ -242,8 +240,7 @@ collections:
   references:
   - label: Zhernakova et al. 2016, Science (LifeLines-DEEP)
     url: https://doi.org/10.1126/science.aad3369
-  notes: Owner decision 2026-10-01 (option A) — record LifeLines-DEEP as a controlled-access reference cohort rather than omit it.
-    PRJEB76860 is in the registry (assemblies only) and outside the catalog.
+  notes: PRJEB76860 is in the registry (assemblies only) and outside the catalog.
 - id: highland-and-plateau
   title: High-altitude and plateau populations
   kind: lifestyle
@@ -339,8 +336,7 @@ collections:
 - id: dense-longitudinal-subjects
   title: Densely sampled subjects (≥ 5 gut samples per subject)
   kind: design
-  blurb: Every subject in the catalog with at least five gut samples linked to the same subject_id — the time-series
-    slice for strain tracking, stability and perturbation-recovery analyses. Dominated by infant birth cohorts (TEDDY,
+  blurb: Every person in the catalog with at least five gut samples — the time series for strain tracking, stability and perturbation-recovery analyses. Dominated by infant birth cohorts (TEDDY,
     DIABIMMUNE), IBDMDB and adult time-series studies.
   filters:
     min_samples_per_subject:
@@ -350,7 +346,8 @@ collections:
   references:
   - label: Poyet et al. 2019, Nature Medicine (BIO-ML)
     url: https://doi.org/10.1038/s41591-019-0559-3
-  notes: Requires subject_id; studies without subject linkage are invisible to this filter even when longitudinal.
+  notes: The rule needs a person id; projects whose samples are not linked to a person are invisible to it, even when
+    they are longitudinal.
 - id: adult-time-series-cohorts
   title: Adult time-series reference cohorts
   kind: design
@@ -437,16 +434,16 @@ collections:
 - id: antibiotic-exposed-samples
   title: Samples with documented antibiotic exposure
   kind: design
-  blurb: All gut samples whose source records antibiotics at or shortly before collection (antibiotic_exposure =
-    yes), across every study — the cross-study exposure set for resistome and recovery analyses.
+  blurb: All gut samples whose source records antibiotics at or shortly before collection, across every project
+    — the cross-project exposure set for resistome and recovery analyses.
   filters:
     antibiotic_exposure:
     - 'yes'
     body_site_class:
     - primary
   references: []
-  notes: Absence of an antibiotic attribute is unknown, not 'no'; compare against antibiotic_exposure = no rather
-    than the whole catalog.
+  notes: Samples with no antibiotic information are not in this set; compare it with the samples recorded as
+    antibiotic-free, not with the whole catalog.
 - id: crc-meta-analysis-cohorts
   title: Colorectal cancer meta-analysis cohorts (Wirbel / Thomas 2019)
   kind: disease
@@ -507,7 +504,7 @@ collections:
 - id: type2-diabetes-samples
   title: All type 2 diabetes / prediabetes samples
   kind: disease
-  blurb: Every gut sample assigned type 2 diabetes or prediabetes by the curated health_condition, across all studies.
+  blurb: Every gut sample recorded as type 2 diabetes or prediabetes, across all projects.
   filters:
     health_condition:
     - type2_diabetes
@@ -537,8 +534,7 @@ collections:
 - id: ibd-samples
   title: All IBD samples (Crohn's, ulcerative colitis, unspecified)
   kind: disease
-  blurb: Every gut sample whose curated health_condition is Crohn's disease, ulcerative colitis or IBD unspecified,
-    across all studies.
+  blurb: Every gut sample recorded as Crohn's disease, ulcerative colitis or IBD unspecified, across all projects.
   filters:
     health_condition:
     - crohns_disease
@@ -563,8 +559,8 @@ collections:
 - id: liver-disease-samples
   title: All liver disease samples
   kind: disease
-  blurb: Every gut sample whose curated health_condition is liver disease (cirrhosis, hepatitis, hepatocellular
-    carcinoma, hepatic encephalopathy), across all studies.
+  blurb: Every gut sample recorded as liver disease (cirrhosis, hepatitis, hepatocellular carcinoma, hepatic
+    encephalopathy), across all projects.
   filters:
     health_condition:
     - liver_disease
@@ -574,8 +570,8 @@ collections:
 - id: neonates-first-28-days
   title: Neonates (first 28 days of life)
   kind: age
-  blurb: Every gut sample collected in the first 28 days of life (age_category = neonate), across term and preterm
-    birth cohorts and NICU studies; the earliest colonisation window.
+  blurb: Every gut sample collected in the first 28 days of life, across term and preterm birth cohorts and NICU
+    studies; the earliest colonisation window.
   filters:
     age_category:
     - neonate
@@ -603,8 +599,8 @@ collections:
     url: https://doi.org/10.1038/s41586-021-03832-5
   - label: Rampelli et al. 2020, mSystems
     url: https://doi.org/10.1128/mSystems.00124-20
-  notes: The explorer has no numeric age filter; age_category = elderly (≥ 65 y) within these studies removes the
-    younger family controls. A ≥ 90 y cut needs age_at_collection_days in a notebook.
+  notes: This collection keeps the samples from people 65 y or older in these projects; a stricter age cut needs the
+    downloaded table.
 - id: elderly-samples
   title: Older adults (≥ 65 y)
   kind: age

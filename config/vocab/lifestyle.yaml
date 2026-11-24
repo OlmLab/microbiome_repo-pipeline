@@ -23,5 +23,5 @@ codes:
   spaceflight_or_analog: {label: Spaceflight / space-analog isolation, match_terms: [astronaut, spaceflight, ISS, space station, Mars analog, Antarctic station, "space capsule", "simulated space", "isolation chamber"]}
   institutionalized: {label: "Institutionalized (nursing home, long-term care, prison)", match_terms: [nursing home, long-term care, care home, residential care, prison, inmate, institutionalized, "long-term acute care", LTACH, "care facility"]}
   extreme_environment: {label: "Extreme-environment residents / expeditions (high altitude, polar, deep sea)", match_terms: [high altitude, highland, Tibetan plateau, Antarctic, Arctic, expedition, submarine, mountaineer]}
-  other_lifestyle: {label: Other stated lifestyle (see lifestyle_detail), match_terms: []}
+  other_lifestyle: {label: Other stated lifestyle, match_terms: []}
   unknown: {label: Unknown / not stated, match_terms: []}

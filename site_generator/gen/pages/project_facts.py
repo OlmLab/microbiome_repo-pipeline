@@ -173,7 +173,6 @@ def living_of(row):
         np_ = int(float(np_)) if np_ is not None else 0
     except (TypeError, ValueError):
         np_ = 0
-    rows.append(("Places named below country", f"{np_} place{'s' if np_ != 1 else ''}" if np_ > 0 else None, "place", "paper, methods"))
     ls = g("lifestyle_paper")
     rows.append(("Lifestyle", str(ls).replace("_", " ") if ls and ls not in ("unknown", "not_stated") else None,
                  "cohort", "paper, checked against the lifestyle vocabulary"))
@@ -183,7 +182,8 @@ def living_of(row):
     except (TypeError, ValueError):
         nx = 0
     rows.append(("Routine faecal–oral exposure items", f"{nx} recorded" if nx > 0 else None, "cohort", "paper, with a quote per item"))
-    return rows if any(v for _, v, _, _ in rows) else []
+    rows = [r_ for r_ in rows if r_[1]]   # R2026.43 (F421): rows with no value carried a 'From' that implied a quote
+    return rows
 
 
 def methods_strip(f: dict) -> str:
@@ -193,10 +193,14 @@ def methods_strip(f: dict) -> str:
     na = f.get("nucleic_acid") or "unclear"
     na_val = NA_LABEL.get(na, na) if na not in ("conflict", "unclear") else ("unresolved" if na == "conflict" else None)
     miss = "not found in the paper's open-access text" if f.get("has_paper") else "no paper describes these data"
-    core = [("Nucleic acid sequenced", na_val, f.get("na_note"), "DNA or RNA of the catalogued data sets: the archive's library source of each run, with the paper's methods as tie-breaker"),
-            ("Extraction", f.get("extraction_kit"), "paper methods" if f.get("extraction_kit") else miss, f.get("extraction_quote")),
-            ("Library preparation", f.get("library_kit"), "paper methods" if f.get("library_kit") else miss, f.get("library_quote")),
-            ("Sequencing", f.get("platform"), f.get("seq_note"), f.get("platform_quote"))]
+    seq_note = f.get("seq_note")
+    core = [("Nucleic acid sequenced", na_val, f.get("na_note"), "DNA or RNA of the catalogued data sets: the archive's library source of each run, with the paper's methods as tie-breaker")]
+    if f.get("extraction_kit") or f.get("library_kit"):
+        core += [("Extraction", f.get("extraction_kit"), "paper methods" if f.get("extraction_kit") else miss, f.get("extraction_quote")),
+                 ("Library preparation", f.get("library_kit"), "paper methods" if f.get("library_kit") else miss, f.get("library_quote"))]
+    else:   # R2026.43 (F411/C52): two rows that only said "not reported" become one line on the sequencing cell
+        seq_note = ((str(seq_note) + " · ") if seq_note else "") + "extraction and library protocol not reported"
+    core.append(("Sequencing", f.get("platform"), seq_note, f.get("platform_quote")))
     if f.get("facility"):
         core.append(("Sequenced at", f.get("facility"), f.get("facility_note"), f.get("facility_quote")))
     cells = "".join(
@@ -205,7 +209,7 @@ def methods_strip(f: dict) -> str:
         f'<div class="s">{E(str(s)) if s else ""}</div></div>' for k, v, s, q in core)
     chips = "".join(f'<span class="x{" warn" if w else ""}" title="{E(str(t2 or ""))}">{E(str(t))}</span>'
                     for t, w, t2 in f.get("extras") or [])
-    return f'<div class="mstrip{" m5" if len(core) == 5 else ""}">{cells}</div>{f"<div class=mextra>{chips}</div>" if chips else ""}'
+    return f'<div class="mstrip{" m5" if len(core) == 5 else (" m2" if len(core) == 2 else "")}">{cells}</div>{f"<div class=mextra>{chips}</div>" if chips else ""}'
 
 
 def living_table(rows) -> str:
@@ -214,15 +218,14 @@ def living_table(rows) -> str:
         return ""
     body = "".join(
         f'<tr><td>{E(str(fl))}</td><td>{v if v else "<span class=pend>not stated by this project</span>"}</td>'
-        f'<td><span class="scale {sc}">{E(str(sc))}</span></td><td class="muted">{E(str(sr or ""))}</td></tr>'
-        for fl, v, sc, sr in rows)
-    return ('<table class="livtbl"><tr><th>Field</th><th>Value</th><th>Scale</th><th>From</th></tr>' + body +
-            '</table><p class="small muted" style="margin:.35rem 0 0">Scale says what the value describes: this '
-            'person, a group or arm, the whole cohort, or the sampling place.</p>')
+        f'<td class="muted">{E(str(sr or ""))}</td></tr>'
+        for fl, v, _sc, sr in rows)
+    return '<table class="livtbl"><tr><th>Field</th><th>Value</th><th>From</th></tr>' + body + '</table>'
 
 
 CSS = """
 .mstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #e3e3e3;border-radius:10px;margin:.55rem 0 .3rem;background:#fff}
+.mstrip.m2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .mstrip>div{padding:.5rem .8rem;border-left:1px solid #eee}.mstrip>div:first-child{border-left:0}
 .mstrip .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:#5f6365;font-weight:600}
 .mstrip .v{font-size:.92rem;font-weight:600;margin-top:.1rem}.mstrip .v.nr{color:#9a9a9a;font-weight:400;font-style:italic}

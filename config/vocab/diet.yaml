@@ -15,6 +15,6 @@ codes:
   western_or_processed: {label: Western / high-fat / processed, match_terms: [western, "high-fat", "high fat", processed, "fast food"]}
   exclusive_breast_milk: {label: Exclusive breast milk (infants), match_terms: ["exclusively breastfed", "breast milk only", "exclusive breastfeeding"]}
   formula: {label: Formula-fed (infants), match_terms: [formula]}
-  therapeutic_or_study_diet: {label: Prescribed / intervention diet (see diet_detail), match_terms: ["diet intervention", "dietary intervention", "controlled feeding", "study diet", "elemental diet", "exclusive enteral"]}
-  other_diet: {label: Other stated diet (see diet_detail), match_terms: []}
+  therapeutic_or_study_diet: {label: Prescribed / intervention diet, match_terms: ["diet intervention", "dietary intervention", "controlled feeding", "study diet", "elemental diet", "exclusive enteral"]}
+  other_diet: {label: Other stated diet, match_terms: []}
   unknown: {label: Unknown / not stated, match_terms: []}

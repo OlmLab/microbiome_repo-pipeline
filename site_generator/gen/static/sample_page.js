@@ -9,6 +9,7 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const ROUTE = { R1: 'archive record', R2: 'supplementary table', R3: 'paper text', R4: 'abstract' };
   const LABEL = C.labels || {};
+  const ANCHORED = new Set(C.anchors || []);   // fields with a row on the Fields page; the others are not linked there
   const SKIP = new Set(['sample_key', 'study_accession', 'biosample_accession', 'secondary_sample', 'release_added', 'release_retired', 'package_added', 'in_infant_catalog', 'curated_source', 'n_fields_with_value', 'sample_unit', 'body_site_basis', 'infant_scope', 'seq_depth_source', 'seq_reads', 'n_runs', 'seq_gbp', 'age_category_basis', 'sp_low_depth']);
   function parseCSV(text) {
     const rows = []; let row = [], f = '', q = false;
@@ -62,12 +63,12 @@
       const key = keyFromRun || id;
       const S = table(await gz(C.root + 'data/studies/' + acc + '.csv.gz'));
       const row = S.rows.find((r) => S.get(r, 'sample_key') === key || S.get(r, 'biosample_accession') === key || S.get(r, 'secondary_sample') === key);
-      if (!row) { st.textContent = 'Sample not found in its project file.'; return; }
+      if (!row) { st.innerHTML = 'We could not load this sample\'s data. Try the <a href="' + C.root + 'studies/' + esc(acc) + '.html">project page</a>, or tell us via <a href="' + C.root + 'contribute/index.html">Contribute</a>.'; return; }
       const sk = S.get(row, 'sample_key');
       st.textContent = '';
       $('sp-head').innerHTML = '<div class="pg-acc"><span class="mono">' + esc(sk) + '</span>' + (S.get(row, 'biosample_accession') && S.get(row, 'biosample_accession') !== sk ? ' <span class="muted">BioSample</span> ' + link(S.get(row, 'biosample_accession')) : '') + '</div>' +
         '<h1 class="pg-title">Sample ' + esc(sk) + '</h1><p class="pg-facts">Project <a class="mono" href="' + C.root + 'studies/' + esc(acc) + '.html">' + esc(acc) + '</a> — ' + esc(title) + '</p>' +
-        ((S.get(row, 'sample_type') || 'specimen') !== 'specimen' ? '<p class="note"><b>Control sample</b> (' + esc({ negative_control: 'negative control / blank', mock_community: 'mock community', positive_control: 'positive control', synthetic_community: 'defined community' }[S.get(row, 'sample_type')] || S.get(row, 'sample_type')) + '): not from a person, so it carries no person metadata.</p>' : '') + '<p class="small muted">' + [S.get(row, 'sample_unit') === 'run' ? 'one sequencing run of a pooled BioSample' : '', S.get(row, 'n_runs') ? Math.round(+S.get(row, 'n_runs')) + ' run(s)' : '', S.get(row, 'seq_gbp') ? (+S.get(row, 'seq_gbp')).toFixed(2) + ' Gbp' : '', S.get(row, 'curated_source') === 'infant_catalog' ? 'infant extension' : ''].filter(Boolean).join(' · ') + '</p>' + '<p class="pg-links">' + (archiveUrl(sk) ? '<a href="' + archiveUrl(sk) + '">Archive record</a>' : '') + '<a href="' + C.root + 'samples/index.html?sample=' + encodeURIComponent(sk) + '">Open in the sample sheet</a><a href="' + C.root + 'studies/' + esc(acc) + '.html#sample-table">All samples of the project</a></p>';
+        ((S.get(row, 'sample_type') || 'specimen') !== 'specimen' ? '<p class="note"><b>Control sample</b> (' + esc({ negative_control: 'negative control / blank', mock_community: 'mock community', positive_control: 'positive control', synthetic_community: 'defined community' }[S.get(row, 'sample_type')] || S.get(row, 'sample_type')) + '): not from a person, so it carries no person metadata.</p>' : '') + '<p class="small muted">' + [S.get(row, 'sample_unit') === 'run' ? 'one sequencing run of a pooled BioSample' : '', S.get(row, 'n_runs') ? (Math.round(+S.get(row, 'n_runs')) === 1 ? '1 sequencing run' : Math.round(+S.get(row, 'n_runs')) + ' sequencing runs') : '', S.get(row, 'seq_gbp') ? (+S.get(row, 'seq_gbp')).toFixed(2) + ' billion bases sequenced' : ''].filter(Boolean).join(' · ') + '</p>' + '<p class="pg-links">' + (archiveUrl(sk) ? '<a href="' + archiveUrl(sk) + '">Archive record</a>' : '') + '<a href="' + C.root + 'samples/index.html?sample=' + encodeURIComponent(sk) + '">Open in the samples table</a><a href="' + C.root + 'studies/' + esc(acc) + '.html#sample-table">All samples of the project</a></p>';
       // evidence rows of this sample
       let ev = {};
       try { const D = table(await gz(C.root + 'data/studies/' + acc + '_determinations.csv.gz'));
@@ -79,9 +80,9 @@
         const v = S.get(row, f); if (!v || v === 'unknown' || v === 'False' && f.startsWith('qc_')) continue;
         const rt = S.get(row, f + '__route'), cf = S.get(row, f + '__confidence'), e = ev[f];
         const gen = e && /^generated:/.test(e.note || '');
-        trs.push('<tr><td><a class="mono" href="' + C.root + 'fields/index.html#' + esc(f) + '" title="' + esc(LABEL[f] || f) + '">' + esc(f) + '</a></td><td>' + esc(fmtVal(f, v)) + (gen ? ' <span class="tag" title="' + esc(e.note) + '">generated</span>' : '') + '</td><td>' + (rt ? '<span class="tag ' + rt + '" title="' + esc(ROUTE[rt] || '') + '">' + rt + '</span>' : '<span class="muted small">derived</span>') + '</td><td class="num">' + (cf ? (+cf).toFixed(2) : '') + '</td><td class="small">' + (e ? '<span class="mono">' + esc(e.src) + '</span>' + (e.loc && /^http/.test(e.loc) ? ' <a href="' + esc(e.loc) + '">source</a>' : (e.loc ? ' <span class="muted">' + esc(e.loc) + '</span>' : '')) + (e.quote ? '<div class="quote">“' + esc(e.quote) + '”</div>' : '') : '') + '</td></tr>');
+        trs.push('<tr><td>' + (ANCHORED.has(f) ? '<a href="' + C.root + 'fields/index.html#' + esc(f) + '">' + esc(LABEL[f] || f.replace(/_/g, ' ')) + '</a>' : esc(LABEL[f] || f.replace(/_/g, ' '))) + ' <span class="mono small muted">' + esc(f) + '</span></td><td>' + esc(fmtVal(f, v)) + (gen ? ' <span class="tag" title="filled in by this resource, not stated by the source">filled in by us</span>' : '') + '</td><td>' + (rt ? '<span class="tag ' + rt + '" title="' + esc(rt) + '">' + esc(ROUTE[rt] || rt) + '</span>' : '<span class="muted small">computed from other fields</span>') + '</td><td class="num">' + (cf ? (+cf).toFixed(2) : '') + '</td><td class="small">' + (e ? '<span class="mono">' + esc(e.src) + '</span>' + (e.loc && /^http/.test(e.loc) ? ' <a href="' + esc(e.loc) + '">source</a>' : (e.loc ? ' <span class="muted">' + esc(e.loc) + '</span>' : '')) + (e.quote ? '<div class="quote">“' + esc(e.quote) + '”</div>' : '') : '') + '</td></tr>');
       }
-      $('sp-fields').innerHTML = '<table class="tbl small compact"><thead><tr><th>field</th><th>value</th><th>where it came from</th><th class="num">conf.</th><th>evidence</th></tr></thead><tbody>' + trs.join('') + '</tbody></table>';
+      $('sp-fields').innerHTML = '<table class="tbl small compact"><thead><tr><th>field</th><th>value</th><th>where it came from</th><th class="num">conf.</th><th>evidence</th></tr></thead><tbody>' + trs.join('') + '</tbody></table><p class="small muted">Confidence is a fixed number per source, not a probability — see <a href="' + C.root + 'fields/index.html#confidence">Fields</a>.</p>';
       // same subject / same family within the project
       const subj = S.get(row, 'subject_id'), fam = S.get(row, 'family_id');
       const rel = [];
@@ -94,7 +95,7 @@
       if (subj && !/^generated/.test((ev.subject_id || {}).note || '')) peer((r) => S.get(r, 'subject_id') === subj, 'Other samples of the same person (subject ' + esc(subj) + ')');
       if (fam) peer((r) => S.get(r, 'family_id') === fam && S.get(r, 'subject_id') !== subj, 'Samples of related people (family ' + esc(fam) + ')');
       $('sp-related').innerHTML = rel.join('');
-    } catch (e) { st.textContent = 'Could not load this sample (' + e.message + ').'; }
+    } catch (e) { st.innerHTML = 'We could not load this sample\'s data. Try the <a href="' + C.root + 'studies/index.html">project list</a>, or tell us via <a href="' + C.root + 'contribute/index.html">Contribute</a>.'; console.error(e); }
   }
   main();
 })();

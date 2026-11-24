@@ -1,19 +1,22 @@
 {% extends "base.html" %}
-{% block title %}{{ c.cohort_name[:80] }} — cohort {{ c.cohort_id }} — {{ site.title }}{% endblock %}
-{% block desc %}Cohort {{ c.cohort_id }} ({{ c.cohort_name[:100] }}): {{ c.n_studies }} catalog studies, {{ c.n_samples|fmt }} samples, {{ c.n_papers }} shared papers.{% endblock %}
+{% block title %}{{ c.cohort_name|trim('. ')|truncate(80, false, '…') }} — cohort — {{ site.title }}{% endblock %}
+{% block desc %}Cohort {{ c.cohort_id }} ({{ c.cohort_name[:100] }}): {{ c.n_studies }} projects, {{ c.n_samples|fmt }} samples, {{ c.n_papers }} shared papers.{% endblock %}
 {% block content %}
-<h1>{{ c.cohort_name }} <span class="small mono">{{ c.cohort_id }}</span></h1>
-<p class="lead">{{ c.n_studies }} studies · {{ c.n_samples|fmt }} curated samples · {{ c.n_subjects|fmt }} distinct person identifiers · {{ c.n_papers }} shared paper{{ '' if c.n_papers == 1 else 's' }}. Grouping rule: {{ c.rule }}.</p>
+{% set cname = c.cohort_name|trim('. ') %}<h1>{% if c.rule == 'shared own-data paper' %}Projects described by: {{ cname }}{% elif c.rule == 'shared paper, same submitting centre' %}Projects cited together by: {{ cname }}{% else %}{{ cname }}{% endif %}</h1>
+<p class="small mono muted">{{ c.cohort_id }}</p>
+{% if c.rule == 'shared paper, same submitting centre' %}<p class="small">These deposits are grouped because one paper cites them all and the same centre submitted them; the paper reused the data rather than producing all of it.</p>{% endif %}
+<p class="lead">{{ c.n_studies }} projects · {{ c.n_samples|fmt }} curated samples{% if c.n_subjects %} · {{ c.n_subjects|fmt }} people (by person id){% endif %}{% if c.n_papers %} · {{ c.n_papers }} shared paper{{ '' if c.n_papers == 1 else 's' }}{% endif %}.{% if not c.n_subjects %} The records do not say which samples came from the same person.{% endif %}</p>
 <div class="btns"><a class="btn sec" href="../data/cohorts/{{ c.cohort_id }}.csv.gz" download>Samples CSV ({{ dl.csv_size }})</a> <a class="btn sec" href="../data/cohorts/{{ c.cohort_id }}.parquet" download>parquet ({{ dl.parquet_size }})</a> <a class="btn flag" href="{{ flag_url }}">Flag an issue</a></div>
+<p class="small muted">Grouped by: {{ c.rule }}.</p>
 <div class="sections" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
-<div class="card"><b>Age categories</b><table class="tbl small compact">{% for k, n in c.age_categories %}<tr><td class="mono">{{ k }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</table></div>
-<div class="card"><b>Countries</b>{% if c.countries %}<table class="tbl small compact">{% for k, n in c.countries %}<tr><td class="mono">{{ k }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</table>{% else %}<p class="small">no committed value</p>{% endif %}</div>
-<div class="card"><b>Health conditions</b>{% if c.conditions %}<table class="tbl small compact">{% for k, n in c.conditions %}<tr><td><span class="mono">{{ k }}</span> <span class="small">{{ hc_labels.get(k, '') }}</span></td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</table>{% else %}<p class="small">no committed value</p>{% endif %}</div>
+<div class="card"><b>Age categories</b><table class="tbl small compact">{% for k, n in c.age_categories %}<tr><td>{{ k }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</table><p class="small muted">All {{ c.n_samples|fmt }} samples.</p></div>
+<div class="card"><b>Countries</b>{% if c.countries %}<table class="tbl small compact">{% for k, n in c.countries %}<tr><td title="{{ k }}">{{ c.country_names.get(k, k) }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</table><p class="small muted">A country is recorded for {{ c.n_country|fmt }} of the {{ c.n_samples|fmt }} samples.</p>{% else %}<p class="small">Not recorded for these samples.</p>{% endif %}</div>
+<div class="card"><b>Health conditions</b>{% if c.conditions %}<table class="tbl small compact">{% for k, n in c.conditions %}<tr><td title="{{ k }}">{{ hc_labels.get(k) or k }}</td><td class="num">{{ n|fmt }}</td></tr>{% endfor %}</table><p class="small muted">A condition is recorded for {{ c.n_condition|fmt }} of the {{ c.n_samples|fmt }} samples.</p>{% else %}<p class="small">Not recorded for these samples.</p>{% endif %}</div>
 </div>
-<h2>Studies</h2>
-<table class="tbl small"><thead><tr><th>study</th><th>title</th><th class="num">samples</th><th>source</th></tr></thead><tbody>
-{% for m in members %}<tr><td><a class="mono" href="../studies/{{ m.acc }}.html">{{ m.acc }}</a></td><td class="small">{{ m.title }}</td><td class="num">{{ m.n_samples|fmt }}</td><td class="small">{{ m.source }}</td></tr>{% endfor %}
+<h2>Projects</h2>
+<table class="tbl small"><thead><tr><th>project</th><th>title</th><th class="num">samples</th></tr></thead><tbody>
+{% for m in members %}<tr><td><a class="mono" href="../studies/{{ m.acc }}.html">{{ m.acc }}</a></td><td class="small" title="{{ m.archive_title }}">{{ m.title }}</td><td class="num">{{ m.n_samples|fmt }}</td></tr>{% endfor %}
 </tbody></table>
-<h2>Shared papers</h2>
-{% if papers %}<ul class="small">{% for p in papers %}<li>{{ p.title or '(no title)' }} — {% if p.pmid %}<a href="https://europepmc.org/article/MED/{{ p.pmid }}">PMID {{ p.pmid }}</a>{% endif %}{% if p.pmcid %} · <a href="https://europepmc.org/article/PMC/{{ p.pmcid }}">{{ p.pmcid }}</a>{% endif %}{% if p.doi %} · <a href="https://doi.org/{{ p.doi }}">doi</a>{% endif %} · studies: {% for a in p.studies %}<span class="mono">{{ a }}</span>{% if not loop.last %}, {% endif %}{% endfor %}</li>{% endfor %}</ul>{% else %}<p class="small">Grouped by the curated cohort record only.</p>{% endif %}
+{% if papers %}<h2>Shared papers</h2>
+<ul class="small">{% for p in papers %}<li>{{ p.title or '(no title)' }} — {% if p.pmid %}<a href="https://europepmc.org/article/MED/{{ p.pmid }}">PMID {{ p.pmid }}</a>{% endif %}{% if p.pmcid %} · <a href="https://europepmc.org/article/PMC/{{ p.pmcid }}">{{ p.pmcid }}</a>{% endif %}{% if p.doi %} · <a href="https://doi.org/{{ p.doi }}">doi</a>{% endif %} · projects: {% for a in p.studies %}<span class="mono">{{ a }}</span>{% if not loop.last %}, {% endif %}{% endfor %}</li>{% endfor %}</ul>{% endif %}
 {% endblock %}

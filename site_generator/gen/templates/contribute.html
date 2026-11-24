@@ -1,36 +1,77 @@
+{# R2026.43: the first screen is rendered here (lead, three steps, example, top rows); the rest of the worklist is
+   loaded from data/contribute_worklist.json by the filter box below, so the page is no longer a megabyte of rows. #}
 {% extends "base.html" %}
 {% block title %}Contribute — {{ site.title }}{% endblock %}
 {% block desc %}Help fill in missing sample metadata for {{ cs.n_open|fmt }} projects: share a table or a link in a two-minute GitHub form.{% endblock %}
 {% block content %}
 <h1>Contribute</h1>
-<p class="lead">{{ cs.n_open|fmt }} projects are missing basic sample information — age, country, health condition or person id. If you know where it is (you are an author, or the paper has a supplementary table), you can fill the gap in about two minutes.</p>
+<p class="lead">{{ cs.n_open|fmt }} projects are missing basic sample information — body site, age, country, health condition or person id. If you know where it is (you are an author, or the paper has a supplementary table), you can fill the gap in about two minutes.</p>
 
 <ol class="steps">
-<li class="step"><span class="step-n">1</span><div><b>Find the project</b><p>Search the list below by accession, title word or author.</p></div></li>
+<li class="step"><span class="step-n">1</span><div><b>Find the project</b><p>Search the list below by accession, title word or cohort.</p></div></li>
 <li class="step"><span class="step-n">2</span><div><b>Click “Share metadata”</b><p>A short GitHub form opens with the project already filled in (free GitHub account).</p></div></li>
-<li class="step"><span class="step-n">3</span><div><b>Fill in the form</b><ul class="step-list"><li>what you are sharing</li><li>a link — or drag the file in</li><li>which column holds the sample IDs</li><li>tick the CC-BY box, then submit</li></ul></div></li>
+<li class="step"><span class="step-n">3</span><div><b>Fill in the form</b><p>Four short questions, then tick the CC-BY box.</p></div></li>
 </ol>
+<p class="small">Already complete? Open the project page and use <b>Mark it human-verified</b> to record that a person checked it.</p>
 <p class="small">We check every submission and add the values in the next release; each value then links back to your issue as its evidence. A good table has one row per sample and a column with run (SRR/ERR…) or BioSample (SAMN/SAMEA…) accessions, for example:</p>
 <table class="tbl small" style="max-width:520px"><thead><tr><th>Run</th><th>age_years</th><th>sex</th><th>condition</th></tr></thead><tbody><tr><td class="mono">SRR1234567</td><td>34</td><td>female</td><td>ulcerative colitis</td></tr><tr><td class="mono">SRR1234568</td><td>41</td><td>male</td><td>healthy</td></tr></tbody></table>
-<p class="small">Something else wrong on a page? Use <b>Flag an issue</b> on that study page. Submitted contributions: <a href="https://github.com/{{ cs.repo }}/issues?q=label%3Acontribution">open issues</a>.</p>
+<p class="small">Something else wrong on a page? Use <a href="{{ cs.finding_url }}">Flag an issue</a>, or open the project (<a href="../studies/index.html">Projects</a>) and use the link on its page. <a href="{{ cs.issues_list_url }}">See the contributions people have already sent.</a></p>
 
 <h2>Projects that need metadata</h2>
-<div class="wl-filters"><input id="q" aria-label="Filter projects" class="searchbox" type="search" placeholder="Filter by accession, title or author">
+<p class="small">Projects with {{ cs.min_samples }} samples or more that are missing at least {{ cs.min_missing }} of the {{ cs.core_fields|length }} core fields. Ordered by samples × fields missing.</p>
+<p class="small">{{ cs.n_paper_pointer|fmt }} of them have no paper linked at all; a PMID or DOI is already a useful contribution. Your project is not in the list? <a href="{{ cs.blank_form_url }}">Open the blank form.</a></p>
+<div class="wl-filters"><input id="q" aria-label="Filter projects" class="searchbox" type="search" placeholder="Filter by accession, title or cohort">
 <label title="A paper is linked, but its supplementary tables were not open to us (paywalled, publisher site only, or download failed) — the best odds for a quick contribution"><input type="checkbox" id="f-supp"> <span class="dot-warn">●</span> supplementary tables not accessible <span class="muted">({{ rows|selectattr('papers')|rejectattr('supp', 'equalto', 'used')|rejectattr('supp', 'equalto', 'checked')|list|length|fmt }})</span></label>
 <label title="A paper is linked but no open full text was available"><input type="checkbox" id="f-ft"> no open full text <span class="muted">({{ rows|selectattr('papers')|selectattr('ft', 'equalto', 'none')|list|length|fmt }})</span></label></div>
-<table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th>Paper</th><th></th></tr></thead><tbody>
-{% for r in rows %}<tr class="wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ (r.cohort or ''))|lower }}" data-supp="{{ 1 if (r.papers and r.supp not in ('used', 'checked')) else 0 }}" data-ft="{{ 1 if (r.papers and r.ft == 'none') else 0 }}"><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span></td><td class="num">{{ r.n|fmt }}</td>
+<p class="small" id="wl-count">Showing the {{ rows[:25]|length }} where it would help most, of {{ cs.n_open|fmt }}. <button type="button" class="sb-link" id="wl-all">Show all {{ cs.n_open|fmt }}</button></p>
+<table class="tbl" id="wl-table"><thead><tr><th>Project</th><th class="num">Samples</th><th>Missing</th><th>Paper</th><th></th></tr></thead><tbody id="wl-body">
+{% for r in rows[:25] %}<tr class="wl" data-k="{{ (r.acc ~ ' ' ~ r.title ~ ' ' ~ (r.cohort or ''))|lower }}" data-supp="{{ 1 if (r.papers and r.supp not in ('used', 'checked')) else 0 }}" data-ft="{{ 1 if (r.papers and r.ft == 'none') else 0 }}"><td><a class="mono" href="../studies/{{ r.acc }}.html">{{ r.acc }}</a> <span class="small">{{ r.title }}</span></td><td class="num">{{ r.n|fmt }}</td>
 <td class="wl-miss">{% for f in r.missing %}{{ field_labels.get(f, f) }}{% if not loop.last %}<span class="sep"> · </span>{% endif %}{% endfor %}</td>
-<td class="wl-paper">{% if r.paper_url %}<a href="{{ r.paper_url }}" title="Linked paper{% if r.n_papers and r.n_papers > 1 %} (first of {{ r.n_papers }}){% endif %}">{{ r.paper_label or 'paper' }}</a>{% if r.papers and r.supp not in ('used', 'checked') %} <span class="dot-warn" title="We could not open this paper's supplementary tables — a good one to share">●</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>
-<td><a class="btn btn-sm" href="{{ r.issue_url }}">Share metadata</a></td></tr>
+<td class="wl-paper">{% if r.paper_url %}<a href="{{ r.paper_url }}" title="Linked paper{% if r.n_papers and r.n_papers > 1 %} (first of {{ r.n_papers }}){% endif %}">{{ r.paper_label or 'paper' }}</a>{% else %}<span class="muted">—</span>{% endif %}{% if r.papers and r.supp not in ('used', 'checked') %} <span class="dot-warn" title="We could not open this paper's supplementary tables — a good one to share">●</span>{% endif %}</td>
+<td><a class="btn btn-sm" href="{{ r.issue_url }}">{{ 'Tell us the paper' if r.ctype == 'paper_pointer' else 'Share metadata' }}</a></td></tr>
 {% endfor %}</tbody></table>
 <p class="small muted"><span class="dot-warn">●</span> supplementary tables not accessible to us — these are the quickest wins.</p>
 {% endblock %}
 {% block scripts %}
 <script>
-(function(){ const q=document.getElementById('q'); const rows=[...document.querySelectorAll('tr.wl')];
-const fs=document.getElementById('f-supp'), ff=document.getElementById('f-ft');
-const run=()=>{ const s=q.value.trim().toLowerCase(); for(const r of rows) r.style.display=((!s||r.dataset.k.includes(s)) && (!fs.checked||r.dataset.supp==='1') && (!ff.checked||r.dataset.ft==='1'))?'':'none'; };
-for (const el of [q,fs,ff]) el.addEventListener(el===q?'input':'change',run); })();
+(function(){
+  const q=document.getElementById('q'), fs=document.getElementById('f-supp'), ff=document.getElementById('f-ft');
+  const body=document.getElementById('wl-body'), note=document.getElementById('wl-count'), all=document.getElementById('wl-all');
+  const LAB={{ field_labels|tojson }}, N_ALL={{ cs.n_open }};
+  const h=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let full=null, loading=false;
+  const fmt=n=>Number(n).toLocaleString();
+  function render(rows){
+    body.innerHTML=rows.map(r=>{
+      const supp=(r.papers&&r.supp!=='used'&&r.supp!=='checked')?1:0, ft=(r.papers&&r.ft==='none')?1:0;
+      const dot=supp?' <span class="dot-warn" title="We could not open this paper\'s supplementary tables — a good one to share">●</span>':'';
+      const paper=r.paper_url?('<a href="'+h(r.paper_url)+'">'+h(r.paper_label||'paper')+'</a>'):'<span class="muted">—</span>';
+      return '<tr class="wl" data-k="'+h((r.acc+' '+(r.title||'')+' '+(r.cohort||'')).toLowerCase())+'" data-supp="'+supp+'" data-ft="'+ft+'">'+
+        '<td><a class="mono" href="../studies/'+h(r.acc)+'.html">'+h(r.acc)+'</a> <span class="small">'+h(r.title)+'</span></td>'+
+        '<td class="num">'+fmt(r.n)+'</td><td class="wl-miss">'+(r.missing||[]).map(f=>h(LAB[f]||f)).join('<span class="sep"> · </span>')+'</td>'+
+        '<td class="wl-paper">'+paper+dot+'</td>'+
+        '<td><a class="btn btn-sm" href="'+h(r.issue_url)+'">'+(r.type==='paper_pointer'?'Tell us the paper':'Share metadata')+'</a></td></tr>';
+    }).join('');
+    run();
+  }
+  async function load(){
+    if (full || loading) return full;
+    loading=true; note.textContent='Loading the full list…';
+    try { full=await (await fetch('../data/contribute_worklist.json')).json(); render(full); }
+    catch(e){ note.textContent='The full list could not be loaded. The 25 projects where it would help most are above.'; }
+    loading=false; return full;
+  }
+  function run(){
+    const s=q.value.trim().toLowerCase();
+    const rows=[...body.querySelectorAll('tr.wl')]; let m=0;
+    for (const r of rows){ const ok=(!s||r.dataset.k.includes(s))&&(!fs.checked||r.dataset.supp==='1')&&(!ff.checked||r.dataset.ft==='1'); r.style.display=ok?'':'none'; if (ok) m++; }
+    if (!full) note.innerHTML='Showing the '+rows.length+' where it would help most, of '+fmt(N_ALL)+'. <button type="button" class="sb-link" id="wl-all">Show all '+fmt(N_ALL)+'</button>';
+    else note.textContent=m?(fmt(N_ALL)+' projects · '+fmt(m)+' match'):'No project matches that text.';
+    const b=document.getElementById('wl-all'); if (b) b.onclick=load;
+  }
+  if (all) all.onclick=load;
+  q.addEventListener('input',()=>{ if (q.value.trim()) load().then(run); else run(); });
+  for (const el of [fs,ff]) el.addEventListener('change',()=>load().then(run));
+})();
 </script>
 {% endblock %}
