@@ -42,7 +42,7 @@ EXTERNAL   ?= $(HOME)/catalog/external
 export SANDPIPER_ZENODO_RECORD := $(ZENODO_RECORD)
 export SANDPIPER_VERSION
 
-.PHONY: gut-build gut-newfields-r1 gut-newfields-r1-v2 registry-fixture registry-classify-det registry-build registry-biosamples help gapfill apply-gapfill ingest-contributions apply-verdicts bootstrap bootstrap-kernel lock check-credential unpack inputs-json sync-skills test resweep triage extract findings rewide package package-assemble bitemporal worklist package-docs release-notes release check-reports plot-coverage site verify publish-branch install-workflows ingest-issues sandpiper-refresh sandpiper-delta authors clean
+.PHONY: gut-build gut-newfields-r1 gut-newfields-r1-v2 registry-fixture registry-classify-det registry-build registry-biosamples help gapfill apply-gapfill ingest-contributions apply-verdicts bootstrap bootstrap-kernel lock check-credential unpack inputs-json sync-skills test resweep triage extract findings rewide package package-assemble bitemporal worklist package-docs release-notes release check-reports plot-coverage site verify publish-branch install-workflows ingest-issues sandpiper-refresh sandpiper-delta authors clean taxon-map
 
 help:            ## list targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n", $$1, $$2}'
@@ -280,6 +280,9 @@ vanish-page:     ## R2026.42: page payload of the VANISH / BloSSUM run, with the
 	for st in sentences checks; do $(PY) scripts/vanish_robustness.py --stage $$st --vanish-out $(VANISH_OUT) --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) \
 	  --hdi $(ATLAS_DATA)/country_hdi.csv --external-labels scripts/external_labels_carter_s4.csv --threads 4 --memory-limit 2GB || exit 1; done
 	rm -rf $(DATA)/site/vanish && cp -R $(VANISH_OUT)/page $(DATA)/site/vanish
+
+taxon-map:       ## R2026.43: Insights › Taxon map payload (taxa.json, matrix_<rank>.bin, countries.json, studies.json, country_hdi.csv) → $(ATLAS_DATA) from the built package + the current profile tables; run after `make release`, before `make measures`, `make taxa` and `make site` (≈ 40 s, ≈ 3 GB RAM)
+	$(PY) scripts/build_taxon_map.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --out $(ATLAS_DATA)
 
 taxa:            ## R2026.42: Insights › Taxon explorer payload → $(DATA)/site/taxa (≈ 70 s, 3.6 GB RAM; after `make vanish`; TAXA_FLAGS=--skip-presence when the site would pass 950 MB)
 	rm -rf $(DATA)/site/taxa

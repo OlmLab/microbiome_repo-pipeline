@@ -108,7 +108,7 @@ def _lineage_part(lineage, prefix):
 
 def precompute(genus_long: pd.DataFrame, species_long: pd.DataFrame, summary: pd.DataFrame, wide: pd.DataFrame, out_dir,
                n_species: int = 500, presence: float = PRESENCE, species_presence: float = SPECIES_PRESENCE, hdi: dict | None = None,
-               topo_ids: set | None = None) -> dict:
+               topo_ids: set | None = None, taxonomy: str | None = None, generated_from: dict | None = None) -> dict:
     """Write the atlas payload to out_dir and return its meta dict.
 
     genus_long: sample_key, genus, lineage, relabund;  species_long: sample_key, species, lineage, relabund;
@@ -207,7 +207,7 @@ def precompute(genus_long: pd.DataFrame, species_long: pd.DataFrame, summary: pd
         sj.append(d)
     meta = dict(n_samples=N, n_studies=len(studies), n_countries=len(countries), n_samples_with_country=int((S.cidx >= 0).sum()),
                 presence_threshold=presence, species_threshold=species_presence, min_country_samples=MIN_COUNTRY_SAMPLES, ranks=RANKS,
-                age_categories=AGE_CATS, taxonomy='GTDB R232 (Sandpiper 2.0.0, Zenodo 20419175)', hdi_year=HDI_YEAR, hdi_n_countries_with_value=int(sum(1 for d in cn if d['hdi'] is not None)), n_taxa=len(taxa), ranks_n=ranks_n,
+                age_categories=AGE_CATS, taxonomy=taxonomy or 'GTDB R232 (Sandpiper 2.0.0, Zenodo 20419175)', generated_from=generated_from or {}, hdi_year=HDI_YEAR, hdi_n_countries_with_value=int(sum(1 for d in cn if d['hdi'] is not None)), n_taxa=len(taxa), ranks_n=ranks_n,
                 payload_bytes=int(sum(sizes.values())), format=__doc__.split('Payload format')[1].strip(), hdi_source=HDI_SOURCE, sample_filter=SAMPLE_FILTER)
     (out_dir / 'taxa.json').write_text(json.dumps(dict(meta=meta, taxa=taxa), separators=(',', ':')))
     (out_dir / 'countries.json').write_text(json.dumps(cn, separators=(',', ':')))
