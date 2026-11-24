@@ -1,15 +1,15 @@
 /* sp_vanish.js — the VANISH/BloSSUM page: one interactive plot of every tested taxon.
    Uses window.SP (sp_core.js): segmented toggles, search box, tooltip, zoomable scatter, JSON cache.
    Data: data/vanish/meta.json and one points file per level x age group x rule, fetched on demand. Each
-   points file holds only the points that are drawn (round 3); the count line and the CSV downloads carry
+   points file holds only the points that are drawn; the count line and the CSV downloads carry
    every tested taxon.
    Horizontal axis: the model score (log2 odds ratio, non-industrialized vs reference) or, for the simple
    rule, lfc. Vertical axis: the prevalence in the group where the taxon is more common — with permutation
    p-values the q-values tie at the resolution floor, so a volcano axis would stack the strongest taxa on one
    line. The vertical scale is a square root so that the many rare taxa do not pile up on the axis.
    A click opens the taxon in the taxon explorer (genus and species; families have no entry there).
-   Round 4: the search marks the taxon with a star and its name and leaves the view whole; for infants the
-   model rule is drawn from the broad definition (block C4), the only one with enough cohorts. */
+   The search marks the taxon with a star and its name and leaves the view whole; for infants the model
+   rule is drawn from the broad definition (block C4), the only one with enough projects. */
 (function () {
   'use strict';
   var P = window.SP_PAGE || {}, SP = window.SP;
@@ -89,13 +89,13 @@
     if (d.c) h += '<br><span class="small">' + SP.esc(d.c) + '</span>';
     if (state.rule === 'simple') {
       h += '<br>lfc ' + d.l.toFixed(2) + ' <span class="small">(log2 fold change in carriage, non-industrialized vs industrialized)</span> · q ' + fmtQ(d.q);
-      h += '<br>carried by ' + SP.fmtPct(d.pn) + ' of non-industrialized subjects, ' + SP.fmtPct(d.pi) + ' of industrialized';
+      h += '<br>carried by ' + SP.fmtPct(d.pn) + ' of non-industrialized people, ' + SP.fmtPct(d.pi) + ' of industrialized';
       h += '<br>' + d.nc + ' countries with a carrier';
     } else {
       h += '<br>score ' + (d.s > 0 ? '+' : '') + d.s.toFixed(2) + (d.se != null ? ' ± ' + d.se.toFixed(2) : '') +
            ' <span class="small">(log2 odds ratio of detection, non-industrialized vs reference)</span> · q ' + fmtQ(d.q);
-      h += '<br>detected in ' + SP.fmtPct(d.pn) + ' of non-industrialized samples, ' + SP.fmtPct(d.pr) + ' of reference (mean over cohorts)';
-      h += '<br>cohorts with detection: ' + d.cn + ' non-industrialized, ' + d.cr + ' reference';
+      h += '<br>detected in ' + SP.fmtPct(d.pn) + ' of non-industrialized samples, ' + SP.fmtPct(d.pr) + ' of reference (mean over projects)';
+      h += '<br>projects with detection: ' + d.cn + ' non-industrialized, ' + d.cr + ' reference';
     }
     h += '<br>' + (d.k ? '<b>' + className(d.k) + '</b>' : 'neither class');
     var p = pubOf(d);
@@ -132,7 +132,7 @@
       el.plot.innerHTML = '';
       el.plot.dataset.ready = '0';
       el.count.textContent = '';
-      el.note.textContent = (blk && blk.note) ? blk.note : 'not estimable in this release';
+      el.note.textContent = (blk && blk.note) ? blk.note : 'This comparison could not be computed: too few non-industrialized samples at this level.';
       if (el.ready) el.ready.textContent = '0';
       return;
     }
@@ -164,7 +164,7 @@
   function load() {
     el.note.textContent = 'Loading…';
     return SP.getJSON(pointsUrl()).then(render).catch(function (e) {
-      el.note.textContent = 'This combination has no data file in this release.';
+      el.note.textContent = 'This comparison could not be computed: too few non-industrialized samples at this level.';
       el.plot.innerHTML = ''; el.count.textContent = ''; current = [];
       if (el.ready) el.ready.textContent = '0';
     });
@@ -185,8 +185,8 @@
       { value: 'adult', label: 'Adults' }, { value: 'infant', label: 'Infants' }],
       onChange: function (v) { state.stratum = v; load(); } });
     SP.segmented(el.rule, { label: 'Rule', value: state.rule, options: [
-      { value: 'model', label: 'Model-based', title: 'cohort random effect, permutation p-values, leave one cohort out' },
-      { value: 'simple', label: 'Simple', title: 'subject-level carriage by HDI band, Fisher exact test' }],
+      { value: 'model', label: 'Model-based', title: 'compares projects and adjusts for sequencing depth' },
+      { value: 'simple', label: 'Simple', title: "compares people by their country's development index only" }],
       onChange: function (v) { state.rule = v; setRefVisibility(); load(); } });
     SP.segmented(el.ref, { label: 'Reference group', value: state.ref, options: [
       { value: 'C1', label: 'High-HDI countries' }, { value: 'C2', label: 'Stated urban industrialized' }],

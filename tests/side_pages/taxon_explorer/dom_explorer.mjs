@@ -403,7 +403,7 @@ for (const name of check5) {
   P3.window.location.hash = "#taxon=s__Nonexistent thing";
   await sleep(1300);
   ok("an unknown taxon gives a plain note and focuses the search box",
-     /Not in this release/.test(P3.q("#tx-panel")?.textContent || "") &&
+     /Not in the catalog/.test(P3.q("#tx-panel")?.textContent || "") &&
      P3.doc.activeElement === P3.q("#tx-search"),
      P3.q("#tx-panel")?.textContent?.slice(0, 60));
   // projects.bin absent: the page must still work

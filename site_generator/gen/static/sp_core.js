@@ -346,7 +346,7 @@
     el.innerHTML = '';
     var svg = d3.select(el).append('svg').attr('class', 'sp-icicle')
       .attr('viewBox', '0 0 ' + width + ' ' + height).attr('width', '100%').attr('height', height)
-      .attr('role', 'img').attr('aria-label', spec.alt || 'taxonomy of the taxa with pages');
+      .attr('role', 'img').attr('aria-label', spec.alt || 'GTDB taxonomy of the catalog\u2019s genera and species');
     var colour = d3.scaleOrdinal(['#1f5aa6', '#8a6d2f', '#4b8a3f', '#7a5195', '#bc5090', '#ef8a3c',
                                   '#2e8b8b', '#a0522d', '#5b7f9e', '#6b6b6b']);
     function clade(d) { var n = d; while (n.depth > 1 && n.parent) n = n.parent; return n.data.name; }

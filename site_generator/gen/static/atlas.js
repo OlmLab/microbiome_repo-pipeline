@@ -91,7 +91,8 @@
     legend(cs);
   }
   function legend(cs) {
-    const lab = state.metric === 'prev' ? 'prevalence (share of samples ≥ threshold)' : 'mean relative abundance';
+    const thr = state.rank === 'species' ? (st.meta.species_threshold || 1e-3) : (st.meta.presence_threshold || 1e-4);
+    const lab = state.metric === 'prev' ? 'prevalence (samples with the taxon at ≥ ' + (thr * 100).toFixed(thr >= 1e-3 ? 1 : 2) + ' %)' : 'mean relative abundance';
     const ticks = [0, 0.25, 0.5, 0.75, 1].map((q) => q * cs.max);
     const grad = d3.range(0, 1.001, 0.1).map((q) => `<span style="flex:1;background:${cs.f(q * cs.max)}"></span>`).join('');
     $('#legend').innerHTML = `<div>${esc(lab)} · ${state.scale === 'fix' ? 'fixed' : 'relative'} scale</div><div style="display:flex;height:9px;width:220px;border:1px solid #ccc">${grad}</div>` +
@@ -104,7 +105,7 @@
     el.style.display = 'block';
     const box = $('#map-wrap').getBoundingClientRect();
     el.style.left = (ev.clientX - box.left + 12) + 'px'; el.style.top = (ev.clientY - box.top + 12) + 'px';
-    el.innerHTML = `<b>${esc(c.name)}</b> · ${c.n.toLocaleString()} samples · ${c.nstud} studies` + (c.n < MIN_N ? ' (too few samples)' : '') +
+    el.innerHTML = `<b>${esc(c.name)}</b> · ${c.n.toLocaleString()} samples · ${c.nstud} projects` + (c.n < MIN_N ? ' (too few samples)' : '') +
       (cur ? `<br>${esc(pretty(cur.t.name))}: prevalence ${r ? fmtPct(r.prev) : '0 %'} · mean ${r ? fmtAb(r.mean) : '0'}` : '') + (c.hdi != null ? `<br>HDI ${c.hdi.toFixed(2)} (${c.band})` : '');
   }
   function hideTip() { $('#tip').style.display = 'none'; }
@@ -125,13 +126,13 @@
     const kids = st.taxa.filter((x) => x.parent === t.name).sort((a, b) => b.n - a.n).slice(0, 12);
     $('#taxon-head').innerHTML = `<h2><i>${esc(pretty(t.name))}</i> <span class="tag">${esc(t.rank)}</span></h2>` +
       `<div class="mini">${esc(t.lineage || '')}</div>` +
-      `<div>Detected in <b>${t.n.toLocaleString()}</b> samples (${fmtPct(t.prev)}) across <b>${t.nstud.toLocaleString()}</b> studies · mean relative abundance ${fmtAb(t.mean)}` +
+      `<div>Detected in <b>${t.n.toLocaleString()}</b> samples (${fmtPct(t.prev)}) across <b>${t.nstud.toLocaleString()}</b> projects · mean relative abundance ${fmtAb(t.mean)}` +
       (parent ? ` · parent: <a href="#" data-taxon="${esc(parent.name)}">${esc(pretty(parent.name))}</a>` : '') + '</div>' +
       (kids.length ? `<div class="mini">Children: ${kids.map((k) => `<a href="#" data-taxon="${esc(k.name)}">${esc(pretty(k.name))}</a>`).join(' · ')}</div>` : '');
   }
   function countryTable() {
     const rows = [...cur.rows.countries.values()].filter((r) => r.c.n >= MIN_N).sort((a, b) => (state.metric === 'prev' ? b.prev - a.prev : b.mean - a.mean));
-    $('#country-table').innerHTML = `<details><summary class="small">Country table (${rows.length} countries with ≥ ${MIN_N} samples)</summary><table class="tbl compact"><thead><tr><th>Country</th><th class="num">n samples</th><th class="num">n studies</th><th class="num">prevalence</th><th class="num">mean abundance</th><th class="num">HDI</th></tr></thead><tbody>` +
+    $('#country-table').innerHTML = `<details><summary class="small">Country table (${rows.length} countries with ≥ ${MIN_N} samples)</summary><table class="tbl compact"><thead><tr><th>Country</th><th class="num">n samples</th><th class="num">n projects</th><th class="num">prevalence</th><th class="num">mean abundance</th><th class="num">HDI</th></tr></thead><tbody>` +
       rows.map((r) => `<tr><td><a href="#" data-country="${r.c.iso2}">${esc(r.c.name)}</a></td><td class="num">${r.c.n.toLocaleString()}</td><td class="num">${r.c.nstud}</td><td class="num">${fmtPct(r.prev)}</td><td class="num">${fmtAb(r.mean)}</td><td class="num">${r.c.hdi != null ? r.c.hdi.toFixed(2) : '—'}</td></tr>`).join('') + '</tbody></table></details>';
   }
   function ageBar(ages) {
@@ -143,13 +144,13 @@
     if (!iso || !st.ISO[iso]) return;
     state.country = iso; recolour();
     const c = st.ISO[iso]; const el = $('#dossier');
-    if (!cur) { el.innerHTML = `<b>${esc(c.name)}</b><div class="mini">${c.n.toLocaleString()} samples · ${c.nstud} studies. Pick a taxon first.</div>`; return; }
+    if (!cur) { el.innerHTML = `<b>${esc(c.name)}</b><div class="mini">${c.n.toLocaleString()} samples · ${c.nstud} projects. Pick a taxon first.</div>`; return; }
     const studies = cur.rows.studies.filter((r) => r.s.countries.includes(iso)).sort((a, b) => b.n - a.n);
     const r = cur.rows.countries.get(iso);
-    el.innerHTML = `<b>${esc(c.name)}</b> <span class="mini">${c.n.toLocaleString()} samples · ${c.nstud} studies${c.hdi != null ? ' · HDI ' + c.hdi.toFixed(2) : ''}</span>` +
+    el.innerHTML = `<b>${esc(c.name)}</b> <span class="mini">${c.n.toLocaleString()} samples · ${c.nstud} projects${c.hdi != null ? ' · HDI ' + c.hdi.toFixed(2) : ''}</span>` +
       `<div><i>${esc(pretty(cur.t.name))}</i>: prevalence <b>${r ? fmtPct(r.prev) : '0 %'}</b>, mean abundance ${r ? fmtAb(r.mean) : '0'}</div>` +
       `<div class="mini" style="margin-top:.4rem">Studies with the taxon detected (click for dossier):</div>` +
-      `<table class="tbl compact"><thead><tr><th>Study</th><th class="num">n</th><th class="num">prev.</th></tr></thead><tbody>` +
+      `<table class="tbl compact"><thead><tr><th>Project</th><th class="num">n</th><th class="num">prev.</th></tr></thead><tbody>` +
       studies.slice(0, 40).map((x) => `<tr><td><a href="#" data-study="${x.s.i}">${esc(x.s.acc)}</a></td><td class="num">${x.s.n}</td><td class="num">${fmtPct(x.prev)}</td></tr>`).join('') +
       `</tbody></table>${studies.length > 40 ? `<div class="mini">… ${studies.length - 40} more</div>` : ''}<div id="study-dossier"></div>`;
   }
@@ -162,7 +163,7 @@
       `<tr><td><i>${esc(pretty(cur.t.name))}</i> prevalence</td><td>${x ? fmtPct(x.prev) + ` (${x.n} samples)` : 'not detected'}</td></tr>` +
       `<tr><td>mean abundance</td><td>${x ? fmtAb(x.mean) : '0'}</td></tr>` +
       (s.rich != null ? `<tr><td>median genus richness</td><td>${s.rich.toFixed(0)}</td></tr><tr><td>median root coverage</td><td>${s.depth.toFixed(0)}</td></tr>` : '') +
-      `</table><div class="mini">Life stages</div>${ageBar(s.ages)}<a class="btn xs sec" href="${ROOT}studies/${esc(s.acc)}.html">Open study page</a>`;
+      `</table><div class="mini">Age group</div>${ageBar(s.ages)}<a class="btn xs sec" href="${ROOT}studies/${esc(s.acc)}.html">Open project page</a>`;
   }
 
   // ---------- sidebar ----------
@@ -170,7 +171,7 @@
     const ul = $('#taxon-hits'); let items;
     if (q) { const ql = q.toLowerCase(); items = st.taxa.filter((t) => t.name.toLowerCase().includes(ql)).sort((a, b) => b.n - a.n).slice(0, 60); }
     else items = (st.byRank[state.rank] || []).slice().sort((a, b) => b.n - a.n).slice(0, 200);
-    ul.innerHTML = items.map((t) => `<li data-idx="${t.idx}"><span>${esc(pretty(t.name))}</span><span class="r">${q ? t.rank + ' · ' : ''}${fmtPct(t.prev)}</span></li>`).join('') || '<li class="mini">no match</li>';
+    ul.innerHTML = items.map((t) => `<li data-idx="${t.idx}"><span>${esc(pretty(t.name))}</span><span class="r">${q ? t.rank + ' · ' : ''}${fmtPct(t.prev)}</span></li>`).join('') || '<li class="mini">Not in this map — it carries the most prevalent species and all genera. Every genus and species is in the <a href="taxa/index.html">Taxon explorer</a>.</li>';
   }
   function toggle(id, key, cb) {
     $(id).addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (!b) return; state[key] = b.dataset.v; $(id).querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); cb(); });
@@ -191,10 +192,10 @@
   }
   async function main() {
     await loadCore(); drawBase(); wire(); listTaxa('');
-    const h = decodeURIComponent(location.hash.slice(1));
+    const h = decodeURIComponent(location.hash.slice(1)).replace(/^taxon=/, '');
     const start = (h && st.taxa.find((t) => t.name === h)) || st.taxa.find((t) => t.name === 'g__Prevotella') || st.byRank.genus[0];
     if (start) await selectTaxon(start);
   }
-  if (typeof d3 === 'undefined' || typeof topojson === 'undefined') { $('#taxon-head').innerHTML = '<div class="note">The map needs D3 and topojson-client from cdn.jsdelivr.net; they did not load (offline or blocked). The data files under data/atlas/ are still downloadable.</div>'; return; }
+  if (typeof d3 === 'undefined' || typeof topojson === 'undefined') { $('#taxon-head').innerHTML = '<div class="note">The map could not start because its drawing libraries did not load. Reload the page; the data files it reads are downloadable either way.</div>'; return; }
   main().catch((e) => { $('#taxon-head').innerHTML = `<div class="note">The taxon map failed to load: ${esc(e.message)}</div>`; console.error(e); });
 })();

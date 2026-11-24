@@ -141,7 +141,7 @@
     // axis labels
     ctx.fillStyle = '#444'; ctx.font = '12px system-ui, sans-serif';
     ctx.fillText(axisLabel(xi), W - 120, H - 24); ctx.save(); ctx.translate(14, 120); ctx.rotate(-Math.PI / 2); ctx.fillText(axisLabel(yi), 0, 0); ctx.restore();
-    ctx.fillStyle = '#777'; ctx.font = '11px system-ui, sans-serif'; ctx.fillText(visible.toLocaleString() + ' of ' + n.toLocaleString() + ' samples shown · alpha ' + alpha.toFixed(2), 10, 14);
+    ctx.fillStyle = '#777'; ctx.font = '11px system-ui, sans-serif'; ctx.fillText(visible.toLocaleString() + ' of ' + n.toLocaleString() + ' samples in view', 10, 14);
     drawOverlay();
   }
   function axisLabel(i) { const p = meta.pcs[i]; return p ? p.name + ' (' + (p.explained_variance_ratio * 100).toFixed(1) + ' %)' : 'PC' + (i + 1); }
@@ -171,7 +171,7 @@
     const st = labelOf('study_accession', i), title = (meta.study_titles || {})[st] || '';
     const tip = $('pca-tip');
     tip.innerHTML = `<div><a href="${CFG.samplesUrl}?sample=${encodeURIComponent(keys[i])}"><b class="mono">${h(keys[i])}</b></a></div>` +
-      `<div><span class="k">study</span> <a href="${CFG.studiesUrl}${encodeURIComponent(st)}.html" class="mono">${h(st)}</a>${title ? ' <span class="small">' + h(title) + '</span>' : ''}</div>` +
+      `<div><span class="k">project</span> <a href="${CFG.studiesUrl}${encodeURIComponent(st)}.html" class="mono">${h(st)}</a>${title ? ' <span class="small">' + h(title) + '</span>' : ''}</div>` +
       ['age_category', 'country', 'health_condition', 'top_genus', 'lifestyle'].filter(f => field(f)).map(f => `<div><span class="k">${h(field(f).label.toLowerCase())}</span> ${h(labelOf(f, i))}</div>`).join('') +
       `<div class="k">${axisLabel(xi)} ${pts[i * npcs + xi].toFixed(2)} · ${axisLabel(yi)} ${pts[i * npcs + yi].toFixed(2)}</div>`;
     tip.style.display = ''; tip.style.left = Math.min(W - 350, p.x + 12) + 'px'; tip.style.top = Math.min(H - 140, p.y + 12) + 'px';
@@ -192,9 +192,9 @@
     }
     const topS = [...studies.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([c, k]) => `<a href="${CFG.studiesUrl}${encodeURIComponent(sf.labels[c])}.html" class="mono">${h(sf.labels[c])}</a> ${k.toLocaleString()}`).join(', ');
     const topC = [...cats.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([c, k]) => `${h(cf.labels[c])} ${k.toLocaleString()}`).join(', ');
-    let html = `<b>${m.toLocaleString()}</b> samples selected from ${studies.size.toLocaleString()} stud${studies.size === 1 ? 'y' : 'ies'}.`;
-    if (studies.size === 1 && m > 0) { const acc = sf.labels[[...studies.keys()][0]]; if (acc !== 'other' && acc !== '(no value)') html += ` <a class="btn xs" href="${CFG.samplesUrl}?study=${encodeURIComponent(acc)}">open selection in sample explorer</a>`; }
-    if (m) html += `<div class="small">studies: ${topS}${studies.size > 5 ? ', …' : ''}</div><div class="small">${h(cf.label.toLowerCase())}: ${topC}</div>`;
+    let html = `<b>${m.toLocaleString()}</b> samples selected from ${studies.size.toLocaleString()} project${studies.size === 1 ? '' : 's'}.`;
+    if (studies.size === 1 && m > 0) { const acc = sf.labels[[...studies.keys()][0]]; if (acc !== 'other' && acc !== '(no value)') html += ` <a class="btn xs" href="${CFG.samplesUrl}?study=${encodeURIComponent(acc)}">open these samples in the sample sheet</a>`; }
+    if (m) html += `<div class="small">projects: ${topS}${studies.size > 5 ? ', …' : ''}</div><div class="small">${h(cf.label.toLowerCase())}: ${topC}</div>`;
     el.innerHTML = html;
   }
 

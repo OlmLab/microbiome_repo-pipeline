@@ -36,7 +36,7 @@ DATA_DIR = 'data/atlas'
 N_PCS = 5
 # categorical fields carried per point: (field name in wide/summary, label, cap on distinct labels, dtype)
 FIELDS = [
-    ('study_accession', 'Study', 65000, 'uint16'),
+    ('study_accession', 'Project', 65000, 'uint16'),
     ('age_category', 'Age category', 250, 'uint8'),
     ('country', 'Country', 250, 'uint8'),
     ('health_condition', 'Health condition', 250, 'uint8'),
@@ -138,7 +138,7 @@ def build(env, render, ctx, out_dir):
     n_studies = int(pts['study_accession'].nunique()) if 'study_accession' in pts else 0
     field_names = [f['field'] for f in fields]
     render('atlas_pca.html', PAGE_PATH, '../', nav='atlas',
-           crumbs=[dict(label='Home', href='../index.html'), dict(label='Insights'), dict(label='PCA of community profiles')],
+           crumbs=[dict(label='Home', href='../index.html'), dict(label='Insights', href='taxa/index.html'), dict(label='PCA of community profiles')],
            n_points=n, n_scored=n_scored, n_studies=n_studies, pcs=pcs, fields=fields, field_names=field_names, loadings=load,
            sizes={k: v for k, v in sizes.items()}, total_bytes=total, total_mb=round(total / 1048576, 1),
            n_genera=int(loadings['genus'].nunique()) if 'genus' in loadings.columns else None,
