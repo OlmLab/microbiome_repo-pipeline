@@ -174,7 +174,7 @@ def build(render, out: Path, ctx: dict):
                        by_condition={c: f'{base}api/by-condition/{quote(c)}.json' for c in slices['condition']},
                        by_age={c: f'{base}api/by-age/{quote(c)}.json' for c in slices['age']},
                        samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/catalog_sample_metadata_wide.parquet'),
-        project_keys=dict(accession='BioProject accession', title='project title', n_samples='curated catalog samples',
+        project_keys=dict(accession='BioProject accession', title='project title', n_samples='catalog samples',
                           gbp_per_sample_median='median sequencing depth per sample (Gbp)', health_conditions='code -> number of samples',
                           age_categories='life stage -> number of samples', countries='country -> number of samples', sex='sex -> number of samples',
                           interventions='interventions the project ADMINISTERED (project level, from abstract / description; [] = none stated)',

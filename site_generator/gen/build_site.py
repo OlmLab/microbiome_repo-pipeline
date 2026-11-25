@@ -56,7 +56,7 @@ FIELD_CAVEATS = {
     'body_site_code': "Where on the body the sample was taken (gut / stool, mouth, skin, nose, airway, urogenital, milk, blood / tissue, eye / ear, other, several sites). From the sample's own archive record or, when the project sampled a single site, the project's site from the scope classification of the archive description and abstract. 'unknown_site' (no site stated) counts as not covered.",
     'collection_date': 'As specific as the source gives it (YYYY, YYYY-MM, YYYY-MM-DD or an ISO interval for a stated sampling period); placeholders (missing / not collected / restricted) stay unknown.',
     'location_region': 'First-level administrative region below the country (state, province, prefecture …); English exonym, no country name.',
-    'location_locality': 'City, town, village or district where subjects were recruited — not where the laboratory is.',
+    'location_locality': 'City, town, village or district where people were recruited — not where the laboratory is.',
     'location_site': 'Named recruitment site (hospital, clinic, school, cohort field station, community name) in the source\'s own words.',
     'latitude': 'Decimal degrees from lat_lon / geographic-location attributes of the archive record or a supplementary table, rounded to 4 decimals.', 'longitude': 'Decimal degrees; same source row as latitude.',
     'lifestyle': 'Controlled vocabulary; committed only when the source states it — never inferred from the country.',
@@ -191,8 +191,14 @@ def archive_url(acc):
 
 # R2026.43: sections of the generated release notes that are build bookkeeping, not a reader's question (F160, F171-F173, F184, F185).
 # The markdown shipped in the package is published unchanged under releases/; only the copy rendered on the Downloads page is trimmed.
-NOTE_SECTIONS_DROPPED = ('Infant extension', 'Triage verdict flips', 'Gold metrics', 'Token cost')
+NOTE_SECTIONS_DROPPED = ('Infant extension', 'Triage verdict flips', 'Gold metrics', 'Token cost', 'Sandpiper snapshot')
 NOTE_SECTION_RENAMED = {'Bitemporal columns': 'Which release each value came from'}
+# wording corrected where the notes are rendered for visitors (the note generator itself is unchanged)
+NOTE_TEXT_REPLACED = (('release_added (current determinations)', 'release_added (current values)'),
+                      ('release_retired (retired determinations)', 'release_retired (retired values)'),
+                      ('`value_history.change_stage` / `src_track`', 'the recorded change stages'),
+                      (' — see `docs/RELEASES.md` §3 for exactness per row class.',
+                       '; they are exact only for the rows those stages touched.'))
 
 
 def trim_release_note(md):
@@ -206,7 +212,10 @@ def trim_release_note(md):
             if head.startswith('## ' + old):
                 part = part.replace(head, '## ' + new, 1)
         keep.append(part)
-    return ''.join(keep).rstrip() + '\n'
+    out = ''.join(keep).rstrip() + '\n'
+    for old, new in NOTE_TEXT_REPLACED:
+        out = out.replace(old, new)
+    return out
 
 
 def read_field_tiers(pack):
@@ -1467,7 +1476,8 @@ def main():
         meta = vj['tables'].get(f.name, {})
         pkg_files.append(dict(name=f.name, size=human(f.stat().st_size), bytes=f.stat().st_size, rows=meta.get('rows'),
                               sha256=meta.get('sha256', ''), href=('data/' if f.name in IN_DATA else 'data/package/') + f.name,
-                              desc=(FILE_DESC.get(f.name) or ('Per-field diff of this release against the one before it (generated); the notes of this release are rendered below.'
+                              desc=(FILE_DESC.get(f.name) or (('Per-field diff of release ' + f.name[len('RELEASE_NOTES_'):-3] + ' against the one before it (generated).'
+                                     + (' The notes of this release are rendered below.' if f.name[len('RELEASE_NOTES_'):-3] == release_id else ''))
                                     if f.name.startswith('RELEASE_NOTES_') else '')), group=_grp))
     zip_name, zip_size, zip_href = None, None, None
     if a.package_zip:
@@ -2276,7 +2286,7 @@ def main():
            hc_rows=[(k, hc_labels.get(k, ''), int(v.ns), int(v.nst)) for k, v in hc_rows.iterrows() if k in hcv],
            hc_free=dict(n=int(sum(1 for k in hc_rows.index if k not in hcv)),
                         samples=int(sum(int(v.ns) for k, v in hc_rows.iterrows() if k not in hcv))),
-           crumbs=[dict(label='Home', href='../index.html'), dict(label='Fields')])
+           crumbs=[dict(label='Home', href='../index.html'), dict(label='Fields & vocabularies')])
 
     # ---------- scope (how the catalog is cut from the registry) ----------
     hum = rg[rg.host_human.isin(['yes', 'mixed'])]
@@ -2417,7 +2427,7 @@ def main():
         return dict(column=col, rows=rows_, labels=labels or {})
     stage_labels = {'deterministic_prior': 'prior carried over from an earlier triage (reason code / body-site call) or deterministic term match',
                     'deterministic_rule': 'ENA-field rule (host taxon 9606, library fields, numeric age with unit)', 'sonnet_x2': 'two replicate model classifications in agreement',
-                    'opus_adjudicated': 'replicate disagreement adjudicated by the stronger model', 'pending': 'not yet classified', 'curator_audit': 'study-level host/assay audit of the archive records (config/registry_overrides.yaml)', 'owner_decision': 'study-level decision by the catalog owner (config/registry_overrides.yaml)'}
+                    'opus_adjudicated': 'replicate disagreement adjudicated by the stronger model', 'pending': 'not yet classified', 'curator_audit': 'study-level host/assay audit of the archive records', 'owner_decision': 'study-level decision recorded by the curators'}
     # F458/F468: the short word for each stage — shown in the filter and on the badge, with the code in the tooltip.
     stage_short = {'deterministic_prior': 'carried over from an earlier screen', 'deterministic_rule': 'archive-field rule',
                    'sonnet_x2': 'two model readings', 'opus_adjudicated': 'adjudicated', 'pending': 'not yet classified',
@@ -2496,9 +2506,9 @@ def main():
         dict(path='data/catalog_studies.parquet', desc='Project table loaded by the explorer', **dirstat('data', 'catalog_studies.parquet')),
         dict(path='data/catalog_sample_determinations.parquet', desc='Evidence rows (sample × field with verbatim quote)', **dirstat('data', 'catalog_sample_determinations.parquet')),
         dict(path='data/registry_studies.parquet', desc='Registry tier, loaded by the registry explorer', **dirstat('data', 'registry_studies.parquet')),
-        dict(path='data/studies/<PRJ>.csv.gz|.parquet', desc='Per-study sample slices (gzip CSV + parquet)', **dirstat('data/studies', '*[0-9].csv.gz')),
+        dict(path='data/studies/<PRJ>.csv.gz|.parquet', desc='Per-project sample tables (gzip CSV + parquet)', **dirstat('data/studies', '*[0-9].csv.gz')),
         dict(path='data/studies/<PRJ>_determinations.csv.gz', desc='Per-study evidence rows (gzip CSV, mtime 0)', **dirstat('data/studies', '*_determinations.csv.gz')),
-        dict(path='data/cohorts/<COH>.csv.gz|.parquet', desc='Per-cohort sample slices (multi-study cohorts)', **dirstat('data/cohorts')),
+        dict(path='data/cohorts/<COH>.csv.gz|.parquet', desc='Per-cohort sample tables (cohorts of several projects)', **dirstat('data/cohorts')),
         dict(path='data/catalog_cohorts.csv', desc='Cohort list (id, name, studies, papers)', **dirstat('data', 'catalog_cohorts.csv')),
         dict(path='data/studies_index.json', desc='Project index used by the project table', **dirstat('data', 'studies_index.json')),
         dict(path='data/contribute_worklist.json', desc='Contribution worklist (one object per open project)', **dirstat('data', 'contribute_worklist.json')),
@@ -2575,6 +2585,8 @@ def main():
     _v = _v[_v.source != '']
     VS_ORDER = ['archive', 'supplement', 'fulltext', 'abstract', 'external', 'contribution']
     VS_COLOR = {'archive': '#565A5C', 'supplement': '#CFB87C', 'fulltext': '#4477AA', 'abstract': '#88CCEE', 'external': '#AA3377', 'contribution': '#228833'}
+    VS_LABELS = {'archive': 'archive record', 'supplement': 'supplementary table', 'fulltext': 'paper text',
+                 'abstract': 'abstract', 'external': 'external resource', 'contribution': 'user contribution'}
     VS_DESC = {'archive': 'BioSample attributes, sample names / titles and run fields in ENA / SRA / DDBJ',
                'supplement': "supplementary tables and data files of the project's papers, and of other papers that tabulate its samples",
                'fulltext': 'methods prose and tables in the body of open-access papers',
@@ -2617,7 +2629,7 @@ def main():
     for src_ in VS_ORDER:
         m = facts.source == src_
         mns = m & ~sub
-        vs_rows.append(dict(source=src_, label=_SRC_LABELS.get(src_, src_), desc=VS_DESC[src_], color=VS_COLOR[src_], n=int(m.sum()), share=(m.sum() / n_vals) if n_vals else 0,
+        vs_rows.append(dict(source=src_, label=VS_LABELS.get(src_, _SRC_LABELS.get(src_, src_)), desc=VS_DESC[src_], color=VS_COLOR[src_], n=int(m.sum()), share=(m.sum() / n_vals) if n_vals else 0,
                             n_ns=int(mns.sum()), share_ns=(mns.sum() / n_vals_ns) if n_vals_ns else 0,
                             samples=int(facts.loc[m, 'sample_key'].nunique()), projects=int(facts.loc[m, 'study_accession'].nunique()),
                             cohort_share=float(cohort[m].mean()) if m.any() else 0.0, n_fields=int(facts.loc[m, 'concept'].nunique()), n_ident=int(n_ident.get(src_, 0))))
@@ -2633,7 +2645,7 @@ def main():
             if k != tier or c not in ftab.index:
                 continue
             row = ftab.loc[c]; tot = int(row.sum())
-            segs = [dict(source=s_, label=_SRC_LABELS.get(s_, s_), color=VS_COLOR[s_], n=int(row.get(s_, 0)), pct=round(100 * row.get(s_, 0) / tot, 1)) for s_ in VS_ORDER if row.get(s_, 0) > 0]
+            segs = [dict(source=s_, label=VS_LABELS.get(s_, _SRC_LABELS.get(s_, s_)), color=VS_COLOR[s_], n=int(row.get(s_, 0)), pct=round(100 * row.get(s_, 0) / tot, 1)) for s_ in VS_ORDER if row.get(s_, 0) > 0]
             vs_fields.append(dict(field=c, cols=fl, tier=tier, total=tot, n_samples=int(nsamp.get(c, 0)), cov=int(nsamp.get(c, 0)) / len(cw) if len(cw) else 0, segs=segs))
     _col = lambda c_: cs[c_] if c_ in cs.columns else pd.Series([None] * len(cs), index=cs.index)
     _gen = int(((cd.field_name == 'subject_id') & cd.determined_by.astype(str).str.replace(r'^gut_', 'catalog_', regex=True).isin(['catalog_subject_unique_v1', 'catalog_subject_single_v1', 'catalog_subject_single_case_v1'])).sum())   # R2026.34: published codes carry catalog_ since R2026.31

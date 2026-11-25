@@ -10,7 +10,7 @@ collections:
   kind: benchmark
   blurb: The NIH Human Microbiome Project phase 1 shotgun metagenomes of clinically healthy US adults (Houston and
     St Louis), the most reused healthy-adult reference set; the BioProjects span all HMP body sites, so this set
-    is not gut-only.
+    is not limited to the gut.
   studies:
   - PRJNA48479
   - PRJNA275349
@@ -22,12 +22,12 @@ collections:
     url: https://doi.org/10.1038/nature11234
   - label: Lloyd-Price et al. 2017, Nature (expanded HMP1-II)
     url: https://doi.org/10.1038/nature23889
-  notes: PRJNA275349 is the HMP phase III WGS deposit (JCVI). Both BioProjects contain oral, skin and vaginal samples;
+  notes: PRJNA275349 is the HMP phase III WGS project (JCVI). Both BioProjects contain oral, skin and vaginal samples;
     the rule keeps every sample with a stated body site, so those are included.
 - id: hmp2-ibdmdb
   title: HMP2 / IBDMDB longitudinal IBD multi-omics cohort
   kind: benchmark
-  blurb: 'The Integrative HMP inflammatory bowel disease cohort (IBDMDB): 132 subjects with Crohn''s disease, ulcerative
+  blurb: 'The Integrative HMP inflammatory bowel disease cohort (IBDMDB): 132 people with Crohn''s disease, ulcerative
     colitis or no IBD, followed for one year with stool metagenomes, metatranscriptomes and biopsies at five US
     centres.'
   studies:
@@ -43,7 +43,7 @@ collections:
 - id: metahit
   title: MetaHIT European gut metagenome cohorts
   kind: benchmark
-  blurb: 'The MetaHIT consortium deposits underlying the first gut gene catalogue and the metagenomic-species work:
+  blurb: 'The MetaHIT consortium projects underlying the first gut gene catalogue and the metagenomic-species work:
     Danish and Spanish adults (Qin 2010), Danish obese/lean adults (Le Chatelier 2013, Nielsen 2014) and the integrated
     gene catalogue samples (Li 2014).'
   studies:
@@ -65,7 +65,7 @@ collections:
 - id: healthy-adult-reference
   title: Curated healthy adult samples (all body sites)
   kind: benchmark
-  blurb: Every sample in the curated catalog whose source states the person is healthy or a control and whose age at
+  blurb: Every sample in the catalog whose source states the person is healthy or a control and whose age at
     collection falls in the adult band (18–65 y). The rule keeps every body site, not the gut alone. The catalog's own counterpart of the curatedMetagenomicData
     healthy-adult set; membership is evidence-backed per sample.
   filters:
@@ -103,7 +103,7 @@ collections:
   title: American Gut Project shotgun subset
   kind: population
   blurb: Shotgun metagenomes from the crowd-sourced American Gut Project (US, UK and Australia self-collected stool
-    with extensive diet and lifestyle questionnaires); the largest single citizen-science deposit in the catalog.
+    with extensive diet and lifestyle questionnaires); the largest single citizen-science project in the catalog.
   studies:
   - PRJEB11419
   references:
@@ -127,7 +127,7 @@ collections:
 - id: hadza-hunter-gatherers
   title: Hadza hunter-gatherers (Tanzania)
   kind: population
-  blurb: 'All shotgun deposits from the Hadza of Tanzania, the reference hunter-gatherer population: Rampelli 2015,
+  blurb: 'All shotgun projects from the Hadza of Tanzania, the reference hunter-gatherer population: Rampelli 2015,
     the seasonal-cycling cohort (Smits 2017) and the deep-sequenced adults and infants of Carter 2023 / Olm 2022
     (with Nepali comparison groups in the same BioProject).'
   studies:
@@ -227,7 +227,7 @@ collections:
   - label: Rural Honduras villages (PRJNA999635)
     url: https://doi.org/10.1016/j.celrep.2024.114442
   notes: Pasolli 2019 Ethiopian and Tanzanian cohorts were not found under their own BioProjects in the 1.11.0 catalog.
-    Tsimane (Bolivia, PRJNA574920) and Hutterite deposits are 16S amplicon only (Davenport 2014 and later; owner 2026-10-01), so neither
+    Tsimane (Bolivia, PRJNA574920) and Hutterite projects are 16S amplicon only (Davenport 2014 and later; owner 2026-10-01), so neither
     population can appear in a shotgun catalog (see COLLECTIONS_REPORT.md).
 - id: controlled-access-population-cohorts
   title: Controlled-access population cohorts (reference only)
@@ -307,7 +307,7 @@ collections:
 - id: twins-and-families
   title: Twin and family cohorts
   kind: design
-  blurb: 'Twin-pair and family designs that separate host genetics from shared environment: TwinsUK shotgun deposits,
+  blurb: 'Twin-pair and family designs that separate host genetics from shared environment: TwinsUK shotgun projects,
     Turnbaugh 2009 obese/lean twins, Korean and Chinese twins, Malawian twins discordant for malnutrition, and twin
     viromes.'
   studies:
@@ -334,7 +334,7 @@ collections:
     url: https://doi.org/10.1073/pnas.1514285112
   notes: PRJEB9818 and PRJEB29491 are virome-enriched shotgun libraries.
 - id: dense-longitudinal-subjects
-  title: Densely sampled subjects (≥ 5 gut samples per subject)
+  title: Densely sampled people (≥ 5 gut samples per person)
   kind: design
   blurb: Every person in the catalog with at least five gut samples — the time series for strain tracking, stability and perturbation-recovery analyses. Dominated by infant birth cohorts (TEDDY,
     DIABIMMUNE), IBDMDB and adult time-series studies.
@@ -547,7 +547,7 @@ collections:
   title: Liver cirrhosis cohorts
   kind: disease
   blurb: 'Shotgun cohorts of liver cirrhosis: the Chinese case–control cohort of Qin 2014 (the cirrhosis MWAS),
-    the MICROB-PREDICT decompensated-cirrhosis deposit and the PROFIT FMT-in-cirrhosis trial. Pair with the liver_disease
+    the MICROB-PREDICT decompensated-cirrhosis project and the PROFIT FMT-in-cirrhosis trial. Pair with the liver_disease
     health-condition filter for all liver-disease samples.'
   studies:
   - PRJEB6337
@@ -604,7 +604,7 @@ collections:
 - id: elderly-samples
   title: Older adults (≥ 65 y)
   kind: age
-  blurb: Every gut sample from subjects in the elderly age band (≥ 65 y at collection), across all studies.
+  blurb: Every gut sample from people in the elderly age band (≥ 65 y at collection), across all studies.
   filters:
     age_category:
     - elderly

@@ -122,7 +122,7 @@ def update_readme(pkg: str, package_version: str, release_id: str, build_date: s
     s = open(p, encoding="utf-8").read()
     s, n = re.subn(r"data package v\d+(?:\.\d+)* \(\d{4}-\d{2}-\d{2}\)", f"data package v{package_version} ({build_date})", s, count=1)
     assert n == 1, "README heading 'data package vX.Y.Z (date)' not found"
-    # Rebrand (R2026.6): the package carries both tiers; the heading names the whole catalog, the infant catalog is its first curated scope.
+    # Rebrand (R2026.6): the package carries both tiers; the heading names the whole catalog; the earlier birth-cohort curation is its first scope.
     # The title comes from config/site.yaml (site.title / site.curated_scope_title) so a later rename is a one-line config change.
     try:
         import yaml as _y
@@ -142,7 +142,7 @@ def update_readme(pkg: str, package_version: str, release_id: str, build_date: s
     if marker not in s:
         rows = [f"| `sample_determinations_all.parquet` | {counts.get('n_determinations_all', ''):,} | Current **and retired** determinations: `sample_determinations` columns + `release_added`, `release_retired` (null = current), `package_added`, `retired_reason`, `retired_change_stage` — the per-field value timeline — {release_id} |",
                 f"| `releases.csv` | {counts.get('n_releases', ''):,} | Release registry: one row per release id (package version, date, tags, DOI, headline counts, notes file) — {release_id} |",
-                f"| `RELEASE_NOTES_{release_id}.md` | | Generated diff report vs the previous package (studies/samples, coverage, verdict flips, findings, Sandpiper, gold, schema) — {release_id} |"]
+                f"| `RELEASE_NOTES_{release_id}.md` | | Generated diff report vs the previous package (studies/samples, coverage, classification changes, findings, Sandpiper, gold, schema) — {release_id} |"]
         anchor = "| `DATA_DICTIONARY.md` | | Every column, every vocabulary |"
         assert anchor in s, "README Files table anchor row not found"
         s = s.replace(anchor, "\n".join(rows) + "\n" + anchor, 1)
@@ -199,7 +199,7 @@ CHANGELOG records for that stage (`sample_unit_fix` → 1.1.0, `auditor_review:B
 `owner_decision` → 1.2.2). Exact for rows those stages touched ({counts.get('n_release_added_reconstructed', '')} current determinations:
 `src_track = sample_unit_fix` → 1.1.0, `src_track = adult_scope_fix` → 1.2.0); every other pre-1.3.0 row is labelled `1.0.0` by assumption
 (the first package is not archived as a table, so this cannot be verified row by row). `package_added` equals `release_added` for all
-pre-1.3.0 rows. Study verdict rows are all `1.0.0` (no verdict change is dated after the first package); Sandpiper rows are `1.2.0`
+pre-1.3.0 rows. Study classification rows are all `1.0.0` (no classification change is dated after the first package); Sandpiper rows are `1.2.0`
 (when Sandpiper landed; the v1.2.1 recomputation of existing rows is recorded in the CHANGELOG, not as retire+add).
 
 ## sample_determinations_all.parquet ({release_id})
@@ -350,14 +350,14 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
     if "`registry_studies.parquet`" not in s:
         anchor = "| `DATA_DICTIONARY.md` | | Every column, every vocabulary |"
         assert anchor in s, "README Files table anchor row not found"
-        rows = [f"| `registry_studies.parquet` | {n_st:,} | **Registry tier**: one row per screened ENA study with a human-associated metagenome signal (all body sites, all ages) — host_human, assay, body_sites/life_stages (config/vocab codes with UBERON anchors), population flags, access, evidence rows, classification_stage, infant-catalog verdict, scope_memberships (config/scope.yaml) — {release_id} |"]
+        rows = [f"| `registry_studies.parquet` | {n_st:,} | **Registry tier**: one row per screened ENA study with a human-associated metagenome signal (all body sites, all ages) — host_human, assay, body_sites/life_stages (config/vocab codes with UBERON anchors), population flags, access, evidence rows, classification_stage, the earlier birth-cohort classification, scope_memberships (config/scope.yaml) — {release_id} |"]
         if os.path.exists(au_p):
-            rows.append(f"| `registry_universe_audit.csv` | {_rows(au_p):,} | Registry enumeration audit: per ENA slice the archive count, rows pulled and completeness — {release_id} |")
-        rows.append(f"| `REGISTRY_REPORT.md` | | Registry build report (universe counts per slice, host / assay / site / stage facets, scope sizes, deviations) — {release_id} |")
+            rows.append(f"| `registry_universe_audit.csv` | {_rows(au_p):,} | Registry enumeration audit: per ENA filter the archive count, rows pulled and completeness — {release_id} |")
+        rows.append(f"| `REGISTRY_REPORT.md` | | Registry build report (registry counts per filter, host / assay / site / stage facets, scope sizes, deviations) — {release_id} |")
         s = s.replace(anchor, "\n".join(rows) + "\n" + anchor, 1)
         open(rp, "w", encoding="utf-8").write(s)
-    extra_desc = {"catalog_sample_determinations.parquet": "**Catalog determinations**: one row per sample × field for every catalog sample (every body site, all ages) — value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; infant-catalog rows copied verbatim (src_track infant_catalog)",
-                  "catalog_sample_metadata_wide.parquet": "Catalog samples, one row per sample: body_site_code / body_site_class / body_site_basis, has_dna / has_rna, age category, age, sex, BMI, country, health condition, antibiotic exposure, subject, timepoint, collection date, detailed location (region / locality / site), latitude / longitude, lifestyle (+ route / confidence per field), infant-only fields, body-site class, `infant_scope` (== the infant catalog's catalog_scope filter)",
+    extra_desc = {"catalog_sample_determinations.parquet": "**Catalog determinations**: one row per sample × field for every catalog sample (every body site, all ages) — value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; rows of the earlier birth-cohort curation copied verbatim (src_track infant_catalog)",
+                  "catalog_sample_metadata_wide.parquet": "Catalog samples, one row per sample: body_site_code / body_site_class / body_site_basis, has_dna / has_rna, age category, age, sex, BMI, country, health condition, antibiotic exposure, subject, timepoint, collection date, detailed location (region / locality / site), latitude / longitude, lifestyle (+ route / confidence per field), infant-only fields, body-site class, `infant_scope` (== the catalog_scope filter of the earlier birth-cohort curation)",
                   "catalog_studies.parquet": "Catalog projects: body sites (sample_body_sites, body_site_primary), nucleic acid of the data sets (nucleic_acid, n_runs_dna / n_runs_rna, n_samples_dna / n_samples_rna), methods and setting read from the paper (platform, extraction_kit, library_kit, study_shape, n_participants, recruitment, settlement), registry columns + per-field coverage (cov_<field> for every pack field), age-category / health-condition distributions, sequencing summary (n_runs_total, Gbp per run, instrument models, layouts, Sandpiper share; 1.12.0), curated depth and source",
                   "catalog_relatedness.parquet": "**Relatedness groups (R2026.23)**: one row per family or shared setting (household, village / community, tribe, daycare / school, care home, ward, unit) with at least two catalogued people — study, group kind / type / id, people (person keys), samples, role counts and the family motif (e.g. mother + father + child)",
                   "catalog_relations.parquet": "**Explicit relations (R2026.23)**: pairwise links stated by authors that are not expressible as a family id — FMT donor_of, twin_of / twin_mz_of / twin_dz_of, partner_of, roommate_of, mother_of, sibling_of — with evidence source, quote and confidence",
@@ -367,7 +367,7 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
                   "catalog_sandpiper_sample_summary.parquet": "**Sandpiper community profiles for the whole catalog (R2026.12)**: one row per current catalog sample with a SingleM/Sandpiper profile (GTDB R232; version in `sandpiper_version`, 2.0.1 from package 1.30.0) — profiled runs, depth proxy, genus richness, Shannon, top genus, QC flags; the genus- and species-level long tables (catalog_sandpiper_sample_genus / _species) ship as release assets in parts",
                   "catalog_sandpiper_pca_scores.parquet": "Genus-level CLR-PCA scores (pc1-pc5) of every profiled sample with root coverage >= 2 — the data behind Insights › PCA of community profiles",
                   "catalog_sandpiper_pca_loadings.parquet": "Genus loadings of the same PCA", "catalog_sandpiper_pca_variance.csv": "Explained variance ratio per component", "catalog_sandpiper_study_coverage.csv": "Sandpiper join coverage per catalog study",
-                  "registry_biosamples.parquet": "**Registry sample tier (R2026.5)**: one row per harvested BioSample of the human_all registry studies outside the curated infant catalog — body site, life stage / age_days, sex, country, collection year normalised to the vocabularies (utility-model pass over distinct attribute pairs, docs/REGISTRY_S2_PILOT.md), raw key/value provenance, disease text unnormalised",
+                  "registry_biosamples.parquet": "**Registry sample tier (R2026.5)**: one row per harvested BioSample of the human_all registry studies outside the earlier birth-cohort curation — body site, life stage / age_days, sex, country, collection year normalised to the vocabularies (utility-model pass over distinct attribute pairs, docs/REGISTRY_S2_PILOT.md), raw key/value provenance, disease text unnormalised",
                   "registry_study_papers.parquet": "Registry study × paper links from Europe PMC accession mentions and NCBI BioProject declared publications (deterministic relation classes; docs/REGISTRY_S2_PAPERS.md)",
                   "registry_authors.parquet": "Authors (with ORCID / affiliation where present) of ≤ 5 linked papers per registry study, Europe PMC core records",
                   "registry_bioproject_records.parquet": "NCBI BioProject record per registry study: organisation, submitter, declared publications, dates, data types"}
@@ -409,14 +409,14 @@ def update_docs_registry(pkg: str, package_version: str, release_id: str, counts
         return True
     L = [f"\n## Registry tier ({release_id}, package {package_version})",
          "The registry is the **outer tier** of the catalog: every screened ENA study with a human-associated metagenome signal, any body site,",
-         "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration slices: S1 `library_source=METAGENOMIC` ×",
+         "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration filters: S1 `library_source=METAGENOMIC` ×",
          "`WGS|WXS`; S2 misfiled `GENOMIC` on verified human-metagenome taxa; S3 `OTHER|Targeted-Capture|WGA` adjudication (per-slice completeness in",
          "`registry_universe_audit.csv`). Classification stages: `deterministic_prior` (infant-universe verdict carried over), `deterministic_rule`,",
          "`sonnet_x2` (two rubric replicates agree), `opus_adjudicated` (replicates disagreed → adjudication), `curator_audit` (study-level host/assay audit, config/registry_overrides.yaml), `owner_decision` (study-level owner override, config/registry_overrides.yaml), `pending`. Vocabularies: the pipeline's",
          "`config/vocab/{body_sites,life_stages,assay,population_flags}.yaml`; scope rules: `config/scope.yaml` (`in_infant_catalog` mirrors",
          "`universe_studies_all.triage_verdict`). The run-level table `registry_runs.parquet`",
          "(all runs of the universe, 46 ENA fields + `found_by`) is attached to the GitHub Release of the data repository as `registry_runs_v<version>.parquet`",
-         "(too large for this package). Bitemporal columns follow the package convention (`release_added`, `release_retired`, `package_added`).", ""]
+         "(too large for this package). The release columns follow the package convention (`release_added`, `release_retired`, `package_added`).", ""]
     tables = [("registry_studies.parquet", f"registry_studies.parquet ({n_st:,} rows)"), ("registry_universe_audit.csv", "registry_universe_audit.csv")]
     tables += [(fn, f"{fn} ({_rows(os.path.join(pkg, fn)):,} rows) — one row per {schema[fn].get('one_row_per', '')}") for fn in schema
                if fn not in dict(tables) and fn != "registry_runs.parquet" and os.path.exists(os.path.join(pkg, fn))]
@@ -516,7 +516,7 @@ def rewrite_readme_intro(pkg: str, package_version: str, intro_template: str | N
 
 
 
-INFANT_QUALIFIER = ("INFANT-CATALOG verdict (historical, 2026-09 infant screen) — NOT membership in the all-age catalog: a study can be "
+INFANT_QUALIFIER = ("classification of the earlier birth-cohort curation (historical, 2026-09) — NOT membership in the all-age catalog: a study can be "
                     "`excluded` here (e.g. age_adult_only) and still be in `catalog_studies`. Catalog membership = presence in `catalog_studies.parquet`.")
 _INFANT_REWRITES = {
     "| `triage_verdict` | str | include/exclude/uncertain from the triage cascade |": "| `triage_verdict` | str | include/exclude/uncertain from the infant triage cascade. " + INFANT_QUALIFIER + " |",
@@ -587,7 +587,7 @@ README_REWRITES = [
     # F146: "pack" is an internal name for the field set
     ("cov_<field> for every pack field", "cov_<field> for every curated field"),
     # F138: the package ships one notes file per release, not RELEASE_NOTES_R2026.1.md
-    ("| `RELEASE_NOTES_R2026.1.md` | | Generated diff report vs the previous package (studies/samples, coverage, verdict flips, findings, Sandpiper, gold, schema) |",
+    ("| `RELEASE_NOTES_R2026.1.md` | | Generated diff report vs the previous package (studies/samples, coverage, classification changes, findings, Sandpiper, gold, schema) |",
      "| `RELEASE_NOTES_<release>.md` | | Per-field diff of a release against the release before it (one file per release), generated |"),
     # F141 / F142: model names, pass names and pipeline file paths a reader cannot open
     ("ages below 0 or above 122 years; Opus-checked corrections in data/inputs/gut/plausibility_corrections.csv of the pipeline",
@@ -603,9 +603,9 @@ README_REWRITES = [
     ("see `SANDPIPER_REPORT.md` \u00a73 and the DATA_DICTIONARY", "see `SANDPIPER_REPORT.md` (a file in this package) and the DATA_DICTIONARY"),
     ("scope_memberships (config/scope.yaml)", "scope memberships"),
     # the four sources are named, not coded, wherever a reader reads them (the `route` column keeps R1-R4)
-    ("value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; infant-catalog rows copied verbatim (src_track infant_catalog)",
+    ("value, normalised value, route (R1 archive attribute / R2 supplementary table / R3 paper prose / R4 abstract), confidence, verbatim evidence quote and source; rows of the earlier birth-cohort curation copied verbatim (src_track infant_catalog)",
      "value, normalised value, where it came from (archive record / supplementary table / paper text / abstract), confidence, verbatim evidence quote and source; the rows of the earlier birth-cohort curation are carried over verbatim"),
-    ("`infant_scope` (== the infant catalog's catalog_scope filter)", "`infant_scope` (selects the samples of the earlier birth-cohort curation)"),
+    ("`infant_scope` (== the catalog_scope filter of the earlier birth-cohort curation)", "`infant_scope` (selects the samples of the earlier birth-cohort curation)"),
     # F157: two files whose names differ from the catalog tables by one word
     ("| Infant extension: One row per sample: identifiers, body-site class,",
      "| Birth-cohort projects only \u2014 for the whole catalog use `catalog_sample_metadata_wide.parquet`. One row per sample: identifiers, body-site class,"),
@@ -654,7 +654,7 @@ DICTIONARY_REWRITES = [
     ("\u2014 see README \"Age scope and roles\". Precedence:", "\u2014 precedence:"),
     # repository paths, model names and the internal word 'universe' in the one paragraph that introduces the registry
     ("The registry is the **outer tier** of the catalog (docs/EXPANSION.md): every ENA study with a human shotgun-metagenome signal, any body site,\n"
-     "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration slices: S1 `library_source=METAGENOMIC` \u00d7\n"
+     "any age, classified at STUDY level from ENA study/sample/run metadata (no paper reading). Enumeration filters: S1 `library_source=METAGENOMIC` \u00d7\n"
      "`WGS|WXS`; S2 misfiled `GENOMIC` on verified human-metagenome taxa; S3 `OTHER|Targeted-Capture|WGA` adjudication (per-slice completeness in\n"
      "`registry_universe_audit.csv`). Classification stages: `deterministic_prior` (infant-universe verdict carried over), `deterministic_rule`,\n"
      "`sonnet_x2` (two rubric replicates agree), `opus_adjudicated` (replicates disagreed \u2192 adjudication), `pending`. Vocabularies: the pipeline's\n"

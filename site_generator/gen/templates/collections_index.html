@@ -3,7 +3,7 @@
 {% block desc %}{{ n }} curated collections of catalog projects and samples — benchmark cohorts, populations, lifestyles, diseases, study designs and age bands — each opening in the sample explorer with its filters pre-entered.{% endblock %}
 {% block content %}
 <h1>Collections ({{ n }})</h1>
-<p class="lead">A collection is a ready-made search over the samples: the reference sets everyone re-analyses, landmark populations, disease reference sets, dense longitudinal designs, age bands. (<a href="../cohorts/index.html">Cohorts</a>, under About › Browse, are something else: the separate archive deposits of one study.)</p>
+<p class="lead">A collection is a ready-made search over the samples: the reference sets everyone re-analyses, landmark populations, disease reference sets, dense longitudinal designs, age bands. (<a href="../cohorts/index.html">Cohorts</a>, under About › Browse, are something else: the separate archive projects of one study.)</p>
 <details class="about-page"><summary>About this page</summary><p>Counts match the <a href="../samples/index.html">sample explorer</a>. To propose a collection or a correction, see <a href="../contribute/index.html">Contribute</a>.</p></details>
 {% for label, ds in groups %}
 <h2 id="kind-{{ ds[0].kind }}">{{ label }} <span class="small">({{ ds|length }})</span></h2>

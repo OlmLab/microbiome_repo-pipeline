@@ -1259,7 +1259,7 @@ def published_comparison(published_lists, carter_mapped, res, sres):
     # per source x list summary, for both rules
     summ = []
     for (src, lst), g in out.groupby(["source", "list"], sort=False):
-        for rule, tcol, ccol in (("model rule, C1, adults", "tested_model_c1", "class_model_c1"),
+        for rule, tcol, ccol in (("model rule, high-HDI countries, adults", "tested_model_c1", "class_model_c1"),
                                  ("simple rule, adults", "tested_simple", "class_simple")):
             t = g[g[tcol] == "yes"]
             cl = t[ccol].astype(str)

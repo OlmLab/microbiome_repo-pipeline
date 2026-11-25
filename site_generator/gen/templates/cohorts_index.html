@@ -3,8 +3,8 @@
 {% block desc %}{{ cohorts|length|fmt }} cohorts of the catalog: groups of catalog projects that share a publication or a curated cohort record.{% endblock %}
 {% block content %}
 <h1>Cohorts ({{ cohorts|length|fmt }})</h1>
-<p class="lead">A cohort is a set of archive deposits that belong to the same study: deposits described by one paper, or deposits a curated cohort record lists together.</p>
-<details class="about-page"><summary>About this page</summary><p>{{ stats.n_studies_in_cohorts|fmt }} of the {{ stats.n_studies|fmt }} projects belong to one of these {{ cohorts|length|fmt }} cohorts; the rest are single-deposit projects. Each cohort page lists its projects with sample counts, the shared papers and a merged sample download. The grouping is recomputed at every release; the list is in <a href="../data/catalog_cohorts.csv" download>catalog_cohorts.csv</a>. A paper groups deposits only when it describes the data of two to four of them, or cites two to four deposits that one centre submitted.</p></details>
+<p class="lead">A cohort is a set of projects that belong to the same study: projects described by one paper, or projects a curated cohort record lists together.</p>
+<details class="about-page"><summary>About this page</summary><p>{{ stats.n_studies_in_cohorts|fmt }} of the {{ stats.n_studies|fmt }} projects belong to one of these {{ cohorts|length|fmt }} cohorts; the rest are single projects. Each cohort page lists its projects with sample counts, the shared papers and a merged sample download. The grouping is recomputed at every release; the list is in <a href="../data/catalog_cohorts.csv" download>catalog_cohorts.csv</a>. A paper groups projects only when it describes the data of two to four of them, or cites two to four projects that one centre submitted.</p></details>
 <table id="cohorts" class="tbl display compact" style="width:100%">
 <thead><tr><th>Cohort</th><th class="num">Projects</th><th class="num">Samples</th><th class="num">People (ids)</th><th class="num">Papers</th><th>Age categories</th><th>Countries</th><th>Conditions</th><th>Rule</th></tr></thead>
 <tbody>{% for c in cohorts %}<tr>

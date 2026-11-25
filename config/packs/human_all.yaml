@@ -75,7 +75,7 @@ fields:
   study_shape: {type: enum, values: [population_survey, cross_sectional_groups, case_control, cohort_longitudinal,
                                      single_arm_intervention, rct, crossover, non_randomised_intervention,
                                      method_or_benchmark, case_series, unclear], routes: [R3, R4]}
-  study_arm: {type: text, max_len: 80, routes: [R1, R2, R3], note: "the arm / group this sample's subject belonged to, in the paper's own words"}
+  study_arm: {type: text, max_len: 80, routes: [R1, R2, R3], note: "the arm / group this sample's person belonged to, in the paper's own words"}
 
   # ---- disease detail (R2026.30)
   condition_label: {type: text, max_len: 120, routes: [R1, R2, R3, R4], note: "the most specific condition the source states, verbatim"}

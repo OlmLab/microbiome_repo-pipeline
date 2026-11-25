@@ -148,7 +148,7 @@ async function run() {
 }
 
 async function download() {
-  const where = whereClause(), fname = 'registry_slice.csv';
+  const where = whereClause(), fname = 'registry_selection.csv';
   $('dl-status').textContent = `preparing ${fname} (${total.toLocaleString()} rows)…`;
   try {
     await conn.query(`COPY (SELECT * FROM registry ${where} ORDER BY study_accession) TO '${fname}' (HEADER, DELIMITER ',')`);
@@ -177,9 +177,9 @@ async function showDetail(acc) {
   const inc = INCLUDED.has(acc);
   const scopes = (s.scope_memberships || '').split(';').filter(Boolean);
   let html = `<h2 style="margin-top:0">${h(acc)} ${stageBadge(s.classification_stage)}</h2>
-  <p class="small"><a href="${CFG.enaUrl}${h(acc)}">ENA study</a>${inc ? ` · <a href="${CFG.studiesUrl}${h(acc)}.html">catalog study page</a>` : ' · registry-only study (not in the curated catalog)'}</p>
+  <p class="small"><a href="${CFG.enaUrl}${h(acc)}">ENA study</a>${inc ? ` · <a href="${CFG.studiesUrl}${h(acc)}.html">catalog study page</a>` : ' · registry-only study (not in the catalog)'}</p>
   <p>${h(s.study_title)}</p>${s.description_short ? `<p class="small">${h(s.description_short)}</p>` : ''}
-  ${(() => { const c = catalogReasons(s); return c.inCat ? `<div class="note"><b>In the curated catalog.</b> <a href="${CFG.studiesUrl}${h(acc)}.html">Study page</a> with per-sample metadata and evidence.</div>`
+  ${(() => { const c = catalogReasons(s); return c.inCat ? `<div class="note"><b>In the catalog.</b> <a href="${CFG.studiesUrl}${h(acc)}.html">Study page</a> with per-sample metadata and evidence.</div>`
      : `<div class="note"><b>Why this study is not in the catalog</b><ul style="margin:.3rem 0 .2rem 1.1rem">${c.reasons.map(x => `<li>${h(x.long)}</li>`).join('')}</ul><span class="small">Catalog rule: ${h(CFG.studyRule)}. Think this is wrong? <a href="${h(((window.CATALOG || {}).issueRepo || 'https://github.com/OlmLab/microbiome_repo/issues/new') + '?template=' + encodeURIComponent((window.CATALOG || {}).issueTemplate || 'simple-finding.yml') + '&labels=finding&title=' + encodeURIComponent('[finding] ' + acc + ': should be in the catalog?') + '&accession=' + encodeURIComponent(acc) + '&release_id=' + encodeURIComponent((window.CATALOG || {}).releaseId || '') + '&page_url=' + encodeURIComponent(location.href))}" target="_blank" rel="noopener">Open a short issue</a>.</span></div>`; })()}
   <h3>Classification</h3><table class="tbl kv">
   <tr><td>Host human</td><td>${h(s.host_human)} <span class="small">signal rule ${h(s.human_signal_rule)}${s.ambiguous ? ' · ambiguous' : ''}</span></td></tr>

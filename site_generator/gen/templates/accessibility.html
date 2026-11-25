@@ -9,13 +9,13 @@
 <p>This site aims to conform to the <a href="https://www.w3.org/TR/WCAG21/">Web Content Accessibility Guidelines (WCAG) 2.1, Level AA</a>, the standard used by the CU Boulder <a href="https://www.colorado.edu/digital-accessibility">Digital Accessibility Office</a>.</p>
 <ul>
 <li>Every page has a "Skip to main content" link, one top-level heading, landmark regions (banner, navigation, main, footer) and a declared language.</li>
-<li>All navigation menus, filters, tables and the study and sample pages work with a keyboard; keyboard focus is always visible.</li>
+<li>All navigation menus, filters, tables and the project and sample pages work with a keyboard; keyboard focus is always visible.</li>
 <li>Form controls have labels; images and figures have text alternatives; colour is never the only carrier of meaning (badges carry text, line styles and tooltips as well as colour).</li>
 <li>Text and interface colours from the CU Boulder palette meet the WCAG AA contrast ratio (4.5:1 for text).</li>
 <li>The rotating globe stops when you hover, drag or click it, and does not rotate when your system asks for reduced motion.</li>
 <li>Every chart, map and interactive explorer is backed by the same data as a table or as a downloadable CSV/Parquet file (<a href="{{ root }}downloads/index.html">Downloads</a>), so no information is available only visually.</li>
 </ul>
-<p><b>Known limitations.</b> The world maps and the PCA scatter plot are visual summaries; their underlying values are in the study tables and downloads. The sample and registry explorers need JavaScript and WebAssembly; the tables they query are downloadable directly. Very large tables are paged.</p>
+<p><b>Known limitations.</b> The world maps and the PCA scatter plot are visual summaries; their underlying values are in the project tables and downloads. The sample and registry explorers need JavaScript and WebAssembly; the tables they query are downloadable directly. Very large tables are paged.</p>
 <p><b>Testing.</b> Each build is checked automatically for missing labels, missing text alternatives, duplicate identifiers and heading structure.</p>
 <p><b>Report a barrier.</b> If any part of this site is difficult to use, email <a href="mailto:{{ site.about.contact_email }}">{{ site.about.contact_email }}</a> with the page address and the problem; we will fix it or provide the information in an accessible format. You can also contact the <a href="https://www.colorado.edu/digital-accessibility">CU Boulder Digital Accessibility Office</a>.</p>
 

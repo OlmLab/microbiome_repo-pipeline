@@ -41,7 +41,7 @@ software:
   terms: ISC / BSD-3-Clause (D3, TopoJSON); Natural Earth is public domain.
 - name: DataTables and jQuery
   url: https://datatables.net/
-  role: Sortable study, cohort and scope tables.
+  role: Sortable project, cohort and scope tables.
   terms: MIT.
 - name: Apache Parquet / Arrow, pandas, DuckDB, Jinja2, Python-Markdown
   url: https://github.com/OlmLab/microbiome_repo-pipeline

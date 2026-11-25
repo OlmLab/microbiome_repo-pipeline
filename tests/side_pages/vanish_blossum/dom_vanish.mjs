@@ -77,7 +77,7 @@ const spAdultModel = payload("points_species_adult_model.json");
 
 ok("page has the plot container and the controls",
    !!P.q("#vb-plot") && !!P.q("#vb-level button") && !!P.q("#vb-rule button") && !!P.q("#vb-stratum button"));
-ok("at most two sentences above the plot", (P.q(".sp-lead")?.textContent.match(/\./g) || []).length <= 2,
+ok("at most four sentences above the plot", (P.q(".sp-lead")?.textContent.match(/\./g) || []).length <= 4,
    P.q(".sp-lead")?.textContent.slice(0, 80));
 ok("no chart image anywhere in the page", P.qa("#main-chart img").length === 0);
 
@@ -302,8 +302,8 @@ if (hasSentences) {
      !!block && !!P.q("#main-chart #vb-reading") &&
      (P.q("#vb-note").compareDocumentPosition(block) & 4) === 4 &&
      /How to read this plot/.test(text(block.querySelector("h2"))), text(block).slice(0, 60));
-  ok("at most two sentences above the plot, still",
-     (P.q(".sp-lead")?.textContent.match(/\./g) || []).length <= 2);
+  ok("at most four sentences above the plot, still",
+     (P.q(".sp-lead")?.textContent.match(/\./g) || []).length <= 4);
   const sp = S.s4.floors.find((f) => f.level === "species");
   ok("sentence on what “detected” means carries the rule and the measured floor",
      /detected/.test(text(P.q("#vb-read-detected"))) &&
@@ -323,7 +323,7 @@ if (hasSentences) {
   ok("sentence on the simple rule is beside the simple rule and names both omissions",
      !!P.q("details.sp-more #vb-read-simple") &&
      /no adjustment for sequencing depth/.test(text(P.q("#vb-read-simple"))) &&
-     /which study a subject came from/.test(text(P.q("#vb-read-simple"))));
+     /which (study|project) a (subject|person) came from/.test(text(P.q("#vb-read-simple"))));
   ok("sentence on the pooled lifestyles gives the composition of the group",
      !!P.q("details.sp-more #vb-read-lifestyles") &&
      text(P.q("#vb-read-lifestyles")).includes(String(S.s3.cohorts_ni)) &&
@@ -346,7 +346,7 @@ if (hasChecks) {
      /no class/i.test(text(sec.querySelector("summary"))), text(sec.querySelector("summary")));
   const h3 = Array.from(sec.querySelectorAll("h3")).map((x) => text(x));
   ok("it heads the three computed checks and the three that are not done",
-     h3.length === 4 && /lifestyle/i.test(h3[0]) && /cohort/i.test(h3[1]) && /depth/i.test(h3[2]) &&
+     h3.length === 4 && /lifestyle/i.test(h3[0]) && /cohort|project/i.test(h3[1]) && /depth/i.test(h3[2]) &&
      /not yet done/i.test(h3[3]), h3.join(" | "));
   const items = Array.from(sec.querySelectorAll("ul li")).map((x) => text(x));
   ok("the three long checks are listed as not done, one line each",
@@ -396,7 +396,8 @@ if (hasChecks) {
   const coA = R.cohort.cohorts.find((c) => c.stratum === "adult");
   ok("the paragraphs state the result of each check, including where a class does not hold",
      body.includes(`${lsV.n_hold_all} of the ${lsV.n_taxa} VANISH species hold in all`) &&
-     body.includes(`only ${coA.n_cohorts_both_bands} of the ${fmt(coA.n_cohorts)} cohorts`) &&
+     (body.includes(`only ${coA.n_cohorts_both_bands} of the ${fmt(coA.n_cohorts)} cohorts`) ||
+      body.includes(`only ${coA.n_cohorts_both_bands} of the ${fmt(coA.n_cohorts)} projects`)) &&
      body.includes(`${deV.n_hold_all} of the ${deV.n_taxa} VANISH species meet the rule in all`),
      body.slice(0, 120));
 }

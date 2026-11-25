@@ -105,8 +105,8 @@
    here changes a class or a threshold; the section says so in its summary line. Numbers come from
    data/vanish/robustness.json, the per-taxon rows from the three CSVs linked beside each check. #}
 {% set LS = R.lifestyle if R else none %}{% set CO = R.cohort if R else none %}{% set DE = R.depth if R else none %}
-<details class="sp-more" id="vb-robustness"><summary>How well the classes hold up</summary>
-<p class="small">These three checks were run after the classes were fixed, in answer to a published critique of how VANISH and BloSSUM lists are made and read (Ibata et al., bioRxiv 2026.11.17.767315, <a href="https://doi.org/10.64898/2026.11.17.767315">10.64898/2026.11.17.767315</a>; a preprint, not peer reviewed); no class on this page was changed by them, and they are reported as they came out, including where a class does not hold.</p>
+<details class="sp-more" id="vb-robustness"><summary>Robustness — three exploratory checks (not pre-specified; no class on this page depends on them)</summary>
+<p class="small">These three checks were run <b>after</b> the classes were fixed, in answer to a published critique of how VANISH and BloSSUM lists are made and read (Ibata et al., bioRxiv 2026.11.17.767315, <a href="https://doi.org/10.64898/2026.11.17.767315">10.64898/2026.11.17.767315</a>; a preprint, not peer reviewed). They are <b>exploratory</b>: they were not pre-specified, no threshold and no class was changed for them, and no taxon on this page is classed or unclassed by what they say. They are reported as they came out, including where a class does not hold.</p>
 {% if R %}
 {% set lsV = LS.summary|selectattr("level","equalto","species")|selectattr("taxon_class","equalto","VANISH")|list|first %}
 {% set lsB = LS.summary|selectattr("level","equalto","species")|selectattr("taxon_class","equalto","BloSSUM")|list|first %}
@@ -151,7 +151,13 @@
 {% else %}
 <p class="small"><b>These three checks have not been computed in this build.</b> They are: each classed taxon's prevalence with the non-industrialized group split by lifestyle; the simple rule's 2×2 table stratified by project and recombined with a Cochran–Mantel–Haenszel test; and the simple rule run again inside five equal-sized strata of sequencing depth. No class on this page depends on any of them.</p>
 {% endif %}
-<p class="small">Three further checks the critique invites — a detection-threshold sweep, a hunter-gatherer-only contrast and a reference group without recorded conditions — have not been run; <a href="{{ data }}METHOD_v2.md">METHOD_v2.md</a> says what each would show.</p>
+<h3 class="small">Not yet done</h3>
+<p class="small">Three further checks that the critique invites are <b>not done</b>, and nothing on this page rests on them; <a href="{{ data }}METHOD_v2.md">METHOD_v2.md</a> says what each would show.</p>
+<ul class="small">
+<li><b>A detection-threshold sweep.</b> Recomputing every prevalence and score with detection set at a relative abundance of 0.01 % and of 0.1 %, instead of anything above zero, would show whether a class rests on marginal detections.</li>
+<li><b>A hunter-gatherer-only contrast.</b> Running the model rule with the non-industrialized group cut back to hunter-gatherer and indigenous-community samples would show how much of a class is the shift to agriculture rather than to industrialization.</li>
+<li><b>A rerun without samples from a person with a recorded condition.</b> Rebuilding the reference group from samples recorded as healthy or with no condition recorded would show whether the disease composition of the public archives moves any class.</li>
+</ul>
 </details>
 {% endif %}
 <details class="sp-more"><summary>Downloads</summary>

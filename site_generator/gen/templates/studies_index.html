@@ -7,7 +7,7 @@
 <form class="pfilters" id="pfilters" onsubmit="return false">
 <label title="A project with samples from several body sites is listed under each of them, so the counts add up to more than the number of projects">Body site <select id="pf-site"><option value="">any</option>{% for c, l, n in site_opts %}<option value="{{ c }}">{{ l }} ({{ n|fmt }})</option>{% endfor %}</select></label>
 <label title="Nucleic acid of the project's data sets: DNA (metagenomes), RNA (metatranscriptomes and RNA viromes) or both">Data <select id="pf-na"><option value="">DNA or RNA</option><option value="dna">DNA data sets</option><option value="rna">RNA data sets</option><option value="both">both DNA and RNA</option>{% for k, l in na_opts if k in ('conflict', 'unclear') %}<option value="{{ k }}">{{ l }}</option>{% endfor %}</select></label>
-<label title="The curated health-condition vocabulary. Free-text descriptions of the population are searched with the box next to it.">Health condition <select id="pf-condition"><option value="">any</option>{% for c, l in hc_opts %}<option value="{{ c }}">{{ l }} ({{ c }})</option>{% endfor %}</select></label>
+<label title="The curated health-condition vocabulary. Free-text descriptions of the population are searched with the box next to it.">Health condition <select id="pf-condition"><option value="">any</option>{% for c, l in hc_opts %}<option value="{{ c }}">{{ l }}{% if l != c %} ({{ c }}){% endif %}</option>{% endfor %}</select></label>
 <label title="Searches the free-text description of the population and the condition detail recorded for the samples">Population or condition contains <input id="pf-population" type="search" placeholder="e.g. Parkinson, twins" size="12"></label>
 <label>Intervention <select id="pf-intervention"><option value="">any</option><option value="__any__">any intervention</option>{% for c, l, n in iv_opts %}<option value="{{ c }}">{{ l }} ({{ n }})</option>{% endfor %}<option value="__none__">none administered</option></select></label>
 <label>Design <select id="pf-design"><option value="">any</option><option value="__controlled__">any controlled design (RCT, crossover, controlled)</option>{% for d in design_opts %}<option value="{{ d }}">{{ d|replace('_', ' ') }}</option>{% endfor %}</select></label>
@@ -74,7 +74,7 @@ fetch('../data/studies_index.json').then(r => r.json()).then(rows => {
   const SITE = {{ site_label_map|tojson }};
   const NAL = {rna: 'RNA', both: 'DNA + RNA'};
   const NAL_ALL = {dna: 'DNA', rna: 'RNA', both: 'DNA + RNA', conflict: 'unresolved'};
-  const SRCN = ['Sequence archive', 'Abstract / description', 'Full text', 'Supplementary tables', 'External resources', 'User contribution', 'Human verified'];
+  const SRCN = ['archive record', 'abstract', 'paper text', 'supplementary table', 'external resource', 'User contribution', 'Human verified'];
   const srcmk = (d, i, t) => { const c = (d || 'nnnnnnn')[i]; if (t !== 'display') return c === 'u' ? 2 : c === 'c' ? 1 : 0;
     return c === 'u' ? '<span class="srcmk u" title="' + SRCN[i] + ': values used">✓</span>' : c === 'c' ? '<span class="srcmk c" title="' + SRCN[i] + ': checked, nothing usable">○</span>' : '<span class="srcmk n" title="' + SRCN[i] + ': not available">–</span>'; };
   const shuffle = () => rows.forEach(r => { r.rk = Math.random(); });
