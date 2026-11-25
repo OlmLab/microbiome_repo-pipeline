@@ -6464,3 +6464,4 @@ PRJNA799247,preterm_nicu,preterm infant stool; gestational age 23 weeks; birth w
 PRJNA533528,transplant_or_immunocompromised,critically ill ICU patients,state_or_exposure,case,current,critical illness,,,,
 PRJNA1212222,other_disease,diverticulitis,disease,case,current,diverticulitis,MONDO:0004235,MONDO:0004235,MONDO:0004235,EFO:1001460
 PRJNA699976,other_infection,Pneumonia and acute respiratory infections,disease,case,current,respiratory tract infectious disorder,MONDO:0024355,MONDO:0024355,MONDO:0024355,
+PRJNA689961,other_infection,patient with COVID-19,disease,case,current,COVID-19,MONDO:0100096,MONDO:0100096,MONDO:0100096,
