@@ -20,6 +20,9 @@
 {% set ap="" %}{% set sub="replication" %}{% include "_insights_nav.html" %}
 <p class="sp-lead">We took {{ n(M.registered) }} published claims that a gut microbe is more or less abundant in people with a condition than in healthy controls, and tried to test each one on this catalog's samples by a plan fixed before the results were seen. <b>{{ n(M.replicated) }} of the {{ n(M.testable) }} claims that could be tested replicated ({{ pct(M.rate) }})</b> in the catalog's own samples; click a condition to see its claims, then a claim to see every project behind it.</p>
 <p class="small">Computed on data package {{ M.package }} (release {{ M.release_id }}) and kept as published; it is not recomputed when the catalog moves on.</p>
+{# R2026.44: the catalog's health-condition labels were revised after this test ran. The registered result stays as it
+   was computed on the package under test; this line stands where a reader of the headline sees it. #}
+<p class="small">The catalog's condition labels were revised after this test was run: in release R2026.44 every label was read again and mapped to an ontology term, which moves some samples into or out of a condition's cases. The result above is the registered one and is kept as it was computed on data package {{ M.package }}; it was not recomputed on the revised labels. The conditions as they now stand are in the <a href="conditions.html">Condition explorer</a>.</p>
 </div>
 
 <div class="sp-search" id="rp-search">

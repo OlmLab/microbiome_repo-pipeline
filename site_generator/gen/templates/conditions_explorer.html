@@ -1,0 +1,78 @@
+{# Insights > Condition explorer. House rule for this template, as for the taxon explorer: AT MOST TWO SENTENCES
+   above the search box and the table. Everything else — what the numbers count, limits, downloads — is in the
+   collapsed <details> at the foot. The page contains NO list of conditions: the rows live in
+   data/conditions/condition_explorer.csv and are read in the browser by static/sp_conditions.js, which also draws
+   every condition's own section from the two detail tables. Every number in this template comes from
+   pages/conditions.py, which counts it in the three tables at build time. #}
+{% extends "base.html" %}
+{% macro n(x) %}{{ "{:,}".format(x) }}{% endmacro %}
+{% block title %}Condition explorer — {{ site.title }}{% endblock %}
+{% block desc %}Every health condition the catalog holds cases for — {{ n(M.n_conditions) }} conditions, {{ n(M.n_cases) }} case samples in {{ n(M.n_projects) }} projects — with the projects behind each one, its healthy controls, countries and age groups, and whether published microbiome associations for it replicated.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ root }}static/side_pages.css">
+<link rel="stylesheet" href="{{ root }}static/sp_conditions.css">{% endblock %}
+{% block content %}
+<div class="page-head sp-head">
+<h1>Condition explorer</h1>
+{% set ap="" %}{% set sub="conditions" %}{% include "_insights_nav.html" %}
+<p class="sp-lead">Every health condition the catalog holds cases for: {{ n(M.n_conditions) }} conditions, {{ n(M.n_cases) }} case samples in {{ n(M.n_projects) }} projects, each condition mapped to its EFO and MONDO term. Search a condition or an id, or open a condition to see its projects, its healthy controls and the published associations that replicated.</p>
+<p class="small">Computed on data package {{ M.package }} (release {{ M.release_id }}).</p>
+</div>
+
+<p class="cn-totals" id="cn-totals"><b>{{ n(M.n_conditions) }}</b> conditions · <b>{{ n(M.n_cases) }}</b> case samples · <b>{{ n(M.n_projects) }}</b> projects · <b>{{ n(M.n_countries) }}</b> countries · release {{ M.release_id }}</p>
+
+<div class="sp-search">
+<label for="cn-q" class="visually-hidden">Search a condition by name, by its EFO or MONDO id, or by a disease area</label>
+<input id="cn-q" class="searchbox big" type="search" autocomplete="off" spellcheck="false"
+       placeholder="Search a condition — e.g. Crohn disease, ulcerative colitis, MONDO:0005011, metabolic disease">
+</div>
+
+<div class="sp-controls cn-bar">
+  <span class="cn-count" id="cn-count" role="status">{{ n(M.n_conditions) }} conditions</span>
+  <span style="flex:1"></span>
+  <a class="btn" id="cn-dl" href="{{ data }}condition_explorer.csv" download>Download the table (CSV)</a>
+  <span class="small" id="cn-dl2">Detail tables: <a href="{{ data }}condition_explorer_projects.csv" download>projects</a> ({{ n(M.n_project_rows) }} rows) · <a href="{{ data }}condition_explorer_associations.csv" download>replicated associations</a> ({{ n(M.n_associations) }} rows)</span>
+</div>
+
+<p class="spx-status" id="cn-status" role="status">Loading the conditions…</p>
+<noscript><p class="sp-noscript">This page builds its table in your browser, so it needs JavaScript. The three tables it reads are <a href="{{ data }}condition_explorer.csv">condition_explorer.csv</a>, <a href="{{ data }}condition_explorer_projects.csv">condition_explorer_projects.csv</a> and <a href="{{ data }}condition_explorer_associations.csv">condition_explorer_associations.csv</a>.</p></noscript>
+
+<section class="cn-panel" id="cn-panel" aria-live="polite" hidden></section>
+
+<div class="cn-tablebox">
+<table class="tbl cn-table" id="cn-table">
+<thead><tr>
+<th data-col="condition_name" aria-sort="none">Condition</th>
+<th data-col="ids">Ids</th>
+<th class="num" data-col="projects" aria-sort="none">Projects</th>
+<th class="num" data-col="cases" aria-sort="descending">Cases</th>
+<th class="num" data-col="healthy_controls" aria-sort="none">Healthy controls</th>
+<th class="num" data-col="n_countries" aria-sort="none">Countries</th>
+<th data-col="age" aria-sort="none">Age bands</th>
+<th class="num" data-col="cases_profiled" aria-sort="none">Profiled</th>
+<th class="num" data-col="replicated" aria-sort="none">Replicated associations</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<p class="sp-note" id="cn-legend">Age bands, in order: <span class="cn-key"><i class="cn-b0"></i>neonate</span> <span class="cn-key"><i class="cn-b1"></i>infant</span> <span class="cn-key"><i class="cn-b2"></i>child</span> <span class="cn-key"><i class="cn-b3"></i>adolescent</span> <span class="cn-key"><i class="cn-b4"></i>adult</span> <span class="cn-key"><i class="cn-b5"></i>elderly</span> <span class="cn-key"><i class="cn-b6"></i>not stated</span>. Every bar is drawn to the same linear scale, so its length is the row's case samples.</p>
+
+<section class="sp-details" aria-label="Detail">
+<details class="sp-more"><summary>What these numbers count</summary>
+<p class="small">Counts are of samples whose health-condition label names the condition as the sampled person's main condition; each case sample counts under one condition only. Labels come from the archive records and the paper text of the projects, and were mapped to EFO {{ M.efo_version }} and MONDO ({{ M.mondo_release }}) by two or three independent readings.</p>
+<p class="small">Healthy controls are the samples labelled healthy in the projects that also hold cases of the condition; they are not matched controls. <b>Cases</b> counts every state of the condition together; the tooltip splits it into current, treated or in remission, at risk or before onset, and history of the condition. <b>Profiled</b> counts the case samples with a community profile. <b>Projects</b> and <b>Cases</b> count the condition's own term; each condition's section also gives the totals including its narrower terms.</p>
+<p class="small">The replication numbers are the registered result of the test run on {{ M.run_date }} (strict mapping, primary analysis): over the {{ n(M.n_tested) }} conditions tested in their own right, {{ n(M.claims_replicated) }} of {{ n(M.claims_testable) }} testable claims replicated. A row marked “tested as” a named broader condition shows the result for that broader condition, not for the row's own condition; {{ n(M.n_broader) }} rows are marked that way. The {{ n(M.n_associations) }} replicated associations of {{ M.n_assoc_conditions }} conditions are listed in each condition's section, and in full on <a href="replication.html">Replication of published findings</a>.</p>
+</details>
+<details class="sp-more"><summary>Limits</summary>
+<p class="small">A condition with no row is not necessarily absent from the catalog: {{ n(M.labels_without_term) }} label strings name a condition for which no ontology term was found, and {{ n(M.labels_unsettled) }} are unclear or unsettled. Those samples are in the shipped tables under their own label, and on the pages of their projects.</p>
+<p class="small">The catalog is a convenience sample of public data, not a survey: the number of projects and samples for a condition says how much public data exists, not how common the condition is. Countries, age groups and body sites are curated from the projects' own records and are missing for some samples, which is why every row carries a “not stated” band. Healthy controls come from the same projects as the cases, so they are not matched on age, sex or country.</p>
+</details>
+<details class="sp-more"><summary>Downloads</summary>
+<p class="small"><a href="{{ data }}condition_explorer.csv">condition_explorer.csv</a> ({{ n(M.n_conditions) }} rows, one per condition) · <a href="{{ data }}condition_explorer_projects.csv">condition_explorer_projects.csv</a> ({{ n(M.n_project_rows) }} rows, one per condition and project) · <a href="{{ data }}condition_explorer_associations.csv">condition_explorer_associations.csv</a> ({{ n(M.n_associations) }} rows) · <a href="{{ root }}downloads/index.html">all downloads</a>. The samples themselves, with every value's source, are in <a href="{{ root }}samples/index.html">Samples</a>.</p>
+</details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>window.SP_PAGE={page:'conditions',root:'{{ root }}',dataDir:'{{ data }}',samplesHref:'{{ root }}samples/index.html',studyPage:'{{ root }}studies/',taxaHref:'taxa/index.html',replicationHref:'replication.html',olsBase:'https://www.ebi.ac.uk/ols4/ontologies/'};</script>
+<script src="{{ root }}static/sp_core.js"></script>
+<script src="{{ root }}static/sp_conditions.js"></script>
+{% endblock %}

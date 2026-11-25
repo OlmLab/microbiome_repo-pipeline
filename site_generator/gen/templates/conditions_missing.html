@@ -1,0 +1,8 @@
+{# Placeholder so that the Insights link resolves when the site is built without the conditions payload. #}
+{% extends "base.html" %}
+{% block title %}Condition explorer — {{ site.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Condition explorer</h1>
+{% set ap="" %}{% set sub="conditions" %}{% include "_insights_nav.html" %}
+<p>The condition explorer is computed from the catalog's health-condition labels and their ontology terms at release time. This build does not include its data files.</p></div>
+{% endblock %}

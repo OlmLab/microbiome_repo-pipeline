@@ -31,6 +31,7 @@ CRUMBS = [dict(label="Home", href="../index.html"), dict(label="Insights", href=
 DATA = "../data/vanish/"      # payload, as seen from the page
 SENTENCES = "robustness_sentences.json"
 ROBUSTNESS = "robustness.json"
+CRITIQUE_CHECK_FILES = ["critique_checks_page_table.csv", "critique_checks_taxa.csv.gz"]
 
 
 def build(render, ctx, out_dir):
@@ -50,12 +51,17 @@ def build(render, ctx, out_dir):
     extra = ([SENTENCES] if S else []) + ([ROBUSTNESS] if R else [])
     if R:
         extra += [f for f in R.get("csv_files", []) if (src / f).exists()]
+    # R2026.44: the three longer checks of the model rule (Side pages hand-over vanish_blossum_checks): one collapsed,
+    # exploratory section whose numbers are in the template fragment; its two tables are downloads of the page
+    checks = all((src / f).exists() for f in CRITIQUE_CHECK_FILES)
+    if checks:
+        extra += CRITIQUE_CHECK_FILES
     # copy exactly the files the page uses (meta.json, the point files, the downloads): nothing else from the
     # payload folder reaches the site, and nothing is deleted here (the site build starts from an empty tree)
     for name in ["meta.json"] + list(M["files"]) + list(M["downloads"]) + extra:
         shutil.copyfile(src / name, dst / name)
     render("atlas_vanish.html", "atlas/vanish.html", "../", nav="atlas", sub="vanish",
-           M=M, S=S, R=R, data=DATA, crumbs=CRUMBS)
+           M=M, S=S, R=R, data=DATA, crumbs=CRUMBS, critique_checks_base=("../data/vanish/" if checks else ""))
     n_v = sum(b.get("n_vanish", 0) for f in [src / x for x in M["files"] if x.endswith("_model.json")]
               for b in json.loads(f.read_text())["blocks"].values() if b.get("contrast") == "C1")
     # the simple rule also carries the StIL candidate class; the model rule's is pending
@@ -65,4 +71,4 @@ def build(render, ctx, out_dir):
                 n_stil_simple=n_s,
                 n_stil_model_pending=(M.get("stil") or {}).get("pending_model_rule_total", 0),
                 package_version=M.get("package_version"),
-                sentences=bool(S), robustness_checks=bool(R), robustness_files=extra)
+                sentences=bool(S), robustness_checks=bool(R), robustness_files=extra, critique_checks=checks)

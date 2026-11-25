@@ -1,0 +1,58 @@
+/* sp_conditions.css — Insights > Condition explorer. Sits on top of site.css and side_pages.css and reuses
+   their custom properties (--cu-gold, --line, --muted, --panel, --sp-blue …) with fallbacks. Loads nothing
+   from another host: no @import, no url(). The seven age bands get one ordered ramp from light to dark, so
+   the stacked bars read as an order (neonate → elderly) with "not stated" set apart in grey. */
+
+:root {
+  --cn-b0: #cfe0f4; --cn-b1: #a9c7ea; --cn-b2: #7fa9dc; --cn-b3: #548cc9;
+  --cn-b4: #2f5e8c; --cn-b5: #1b3c5c; --cn-b6: #d9dbda;
+}
+
+.cn-totals { margin: .1rem 0 .8rem; font-size: 1rem; }
+.cn-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin: .5rem 0 .4rem; }
+.cn-count { color: var(--muted, #565a5c); }
+.cn-tablebox { overflow-x: auto; }
+.cn-table { width: 100%; }
+.cn-table thead th { cursor: pointer; white-space: nowrap; vertical-align: bottom; }
+.cn-table thead th.cn-sorted { text-decoration: underline; text-decoration-color: var(--cu-gold, #cfb87c); }
+.cn-table thead th:focus-visible { outline: 2px solid var(--cu-gold, #cfb87c); outline-offset: 1px; }
+.cn-table td { vertical-align: top; }
+.cn-table tbody tr:hover { background: var(--sp-panel, #f7f7f5); }
+.cn-table tr.cn-row-on { background: var(--cu-pale-gold, #f3eedd); }
+.cn-table td.cn-age { width: 132px; }
+.cn-ids a { white-space: nowrap; }
+.cn-legacy { color: var(--muted, #565a5c); }
+.cn-nobar { color: var(--muted, #565a5c); }
+.cn-agebar { display: block; }
+.cn-agebar rect.cn-b0 { fill: var(--cn-b0); } .cn-agebar rect.cn-b1 { fill: var(--cn-b1); }
+.cn-agebar rect.cn-b2 { fill: var(--cn-b2); } .cn-agebar rect.cn-b3 { fill: var(--cn-b3); }
+.cn-agebar rect.cn-b4 { fill: var(--cn-b4); } .cn-agebar rect.cn-b5 { fill: var(--cn-b5); }
+.cn-agebar rect.cn-b6 { fill: var(--cn-b6); }
+.cn-repl-broader { color: var(--muted, #565a5c); }
+.cn-testedas { display: block; font-size: .8rem; color: var(--muted, #565a5c); }
+
+#cn-legend .cn-key { white-space: nowrap; margin-right: .5rem; }
+#cn-legend .cn-key i { display: inline-block; width: .8rem; height: .8rem; margin-right: .2rem; vertical-align: -1px; }
+#cn-legend .cn-b0 { background: var(--cn-b0); } #cn-legend .cn-b1 { background: var(--cn-b1); }
+#cn-legend .cn-b2 { background: var(--cn-b2); } #cn-legend .cn-b3 { background: var(--cn-b3); }
+#cn-legend .cn-b4 { background: var(--cn-b4); } #cn-legend .cn-b5 { background: var(--cn-b5); }
+#cn-legend .cn-b6 { background: var(--cn-b6); }
+
+/* ---------- one condition's section ---------- */
+.cn-panel { position: relative; border: 1px solid var(--sp-line, #e6e6e6); border-left: 4px solid var(--cu-gold, #cfb87c);
+            border-radius: 10px; padding: .8rem 1rem 1rem; margin: .6rem 0 1.2rem; background: #fff; }
+.cn-panel h2 { margin-top: .1rem; }
+.cn-panel h3 { margin-top: 1.2rem; }
+.cn-close { position: absolute; top: .4rem; right: .5rem; border: 1px solid var(--sp-line, #e6e6e6); background: #fff;
+            border-radius: 6px; font-size: 1.1rem; line-height: 1; padding: .15rem .45rem; cursor: pointer; }
+.cn-counts { margin: .3rem 0 .6rem; padding-left: 1.1rem; }
+.cn-counts li { margin: .12rem 0; }
+.cn-rel { margin: .4rem 0 .6rem; }
+.cn-actions { margin: .5rem 0 .3rem; }
+.cn-projects td.tclip, .cn-table td.tclip { max-width: 34rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-projects, .cn-assoc { width: 100%; }
+
+@media (max-width: 760px) {
+  .cn-table td.cn-age, .cn-table th[data-col="age"] { display: none; }
+  .cn-projects td.tclip { max-width: 14rem; }
+}

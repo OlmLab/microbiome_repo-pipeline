@@ -6,6 +6,7 @@ GitHub Pages serves static files only, so the API is a set of small, predictable
   api/projects.json                     one record per catalog project (≈ 2 MB — scripts; LLMs should start from a selection)
   api/by-intervention/<code>.json       projects that administered <code> (e.g. probiotic, fmt)
   api/by-condition/<code>.json          projects with samples (or a trial population) of health condition <code> (vocabulary codes only)
+  api/by-condition/<anchor>.json        projects with cases of one condition of the Condition explorer (e.g. MONDO_0005011.json)
   api/by-age/<category>.json            projects with samples of an age category
   api/vocabularies.json                 every code with its label (conditions, interventions, age categories, designs …)
   api/samples/<PRJ>.csv                 plain-text per-sample sheet of one project (key columns only; full columns in data/studies/)
@@ -15,6 +16,7 @@ states the procedure in plain words with worked examples; llms/index.html is the
 """
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 from urllib.parse import quote
@@ -112,7 +114,7 @@ def project_records(studies, sidx_rows, cw, papers_by_study, base_url):
 
 
 def build(render, out: Path, ctx: dict):
-    """ctx: studies, sidx_rows, cw, papers_by_study, base_url, site_title, version, release_id, hc_labels, iv_voc, age_cats, stats, vocab_more"""
+    """ctx: studies, sidx_rows, cw, papers_by_study, base_url, site_title, version, release_id, hc_labels, iv_voc, age_cats, stats, vocab_more, conditions_dir"""
     base = ctx['base_url']
     recs = project_records(ctx['studies'], ctx['sidx_rows'], ctx['cw'], ctx['papers_by_study'], base)
     api = out / 'api'
@@ -133,6 +135,30 @@ def build(render, out: Path, ctx: dict):
         sel = [r for r in recs if c in r['health_conditions'] or r['trial_population_condition'] == c]
         _dump(dict(release=ctx['release_id'], filter=dict(health_condition=c), n_projects=len(sel), projects=sel), api / 'by-condition' / f'{c}.json')
         slices['condition'][c] = len(sel)
+    # R2026.44: beside the vocabulary-code files, one file per condition id of the Condition explorer, named by the
+    # condition's anchor (MONDO_0005011.json) so that the file name is the address of its section on that page. Same
+    # record shape; the condition's name and its two ontology ids are in the header. Built from the explorer's own
+    # tables, so a build without that payload writes none of them and no address changes.
+    cond_ids = {}
+    cdir = Path(ctx['conditions_dir']) if ctx.get('conditions_dir') else None
+    if cdir and (cdir / 'condition_explorer.csv').exists() and (cdir / 'condition_explorer_projects.csv').exists():
+        with open(cdir / 'condition_explorer.csv', newline='', encoding='utf-8') as fh:
+            conds = list(csv.DictReader(fh))
+        with open(cdir / 'condition_explorer_projects.csv', newline='', encoding='utf-8') as fh:
+            by_cond = {}
+            for row in csv.DictReader(fh):
+                by_cond.setdefault(row['condition_id'], []).append(row)
+        by_acc = {r['accession']: r for r in recs}
+        for c in conds:
+            rows = sorted(by_cond.get(c['condition_id'], []), key=lambda p: (-int(p.get('cases') or 0), p['study_accession']))
+            sel = [by_acc[p['study_accession']] for p in rows if p['study_accession'] in by_acc]
+            if not sel:
+                continue
+            _dump(dict(release=ctx['release_id'],
+                       filter=dict(condition_id=c['condition_id'], condition_name=c['condition_name'],
+                                   efo_id=c['efo_id'] or None, mondo_id=c['mondo_id'] or None, anchor=c['anchor']),
+                       n_projects=len(sel), projects=sel), api / 'by-condition' / f"{c['anchor']}.json")
+            cond_ids[c['anchor']] = len(sel)
     for c in ctx['age_cats']:
         if c == 'unknown':
             continue
@@ -164,6 +190,7 @@ def build(render, out: Path, ctx: dict):
         description='Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages. A project = an INSDC BioProject; a sample = a BioSample (rarely a run).',
         how_to_search=[
             'Pick the most specific selection: api/by-intervention/<code>.json, api/by-condition/<code>.json or api/by-age/<category>.json (codes in api/vocabularies.json).',
+            'A condition can also be selected by its ontology term: api/by-condition/<anchor>.json, where the anchor is the condition id with the colon written as an underscore (MONDO_0005011). The anchors are the keys of endpoints.by_condition_id and the `anchor` column of data/conditions/condition_explorer.csv.',
             'Filter its projects on the other keys (health_conditions counts, interventions, intervention_design, has_cases_and_healthy_controls, has_treated_and_control_arms, n_samples, countries).',
             'For each candidate open urls.samples_csv to see the samples, their arms (intervention column), conditions and sequencing depth (seq_gbp).',
             'Cite the project page (urls.page) and the ENA accession; values carry evidence on the project page.',
@@ -172,6 +199,8 @@ def build(render, out: Path, ctx: dict):
                        # the file names are unchanged; a code with a space or a slash is percent-encoded so the URL can be fetched verbatim
                        by_intervention={c: f'{base}api/by-intervention/{quote(c)}.json' for c in slices['intervention']},
                        by_condition={c: f'{base}api/by-condition/{quote(c)}.json' for c in slices['condition']},
+                       # R2026.44: the same selection by condition id; the key is the condition's anchor on the Condition explorer
+                       by_condition_id={a: f'{base}api/by-condition/{quote(a)}.json' for a in cond_ids},
                        by_age={c: f'{base}api/by-age/{quote(c)}.json' for c in slices['age']},
                        samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/catalog_sample_metadata_wide.parquet'),
         project_keys=dict(accession='BioProject accession', title='project title', n_samples='catalog samples',
@@ -187,18 +216,19 @@ def build(render, out: Path, ctx: dict):
         licence='Curated values CC-BY-4.0; archive metadata under INSDC terms; Sandpiper community profiles CC-BY.',
         citation=ctx.get('citation', ''),
         sample_columns={c: SAMPLE_COL_DESC.get(c, '') for c in cols},
-        counts=dict(projects=len(recs), interventions=slices['intervention'], conditions=slices['condition'], age=slices['age']))
+        counts=dict(projects=len(recs), interventions=slices['intervention'], conditions=slices['condition'], age=slices['age'], condition_ids=cond_ids))
     _dump(index, api / 'index.json')
     txt = llms_txt(index, ctx)
     (out / 'llms.txt').write_text(txt, encoding='utf-8')
     prompt = f"Refer to {base}llms.txt for instructions on how to access the Microbiome Repo. My question: "
     render('llms.html', 'llms/index.html', '../', nav='llms', prompt=prompt, index=index, llms_txt=txt,
            crumbs=[dict(label='Home', href='../index.html'), dict(label='For LLMs & API')])
-    return dict(n_projects=len(recs), slices={k: len(v) for k, v in slices.items()})
+    return dict(n_projects=len(recs), slices={k: len(v) for k, v in slices.items()}, condition_ids=len(cond_ids))
 
 
 def llms_txt(index, ctx):
     b = index['base_url']
+    n_cond = len(index['endpoints'].get('by_condition_id') or {})
     ivs = ', '.join(f'{c}' for c in index['endpoints']['by_intervention'])
     return f"""# {index['name']} — instructions for LLMs and agents
 > Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages: {index['counts']['projects']:,} projects (INSDC BioProjects), {ctx['stats'].get('n_samples', 0):,} samples. Release {index['release']} (package {index['package_version']}).
@@ -209,6 +239,7 @@ Use ONLY the files below; fetch them, do not guess accessions or counts. All fil
 1. Choose the most specific selection and fetch it:
    - by intervention the project administered: {b}api/by-intervention/<code>.json   (codes: {ivs})
    - by health condition: {b}api/by-condition/<code>.json   (codes in {b}api/vocabularies.json, e.g. ulcerative_colitis, crohns_disease, ibd_unspecified, colorectal_cancer, type2_diabetes, obesity, healthy_control)
+   - by condition term (EFO / MONDO): {b}api/by-condition/<anchor>.json   (anchor = the condition id with the colon written as an underscore, e.g. MONDO_0005011.json; {n_cond:,} conditions, listed as endpoints.by_condition_id in {b}api/index.json and in the `anchor` column of {b}data/conditions/condition_explorer.csv)
    - by age category: {b}api/by-age/<neonate|infant|child|adolescent|adult|elderly>.json
    - everything (large, ~2 MB): {b}api/projects.json
 2. Filter the selection's `projects` on the other keys: `health_conditions` (code -> samples), `interventions`, `intervention_design`, `trial_population_condition`,

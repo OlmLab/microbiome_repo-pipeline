@@ -64,6 +64,13 @@ derived_fields:
   age_category: {life_stage: true, values: [neonate, infant, child, adolescent, adult, elderly], note: "age at collection at the level of a life stage: from the exact age when known (age_at_collection_days, bins above), else the sample's own life-stage attribute, else a cohort statement in the paper text or the abstract, else the study's single registry life stage; the basis is recorded per sample in age_category_basis. 'unknown' = not covered."}
   detailed_location: {compose: [location_site, location_locality, location_region], sep: ", ", note: "most specific place below the country: 'site, locality, region' with empty parts dropped; not a determination itself — its parts are"}
   collection_year: {from: collection_date, note: "leading YYYY of collection_date (start of an interval)"}
+  # added R2026.44: the condition the sample's health-condition label names, as an ontology term. Derived from
+  # health_condition / health_condition_detail by the mapping of the condition curation (EFO + MONDO), so no
+  # evidence row and no route of their own; empty where the label names no condition or no term was found. They
+  # drive the Condition explorer (atlas/conditions.html) and the disease-name filter on Samples.
+  health_condition_name: {type: text, derived_from: health_condition, note: "Name of the condition this sample's health-condition label names, in the words of its ontology term."}
+  health_condition_efo_id: {type: text, derived_from: health_condition, note: "EFO term of that condition; EFO has retired most disease ids in favour of MONDO, so most values carry a MONDO: prefix."}
+  health_condition_mondo_id: {type: text, derived_from: health_condition, note: "MONDO term of that condition."}
   # infant-only fields carried verbatim from the curated infant tables (never minted for non-infant samples):
   delivery_mode: {type: enum, infant_only: true}
   feeding_mode: {type: enum, infant_only: true}

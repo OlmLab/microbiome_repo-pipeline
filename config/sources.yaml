@@ -237,3 +237,15 @@ related_efforts:
   licence: various
   ingestion: not_applicable
   assessment: No per-sample metadata to ingest; listed for completeness. HGMT (tumour cohorts, 18,630 stool samples) could supply cohort-level condition labels for immunotherapy studies.
+# R2026.44: proposed by the Benchmark chat, 2026-11-24. Nothing from Metalog is ingested; `ingestion: candidate_low`
+# puts it under "Also consulted, not incorporated" on the External resources page.
+- name: Metalog
+  url: https://metalog.embl.de/
+  reference: 'Bork group, EMBL — Nucleic Acids Research 2026, doi:10.1093/nar/gkaf1118'
+  scope: human, animal, ocean and environmental shotgun metagenomes; manually curated, harmonised per-sample metadata with taxonomic profiles
+  size: '106,828 human samples in 480 studies (download of 22 Nov 2026); further animal, ocean and environmental sets'
+  offers: Per-sample curated age, sex, BMI, country and geocoded location, collection date, body site, disease status, medication, intervention, diet, subject identity and time series; mOTUs, MetaPhlAn 4 and SPIRE profiles; a mapping from each sample to archive sample, experiment and run accessions.
+  join: Metalog's sequencing_db_mapping file (sample, experiment and run accessions) → catalog BioSample / registry runs. 94,488 human samples match one-to-one, in 450 catalog projects.
+  licence: 'Open Database License (ODbL 1.0), share-alike; contents under the Database Contents License. Files dated 22 Nov 2026, read 2026-11-24.'
+  ingestion: candidate_low
+  assessment: Used for validation only; no value is ingested, because the share-alike licence would need a separate decision. Head-to-head on data package 1.34.0 over the 94,488 shared samples, agreement where both have a value is 99.1 % for sex, 99.4 % for country, 96.2 % for body site, 94.6 % for collection date, 94.8 % for BMI, 93.1 % for which samples share a person, 91.2 % for age and 86.1 % for condition. Metalog has more ages, sexes, BMI values and collection dates for these samples; the catalog has more antibiotic, lifestyle and birth data and about 7.6 times as many human samples.

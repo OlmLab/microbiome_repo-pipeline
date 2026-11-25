@@ -280,6 +280,8 @@ vanish-page:     ## R2026.42: page payload of the VANISH / BloSSUM run, with the
 	for st in sentences checks; do $(PY) scripts/vanish_robustness.py --stage $$st --vanish-out $(VANISH_OUT) --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) \
 	  --hdi $(ATLAS_DATA)/country_hdi.csv --external-labels scripts/external_labels_carter_s4.csv --threads 4 --memory-limit 2GB || exit 1; done
 	rm -rf $(DATA)/site/vanish && cp -R $(VANISH_OUT)/page $(DATA)/site/vanish
+	@# R2026.44: tables of the three longer checks (run by the Side pages chat on package 1.34.0), downloads of the page
+	cp $(SIDE_PAGES)/for_editor/vanish_blossum_checks/results/critique_checks_page_table.csv $(SIDE_PAGES)/for_editor/vanish_blossum_checks/results/critique_checks_taxa.csv.gz $(DATA)/site/vanish/
 
 taxon-map:       ## R2026.43: Insights › Taxon map payload (taxa.json, matrix_<rank>.bin, countries.json, studies.json, country_hdi.csv) → $(ATLAS_DATA) from the built package + the current profile tables; run after `make release`, before `make measures`, `make taxa` and `make site` (≈ 40 s, ≈ 3 GB RAM)
 	$(PY) scripts/build_taxon_map.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --out $(ATLAS_DATA)
@@ -306,6 +308,8 @@ side-page-tests: ## R2026.42: page tests of the three Insights pages on the buil
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/vanish_blossum/dom_vanish.mjs $(abspath $(SITE_OUT))
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication.mjs $(abspath $(SITE_OUT))
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication_x.mjs $(abspath $(SITE_OUT))
+	@# R2026.44: Insights > Condition explorer, checked against the three CSV tables shipped with the page
+	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/conditions/dom_conditions.mjs $(abspath $(SITE_OUT))
 	$(PY) tests/side_pages/vanish_blossum/check_vanish_urls.py --root $(abspath $(SITE_OUT))
 	$(PY) tests/side_pages/replication/check_urls.py --root $(abspath $(SITE_OUT))
 

@@ -24,8 +24,23 @@
 </tbody></table>
 {% if hc_free.n %}<p class="small">{{ hc_free.n|fmt }} further values are the source's own words rather than a code, each from a single study ({{ hc_free.samples|fmt }} samples in all); they are in the shipped table and on the samples they describe.</p>{% endif %}
 
-<h2 id="confidence">Confidence by source</h2>
-<p class="small">Confidence is a fixed tier per kind of source, not a calibrated probability: a value read from an archive record or a supplementary table scores highest, a statement read twice from a paper lower, a statement from an abstract lowest. The table shows how the values of each source fall into bands. A statement that covers a whole cohort is counted once per sample it was applied to.</p>
+<h2 id="confidence">Confidence</h2>
+{# R2026.44: the confidence text is the Audit chat's, from the blind re-derivation audit of release R2026.41
+   (data package 1.34.0). Its numbers are that audit's and are printed as it reported them, with the package they
+   were measured on; they are NOT recomputed per release. Everything below the calibration table — the share of
+   values of each source in each band — is computed from the package this site is built from, as before. #}
+<p class="small">Confidence is a tier set by the engine that produced the value. It orders values by reliability; it is not a probability. We checked it in a blind audit of release R2026.41 (data package 1.34.0): 2,400 values were drawn at random within field, source type and confidence tier, and an independent reader derived each value again from the cited source without seeing ours. Disagreements were read again, the last time with both values in view. 2,204 values could be judged.</p>
+<table class="tbl small" id="confidence-audit"><thead><tr><th>Confidence</th><th class="num">Values in the catalog</th><th class="num">Values judged</th><th class="num">Confirmed from the cited source</th><th class="num">Source gives a different value</th><th class="num">Not confirmed from the cited source alone</th></tr></thead><tbody>
+<tr><td>0.90 and above</td><td class="num">2,037,806</td><td class="num">458</td><td class="num">97.8 % (95.6–99.3)</td><td class="num">2.0 % (0.5–4.0)</td><td class="num">0.3 % (0.0–0.6)</td></tr>
+<tr><td>0.80–0.85</td><td class="num">1,169,047</td><td class="num">678</td><td class="num">87.1 % (83.2–90.4)</td><td class="num">4.9 % (2.8–7.4)</td><td class="num">8.0 % (5.5–10.9)</td></tr>
+<tr><td>0.70–0.75</td><td class="num">1,114,921</td><td class="num">603</td><td class="num">71.5 % (65.5–76.7)</td><td class="num">8.0 % (5.1–11.4)</td><td class="num">20.5 % (15.5–25.6)</td></tr>
+<tr><td>0.55–0.65</td><td class="num">208,220</td><td class="num">213</td><td class="num">30.6 % (18.3–46.2)</td><td class="num">8.2 % (1.5–17.7)</td><td class="num">61.2 % (44.8–74.9)</td></tr>
+<tr><td>0.50 and below</td><td class="num">284,524</td><td class="num">252</td><td class="num">62.4 % (49.4–74.5)</td><td class="num">7.6 % (1.3–15.5)</td><td class="num">30.1 % (18.2–43.0)</td></tr>
+</tbody></table>
+<p class="small">Shares are weighted to the catalog, with 95 % intervals. “Not confirmed from the cited source alone” means the reader, given only the cited text, would not have recorded the value. It covers cohort-wide statements applied to every sample of a project, time points and groups decoded from sample names, regions worked out from coordinates, and subject identifiers generated where a project has one sample per person. Such a value is not shown to be false, but it rests on more than the quote beside it. The tiers from 0.70 upward are in order; the two lowest are not: 0.55–0.65 holds mostly regions from coordinates and generated subject identifiers, and scores below 0.50 and under.</p>
+
+<h3>Confidence by source</h3>
+<p class="small">The table below shows how the values of each source fall into bands, in the release this page names. A statement that covers a whole cohort is counted once per sample it was applied to.</p>
 <table class="tbl small"><thead><tr><th>where the values came from</th><th>what is read</th><th class="num">values</th>{% for b in cbins %}<th class="num">{{ b }}</th>{% endfor %}</tr></thead><tbody>
 {% for r in conf_rows %}<tr><td><span class="tag {{ r.route }}">{{ r.label }}</span></td><td>{{ r.what }}</td><td class="num">{{ r.n|fmt }}</td>{% for b in r.bins %}<td class="num">{{ b|fmt }}</td>{% endfor %}</tr>{% endfor %}
 </tbody></table>

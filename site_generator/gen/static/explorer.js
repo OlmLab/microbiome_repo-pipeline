@@ -10,6 +10,9 @@ const FIELDS = [...(CFG.coreFields || ['age_at_collection_days', 'sex', 'country
 // R2026.16: depth (seq_gbp, bases summed over the sample's runs) and the sample's intervention arm are shown; BMI / body-site class stay in the detail panel; R2026.32: body site (core field) is a column
 const SHOW = ['sample_key', 'study_accession', 'body_site_code', 'age_category', 'age_at_collection_days', 'sex', 'country', 'health_condition', 'intervention', 'antibiotic_exposure', 'subject_id', 'seq_gbp'];
 const LOC_PARTS = ['location_site', 'location_locality', 'location_region'];
+// R2026.44: the three columns the condition filter needs. The filter matches on the two id columns; the name column is
+// used only as a fallback for a name that is not in the condition list. A package without them hides the filter.
+const COND_COLS = ['health_condition_efo_id', 'health_condition_mondo_id', 'health_condition_name'];
 const HDR = {seq_gbp: 'sequence data (Gbp)', body_site_code: 'body site', age_category: 'age group', age_at_collection_days: 'age (days)', health_condition: 'condition', antibiotic_exposure: 'antibiotics', subject_id: 'person id', intervention: 'intervention', study_accession: 'project', sample_key: 'sample'};
 // R2026.43 (F517): age_category_basis in words (build_gut_scope.py writes these eight values)
 const AGE_BASIS = {age_at_collection_days: 'from an exact age', sample_life_stage: "from the sample's own age attribute", r3_fulltext_life_stage: 'from a statement in the paper text', r4_abstract_life_stage: 'from a statement in the abstract', study_life_stage: "from the project's single life stage", infant_catalog_age_scope: 'from the curated age range of this project', control_sample: 'a control sample, so no age', unknown: 'not stated'};
@@ -44,14 +47,16 @@ async function init() {
     const stCols = new Set((await conn.query(`DESCRIBE SELECT * FROM read_parquet('studies.parquet')`)).toArray().map(r => r.toJSON().column_name));
     await conn.query(`CREATE VIEW st AS SELECT study_accession, study_title${stCols.has('interventions') ? ', interventions AS study_interventions' : ", NULL::VARCHAR AS study_interventions"} FROM read_parquet('studies.parquet')`);
     COLS = new Set((await conn.query(`DESCRIBE s`)).toArray().map(r => r.toJSON().column_name));
-    for (const el of document.querySelectorAll('[data-field], [data-text], [data-year]')) {   // filters for columns this package does not carry are hidden
-      const col = el.dataset.field || el.dataset.text || (el.dataset.year ? 'collection_date' : null);
-      const present = col === 'detailed_location' ? LOC_PARTS.some(p => COLS.has(p)) : COLS.has(col);
+    for (const el of document.querySelectorAll('[data-field], [data-text], [data-year], [data-cond]')) {   // filters for columns this package does not carry are hidden
+      const col = el.dataset.field || el.dataset.text || (el.dataset.year ? 'collection_date' : null) || (el.dataset.cond ? 'health_condition_efo_id' : null);
+      const present = col === 'detailed_location' ? LOC_PARTS.some(p => COLS.has(p))
+        : el.dataset.cond ? COND_COLS.some(c => COLS.has(c)) : COLS.has(col);
       if (!present) { el.disabled = true; const lab = el.closest('.row2') || el; lab.style.display = 'none'; const l = document.querySelector(`label[for="${el.id}"]`); if (l) l.style.display = 'none'; }
     }
     window.__gutReady = true;
     $('boot').style.display = 'none'; $('exp').style.display = '';
     await loadCollection(new URLSearchParams(location.search).get('collection'));   // ?collection=<id>: pre-entered filters from data/collections.json
+    await loadConditions();          // ?condition=<anchor|id|name>: the condition list of the Condition explorer
     const k = new URLSearchParams(location.search).get('sample');   // read BEFORE run(): writeUrl() would drop the param while the panel is still closed
     readUrl();
     if (k && !$('f-q').value.trim()) $('f-q').value = k;   // item 10: ?sample=<key> filters the table to that sample …
@@ -73,6 +78,11 @@ function whereClause() {
     const v = inp.value.trim(); if (!v || inp.disabled) continue;
     const cols = inp.dataset.text === 'detailed_location' ? LOC_PARTS.filter(p => COLS.has(p)) : [inp.dataset.text];
     if (cols.length) w.push('(' + cols.map(c => `s."${c}" ILIKE '%${esc(v)}%'`).join(' OR ') + ')');
+  }
+  const cond = $('f-condition');
+  if (cond && !cond.disabled && cond.value.trim()) {
+    const parts = conditionClause(cond.value);
+    if (parts.length) w.push('(' + parts.join(' OR ') + ')');
   }
   if (COLS.has('collection_date')) {
     const y0 = $('f-year_min') && $('f-year_min').value, y1 = $('f-year_max') && $('f-year_max').value;
@@ -118,12 +128,63 @@ function collectionClauses() {
   }
   return w;
 }
+// ---- conditions (data/conditions/condition_explorer.csv, the table of the Condition explorer): the filter takes a
+// condition name, an EFO / MONDO id, or a condition's anchor (MONDO_0005011 — the address of its section on that
+// page, which is what ?condition= carries), and filters the samples on their own id columns. The list is read once,
+// after the sample table; with no such file the filter hides itself, so an older package simply has no filter.
+let CONDITIONS = null, CONDITION_BY = null;
+function parseCsv(text) {           // RFC 4180: quoted fields, doubled quotes, commas inside quotes
+  const rows = []; let row = [], cur = '', q = false;
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ',') { row.push(cur); cur = ''; }
+    else if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+    else if (ch !== '\r') cur += ch;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  const head = rows.shift() || [];
+  return rows.filter(r => r.length > 1).map(r => Object.fromEntries(head.map((k, i) => [k, r[i] === undefined ? '' : r[i]])));
+}
+const condKey = s => String(s || '').trim().toLowerCase().replace(/_/g, ':');
+function hideField(el) { el.disabled = true; el.style.display = 'none'; const l = document.querySelector(`label[for="${el.id}"]`); if (l) l.style.display = 'none'; }
+async function loadConditions() {
+  const el = $('f-condition');
+  if (!el || el.disabled || !CFG.conditions) return;
+  try {
+    const r = await fetch(CFG.conditions); if (!r.ok) throw new Error('HTTP ' + r.status);
+    CONDITIONS = parseCsv(await r.text()).map(c => ({name: c.condition_name, anchor: c.anchor, id: c.condition_id, efo: c.efo_id, mondo: c.mondo_id, cases: Number(c.cases) || 0}));
+    CONDITION_BY = new Map();
+    for (const c of CONDITIONS) for (const k of [c.name, c.anchor, c.id, c.efo, c.mondo]) if (k && !CONDITION_BY.has(condKey(k))) CONDITION_BY.set(condKey(k), c);
+    const dl = $('cond-list');
+    if (dl) dl.innerHTML = CONDITIONS.slice().sort((a, b) => b.cases - a.cases).map(c => `<option value="${h(c.name)}">${h([c.efo, c.mondo].filter(Boolean).join(' '))} · ${c.cases.toLocaleString()} cases</option>`).join('');
+  } catch (e) { CONDITIONS = null; CONDITION_BY = null; hideField(el); }
+}
+function conditionClause(v) {
+  const c = CONDITION_BY ? CONDITION_BY.get(condKey(v)) : null;
+  const parts = [];
+  if (c) {
+    if (c.efo && COLS.has('health_condition_efo_id')) parts.push(`s."health_condition_efo_id" = '${esc(c.efo)}'`);
+    if (c.mondo && COLS.has('health_condition_mondo_id')) parts.push(`s."health_condition_mondo_id" = '${esc(c.mondo)}'`);
+    if (!parts.length && COLS.has('health_condition_name')) parts.push(`s."health_condition_name" = '${esc(c.name)}'`);
+    return parts;
+  }
+  if (/^[A-Za-z]+[:_]\d+$/.test(v.trim())) {          // an id the list does not know (or no list at all)
+    const id = v.trim().replace('_', ':').toUpperCase();
+    for (const col of ['health_condition_efo_id', 'health_condition_mondo_id']) if (COLS.has(col)) parts.push(`s."${col}" = '${esc(id)}'`);
+  } else if (COLS.has('health_condition_name')) {
+    parts.push(`s."health_condition_name" ILIKE '%${esc(v.trim())}%'`);
+  }
+  return parts;
+}
 const FROM = 'FROM s LEFT JOIN st USING (study_accession)';
 
 function writeUrl() {
   const p = new URLSearchParams();
   if ($('f-q').value.trim()) p.set('q', $('f-q').value.trim());
-  for (const sel of document.querySelectorAll('select[data-field], select[data-url], input[data-text], input[data-year]')) if (sel.value && !sel.disabled) p.set(sel.id.replace(/^f-/, ''), sel.value);
+  for (const sel of document.querySelectorAll('select[data-field], select[data-url], input[data-text], input[data-year], input[data-cond]')) if (sel.value && !sel.disabled) p.set(sel.id.replace(/^f-/, ''), sel.value);
   if ($('f-infant').checked) p.set('infant', '1'); if ($('f-has_age').checked) p.set('has_age', '1'); if ($('f-has_subject').checked) p.set('has_subject', '1');
   if ($('f-min_fields').value !== '') p.set('min_fields', $('f-min_fields').value);
   if (page) p.set('page', page + 1);
@@ -136,7 +197,7 @@ function readUrl() {
   const p = new URLSearchParams(location.search);
   if (p.get('q')) $('f-q').value = p.get('q');
   if (p.get('study')) $('f-q').value = p.get('study');
-  for (const sel of document.querySelectorAll('select[data-field], select[data-url], input[data-text], input[data-year]')) { const v = p.get(sel.id.replace(/^f-/, '')); if (v) sel.value = v; }
+  for (const sel of document.querySelectorAll('select[data-field], select[data-url], input[data-text], input[data-year], input[data-cond]')) { const v = p.get(sel.id.replace(/^f-/, '')); if (v) sel.value = v; }
   if (p.get('infant')) $('f-infant').checked = true; if (p.get('has_age')) $('f-has_age').checked = true; if (p.get('has_subject')) $('f-has_subject').checked = true;
   if (p.get('min_fields')) $('f-min_fields').value = p.get('min_fields');
   if (p.get('page')) page = Math.max(0, parseInt(p.get('page')) - 1);
