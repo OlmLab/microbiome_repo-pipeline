@@ -1,0 +1,225 @@
+condition_id,condition_name,replication_condition_label,bugsigdb_efo_id,taxon,rank,direction,published_claims,published_papers,pooled_auc,catalog_projects_tested,catalog_projects_in_claimed_direction,q,I2
+MONDO:0005258,autism spectrum disorder,Autism spectrum disorder,EFO:0003756,Clostridium,genus,higher in cases,1,1,0.5798887503988241,6.0,5.0,0.0141230439798537,0.0
+MONDO:0005258,autism spectrum disorder,Autism spectrum disorder,EFO:0003756,Lachnospira eligens,species,lower in cases,1,1,0.4359799294599339,6.0,5.0,0.0173783044168665,0.0551628933959139
+MONDO:0007179,autoimmune disease,Autoimmune disease,EFO:0005140,[Clostridium] innocuum,species,higher in cases,1,1,0.5430028316576528,4.0,4.0,0.0029111547331855,0.5477908659195773
+MONDO:0007179,autoimmune disease,Autoimmune disease,EFO:0005140,Escherichia coli,species,higher in cases,2,1,0.5438220799515877,14.0,11.0,0.006190903760375,0.2362308878734401
+MONDO:0007179,autoimmune disease,Autoimmune disease,EFO:0005140,Roseburia,genus,lower in cases,1,1,0.4212214895970927,15.0,13.0,0.0076552380786586,0.6364777860583675
+MONDO:0007179,autoimmune disease,Autoimmune disease,EFO:0005140,Agathobacter rectalis,species,lower in cases,1,1,0.4406273548221096,15.0,13.0,0.0170467274468927,0.545391746571098
+MONDO:0007179,autoimmune disease,Autoimmune disease,EFO:0005140,Flavonifractor plautii,species,higher in cases,1,1,0.5496774001901383,13.0,10.0,0.0376258843725628,0.5931498609269995
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Enterocloster bolteae,species,higher in cases,1,1,0.6109474241497033,3.0,3.0,6.175837673590277e-09,0.0
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Enterocloster aldenensis,species,higher in cases,1,1,0.556203605018702,3.0,3.0,4.6608543361849944e-05,0.0
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Roseburia faecis,species,lower in cases,1,1,0.3415879961684093,5.0,5.0,0.0005456132432109,0.7344989263254799
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Parabacteroides distasonis,species,higher in cases,3,2,0.6513480822322789,4.0,4.0,0.0008452921501052,0.5673464102297191
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Dialister,genus,lower in cases,2,2,0.3869843375538589,4.0,4.0,0.0013661616351562,0.6509222278739295
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Thomasclavelia ramosa,species,higher in cases,2,2,0.5931952714979678,3.0,3.0,0.0014929857023139,0.5734311033212657
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Allocoprococcus comes,species,lower in cases,4,1,0.4083447606833945,4.0,4.0,0.0025725874673466,0.3521552018586588
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Faecalibacterium,genus,lower in cases,5,5,0.3497417304653656,5.0,5.0,0.0030057907416709,0.6949383392489852
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Fusicatenibacter saccharivorans,species,lower in cases,1,1,0.3341357559927003,5.0,5.0,0.0039840232891584,0.8133222165829554
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Parabacteroides,genus,higher in cases,1,1,0.6261909361987222,4.0,4.0,0.0049524912479164,0.4644225793846689
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Alistipes onderdonkii,species,higher in cases,1,1,0.55174915206675,3.0,3.0,0.0066297705980503,0.0
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Mediterraneibacter gnavus,species,higher in cases,2,2,0.5913468753499175,5.0,5.0,0.0071021222793573,0.568916549071224
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Phocaeicola dorei,species,higher in cases,1,1,0.5719360094436342,3.0,3.0,0.0081599162979079,0.0
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Thomasclavelia,genus,higher in cases,1,1,0.6094485631780313,4.0,4.0,0.0082320141419165,0.7692662850035153
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Fusicatenibacter,genus,lower in cases,1,1,0.3310671084882791,5.0,5.0,0.0102816929869243,0.85056413143669
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Roseburia,genus,lower in cases,5,4,0.3319042524015523,5.0,5.0,0.0133577778434862,0.8392545608750134
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Bacteroides caccae,species,higher in cases,2,1,0.5953462485521571,3.0,3.0,0.0168518021818947,0.5703811214177748
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Dorea,genus,lower in cases,4,4,0.3241101188019992,5.0,4.0,0.0186699207001322,0.8754227622109144
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Collinsella,genus,lower in cases,3,3,0.4095426657955823,5.0,4.0,0.0200210748912458,0.5590180006822485
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Mediterraneibacter torques,species,higher in cases,1,1,0.595589846314564,4.0,4.0,0.0230691193145259,0.4336065715897626
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,[Clostridium] leptum,species,lower in cases,1,1,0.4387750656666261,4.0,4.0,0.0246669139262665,0.2492578950551535
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Segatella copri,species,lower in cases,1,1,0.4615104889094046,4.0,3.0,0.0346327792759592,0.2902796661312879
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Enterobacter,genus,lower in cases,1,1,0.4660123404816022,3.0,3.0,0.0408023360668319,0.0
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Bifidobacterium adolescentis,species,lower in cases,3,2,0.3978888511080009,4.0,3.0,0.0459613094915392,0.648946276038275
+MONDO:0100096,COVID-19,COVID-19,MONDO:0100096,Coprococcus,genus,lower in cases,5,4,0.4120227720632787,5.0,4.0,0.0459613094915392,0.6366275580113782
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Coprococcus,genus,lower in cases,2,1,0.3593429263587582,4.0,4.0,7.497674669816756e-11,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Ruminococcus,genus,lower in cases,1,1,0.3887317968378891,4.0,4.0,6.0593777463206125e-09,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Faecalibacterium,genus,lower in cases,3,2,0.3752488422138303,4.0,4.0,2.8883363222321824e-07,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Roseburia,genus,lower in cases,3,2,0.3805590402834961,4.0,4.0,1.0868092778163024e-06,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Anaerotruncus,genus,higher in cases,1,1,0.569053824271541,5.0,5.0,2.7832839995453687e-06,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Mediterraneibacter gnavus,species,higher in cases,2,1,0.5661067807804924,4.0,4.0,2.784136380061139e-06,0.5804192168632722
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Faecalibacterium prausnitzii,species,lower in cases,2,1,0.390811074488184,4.0,4.0,6.485742079141448e-06,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Dorea longicatena,species,lower in cases,2,1,0.4235810818991041,4.0,4.0,0.0001541997874788,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Sutterella,genus,lower in cases,1,1,0.4266034480569281,4.0,4.0,0.0002409244488029,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Enterocloster bolteae,species,higher in cases,1,1,0.5597571760840135,3.0,3.0,0.0004775503302554,0.2851181337971781
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Clostridium,genus,higher in cases,3,1,0.5867555437710991,4.0,4.0,0.0006168132988501,0.5925420464091377
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Collinsella,genus,lower in cases,1,1,0.4300284794858835,5.0,5.0,0.0023857031402841,0.0
+MONDO:0005404,myalgic encephalomeyelitis/chronic fatigue syndrome,Chronic fatigue syndrome,EFO:0004540,Allocoprococcus comes,species,lower in cases,1,1,0.4493161255012866,4.0,4.0,0.0200210748912458,0.0
+MONDO:0005484,colorectal adenoma,Colorectal adenoma,EFO:0005406,Eubacterium,genus,lower in cases,1,1,0.402843890581584,9.0,8.0,0.0152582240145106,0.7920540778784592
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Alistipes putredinis,species,lower in cases,1,1,0.3206205621260912,8.0,8.0,3.399602830685195e-10,0.3237266955788529
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Alistipes,genus,lower in cases,1,1,0.3133384084145566,8.0,8.0,1.581860076279441e-09,0.4088134844580306
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Gemmiger,genus,lower in cases,1,1,0.2827496275825354,7.0,7.0,4.173524217233643e-08,0.6849814598671168
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Eubacterium,genus,lower in cases,1,1,0.2881915344316003,7.0,7.0,1.992253207574964e-07,0.6929880543501865
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Blautia hansenii,species,higher in cases,1,1,0.6000769740703473,3.0,3.0,2.8883363222321824e-07,0.0
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Escherichia coli,species,higher in cases,2,2,0.6132196045668665,7.0,7.0,4.977570905081775e-07,0.340605218882713
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Roseburia,genus,lower in cases,1,1,0.3685208313272184,8.0,8.0,7.391154828606622e-07,0.1249481743816374
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Roseburia inulinivorans,species,lower in cases,1,1,0.4006603834857897,7.0,7.0,1.0868092778163024e-06,0.0
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Escherichia,genus,higher in cases,1,1,0.6495724054513566,8.0,8.0,1.317525482058531e-06,0.5551410139083907
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Escherichia fergusonii,species,higher in cases,1,1,0.5767293327148746,3.0,3.0,2.645313588404673e-06,0.0482629875088133
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Ruminococcus,genus,lower in cases,2,2,0.332719182104253,7.0,7.0,7.811645384935239e-06,0.7074533586829993
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Coprococcus,genus,lower in cases,1,1,0.2932709292223288,7.0,7.0,8.981266904992837e-06,0.8695472930751879
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Lachnospira,genus,lower in cases,1,1,0.3280757209439238,8.0,8.0,4.495327489936142e-05,0.7330536438209366
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Enterocloster clostridioformis,species,higher in cases,1,1,0.5762537723673852,5.0,5.0,0.0001446420978158,0.3763754321792907
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Mediterraneibacter gnavus,species,higher in cases,1,1,0.6553608540099303,6.0,6.0,0.0004618092304072,0.8031714522475175
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Alistipes shahii,species,lower in cases,3,1,0.3835842810882126,7.0,7.0,0.0008315678747729,0.6389275780637116
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Fusicatenibacter,genus,lower in cases,1,1,0.4166614072070967,8.0,7.0,0.0009219874715599,0.0270021375200961
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Faecalimonas umbilicata,species,higher in cases,1,1,0.6629913524151207,3.0,3.0,0.0010169890184205,0.7020812572149805
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Veillonella,genus,higher in cases,1,1,0.6115386143706613,7.0,6.0,0.0011389581474477,0.6263093214122436
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Oscillibacter,genus,lower in cases,1,1,0.3466398531412762,7.0,6.0,0.0016365543824796,0.7813379685513122
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Faecalibacterium,genus,lower in cases,2,2,0.3860982347800316,8.0,8.0,0.0030057907416709,0.5925966635424876
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Veillonella parvula,species,higher in cases,1,1,0.5469891049106402,4.0,4.0,0.0033107976274218,0.0
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Eggerthella,genus,higher in cases,1,1,0.6213741884722742,4.0,4.0,0.0034151250354527,0.6014498954128461
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Mediterraneibacter faecis,species,lower in cases,1,1,0.4083634168523305,7.0,7.0,0.006190903760375,0.5271105878521054
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Parabacteroides,genus,lower in cases,1,1,0.390958067390278,8.0,7.0,0.0099225967613828,0.6383183160137058
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Segatella copri,species,lower in cases,1,1,0.4491592680261067,5.0,4.0,0.0101172438366332,0.0
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Streptococcus,genus,higher in cases,1,1,0.6127669426347454,7.0,6.0,0.0109975025783158,0.7254428872707892
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,[Eubacterium] siraeum,species,lower in cases,1,1,0.4222638209596743,5.0,4.0,0.0175356875229918,0.5598685849726586
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Bacteroides stercoris,species,lower in cases,1,1,0.4426237786448073,6.0,5.0,0.0200210748912458,0.1945784231480092
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Alistipes finegoldii,species,lower in cases,1,1,0.4390659209494926,6.0,5.0,0.021492471656826,0.386589143294389
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Faecalibacterium prausnitzii,species,lower in cases,1,1,0.4173354375004411,7.0,6.0,0.0223302874726918,0.5253590166406881
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Romboutsia timonensis,species,lower in cases,1,1,0.4352793005310015,3.0,3.0,0.0253157034524709,0.1885314954716576
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Parabacteroides merdae,species,lower in cases,1,1,0.4232670844101396,7.0,6.0,0.0390268325967998,0.571789805645935
+MONDO:0005011,Crohn disease,Crohn's disease,EFO:0000384,Dorea longicatena,species,lower in cases,1,1,0.4141469477341657,6.0,5.0,0.0488967607928739,0.7149889023437384
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Lactobacillus,genus,higher in cases,1,1,0.5632056830757047,3.0,3.0,7.116930201148606e-07,0.0
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Eggerthella,genus,higher in cases,1,1,0.5762422745820154,9.0,8.0,5.3913625531856355e-06,0.4641649964949421
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Roseburia,genus,lower in cases,2,2,0.4307114517811933,13.0,9.0,0.0033107976274218,0.3662722642072815
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Faecalibacterium,genus,lower in cases,1,1,0.4209706909444867,13.0,9.0,0.0060575161090422,0.5520028161327741
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Anaerotruncus,genus,higher in cases,1,1,0.532409244808102,9.0,8.0,0.0129015487736092,0.4955423973028338
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Enterococcus,genus,higher in cases,1,1,0.5343779911278148,6.0,5.0,0.0155241018320822,0.4900512975998002
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Bacteroides,genus,higher in cases,2,1,0.5441921440806647,13.0,9.0,0.021492471656826,0.0
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Ruminococcus,genus,lower in cases,1,1,0.4635607116926741,13.0,10.0,0.0288864918574257,0.0
+MONDO:0005015,diabetes mellitus,Diabetes mellitus,EFO:0000400,Parabacteroides,genus,higher in cases,1,1,0.5546818086202324,13.0,10.0,0.0366860952104508,0.5018925161144284
+MONDO:0005406,gestational diabetes,Gestational diabetes,EFO:0004593,Streptococcus,genus,lower in cases,1,1,0.4073001336817229,3.0,3.0,0.0288325703944504,0.0
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Ruminococcus,genus,lower in cases,2,1,0.3263384446287014,15.0,15.0,9.354247253667209e-14,0.6807757684261047
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Coprococcus,genus,lower in cases,2,1,0.2973227812753773,15.0,15.0,2.4588838060074693e-13,0.7914268699893646
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Alistipes shahii,species,lower in cases,1,1,0.3977070622884309,15.0,14.0,1.101927586561731e-09,0.3399193780074565
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Agathobacter rectalis,species,lower in cases,1,1,0.3629081411410856,17.0,15.0,1.4091729337693689e-08,0.6459333530622998
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Akkermansia muciniphila,species,lower in cases,1,1,0.405857038000698,11.0,10.0,1.8715996515507434e-08,0.228191896450591
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Barnesiella intestinihominis,species,lower in cases,1,1,0.4271059397262925,16.0,13.0,6.042013042213429e-08,0.3801504363574715
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Lachnospira eligens,species,lower in cases,1,1,0.425096758065357,14.0,14.0,4.1701777417393725e-06,0.273303219912774
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Prevotella,genus,lower in cases,2,1,0.4023502113784397,17.0,16.0,4.7426504743267056e-05,0.6440525667651635
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Phascolarctobacterium,genus,lower in cases,1,1,0.4030066191934238,14.0,11.0,0.00031389550241,0.6670332326422692
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Paraprevotella clara,species,lower in cases,1,1,0.4560546290707513,7.0,6.0,0.0006571047341864,0.0
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Alistipes finegoldii,species,lower in cases,1,1,0.445722641133402,11.0,9.0,0.000782986710479,0.3229961836512289
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Methanobrevibacter smithii,species,lower in cases,1,1,0.4523187962062737,7.0,6.0,0.0009674346730256,0.2957790970167919
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Roseburia hominis,species,lower in cases,1,1,0.4600803786679754,8.0,8.0,0.0010169890184205,0.0
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Lachnospira,genus,lower in cases,2,1,0.3802487205630829,17.0,15.0,0.0016871159009793,0.8696807650564087
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Alistipes onderdonkii,species,lower in cases,1,1,0.458390677503245,13.0,11.0,0.0028499656322921,0.0726438001401879
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Bacteroides caccae,species,lower in cases,1,1,0.4332914484984808,15.0,12.0,0.0030057907416709,0.5944603033289855
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Roseburia inulinivorans,species,lower in cases,1,1,0.4319492812983617,14.0,11.0,0.0035278030433982,0.6230352694007808
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Roseburia,genus,lower in cases,3,1,0.3854077311316476,17.0,15.0,0.0040320362593278,0.9513861743004778
+MONDO:0005265,inflammatory bowel disease,Inflammatory bowel disease,EFO:0003767,Eubacterium ventriosum,species,lower in cases,1,1,0.443433089991407,12.0,10.0,0.0124997284373349,0.6522606776795239
+MONDO:0005052,irritable bowel syndrome,Irritable bowel syndrome,EFO:0000555,Dorea,genus,higher in cases,4,1,0.5776294413519641,3.0,3.0,0.0238967071037629,0.0
+MONDO:0005371,mood disorder,Mood disorder,EFO:0004247,Mediterraneibacter torques,species,higher in cases,1,1,0.6318516546518076,3.0,3.0,0.0005212970297908,0.0594457487341523
+MONDO:0005371,mood disorder,Mood disorder,EFO:0004247,Eggerthella,genus,higher in cases,1,1,0.6162933112276043,3.0,3.0,0.0010169890184205,0.0
+MONDO:0005371,mood disorder,Mood disorder,EFO:0004247,Mediterraneibacter gnavus,species,higher in cases,2,1,0.5782953982305163,3.0,3.0,0.0425445897813721,0.0
+MONDO:0005301,multiple sclerosis,Multiple sclerosis,MONDO:0005301,Eggerthella,genus,higher in cases,1,1,0.6165996304139534,3.0,3.0,0.006190903760375,0.0
+MONDO:0005301,multiple sclerosis,Multiple sclerosis,MONDO:0005301,Fusicatenibacter,genus,lower in cases,1,1,0.4053593800735449,3.0,3.0,0.0260695430042572,0.0
+MONDO:0005301,multiple sclerosis,Multiple sclerosis,MONDO:0005301,Eggerthella lenta,species,higher in cases,2,1,0.5890493853811702,3.0,3.0,0.0305557046234872,0.2496369651592974
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Alistipes,genus,lower in cases,3,3,0.3757365148698211,11.0,10.0,2.737935749909985e-05,0.6165130897944209
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Collinsella,genus,higher in cases,2,2,0.6048692113210012,10.0,10.0,0.0003884292246651,0.5617090711134317
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Bacteroides uniformis,species,lower in cases,3,3,0.4184516199534931,11.0,10.0,0.0004775503302554,0.3678962703985363
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Roseburia hominis,species,lower in cases,1,1,0.4535816719710802,9.0,9.0,0.0005080304992788,0.0
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Acidaminococcus,genus,higher in cases,1,1,0.5546034746079279,6.0,5.0,0.0005808951150654,0.1119779673767453
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Dialister histaminiformans,species,higher in cases,1,1,0.5625940428268345,5.0,5.0,0.0008676911347972,0.6056971846898648
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Oscillibacter,genus,lower in cases,3,3,0.3867071318898715,11.0,10.0,0.0031938650601875,0.8029041445041525
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Alistipes shahii,species,lower in cases,1,1,0.412786018863487,9.0,9.0,0.0034106147716227,0.7405618603548882
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Mediterraneibacter gnavus,species,higher in cases,2,2,0.5669640004991292,10.0,8.0,0.0068202432208875,0.5631019154749027
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Barnesiella intestinihominis,species,lower in cases,1,1,0.4295067561233572,8.0,7.0,0.006966094628616,0.3854828822853424
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Akkermansia,genus,lower in cases,1,1,0.4432016483248592,9.0,7.0,0.0090034119793226,0.3679830257397398
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Bacteroides ovatus,species,lower in cases,3,3,0.4687089439326477,6.0,6.0,0.0102680149669272,0.0
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Barnesiella,genus,lower in cases,1,1,0.4396026626432173,11.0,9.0,0.0117835495165996,0.5434583236324273
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Eubacterium,genus,lower in cases,1,1,0.4532458251825207,11.0,9.0,0.0131160141856247,0.0
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Mediterraneibacter torques,species,higher in cases,2,2,0.5818577809100178,10.0,9.0,0.0164720504902202,0.7606778627197742
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Anaerotruncus,genus,lower in cases,2,2,0.4688316845777828,6.0,5.0,0.0200210748912458,0.230385543447697
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Akkermansia muciniphila,species,lower in cases,3,3,0.4615135913078756,8.0,7.0,0.0267400067977083,0.3185258388716765
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Blautia,genus,higher in cases,2,1,0.6037331614929043,11.0,9.0,0.0403741441590172,0.9230471307474648
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Blautia obeum,species,higher in cases,1,1,0.5472038809819418,7.0,5.0,0.0407298255253474,0.4733989142747094
+MONDO:0011122,obesity disorder,Obesity,EFO:0001073,Megasphaera,genus,higher in cases,2,2,0.5326684967899433,9.0,6.0,0.0489391752535945,0.1079231956371997
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Fusicatenibacter,genus,lower in cases,9,6,0.4028298578611706,8.0,8.0,9.346728184028433e-08,0.1856883202126274
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Subdoligranulum,genus,higher in cases,2,2,0.55595151784363,4.0,3.0,9.18546410423276e-05,0.2367483564209821
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Bifidobacterium dentium,species,higher in cases,6,4,0.544435815298334,3.0,3.0,0.0001002013143379,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Enterococcus,genus,higher in cases,6,6,0.5500435498184841,3.0,3.0,0.0002194570749877,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Blautia wexlerae,species,lower in cases,7,3,0.3930534067007729,8.0,8.0,0.0003456453227279,0.0556153351660939
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Victivallis,genus,higher in cases,1,1,0.5381188879182611,5.0,4.0,0.0004094870846723,0.0301839149323423
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Agathobaculum,genus,lower in cases,3,2,0.3944915109739262,6.0,6.0,0.0004775503302554,0.2035715438594353
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Desulfovibrio,genus,higher in cases,7,5,0.5626001693441629,7.0,6.0,0.0004775503302554,0.2656537502341722
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Eisenbergiella tayi,species,higher in cases,4,3,0.5559552423882188,4.0,4.0,0.0005248236117467,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Roseburia,genus,lower in cases,27,17,0.3844872572178047,8.0,8.0,0.0010473231910442,0.2261283541517236
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Fusicatenibacter saccharivorans,species,lower in cases,1,1,0.4125835421707147,7.0,7.0,0.0012659175709669,0.2316676705190753
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Ruminococcus,genus,lower in cases,7,4,0.4336523853547769,8.0,7.0,0.0014001797926518,0.2839654780745022
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Blautia,genus,lower in cases,12,10,0.4109798444805176,8.0,8.0,0.0030898045257691,0.3527765445502681
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Haemophilus,genus,lower in cases,1,1,0.4337227516698821,4.0,4.0,0.0030898045257691,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Eisenbergiella,genus,higher in cases,4,3,0.563154241854916,6.5,6.5,0.0032343158029643,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Intestinimonas,genus,higher in cases,1,1,0.5442357188621586,7.0,6.0,0.0034106147716227,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Parabacteroides merdae,species,higher in cases,1,1,0.5488487569704122,8.0,7.0,0.0049524912479164,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Agathobaculum butyriciproducens,species,lower in cases,2,1,0.4345881076193923,6.0,5.0,0.0059351091718582,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Faecalibacterium,genus,lower in cases,25,13,0.3778050282392183,8.0,8.0,0.0061236996510417,0.7058359902597385
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Dorea,genus,lower in cases,2,2,0.4464513106312954,8.0,7.0,0.006190903760375,0.1218366966048999
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Alistipes indistinctus,species,higher in cases,4,2,0.5328549230952844,5.0,4.0,0.0081599162979079,0.0499647564354211
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Odoribacter,genus,higher in cases,3,3,0.5587261783470361,7.0,7.0,0.0101172438366332,0.2415819550808892
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Hungatella,genus,higher in cases,6,3,0.5646531133132744,7.0,7.0,0.0109975025783158,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Turicibacter,genus,higher in cases,3,1,0.540409266033252,5.0,5.0,0.0115299274511954,0.3589429318388742
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Akkermansia,genus,higher in cases,19,13,0.5416721019723578,8.0,6.0,0.0124997284373349,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Ruminococcus bicirculans (ex Wegman et al. 2014),species,lower in cases,1,1,0.4474211960531024,7.0,6.0,0.0129015487736092,0.0311612178470168
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Parabacteroides distasonis,species,higher in cases,1,1,0.5754769739887735,7.0,6.0,0.0136007426387196,0.4327404147076366
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,[Ruminococcus] lactaris,species,lower in cases,1,1,0.4552334732345511,6.0,6.0,0.0151092993161164,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Anaerotruncus,genus,higher in cases,4,3,0.5586455750593093,6.0,6.0,0.0152582240145106,0.3864253341481181
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Acidaminococcus,genus,higher in cases,2,2,0.5508433125976667,4.0,4.0,0.0157281972951358,0.3703784204658125
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Alistipes,genus,higher in cases,7,7,0.5533613116218375,8.0,7.0,0.0164720504902202,0.0607896657499576
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Bifidobacterium,genus,higher in cases,18,11,0.5542123347295034,8.0,6.0,0.0200210748912458,0.4097957419267839
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Ruthenibacterium lactatiformans,species,higher in cases,7,4,0.5720418931689231,8.0,5.0,0.0200210748912458,0.6145068180663554
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Ruthenibacterium,genus,higher in cases,3,2,0.5845864322967597,6.0,5.0,0.0209223517114533,0.509336626340482
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Parabacteroides,genus,higher in cases,8,6,0.5840055820296471,8.0,8.0,0.0229769530935577,0.3685919206502329
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Butyricimonas,genus,higher in cases,5,5,0.5618119172320447,7.0,6.0,0.0260199777044555,0.3598537964486772
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Klebsiella,genus,higher in cases,3,2,0.5407547577598717,6.0,5.0,0.0273786985554787,0.2660665628484486
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Bifidobacterium longum,species,higher in cases,2,2,0.535351497952896,8.0,7.0,0.0280724056449952,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Ligilactobacillus salivarius,species,higher in cases,2,2,0.5386581682507604,3.0,3.0,0.0316719961724383,0.4582280803492885
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Roseburia faecis,species,lower in cases,5,4,0.4307577702440336,7.0,7.0,0.0334331466685634,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Alistipes ihumii,species,higher in cases,1,1,0.5235085799869972,7.0,6.0,0.0366860952104508,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Roseburia hominis,species,lower in cases,3,1,0.4702627525246815,7.0,7.0,0.0373016573504092,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Agathobacter rectalis,species,lower in cases,2,2,0.4306033837187819,7.0,6.0,0.037930860510521,0.4183171457434819
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Paraprevotella,genus,lower in cases,4,3,0.4661292133485717,6.0,4.0,0.0387752755391356,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Bilophila wadsworthia,species,higher in cases,1,1,0.543375657685053,8.0,6.0,0.0408023360668319,0.3871004661400288
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Citrobacter,genus,higher in cases,1,1,0.5215469814027188,4.0,2.0,0.0436310317527432,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Alistipes shahii,species,higher in cases,1,1,0.5493300357450552,6.0,5.0,0.0453447557839286,0.0909063194882767
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Bifidobacterium adolescentis,species,higher in cases,3,1,0.5281277915341004,7.0,6.0,0.0457238234979611,0.0
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Escherichia,genus,higher in cases,4,3,0.5424342103615943,8.0,6.0,0.0459613094915392,0.2197875343924832
+MONDO:0005180,Parkinson disease,Parkinson's disease,MONDO:0005180,Methanobrevibacter smithii,species,higher in cases,3,3,0.5415288476543678,7.0,5.0,0.0497989281228351,0.3756254908798488
+MONDO:0002025,psychiatric disorder,Psychiatric disorder,MONDO:0002025,Fusicatenibacter saccharivorans,species,lower in cases,1,1,0.4103883960878295,12.0,9.0,0.0232018060875287,0.7212977274692989
+MONDO:0005090,schizophrenia,Schizophrenia,MONDO:0005090,Lachnospira,genus,lower in cases,3,2,0.369387928845704,3.0,3.0,0.0013905040597355,0.0263158854500649
+MONDO:0005090,schizophrenia,Schizophrenia,MONDO:0005090,Fusicatenibacter,genus,lower in cases,1,1,0.389968403601778,3.0,3.0,0.015849230655346,0.2254293582781595
+MONDO:0005090,schizophrenia,Schizophrenia,MONDO:0005090,Lachnospira eligens,species,lower in cases,1,1,0.3953703530006772,3.0,3.0,0.0216063861543912,0.4379487008717013
+MONDO:0005090,schizophrenia,Schizophrenia,MONDO:0005090,Fusobacterium,genus,higher in cases,2,2,0.5752067019664695,3.0,3.0,0.0233396076645623,0.0
+MONDO:0005147,type 1 diabetes mellitus,Type I diabetes mellitus,MONDO:0005147,Roseburia,genus,lower in cases,1,1,0.381261375891608,4.0,4.0,0.0001641776882532,0.0
+MONDO:0005147,type 1 diabetes mellitus,Type I diabetes mellitus,MONDO:0005147,Agathobacter rectalis,species,lower in cases,1,1,0.3894530406546764,4.0,4.0,0.000202699300654,0.0
+MONDO:0005147,type 1 diabetes mellitus,Type I diabetes mellitus,MONDO:0005147,Faecalibacterium,genus,lower in cases,1,1,0.3853722572937224,4.0,4.0,0.0003456453227279,0.0
+MONDO:0005147,type 1 diabetes mellitus,Type I diabetes mellitus,MONDO:0005147,Haemophilus,genus,lower in cases,1,1,0.4050434490448529,4.0,3.0,0.0008315678747729,0.4664618540848635
+MONDO:0005148,type 2 diabetes mellitus,Type II diabetes mellitus,MONDO:0005148,Thomasclavelia,genus,higher in cases,2,1,0.5712043321348041,3.0,3.0,0.0008252591430353,0.0
+MONDO:0005148,type 2 diabetes mellitus,Type II diabetes mellitus,MONDO:0005148,Megasphaera,genus,higher in cases,4,3,0.5469156808667184,3.0,3.0,0.0432036983063194,0.2540234151629579
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Alistipes,genus,lower in cases,1,1,0.2849262714025657,12.0,12.0,1.4818606971956748e-13,0.6570786601803773
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Flavonifractor plautii,species,higher in cases,1,1,0.6197188655488263,8.0,8.0,2.611978608559246e-12,0.0
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Alistipes shahii,species,lower in cases,2,1,0.3789721680365824,11.0,10.0,4.53693428362407e-11,0.2371144194559335
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Ruminococcus,genus,lower in cases,1,1,0.3344268371998474,10.0,10.0,4.53693428362407e-11,0.4701097993143197
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Alistipes putredinis,species,lower in cases,1,1,0.3007819960320147,12.0,12.0,8.30523633083575e-10,0.7534164652586192
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Fusicatenibacter saccharivorans,species,lower in cases,1,1,0.3535009753274528,11.0,11.0,1.8061982460303866e-07,0.5475742919997373
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Mediterraneibacter faecis,species,lower in cases,1,1,0.3405080801511689,9.0,8.0,1.992253207574964e-07,0.5480560775219319
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Akkermansia muciniphila,species,lower in cases,3,2,0.3933914528914203,9.0,8.0,2.199560046527322e-06,0.4258710901421021
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Butyricimonas,genus,lower in cases,2,2,0.3949041961227888,10.0,10.0,2.293928544737704e-06,0.4246360048792804
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Escherichia,genus,higher in cases,1,1,0.5754869092270465,10.0,9.0,9.840382973698926e-06,0.0
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Fusicatenibacter,genus,lower in cases,1,1,0.3614320230169187,12.0,11.0,3.764257386260728e-05,0.7389531878014474
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Gemmiger,genus,lower in cases,1,1,0.3694398206099796,12.0,10.0,4.4858038096557345e-05,0.6086075561706118
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Agathobacter rectalis,species,lower in cases,1,1,0.4020983891050639,12.0,10.0,0.000101150103481,0.4286892329240006
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Streptococcus,genus,higher in cases,1,1,0.6309132502659357,10.0,10.0,0.0002847323128285,0.7227127921592135
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Desulfovibrio,genus,lower in cases,1,1,0.4080495975691864,7.0,7.0,0.0005808951150654,0.5313871822350694
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Prevotella,genus,lower in cases,1,1,0.423432250424851,12.0,11.0,0.0007715443487136,0.2978164666956189
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Segatella copri,species,lower in cases,1,1,0.440572554343758,10.0,10.0,0.0010169890184205,0.3582114988990845
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Eggerthella,genus,higher in cases,2,2,0.623963097296696,6.0,6.0,0.0014001797926518,0.728137079221936
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Parabacteroides merdae,species,lower in cases,1,1,0.4221203435059949,10.0,8.0,0.0014940443228798,0.4275436782702907
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Bifidobacterium,genus,higher in cases,2,2,0.5859461248153269,12.0,10.0,0.0015475116755022,0.4533752019226141
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Oxalobacter,genus,lower in cases,1,1,0.3867234015880345,3.0,3.0,0.0059351091718582,0.7847176919026934
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Odoribacter splanchnicus,species,lower in cases,1,1,0.4298887671416552,10.0,9.0,0.0079013954868645,0.4732815804517565
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Coprobacter,genus,lower in cases,1,1,0.4209621030773406,4.0,4.0,0.0085690859987742,0.4472950586673557
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Dorea longicatena,species,lower in cases,1,1,0.3964089852184886,10.0,8.0,0.0124997284373349,0.7678053656030855
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Haemophilus,genus,higher in cases,1,1,0.5395548987846974,8.0,7.0,0.0154751887058539,0.0303258403170772
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Streptococcus salivarius,species,higher in cases,1,1,0.55909177238187,8.0,7.0,0.0232018060875287,0.512306015070744
+MONDO:0005101,ulcerative colitis,Ulcerative colitis,EFO:0000729,Bacteroides stercoris,species,lower in cases,1,1,0.4650527011380585,10.0,9.0,0.0346327792759592,0.0

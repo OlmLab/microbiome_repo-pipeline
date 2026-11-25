@@ -42,7 +42,7 @@ EXTERNAL   ?= $(HOME)/catalog/external
 export SANDPIPER_ZENODO_RECORD := $(ZENODO_RECORD)
 export SANDPIPER_VERSION
 
-.PHONY: gut-build gut-newfields-r1 gut-newfields-r1-v2 registry-fixture registry-classify-det registry-build registry-biosamples help gapfill apply-gapfill ingest-contributions apply-verdicts bootstrap bootstrap-kernel lock check-credential unpack inputs-json sync-skills test resweep triage extract findings rewide package package-assemble bitemporal worklist package-docs release-notes release check-reports plot-coverage site verify publish-branch install-workflows ingest-issues sandpiper-refresh sandpiper-delta authors clean taxon-map
+.PHONY: gut-build gut-newfields-r1 gut-newfields-r1-v2 registry-fixture registry-classify-det registry-build registry-biosamples help gapfill apply-gapfill ingest-contributions apply-verdicts bootstrap bootstrap-kernel lock check-credential unpack inputs-json sync-skills test resweep triage extract findings rewide package package-assemble bitemporal worklist package-docs release-notes release check-reports plot-coverage site verify publish-branch install-workflows ingest-issues sandpiper-refresh sandpiper-delta authors clean taxon-map conditions-page
 
 help:            ## list targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n", $$1, $$2}'
@@ -284,6 +284,9 @@ vanish-page:     ## R2026.42: page payload of the VANISH / BloSSUM run, with the
 taxon-map:       ## R2026.43: Insights › Taxon map payload (taxa.json, matrix_<rank>.bin, countries.json, studies.json, country_hdi.csv) → $(ATLAS_DATA) from the built package + the current profile tables; run after `make release`, before `make measures`, `make taxa` and `make site` (≈ 40 s, ≈ 3 GB RAM)
 	$(PY) scripts/build_taxon_map.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --out $(ATLAS_DATA)
 
+conditions-page: ## R2026.44: Insights › Condition explorer tables → $(DATA)/site/conditions, rebuilt from the built package and the condition terms (seconds; the ontology relations and the replication columns come from the Conditions chat's hand-over tables, which belong to the registered run)
+	$(PY) scripts/build_condition_explorer.py --package $(PKG_OUT) --terms $(CONDITION_TERMS) --static docs/audits/r44/condition_explorer_handover --out $(DATA)/site/conditions --check
+
 taxa:            ## R2026.42: Insights › Taxon explorer payload → $(DATA)/site/taxa (≈ 70 s, 3.6 GB RAM; after `make vanish`; TAXA_FLAGS=--skip-presence when the site would pass 950 MB)
 	rm -rf $(DATA)/site/taxa
 	$(PY) scripts/taxon_explorer.py --package $(PKG_OUT) --sandpiper-dir $(GUT_SANDPIPER_DIR) --countries $(ATLAS_DATA)/countries.json \
@@ -372,7 +375,7 @@ GUT_ABX_MAP  ?= $(GUT_DIR)/gut_antibiotic_map.parquet
 # 1.12.0 (R2026.12): route R1 for the new pack fields (collection_date, location_*, latitude/longitude, lifestyle) — output of gut-newfields-r1
 GUT_R1_NEWFIELDS ?= $(GUT_DIR)/gut_r1_newfields_determinations.parquet
 # data-quality corrections (retire / recode) from the adjudication leaf — optional
-GUT_CORRECTIONS ?= $(GUT_DIR)/dq_corrections.parquet $(GUT_DIR)/curated_supp_corrections.parquet $(GUT_DIR)/probiotic_corrections_r34.parquet $(GUT_DIR)/dq_corrections_r38.parquet $(GUT_DIR)/dq_corrections_r41.parquet
+GUT_CORRECTIONS ?= $(GUT_DIR)/dq_corrections.parquet $(GUT_DIR)/curated_supp_corrections.parquet $(GUT_DIR)/probiotic_corrections_r34.parquet $(GUT_DIR)/dq_corrections_r38.parquet $(GUT_DIR)/dq_corrections_r41.parquet $(GUT_DIR)/dq_corrections_r44.parquet
 # harvested BioSample attribute rows of the catalog studies (artifact; bootstrap materialises it) — input of gut-newfields-r1
 GUT_ATTRIBUTES   ?= $(GUT_DIR)/gut_biosample_attributes.parquet
 # 1.13.0 (R2026.13): route R1 for the new fields v2 (diet, smoking_status, medication, stool_consistency_bristol) — output of gut-newfields-r1-v2

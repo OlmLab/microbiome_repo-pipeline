@@ -1,0 +1,80 @@
+file,row_id,study_accession,n_samples_current,reason
+unclear_strings_settled.csv,CSb05c4dddd4|PRJEB94043,PRJEB94043,255,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CS2d215749a9|PRJNA1045701,PRJNA1045701,212,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CS1d06bd0904|PRJNA788972,PRJNA788972,77,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CS19f4765f63|PRJNA836336,PRJNA836336,64,"my reading gives role healthy_control, the hand-over role is other_control; not applied on a disagreement"
+unsettled_strings_settled.csv,CS0eba89cc16|PRJEB70723,PRJEB70723,60,"my reading gives role healthy_control, the hand-over role is other_control; not applied on a disagreement"
+unclear_strings_settled.csv,CS3511b422e2|PRJEB88212,PRJEB88212,26,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CSc3740f4235|PRJNA680579,PRJNA680579,19,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CS9d5ddc0c1e|PRJNA1279672,PRJNA1279672,19,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS9b7fb3c78a|PRJNA1424541,PRJNA1424541,10,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CS212591d4c5|PRJEB51945,PRJEB51945,10,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS8949ab4b79|PRJNA414153,PRJNA414153,9,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CS5abbaf4491|PRJNA850529,PRJNA850529,6,"my reading gives role case, the hand-over role is not_condition; not applied on a disagreement"
+unclear_strings_settled.csv,CS53839f4d25|PRJNA564995,PRJNA564995,5,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS6024fa861e|PRJNA1424541,PRJNA1424541,4,my reading gives no vocabulary code
+unsettled_strings_settled.csv,CS8f42e69d20|PRJEB73590,PRJEB73590,3,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS17dec6a14b|PRJNA525458,PRJNA525458,3,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CSb3ef61d9df|PRJNA1247940,PRJNA1247940,3,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS3e59fe9ef7|PRJEB45397,PRJEB45397,3,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CSded5dfaf5b|PRJNA1004560,PRJNA1004560,2,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CSb04027519a|PRJEB59450,PRJEB59450,2,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS1f67868b8a|PRJNA1004560,PRJNA1004560,2,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS2a7418bb0f|PRJNA1004560,PRJNA1004560,2,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unsettled_strings_settled.csv,CSb0544cab0f|PRJEB102113,PRJEB102113,2,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS3b5b70a6fc|PRJNA1004560,PRJNA1004560,2,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CSf3bddb6597|PRJEB95899,PRJEB95899,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CSf427b4019b|PRJEB102130,PRJEB102130,1,"my reading gives role not_condition, the hand-over role is case; not applied on a disagreement"
+unclear_strings_settled.csv,CSf17439439c|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS12faa24f20|PRJNA1334189,PRJNA1334189,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS160d1ab503|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS185497e3af|PRJEB102130,PRJEB102130,1,"my reading gives role not_condition, the hand-over role is case; not applied on a disagreement"
+unclear_strings_settled.csv,CS3b17e353f0|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS3dad3cab2f|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS45dfe1d57c|PRJNA706116,PRJNA706116,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS4a69500952|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS56baf2a1e4|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS6225d208fa|PRJNA629353,PRJNA629353,1,"my reading gives role not_condition, the hand-over role is case; not applied on a disagreement"
+unclear_strings_settled.csv,CS7337f2b9d7|PRJEB59450,PRJEB59450,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS75f21c3640|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS82370532f9|PRJEB95899,PRJEB95899,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS8399e67df4|PRJNA986854,PRJNA986854,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS867263e777|PRJEB59450,PRJEB59450,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CS8951041f44|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS9202b2617a|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CSadaffd563c|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CSafe952dcb7|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CSb126237c3a|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CS0cb35b7390|PRJNA1004560,PRJNA1004560,1,"my reading settled it as not a condition, but the package shows the code rests on an endoscopic-finding attribute ('small aphthous' / 'Inflamed') and the detail on a numeric field; the record does not say what the donor's condition is"
+unclear_strings_settled.csv,CSc72264e1d3|PRJEB59450,PRJEB59450,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CSd2260e56d4|PRJEB102130,PRJEB102130,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CSd358db1584|PRJEB95899,PRJEB95899,1,my reading of the project record did not settle the label
+unclear_strings_settled.csv,CSe50aea131a|PRJEB95899,PRJEB95899,1,my reading of the project record did not settle the label
+unsettled_strings_settled.csv,CSc4ae628c9b|PRJNA480674,PRJNA480674,6,"proposed_code 'other_control' is a role, not a code in config/vocab/health_conditions.yaml; no vocabulary code fits a non-IBD symptomatic control, so the row was not applied"
+mmc_case_control_fixes.csv,CC001,PRJEB63351,225,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC002,PRJNA297252,157,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC003,PRJNA375935,83,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC004,PRJNA375935,31,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC005,PRJEB39500,103,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC006,PRJNA763023,50,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC007,PRJNA763023,50,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC009,PRJEB28384,49,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC010,PRJEB42155,18,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC011,PRJEB53403,49,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: source_not_a_cached_paper; reader2 quote: source_not_a_cached_paper; no own)
+mmc_case_control_fixes.csv,CC012,PRJEB55787,13,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC019,PRJNA1225217,10,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: verbatim_in_cached_paper; reader2 quote: verbatim_in_cached_paper; no paper)
+mmc_case_control_fixes.csv,CC020,PRJNA1229860,29,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC024,PRJNA486782,61,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: verbatim_in_cached_paper; reader2 quote: verbatim_in_cached_paper; no own-d)
+mmc_case_control_fixes.csv,CC025,PRJNA487636,64,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: paper_not_in_cache; reader2 quote: paper_not_in_cache; own paper read as ab)
+mmc_case_control_fixes.csv,CC026,PRJNA504921,76,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC027,PRJNA521587,48,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: paper_not_in_cache; reader2 quote: paper_not_in_cache; not in the owner's a)
+mmc_case_control_fixes.csv,CC028,PRJNA521587,20,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: paper_not_in_cache; reader2 quote: paper_not_in_cache; not in the owner's a)
+mmc_case_control_fixes.csv,CC029,PRJNA521587,11,both readers confirm the catalog's label; no change proposed (check_flag=review: reader1 quote: paper_not_in_cache; reader2 quote: paper_not_in_cache; not in the owner's a)
+mmc_case_control_fixes.csv,CC030,PRJNA622386,5,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC031,PRJNA637785,58,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC032,PRJNA731589,86,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC033,PRJNA759070,7,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC034,PRJNA801862,12,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC035,PRJNA813705,30,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC036,PRJNA826539,8,both readers confirm the catalog's label; no change proposed
+mmc_case_control_fixes.csv,CC037,PRJNA856701,21,both readers confirm the catalog's label; no change proposed
