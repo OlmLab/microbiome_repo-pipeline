@@ -55,7 +55,8 @@ def parse_form_body(body: str) -> dict:
 
 # R2026.26 (intake test): the site's two-question form (site_generator/gen/issue_templates/simple-finding.yml) and the Authors
 # page link use human labels, not schema ids; map them so a site report keeps its accession and text.
-SIMPLE_LABELS = [("What is wrong or missing", "current_state"), ("Tell us more", "evidence_quote"), ("accession", "identifier"),
+# R2026.43: the accession field of the form is labelled "Project accession"; issues filed with the earlier label still parse.
+SIMPLE_LABELS = [("What is wrong or missing", "current_state"), ("Tell us more", "evidence_quote"), ("accession", "identifier"), ("Project accession", "identifier"),
                  ("release id", "release_tag"), ("page URL", "evidence_source")]
 
 
