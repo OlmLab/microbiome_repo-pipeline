@@ -191,6 +191,8 @@ def test_conditions_placeholder(site_new):
     """R2026.44: the mock package ships no conditions payload, so pages/conditions.py renders the placeholder:
     the menu link resolves, the page says the data files are not in this build, and nothing of the explorer —
     its table, its script, its data directory, its per-condition API files — is written."""
+    if (Path(__file__).resolve().parents[1] / 'data' / 'inputs' / 'site' / 'conditions' / 'condition_explorer.csv').exists():
+        pytest.skip('the Condition explorer payload is in this checkout (data/inputs/site/conditions): the real page is built')
     html = _html(site_new, 'atlas/conditions.html')
     assert 'Condition explorer' in html and 'does not include its data files' in html
     assert 'cn-table' not in html and 'sp_conditions.js' not in html
