@@ -294,11 +294,15 @@ taxa:            ## R2026.42: Insights › Taxon explorer payload → $(DATA)/si
 replication-page: ## R2026.42: Insights › Replication of published findings payload → $(DATA)/site/replication (3 s). The run is NOT repeated: its results belong to the package under test (1.34.0)
 	$(PY) scripts/replication_page.py --replication $(REPLICATION) --out $(DATA)/site/replication
 	cd $(DATA)/site/replication && shasum -a 256 -c $(REPLICATION)/for_editor/replication_page/payload/SHA256SUMS.txt
+	# R2026.44: the exploratory checks the Replication chat added after the test (one more collapsed section; replication.json keeps its checksum)
+	$(PY) scripts/replication_exploratory.py --payload $(DATA)/site/replication
+	cd $(DATA)/site/replication && shasum -a 256 -c $(REPLICATION)/for_editor/replication_page/payload/SHA256SUMS_exploratory.txt
 
 side-page-tests: ## R2026.42: page tests of the three Insights pages on the built site (jsdom; node_modules in $(SIDE_PAGES)/work/node)
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/taxon_explorer/dom_explorer.mjs $(abspath $(SITE_OUT))
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/vanish_blossum/dom_vanish.mjs $(abspath $(SITE_OUT))
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication.mjs $(abspath $(SITE_OUT))
+	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication_x.mjs $(abspath $(SITE_OUT))
 	$(PY) tests/side_pages/vanish_blossum/check_vanish_urls.py --root $(abspath $(SITE_OUT))
 	$(PY) tests/side_pages/replication/check_urls.py --root $(abspath $(SITE_OUT))
 

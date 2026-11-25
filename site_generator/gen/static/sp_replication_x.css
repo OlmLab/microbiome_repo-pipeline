@@ -1,0 +1,10 @@
+/* sp_replication_x.css — the exploratory add-on of the replication page (see sp_replication_x.js). */
+.rpx-h { font-size: .95rem; margin: 1rem 0 .3rem; }
+.rpx-table { margin: .3rem 0 .8rem; }
+.rpx-table td.num, .rpx-table th.num { text-align: right; }
+.rpx-sub { margin: .2rem 0 .4rem; }
+.rpx-sub > summary { cursor: pointer; font-size: .85rem; }
+.rpx-tag { display: inline-block; padding: 0 .4em; border: 1px solid #B4521A; border-radius: 3px; color: #8a3d12; font-size: .75rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
+.rpx-note { border-left: 3px solid #B4521A; padding-left: .6rem; }
+.rpx-after { color: #5f6463; }
+.rpx-flag { color: #8a3d12; font-weight: 600; }

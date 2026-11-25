@@ -15,10 +15,12 @@ and stays as it is when the catalog moves on.
 
 ctx: replication_dir = the payload directory.
 Files this page needs in <site>/static/: side_pages.css and sp_core.js (shared, from the taxon explorer),
-sp_replication.js and sp_replication.css (this folder's static/).
+sp_replication.js and sp_replication.css (this folder's static/); with the optional exploratory file
+(replication_exploratory.json, written by replication_exploratory.py) also sp_replication_x.js and sp_replication_x.css.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -40,9 +42,18 @@ def build(render, ctx, out_dir):
     dst.mkdir(parents=True, exist_ok=True)
     # copy exactly the files the page uses: the one data file and the downloads it links to
     names = ["replication.json"] + list(M["downloads"])
+    # optional: the exploratory checks added after the test (replication_exploratory.py). Shown only when their file
+    # was built for exactly this replication.json; otherwise the page is the registered page and nothing else.
+    X = None
+    xp = src / "replication_exploratory.json"
+    if xp.exists():
+        xj = json.loads(xp.read_text(encoding="utf-8"))
+        if xj.get("pair", {}).get("main_sha256") == hashlib.sha256((src / "replication.json").read_bytes()).hexdigest():
+            X = dict(meta=xj["meta"], pair=xj["pair"])
+            names += ["replication_exploratory.json"] + list(xj["meta"]["downloads"])
     for name in names:
         shutil.copyfile(src / name, dst / name)
     render("atlas_replication.html", "atlas/replication.html", "../", nav="atlas", sub="replication",
-           M=M, data=DATA, crumbs=CRUMBS)
-    return dict(page="atlas/replication.html", files=len(names), bytes=sum((dst / n).stat().st_size for n in names),
+           M=M, X=X, data=DATA, crumbs=CRUMBS)
+    return dict(page="atlas/replication.html", exploratory=X is not None, files=len(names), bytes=sum((dst / n).stat().st_size for n in names),
                 package=M["package"], replicated=M["replicated"], testable=M["testable"])

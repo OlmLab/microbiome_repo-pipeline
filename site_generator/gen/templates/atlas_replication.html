@@ -3,7 +3,9 @@
    box); method, labels, limits, sensitivity analyses, the plan fixed in advance and the downloads are in the
    collapsed <details> at the foot. The graphic, the search and the claim panel are drawn in the browser by
    static/sp_replication.js on top of static/sp_core.js from ONE data file, data/replication/replication.json;
-   no chart image is shipped. Every number in this template comes from that file's "meta" block (M). #}
+   no chart image is shipped. Every number in this template comes from that file's "meta" block (M).
+   OPTIONAL: when the payload also holds replication_exploratory.json (X = its meta and pair blocks), one more
+   collapsed section and static/sp_replication_x.js show three exploratory checks added after the test, kept apart. #}
 {% extends "base.html" %}
 {% set C = M.checks %}
 {% macro n(x) %}{{ "{:,}".format(x) }}{% endmacro %}
@@ -11,7 +13,8 @@
 {% block title %}Replication of published findings — {{ site.title }}{% endblock %}
 {% block desc %}{{ n(M.registered) }} published claims that a gut microbe is more or less abundant in people with a condition than in healthy controls, put to a test on the catalog's own samples by a plan fixed in advance: {{ n(M.replicated) }} of the {{ n(M.testable) }} testable claims replicated.{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ root }}static/side_pages.css">
-<link rel="stylesheet" href="{{ root }}static/sp_replication.css">{% endblock %}
+<link rel="stylesheet" href="{{ root }}static/sp_replication.css">{% if X %}
+<link rel="stylesheet" href="{{ root }}static/sp_replication_x.css">{% endif %}{% endblock %}
 {% block content %}
 <div class="page-head sp-head"><h1>Replication of published findings</h1>
 {% set ap="" %}{% set sub="replication" %}{% include "_insights_nav.html" %}
@@ -94,7 +97,11 @@
 {% endfor %}{% for k, r in M.by_sequencing.items() %}<tr><td>Original study: {{ {"16S": "16S amplicon", "WMS": "shotgun"}.get(k, k) }}</td><td class="num">{{ n(r.testable) }}</td><td class="num">{{ n(r.replicated) }}</td><td class="num">{{ pct(r.rate) }} ({{ "%.1f"|format(100 * r.ci95_low) }}–{{ "%.1f"|format(100 * r.ci95_high) }})</td></tr>
 {% endfor %}</tbody></table>
 </details>
-<details class="sp-more"><summary>The plan was fixed in advance</summary>
+{% if X %}<details class="sp-more rpx" id="rp-explore"><summary>Exploratory checks added after the test</summary>
+<p class="small"><span class="rpx-flag">Not part of the plan.</span> These three checks were run on {{ X.meta.made }}, after the results were known, on the same package ({{ X.meta.package }}). They do not change the headline or any label on this page, and a claim that passes one of them has not thereby replicated.</p>
+<div id="rpx-body"><p class="small">The tables of this section are drawn in your browser. The numbers are in {% for d in X.meta.downloads %}<a href="{{ data }}{{ d }}">{{ d }}</a>{{ " · " if not loop.last else "." }}{% endfor %}</p></div>
+</details>
+{% endif %}<details class="sp-more"><summary>The plan was fixed in advance</summary>
 <p class="small">The analysis plan, the list of claims and the code were frozen on {{ M.frozen_at[:10] }} and their fingerprint published in the notes of release {{ M.hash_printed_in[0] }}, before the test ran on {{ M.run_date }} on the newest published package of that day, {{ M.package }}. Nothing was computed with the real case and control labels beforehand, apart from colorectal cancer, which is not part of the headline, and the frozen files were checked unchanged before and after. The registration was informal: it was not filed with a registry.</p>
 <p class="small">Fingerprint of the frozen folder (the SHA-256 of its checksum list): <code class="rp-hash">{{ M.freeze_hash }}</code></p>
 <p class="small">Two figures on this page were not in the plan: the same-claims comparison under “Person identifiers” in the box above, and the linked/unlinked split under Limits.</p>
@@ -111,4 +118,5 @@
 <script>window.SP_PAGE={page:'replication',root:'{{ root }}',dataDir:'{{ data }}',taxaHref:'taxa/',studiesHref:'{{ root }}studies/'};</script>
 <script src="{{ root }}static/sp_core.js"></script>
 <script src="{{ root }}static/sp_replication.js"></script>
-{% endblock %}
+{% if X %}<script src="{{ root }}static/sp_replication_x.js"></script>
+{% endif %}{% endblock %}
