@@ -129,6 +129,37 @@ the Makefile).
 * **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
   page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
 
+## Next run: carried over from R2026.43
+
+R2026.43 / 1.34.2 is a site release (website review applied; data tables unchanged). It was built in a chat workspace like
+R2026.42; the section "Next run: carried over from R2026.42" below still describes what `~/catalog` lacks, with these changes:
+
+- **Previous package for the next `make release`** is `data_package_v1.34.2.zip` (GitHub release `data-v1.34.2`, Zenodo, session
+  file of the Editor chat).
+- **Order of the page-data steps** after `make release`: `make taxon-map` → `make measures` → `make vanish-page` (only when the
+  VANISH run or its page texts changed) → `make taxa` → `make site` → `make verify` → `make side-page-tests`. The Taxon map
+  page data are now rebuilt in every release (they had not been since September 2026).
+- **Issue forms.** The site repository's `main` branch holds the forms GitHub shows. `make install-workflows` no longer installs
+  `catalog-finding.yml` and `catalog-contribution.yml` (no page links to them); after a change to
+  `site_generator/gen/issue_templates/*.yml`, run `make install-workflows`, commit and push `main` of the site repository
+  before `make publish-branch`.
+
+Left for the next **data** release by the website review (each is a value or a rule in the data, not wording):
+
+| Item | What |
+|---|---|
+| Owner's decision 8 | map free-text health conditions to vocabulary codes (3,603 samples at the time of the review); `api/by-condition/` then gains the files that were removed as free text |
+| F405 | the summary of PRJEB55648 (`short_description`) promises four body sites; the catalog holds stool only |
+| F413 | `reason_label` values in `catalog_sandpiper_unprofiled.parquet` are worded for the pipeline, not for a reader |
+| F069 | the Amazonian Amerindian collection's lifestyle filter leaves out the 226 Venezuelan samples of PRJEB55648 (changes membership counts: owner) |
+| F170 | `release_notes.py`: a release with an empty diff should say so in one sentence instead of tables of `+0`; its "Sandpiper snapshot" section still describes the retired infant-phase join (2.0.0, 79,473 samples) and is cut at render time on Downloads (`NOTE_SECTIONS_DROPPED` in `build_site.py`) — check that heading match after the next build |
+| F608 | 4,814,518 current values in `catalog_sample_determinations` against 4,814,208 filled cells counted from the wide table: explain or remove the 310 |
+| `scope == 'study_all'` | `build_site.py` tests this value in three places (project-page group rows, Fields, External resources); the column holds `sample`, `group`, `subject`, `biosample`, so the tests never match. Decide whether `group` is meant and what the project page should then show |
+| F496 | FMT and other intervention counts: the Samples page counts projects whose `interventions` carries the code (151 for FMT), the Projects sheet also counts projects with the code on a sample arm (161); the page says so, one definition would be better |
+| QC rule | the Taxon map keeps low-complexity profiles (six flags, 367,485 samples), the Taxon explorer and Profile coverage and quality drop them (seven flags, 379,851; the explorer also drops non-specimens, 379,776). Each page states its rule; decide whether to use one |
+| F056, F406, F087 | cohort page link into the sample explorer (needs a list parameter); relationship diagrams label unknown roles `unknown`; half of `config/contribute.yaml` duplicates what `build_worklist.py` reads |
+| `audit/schema.json` | the description of the withdrawn finding form still names the old product |
+
 ## Next run: carried over from R2026.42
 
 **Start state.** R2026.42 was built in a chat workspace because `~/catalog` was read-only to code (see "When `~/catalog` is

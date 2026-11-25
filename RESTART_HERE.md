@@ -1,14 +1,16 @@
-# RESTART_HERE — Microbiome Repo (v15, 2026-11-24, after R2026.42)
+# RESTART_HERE — Microbiome Repo (v16, 2026-11-24, R2026.43 built)
 
-**State**: R2026.42 / 1.34.1 is published (24 November 2026; DOI 10.5281/zenodo.24508002; site https://microbiome-repo.colorado.edu/;
-813,356 samples, 5,086 projects, 4,814,518 values — the data of 1.34.0). It is a site release: the Insights menu with three new pages
-(taxon explorer, VANISH / BloSSUM, replication of published findings), and the name "Atlas" is gone from what visitors see. R2026.41 /
-1.34.0 (DOI 10.5281/zenodo.24241062) precedes it. **`~/catalog` is read-only to chat code since 23 November 2026**: R2026.42 was
-built in a chat workspace and pushed from there, so the local clones and `build/` in `~/catalog` are behind GitHub. Read
-`docs/MONTHLY_RUN.md`, sections "Next run: carried over from R2026.42" (what is newer than `~/catalog` and where it is) and "When
-`~/catalog` is read-only to code" (how to build and publish), before anything else. The Editor's report is
-`~/catalog/projects/editor/REPORT.md`, its decisions `~/catalog/projects/editor/DECISIONS.md`. The DuckDB self-hosting switch stays
-off until the owner confirms that the CU server serves `.wasm` files. Publishing needs the owner at the machine to approve the cards.
+**State**: R2026.43 / 1.34.2 is a site release that applies an external website review (one word per thing, shorter pages, stale
+statements and dead links removed, the Taxon map recomputed on the current profiles); the data are those of 1.34.0 (813,356
+samples, 5,086 projects, 4,814,518 values). Whether it is published and its DOI: `config/releases.yaml`, entry R2026.43 (a `doi`
+line is added after publication). R2026.42 / 1.34.1 (DOI 10.5281/zenodo.24508002, published 24 November 2026) precedes it.
+**`~/catalog` is read-only to chat code since 23 November 2026**: R2026.42 and R2026.43 were built in a chat workspace and pushed
+from there, so the local clones and `build/` in `~/catalog` are behind GitHub. Read `docs/MONTHLY_RUN.md`, sections "Next run:
+carried over from R2026.43" and "…R2026.42" (what is newer than `~/catalog`, where it is, and what the review left for the next
+data release) and "When `~/catalog` is read-only to code" (how to build and publish), before anything else. The Editor's report
+is `~/catalog/projects/editor/REPORT.md`, its decisions `~/catalog/projects/editor/DECISIONS.md`. The DuckDB self-hosting switch
+stays off until the owner confirms that the CU server serves `.wasm` files. Publishing needs the owner at the machine to approve
+the cards.
 
 **Where things are**: pipeline `~/catalog/catalog-pipeline` (GitHub OlmLab/microbiome_repo-pipeline), site clone
 `~/catalog/infant-gut-catalog` (OlmLab/microbiome_repo), data clone `~/catalog/infant-gut-catalog-data` (OlmLab/microbiome_repo-data);
@@ -18,7 +20,8 @@ caches `~/catalog/cache` (`large_update/` = intake stages, `deep_pass/` = this p
 
 **How a release is made**: `docs/MONTHLY_RUN.md` (stages 1–19 and the passes the deep pass added). In short: intake and passes →
 `scripts/prepare_catalog_inputs.py --extra-facts-dirs $L/stage13_merged/ $L/stage14_merged/ $L/stage17_deep_pass/` →
-`make release BUILD_DATE=<d> PKG_ZIP=build/data_package_v<previous>.zip` → `make measures` → `make site BUILD_DATE=<d>` →
+`make release BUILD_DATE=<d> PKG_ZIP=build/data_package_v<previous>.zip` → `make taxon-map` → `make measures` → `make taxa` →
+`make site BUILD_DATE=<d>` →
 `make verify` → compare the live Content-Security-Policy with `config/site.yaml` → `make check-credential` →
 `make publish-branch BUILD_DATE=<d>` → copy `verify.yml`, `check-cu-deploy.yml`, `deploy-pages.yml` into the site clone and
 `release.yml` into the data clone, amend, re-tag → push pipeline main first, then the site branch and tag, `release-assets`
