@@ -42,7 +42,7 @@ EXTERNAL   ?= $(HOME)/catalog/external
 export SANDPIPER_ZENODO_RECORD := $(ZENODO_RECORD)
 export SANDPIPER_VERSION
 
-.PHONY: gut-build gut-newfields-r1 gut-newfields-r1-v2 registry-fixture registry-classify-det registry-build registry-biosamples help gapfill apply-gapfill ingest-contributions apply-verdicts bootstrap bootstrap-kernel lock check-credential unpack inputs-json sync-skills test resweep triage extract findings rewide package package-assemble bitemporal worklist package-docs release-notes release check-reports plot-coverage site verify publish-branch install-workflows ingest-issues sandpiper-refresh sandpiper-delta authors clean taxon-map conditions-page
+.PHONY: gut-build gut-newfields-r1 gut-newfields-r1-v2 registry-fixture registry-classify-det registry-build registry-biosamples help gapfill apply-gapfill ingest-contributions apply-verdicts bootstrap bootstrap-kernel lock check-credential unpack inputs-json sync-skills test resweep triage extract findings rewide package package-assemble bitemporal worklist package-docs release-notes release check-reports plot-coverage site verify publish-branch install-workflows ingest-issues sandpiper-refresh sandpiper-delta authors clean taxon-map conditions-page exports
 
 help:            ## list targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n", $$1, $$2}'
@@ -288,6 +288,15 @@ taxon-map:       ## R2026.43: Insights › Taxon map payload (taxa.json, matrix_
 
 conditions-page: ## R2026.44: Insights › Condition explorer tables → $(DATA)/site/conditions, rebuilt from the built package and the condition terms (seconds; the ontology relations and the replication columns come from the Conditions chat's hand-over tables, which belong to the registered run)
 	$(PY) scripts/build_condition_explorer.py --package $(PKG_OUT) --terms $(CONDITION_TERMS) --static docs/audits/r44/condition_explorer_handover --out $(DATA)/site/conditions --check
+	$(PY) scripts/condition_manifest.py --package $(PKG_OUT) --terms $(CONDITION_TERMS) --out $(DATA)/site/conditions
+
+EXPORTS_OUT ?= $(BUILD)/exports
+REPLICATION_LABEL ?= the pre-registered replication run of 2026-11-15 on data package 1.34.0 (release R2026.41)
+exports:         ## R2026.44: analysis-ready release downloads (seven tables, DATASET_CARD.md, export_manifest.csv) from the built package → $(EXPORTS_OUT) (≈ 30 s, 4 GB), then the 44 checks; attached to the release by `make publish-branch`
+	rm -rf $(EXPORTS_OUT)
+	$(PY) scripts/exports/build_exports.py --package $(PKG_OUT) --profiles-dir $(GUT_SANDPIPER_DIR) --replication-claims $(REPLICATION)/for_editor/replication_page/payload/replication_claims.csv \
+	  --bugsigdb-claims $(REPLICATION)/tables/claims.parquet --replication-label "$(REPLICATION_LABEL)" --out $(EXPORTS_OUT)
+	$(PY) scripts/exports/check_exports.py --out $(EXPORTS_OUT) --package $(PKG_OUT) --profiles-dir $(GUT_SANDPIPER_DIR) --replication-claims $(REPLICATION)/for_editor/replication_page/payload/replication_claims.csv
 
 taxa:            ## R2026.42: Insights › Taxon explorer payload → $(DATA)/site/taxa (≈ 70 s, 3.6 GB RAM; after `make vanish`; TAXA_FLAGS=--skip-presence when the site would pass 950 MB)
 	rm -rf $(DATA)/site/taxa
@@ -356,6 +365,8 @@ publish-branch:  ## stage 7 — copy site + package into the clones, commit on r
 	@if [ -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" ]; then for t in genus species; do $(PY) scripts/split_parquet.py $(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_$$t.parquet $(ASSETS_WT)/assets/catalog_sandpiper_sample_$${t}_v$(VERSION) --max-mb 90; done; echo "Sandpiper long tables staged"; fi
 	# registry_runs is re-written with zstd (snappy copy passed 100 MB at R2026.13: 128 MB → 75 MB) so it stays one file below GitHub's hard limit
 	@if [ -f "$(REGISTRY_RUNS)" ]; then $(PY) -c "import pyarrow.parquet as pq,sys; pq.write_table(pq.read_table(sys.argv[1]), sys.argv[2], compression='zstd', compression_level=9, row_group_size=200000)" $(REGISTRY_RUNS) $(ASSETS_WT)/assets/registry_runs_v$(VERSION).parquet && (cd $(ASSETS_WT)/assets && shasum -a 256 registry_runs_v$(VERSION).parquet > registry_runs_v$(VERSION).parquet.sha256); echo "registry_runs asset staged"; fi
+	@# R2026.44: the analysis-ready exports of this package (make exports) are release downloads too
+	@if [ -f "$(EXPORTS_OUT)/export_manifest.csv" ]; then grep -q "v$(VERSION)" $(EXPORTS_OUT)/export_manifest.csv || { echo "exports in $(EXPORTS_OUT) are not of package $(VERSION): run make exports"; exit 1; }; cp $(EXPORTS_OUT)/* $(ASSETS_WT)/assets/; else echo "WARNING: no exports in $(EXPORTS_OUT) (make exports)"; fi
 	echo "$(VERSION)" > $(ASSETS_WT)/assets/ASSETS_VERSION.txt
 	# the sandbox refuses to create a `.git` directory, so the git dir lives beside the work tree (GIT_DIR); the push command below must set the same two variables
 	rm -rf $(ASSETS_WT).gitdir && cd $(ASSETS_WT) && export GIT_DIR=$(ASSETS_WT).gitdir GIT_WORK_TREE=$(ASSETS_WT) && git init -q && git add -A && git -c user.name=release-bot -c user.email=release-bot@localhost commit -qm "release assets $(VERSION) ($(BUILD_DATE)) — orphan branch, no history" && echo "assets repo ready at $(ASSETS_WT) (git dir $(ASSETS_WT).gitdir)"

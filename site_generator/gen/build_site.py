@@ -139,7 +139,16 @@ FILE_DESC = {
 OFFSITE = [dict(name='registry_runs_v{v}.parquet', desc='Registry run tier: one row per sequencing run of every registry study (≈ 2 M rows, ≈ 80 MB) — GitHub Release asset data-v{v}.'),
            dict(name='microbiome_repo_v{v}.sqlite', desc='All package tables as one SQLite database — Release asset.'),
            dict(name='catalog_sandpiper_sample_genus_v{v}_part*.parquet', desc='Genus-level Sandpiper relative abundances for every profiled catalog sample (long table: sample_key, genus, relabund, coverage; ≈ 185 MB in < 90 MB parts, concatenate the parts) — Release asset.'),
-           dict(name='catalog_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (relabund ≥ 0.001; ≈ 200 MB in parts) — Release asset.')]
+           dict(name='catalog_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (relabund ≥ 0.001; ≈ 200 MB in parts) — Release asset.'),
+           # R2026.44: analysis-ready exports (scripts/exports/build_exports.py; `make exports`), described in DATASET_CARD.md
+           dict(name='DATASET_CARD.md', desc='Dataset card of the seven analysis-ready tables below: sample set, columns, splits, how to build the samples × genera matrix, limits — Release asset. export_manifest.csv beside it lists rows, bytes and sha256 of each table.'),
+           dict(name='ml_samples_v{v}.parquet', desc='Analysis-ready sample table: one row per profiled specimen that passes every quality flag, with project, project group, person, twelve label columns, sequencing depth and fixed 5- and 10-fold splits by project group — Release asset.'),
+           dict(name='ml_genera_v{v}.parquet', desc='Genera of the abundance table: genus, lineage, number of samples — Release asset.'),
+           dict(name='ml_genus_abundance_long_v{v}.parquet', desc='Genus relative abundances of the samples in ml_samples as non-zero cells (sample, genus, value; ≈ 80 MB) — Release asset.'),
+           dict(name='taxon_prevalence_body_site_condition_v{v}.parquet', desc='Prevalence of every genus and species per body site and per health condition within a body site — Release asset. Read by the MCP server.'),
+           dict(name='prevalence_denominators_v{v}.csv', desc='Samples and projects behind each prevalence row (per body site and condition) — Release asset.'),
+           dict(name='replication_signature_taxa_v{v}.csv', desc='One row per registered claim of the replication run, with its result and its BugSigDB source — Release asset.'),
+           dict(name='replication_signatures_v{v}.csv', desc='One row per BugSigDB signature with the number of claims per result — Release asset.')]
 TAXON_PALETTE = ['#CFB87C', '#565A5C', '#A88B4A', '#8C8F91', '#7A6A3C', '#3C3C3C', '#8A7A48', '#7F7060', '#6E6A5E', '#8F7418', '#6F6D62', '#6B6F73', '#7D7461', '#4A4A4A', '#75604A', '#5F6366']
 UNASSIGNED_COLOR = '#D9D9D9'
 # R2026.20 project-page genus bar: 12 distinguishable colours (CU gold first, then a colour-blind-aware qualitative set)
@@ -1411,6 +1420,8 @@ def main():
                 citation=f'{names["title"]}, release {release_id} (data package {version}), Olm Lab, University of Colorado Boulder, {cur_rel["release_date"]}.' + (f' DOI {doi or concept_doi}' if (doi or concept_doi) else ''),
                 sri=json.loads((HERE / 'static' / 'vendor' / 'SRI.json').read_text()), has_contribute=True, contribute_page='contribute/index.html',
                 has_registry=True, registry_page='registry/index.html', data_repo=read_github_repo(a.config, 'data'))
+    _mcp = ((yaml.safe_load(Path(a.config).read_text(encoding='utf-8')).get('github') or {}).get('repos') or {}).get('mcp')
+    site['mcp_repo_url'] = f"https://github.com/{site['data_repo'].split('/')[0]}/{_mcp}" if _mcp and '/' in str(site.get('data_repo') or '') else None   # R2026.44
 
     env = Environment(loader=FileSystemLoader(HERE / 'templates'), autoescape=select_autoescape(['html']))
     def f_gbp(v):   # R2026.25: shallow runs are shown in Mbp instead of rounding to 0.00 Gbp
@@ -2524,6 +2535,7 @@ def main():
         dict(path='data/studies_index.json', desc='Project index used by the project table', **dirstat('data', 'studies_index.json')),
         dict(path='data/contribute_worklist.json', desc='Contribution worklist (one object per open project)', **dirstat('data', 'contribute_worklist.json')),
         dict(path='data/package/', desc='The catalog, registry and release files of the package, file by file', **dirstat('data/package')),
+        dict(path='data/conditions/condition_explorer*.csv', desc='Tables of the Condition explorer: conditions, condition × project rows, published associations', **dirstat('data/conditions', 'condition_explorer*.csv')),
         dict(path='authors/idx/<letter>.json', desc='Author index shards', **dirstat('authors/idx')),
     ]
     offsite = [dict(o, name=o['name'].replace('{v}', version), desc=o['desc'].replace('{v}', version)) for o in OFFSITE]

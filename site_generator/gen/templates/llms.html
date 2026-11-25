@@ -20,6 +20,9 @@
 </ol>
 <p>The same filters are on the <a href="../studies/index.html">Projects</a> (health condition × intervention × design × "treated &amp; control arms") and <a href="../samples/index.html">Samples</a>.</p>
 
+{% if site.mcp_repo_url %}<h2 id="mcp">MCP server</h2>
+<p>An assistant that speaks the Model Context Protocol can query one release on your own machine instead of reading files from this site. <a href="{{ site.mcp_repo_url }}">microbiome-repo-mcp</a> is a small Python package that reads the unpacked data package with DuckDB and answers six kinds of question: find projects, filter samples, summarise a condition, prevalence of a taxon per body site, how to cite, and the coded values a filter accepts. It is pinned to one release, downloads nothing and writes nothing; every answer names the release it came from. Installation and the list of tools are in its README.</p>
+{% endif %}
 <h2>Endpoints</h2>
 <table class="tbl small"><thead><tr><th>file</th><th>contents</th></tr></thead><tbody>
 <tr><td><a class="mono" href="../llms.txt">llms.txt</a></td><td>plain-text instructions an assistant reads first (the prompt points here)</td></tr>
