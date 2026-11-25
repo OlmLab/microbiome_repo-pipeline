@@ -35,9 +35,9 @@ CRUMBS = [dict(label="Home", href="../index.html"), dict(label="Insights", href=
 DATA = "../data/conditions/"      # the payload, as seen from atlas/conditions.html
 FILES = ("condition_explorer.csv", "condition_explorer_projects.csv", "condition_explorer_associations.csv")
 # Figures the three tables cannot carry, because they count LABEL STRINGS rather than conditions, and the two
-# ontology versions the ids were read against. They belong to the curation the tables were built from and are
-# stated on the page as they were reported for package 1.34.0. A rebuild may ship conditions_manifest.json in the
-# payload directory with any of these keys to replace them (the Editor rebuilds the tables per package).
+# ontology versions the ids were read against. scripts/condition_manifest.py counts the two label-string figures on
+# the released package and writes conditions_manifest.json beside the tables (`make conditions-page`); the values
+# below are only the fallback for a payload without that file, and are the counts reported for package 1.34.0.
 DEFAULTS = dict(efo_version="3.96.0", mondo_release="2026-11-03", run_date="2026-11-15",
                 labels_without_term=154, labels_unsettled=51)
 
@@ -82,6 +82,11 @@ def build(render, ctx, out_dir):
         claims_testable=sum(_int(r.get("replication_claims_testable")) for r in tested),
         claims_replicated=sum(_int(r.get("replication_claims_replicated")) for r in tested),
         n_broader=sum(1 for r in cond if (r.get("replication_scope") or "") == "broader condition"),
+        # F05 / F06: rows that carry a replication result but no cases of their own, and rows whose term is a
+        # phenotype or a finding rather than a disease — both are stated on the page, both counted here.
+        n_no_cases=sum(1 for r in cond if _int(r.get("cases")) == 0),
+        n_phenotype=sum(1 for r in cond if (r.get("term_branch") or "") not in ("disease", "")),
+        has_manifest=man.exists(),
         n_associations=len(assoc),
         n_assoc_conditions=len({r["condition_id"] for r in assoc if r.get("condition_id")}),
         package=ctx.get("package"), release_id=ctx.get("release_id"),

@@ -2,6 +2,8 @@
 {% block title %}What changed in {{ c.release_id }} — {{ site.title }}{% endblock %}
 {% block content %}
 <h1>What changed in {{ c.release_id }} <span class="small">(package {{ c.package_version }}, {{ c.release_date }})</span></h1>
+{% if rel.label %}<p class="lead">{{ rel.label }}</p>{% endif %}
+<p class="small">The tables below count the values this release <b>added</b>. What else it changed — corrected values, new columns, the site — is in the <a href="../downloads/index.html#rel-{{ c.release_id }}">release notes</a>{% if changelog_href %} and in the <a href="{{ changelog_href }}">package changelog</a>{% endif %}.</p>
 {% if c.nothing %}<p class="lead">{{ c.release_id }} added no new metadata. It changed the site and the documents only — see the release notes below.</p>{% else %}
 <div class="cards">
 <div class="card"><div class="num">{{ c.n_added|fmt }}</div><div class="lbl">sample × field values added ({{ c.n_samples_added|fmt }} samples, {{ c.n_studies_changed|fmt }} projects)</div></div>

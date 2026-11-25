@@ -45,6 +45,10 @@ SAMPLE_COL_DESC = {
     'n_runs': 'number of sequencing runs of this sample',
     'seq_gbp': 'sequenced bases of this sample, in gigabases',
 }
+# R2026.44 (review F22): every count in a project record is the project's own total over all its samples, never only
+# the samples the file selects. Said once in api/index.json and once in each per-condition file.
+NOTE = "the project's own totals, over all its samples, not only the samples of this condition"
+SELECTION_NOTE = "the project's own totals, over all its samples, not only the samples of the selection"
 DESIGNS = ['randomized_controlled_trial', 'non_randomized_controlled', 'crossover', 'single_arm_before_after', 'observational_with_procedure', 'none', 'unknown']
 
 
@@ -157,6 +161,9 @@ def build(render, out: Path, ctx: dict):
             _dump(dict(release=ctx['release_id'],
                        filter=dict(condition_id=c['condition_id'], condition_name=c['condition_name'],
                                    efo_id=c['efo_id'] or None, mondo_id=c['mondo_id'] or None, anchor=c['anchor']),
+                       note=('projects with at least one sample whose health-condition label was mapped to this condition, '
+                             'most cases first. Every count in a project record is %s; the per-condition counts are in '
+                             'data/conditions/condition_explorer_projects.csv.') % NOTE,
                        n_projects=len(sel), projects=sel), api / 'by-condition' / f"{c['anchor']}.json")
             cond_ids[c['anchor']] = len(sel)
     for c in ctx['age_cats']:
@@ -203,7 +210,20 @@ def build(render, out: Path, ctx: dict):
                        by_condition_id={a: f'{base}api/by-condition/{quote(a)}.json' for a in cond_ids},
                        by_age={c: f'{base}api/by-age/{quote(c)}.json' for c in slices['age']},
                        samples_csv=f'{base}api/samples/<ACCESSION>.csv', wide_parquet=f'{base}data/catalog_sample_metadata_wide.parquet'),
-        project_keys=dict(accession='BioProject accession', title='project title', n_samples='catalog samples',
+        selection_keys=dict(release='release id the files were written for', filter='what was selected (a vocabulary code, '
+                            'a condition id with its name and ontology ids, an intervention code or an age category)',
+                            n_projects='number of project records in this file', projects='the project records themselves',
+                            note='only in api/by-condition/<anchor>.json: what the file selects and what its counts are over'),
+        counts_keys=dict(projects='catalog projects', interventions='intervention code -> projects that administered it',
+                         conditions='health-condition vocabulary code -> projects with a sample of that code',
+                         condition_ids="condition identifier (the anchor of api/by-condition/<anchor>.json) -> projects with a sample whose label was mapped to that condition",
+                         age='age category -> projects with a sample of that category'),
+        by_condition_files='Two kinds of file share the by-condition/ folder: by-condition/<code>.json counts the catalog\'s own '
+                           'health-condition code (codes in api/vocabularies.json); by-condition/<anchor>.json counts the samples whose '
+                           'label was mapped to that condition in EFO / MONDO (anchors in endpoints.by_condition_id). The two answer '
+                           'similar questions with different numbers: a code is one label, a condition gathers every label that names it.',
+        project_keys=dict(accession='BioProject accession', title='project title', n_samples=('catalog samples; in a selection file this '
+                          'and every other count below are %s' % SELECTION_NOTE),
                           gbp_per_sample_median='median sequencing depth per sample (Gbp)', health_conditions='code -> number of samples',
                           age_categories='life stage -> number of samples', countries='country -> number of samples', sex='sex -> number of samples',
                           interventions='interventions the project ADMINISTERED (project level, from abstract / description; [] = none stated)',
@@ -229,6 +249,8 @@ def build(render, out: Path, ctx: dict):
 def llms_txt(index, ctx):
     b = index['base_url']
     n_cond = len(index['endpoints'].get('by_condition_id') or {})
+    n_rows = ctx.get('n_conditions') or n_cond
+    note = "the project's own totals, over all its samples, not only the samples of the selection"
     ivs = ', '.join(f'{c}' for c in index['endpoints']['by_intervention'])
     return f"""# {index['name']} — instructions for LLMs and agents
 > Evidence-linked metadata for public human microbiome sequencing data — shotgun metagenomes and metatranscriptomes from every body site, all ages: {index['counts']['projects']:,} projects (INSDC BioProjects), {ctx['stats'].get('n_samples', 0):,} samples. Release {index['release']} (package {index['package_version']}).
@@ -239,7 +261,9 @@ Use ONLY the files below; fetch them, do not guess accessions or counts. All fil
 1. Choose the most specific selection and fetch it:
    - by intervention the project administered: {b}api/by-intervention/<code>.json   (codes: {ivs})
    - by health condition: {b}api/by-condition/<code>.json   (codes in {b}api/vocabularies.json, e.g. ulcerative_colitis, crohns_disease, ibd_unspecified, colorectal_cancer, type2_diabetes, obesity, healthy_control)
-   - by condition term (EFO / MONDO): {b}api/by-condition/<anchor>.json   (anchor = the condition id with the colon written as an underscore, e.g. MONDO_0005011.json; {n_cond:,} conditions, listed as endpoints.by_condition_id in {b}api/index.json and in the `anchor` column of {b}data/conditions/condition_explorer.csv)
+   - by condition term (EFO / MONDO): {b}api/by-condition/<anchor>.json   (anchor = the condition id with the colon written as an underscore, e.g. MONDO_0005011.json; {n_cond:,} of the {n_rows:,} conditions of the Condition explorer — the rows with no project of their own have no file — listed as endpoints.by_condition_id in {b}api/index.json and in the `anchor` column of {b}data/conditions/condition_explorer.csv)
+   The two are not the same selection: `<code>` counts the catalog's own health-condition code, `<anchor>` counts the samples whose label was mapped to that
+   ontology term. Every count inside a project record is {note}.
    - by age category: {b}api/by-age/<neonate|infant|child|adolescent|adult|elderly>.json
    - everything (large, ~2 MB): {b}api/projects.json
 2. Filter the selection's `projects` on the other keys: `health_conditions` (code -> samples), `interventions`, `intervention_design`, `trial_population_condition`,

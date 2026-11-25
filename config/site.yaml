@@ -38,7 +38,7 @@ github:
     pipeline: microbiome_repo-pipeline            # this repository (code, config, docs, tests, workflows)
     data: microbiome_repo-data         # package tables <=50 MB each, audit/findings/, reports/, tags data-vX.Y.Z
     site: microbiome_repo              # GitHub Pages repo (generated output only; Pages source = Actions)
-    mcp: microbiome_repo-mcp           # R2026.44: local MCP server over one pinned release (linked from the For LLMs & API page; remove the line to hide the link)
+    mcp: microbiome_repo-mcp           # R2026.44: local MCP server over one pinned release (linked from the For LLMs & API page; remove the line to hide the link). The repository is named like the others; the Python package inside it is microbiome-repo-mcp.
   # GitHub repository id of OlmLab/microbiome_repo-data (GET https://api.github.com/repos/OlmLab/microbiome_repo-data -> id, fetched 2026-09-26).
   # Zenodo's GitHub integration keys its badge and latest-DOI redirect on this id: https://zenodo.org/badge/<id>.svg -> https://zenodo.org/badge/latestdoi/<id>
   data_repo_id: 1389758854

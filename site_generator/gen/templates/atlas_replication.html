@@ -46,7 +46,7 @@
 </div></details>
 
 <p class="spx-status" id="rp-status" role="status">Loading the results…</p>
-<noscript><p class="sp-noscript">This page draws its charts in your browser, so it needs JavaScript. Every number is in the tables under Downloads at the foot of this page, starting with <a href="{{ data }}replication_conditions.csv">replication_conditions.csv</a> and <a href="{{ data }}replication_claims.csv.gz">replication_claims.csv.gz</a>.</noscript>
+<noscript><p class="sp-noscript">This page draws its charts in your browser, so it needs JavaScript. Every number is in the tables under Downloads at the foot of this page, starting with <a href="{{ data }}replication_conditions.csv">replication_conditions.csv</a> and <a href="{{ data }}replication_claims.csv.gz">replication_claims.csv.gz</a>.{% if X %} The exploratory checks at the foot are drawn in the browser too; their numbers are in {% for d in X.meta.downloads %}<a href="{{ data }}{{ d }}">{{ d }}</a>{{ " · " if not loop.last else "." }}{% endfor %}{% endif %}</noscript>
 
 <div class="spx-split" id="rp-split">
   <section class="sp-main rp-main" id="main-chart" aria-label="Replication of published claims by condition">

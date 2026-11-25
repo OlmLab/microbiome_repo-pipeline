@@ -1,7 +1,7 @@
 /* sp_replication_x.js — the EXPLORATORY add-on of Atlas > Replication of published findings.
  *
  * Three checks were run after the registered test (no correction for multiple tests; an abundance floor; claims
- * whose condition has only one or two cohorts). They are not part of the plan and change no label. This file
+ * whose condition has only one or two projects). They are not part of the plan and change no label. This file
  * keeps them apart from the registered page: it reads its own data file, data/replication/replication_exploratory.json,
  * fills the collapsed section #rp-explore, and adds one paragraph marked "Exploratory" to an open claim panel.
  * static/sp_replication.js is not changed and does not know this file exists; remove the script tag and the
@@ -59,23 +59,23 @@
                 n(r.registered_same_claims) + ' (' + pct(r.registered_same_claims / r.testable) + ')', n(r.rep_to_not), n(r.not_to_rep),
                 n(r.no_longer_testable) + ' (' + n(r.lost_replicated) + ' of them replicated before)'];
       }), 1);
-    h += '<h3 class="rpx-h">3. Conditions with one or two cohorts</h3>';
-    h += '<p class="small" id="rpx-few">' + n(f.candidates) + ' claims were not tested because fewer than three independent cohorts were left once the claim’s own cohort was set aside' +
+    h += '<h3 class="rpx-h">3. Conditions with one or two projects</h3>';
+    h += '<p class="small" id="rpx-few">' + n(f.candidates) + ' claims were not tested because fewer than three independent projects were left once the claim’s own project was set aside' +
       ' (for ' + n(f.three) + ' of them the condition has at least three and the claim’s own is among them). ' +
-      n(f.candidates - f.no_cohort) + ' of them can be looked at in the one or two cohorts that are left; they are shown apart and are not added to the headline. ' +
-      '<b>One cohort is one more study, not a replication across studies.</b> The claims are many but the cohorts are few, so these are not independent results.</p>';
-    h += table(['', 'Claims', 'Conditions', 'Cohorts behind them', 'p < 0.05, claimed direction', 'p < 0.05, opposite direction', 'Shuffled labels, either direction: mean', 'After correction within the group'],
+      n(f.candidates - f.no_cohort) + ' of them can be looked at in the one or two projects that are left; they are shown apart and are not added to the headline. ' +
+      '<b>One project is one more study, not a replication across studies.</b> The claims are many but the projects are few, so these are not independent results.</p>';
+    h += table(['', 'Claims', 'Conditions', 'Projects behind them', 'p < 0.05, claimed direction', 'p < 0.05, opposite direction', 'Shuffled labels, either direction: mean', 'After correction within the group'],
       f.groups.map(function (g) {
-        return [g.cohorts === 1 ? 'Tested in one cohort' : 'Tested in two cohorts', n(g.tested), n(g.conditions),
+        return [g.cohorts === 1 ? 'Tested in one project' : 'Tested in two projects', n(g.tested), n(g.conditions),
                 n(g.distinct_cohorts) + ' (the largest carries ' + n(g.largest) + ' claims)', share(g.uncorrected, g.tested),
                 share(g.opposite, g.tested), pct(g.chance_mean) + ' claimed, ' + pct(g.chance_opp_mean) + ' opposite', share(g.bh, g.tested)];
       }), 1);
-    h += '<p class="small" id="rpx-few-note">In a single cohort the opposite direction turns up in ' + pct(f.groups[0].opposite / f.groups[0].tested) + ' of the claims, against ' +
+    h += '<p class="small" id="rpx-few-note">In a single project the opposite direction turns up in ' + pct(f.groups[0].opposite / f.groups[0].tested) + ' of the claims, against ' +
       pct(f.groups[0].chance_opp_mean) + ' with shuffled labels. Cases and controls of one study differ in more than the condition, and a test inside one study cannot tell the two apart; ' +
-      'that is why the plan asked for three cohorts.' + (f.groups.length > 1 && f.groups[1].blocked !== null ? ' With two cohorts the result also depends on the test: ' +
-      n(f.groups[1].blocked) + ' of the ' + n(f.groups[1].tested) + ' claims are below 0.05 under the stratified Wilcoxon test, which assumes the two cohorts agree.' : '') + '</p>';
+      'that is why the plan asked for three projects.' + (f.groups.length > 1 && f.groups[1].blocked !== null ? ' With two projects the result also depends on the test: ' +
+      n(f.groups[1].blocked) + ' of the ' + n(f.groups[1].tested) + ' claims are below 0.05 under the stratified Wilcoxon test, which assumes the two projects agree.' : '') + '</p>';
     f.groups.forEach(function (g) {
-      h += '<details class="rpx-sub"><summary>' + (g.cohorts === 1 ? 'One cohort' : 'Two cohorts') + ': by condition</summary>' +
+      h += '<details class="rpx-sub"><summary>' + (g.cohorts === 1 ? 'One project' : 'Two projects') + ': by condition</summary>' +
         table(['Condition', 'Claims', 'p < 0.05, claimed direction', 'p < 0.05, opposite direction', 'After correction within the group'],
           g.rows.map(function (r) { return [r[0], n(r[1]), n(r[2]), n(r[3]), n(r[4])]; }), 1) + '</details>';
     });
@@ -94,8 +94,8 @@
         (X.claims.p[i] < 0.05 ? '<b>below 0.05</b>' : 'not below 0.05') + '. ' + n(X.claims.d[i]) + ' of ' + n(c.k) + ' projects point in the claimed direction. ' +
         'With low abundances counted as absent: ' + fl.join(', ') + '.';
     } else {
-      // A row of untested claims can hold claims of several papers, and a cohort that is usable for one paper's claim
-      // is another paper's own. So every result names the claims it belongs to, and a claim whose only cohort is its
+      // A row of untested claims can hold claims of several papers, and a project that is usable for one paper's claim
+      // is another paper's own. So every result names the claims it belongs to, and a claim whose only project is its
       // paper's own is said to have none.
       var F = X.fewer, pm = R.data().papers.pmid, byKey = Object.create(null), groups = [], own = [];
       t.claims.forEach(function (q) {
@@ -110,13 +110,13 @@
       var parts = groups.map(function (g) {
         var j = g.j;
         return (several ? 'For the claim of PubMed ' + g.pmids.join(', ') + ': tested in <b>' : 'Tested in <b>') +
-          (F.k[j] === 1 ? 'one cohort' : 'two cohorts') + '</b> (' + n(F.nc[j]) + ' cases, ' + n(F.nk[j]) +
+          (F.k[j] === 1 ? 'one project' : 'two projects') + '</b> (' + n(F.nc[j]) + ' cases, ' + n(F.nk[j]) +
           ' controls): the chance that a case has more of this taxon than a healthy control is ' + (F.auc[j] / 1000).toFixed(3) + ' (95 % CI ' +
           (F.lo[j] / 1000).toFixed(3) + '–' + (F.hi[j] / 1000).toFixed(3) + '); ' + fp(F.p[j]) + ' in the claimed direction without correction, ' +
-          (F.q[j] < 0.05 ? 'still below 0.05' : 'not below 0.05') + ' after correcting within the ' + (F.k[j] === 1 ? 'one-cohort' : 'two-cohort') + ' group.';
+          (F.q[j] < 0.05 ? 'still below 0.05' : 'not below 0.05') + ' after correcting within the ' + (F.k[j] === 1 ? 'one-project' : 'two-project') + ' group.';
       });
-      if (own.length) parts.push('For the claim of PubMed ' + own.join(', ') + ' the only cohort is the paper’s own, so that claim is not looked at here.');
-      h = parts.join(' ') + ' One or two cohorts are more studies, not a replication across studies; the label above stays “not tested”.';
+      if (own.length) parts.push('For the claim of PubMed ' + own.join(', ') + ' the only project is the paper’s own, so that claim is not looked at here.');
+      h = parts.join(' ') + ' One or two projects are more studies, not a replication across studies; the label above stays “not tested”.';
     }
     return '<span class="rpx-tag">Exploratory</span> ' + h + ' <span class="rpx-after">Added after the test; not part of the plan.</span>';
   }

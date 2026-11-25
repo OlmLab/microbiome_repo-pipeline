@@ -23,7 +23,9 @@ RSPEC = yaml.safe_load((REPO / 'config' / 'releases.yaml').read_text())
 SITE_CFG = yaml.safe_load((REPO / 'config' / 'site.yaml').read_text())
 CORE, KEY = PACK['core_fields'], PACK['key_fields']
 RID, VER, DATE = 'R2026.12', '1.12.0', '2026-09-30'
-NEW_COLS = ['collection_date', 'location_region', 'location_locality', 'location_site', 'latitude', 'longitude', 'lifestyle', 'lifestyle_detail']
+NEW_COLS = ['collection_date', 'location_region', 'location_locality', 'location_site', 'latitude', 'longitude', 'lifestyle', 'lifestyle_detail',
+            # R2026.44: the three condition-term columns, derived from the label (no route, no evidence row)
+            'health_condition_name', 'health_condition_efo_id', 'health_condition_mondo_id']
 
 
 def _studies():
@@ -56,7 +58,9 @@ def make_package(out: Path, new_cols: bool):
                 row.update(collection_date=('2015-03' if i % 3 else '2016'), collection_date__route='R1', collection_date__confidence=0.9,
                            location_region='Colorado', location_locality='Boulder', location_site=('SYNTHETIC clinic' if i % 2 else None),
                            latitude=40.015, longitude=-105.2705, latitude__route='R1', latitude__confidence=0.9, longitude__route='R1', longitude__confidence=0.9,
-                           lifestyle=('athlete' if i % 4 == 0 else None), lifestyle__route='R3', lifestyle__confidence=0.7, lifestyle_detail=('SYNTHETIC rugby players' if i % 4 == 0 else None))
+                           lifestyle=('athlete' if i % 4 == 0 else None), lifestyle__route='R3', lifestyle__confidence=0.7, lifestyle_detail=('SYNTHETIC rugby players' if i % 4 == 0 else None),
+                           health_condition_name=(None if poor else 'SYNTHETIC condition'), health_condition_efo_id=(None if poor else 'EFO:9999999'),
+                           health_condition_mondo_id=(None if poor else 'MONDO:9999999'))
             row.update({RA: RID, RR: None, PA: RID})
             wide.append(row)
             for f in ('sex', 'subject_id', 'antibiotic_exposure') + (() if poor else ('age_at_collection_days', 'country', 'health_condition')):
@@ -193,6 +197,17 @@ def test_conditions_placeholder(site_new):
     assert not (site_new / 'data' / 'conditions').exists()
     assert json.loads((site_new / 'api' / 'index.json').read_text())['endpoints']['by_condition_id'] == {}
     assert 'Condition explorer' in _html(site_new, 'atlas/taxa/index.html')   # the Insights sub-navigation carries it
+
+
+def test_condition_columns_on_the_fields_page(site_new):
+    """R2026.44 (review F38): the three condition-term columns are derived from the sample's label and carry no evidence
+    row, so the Fields page says where they come from instead of showing an empty source bar, and every field name in the
+    coverage table links to its definition."""
+    html = _html(site_new, 'fields/index.html')
+    for f in ('health_condition_name', 'health_condition_efo_id', 'health_condition_mondo_id'):
+        assert f'id="def-{f}"' in html, f
+        assert f'href="#def-{f}"' in html, f
+    assert html.count('derived from the label') == 3
 
 
 def test_redirects_exist(site_new):

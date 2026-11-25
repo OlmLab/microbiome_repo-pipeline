@@ -264,13 +264,59 @@ async function checkSection(p, c) {
   const untested = CONDS.find((r) => r.replication_scope === "not tested" && PROJ.some((p) => p.condition_id === r.condition_id));
   await P.C.nav("#" + untested.anchor);
   const badU = await checkSection(P, untested);
-  ok("a condition no claim was tested for says so in its section", /No published claim was tested/.test(P.q("#cn-panel").textContent) && badU.length === 0, badU.slice(0, 3).join("; "));
+  ok("a condition no claim was tested for says so, without naming a cause the tables do not give",
+     /No published claim about this condition was tested here/.test(P.q("#cn-panel").textContent) &&
+     !/too few independent projects/.test(P.q("#cn-panel").textContent) && badU.length === 0, badU.slice(0, 3).join("; "));
   const tr = P.qa("#cn-table tbody tr").find((x) => x.dataset.anchor === WITH_ASSOC.anchor);
   click(P.window, tr.querySelector("a.cn-name"));
   await sleep(40);
   ok("clicking a condition in the table opens its section", P.q("#cn-panel").dataset.anchor === WITH_ASSOC.anchor);
   click(P.window, P.q("#cn-close"));
   ok("closing the section clears the address", P.q("#cn-panel").hidden && P.window.location.hash === "");
+}
+
+// ---------------------------------------------------------------- what the review of R2026.44 asked for
+{
+  // F04: a result that belongs to a broader condition never sorts among the conditions tested in their own right
+  const th = P.qa("#cn-table thead th").find((x) => x.dataset.col === "replicated");
+  click(P.window, th);
+  const scopes = P.C.shown().map((r) => r.replication_scope);
+  const lastTested = scopes.lastIndexOf("this condition"), firstBroader = scopes.indexOf("broader condition");
+  ok("sorting by replicated associations keeps every broader-condition result under the tested conditions",
+     lastTested >= 0 && firstBroader > lastTested && scopes.lastIndexOf("broader condition") < scopes.indexOf("not tested"),
+     `${lastTested} / ${firstBroader}`);
+  // F11: ties keep the build script's order (by condition id), whichever way the column is sorted
+  click(P.window, P.qa("#cn-table thead th").find((x) => x.dataset.col === "cases"));
+  const byCases = P.C.shown();
+  const tie = byCases.findIndex((r, i) => i > 0 && num(r.cases) === num(byCases[i - 1].cases));
+  ok("rows with the same number of cases stay in the table's own order",
+     tie < 1 || byCases[tie - 1].condition_id.localeCompare(byCases[tie].condition_id) <= 0,
+     tie > 0 ? `${byCases[tie - 1].condition_id} / ${byCases[tie].condition_id}` : "no tie");
+  // F07 / F08: the identifiers are labelled, and only an ontology OLS serves is linked
+  const withBoth = CONDS.find((c) => c.efo_id && c.mondo_id && c.efo_id !== c.mondo_id);
+  if (withBoth) {
+    const tr = P.qa("#cn-table tbody tr").find((x) => x.dataset.anchor === withBoth.anchor);
+    const tags = Array.from(tr.querySelectorAll("td.cn-ids .cn-idtag")).map((x) => x.textContent);
+    ok("the Ids column says which identifier is which", tags.join(",") === "EFO,MONDO", tags.join(","));
+  }
+  const orph = CONDS.find((c) => /^Orphanet/i.test(c.efo_id || "") || /^Orphanet/i.test(c.mondo_id || ""));
+  if (orph) {
+    const tr = P.qa("#cn-table tbody tr").find((x) => x.dataset.anchor === orph.anchor);
+    const hrefs = Array.from(tr.querySelectorAll("td.cn-ids a")).map((a) => a.getAttribute("href"));
+    ok("an Orphanet identifier links to the ontology OLS serves it under (ordo), or is not linked",
+       hrefs.every((u) => !/Orphanet/i.test(decodeURIComponent(u)) || /ontologies\/ordo\//.test(u)), hrefs.join(" "));
+  }
+  // F03: a row tested only as a broader condition does not read as a result for itself
+  const broader = CONDS.find((c) => c.replication_scope === "broader condition" && PROJ.some((p) => p.condition_id === c.condition_id));
+  await P.C.nav("#" + broader.anchor);
+  ok("a condition tested only as a broader term says that nothing was tested for it",
+     /Nothing was tested for this condition/.test(P.q("#cn-panel").textContent) &&
+     P.q("#cn-panel").textContent.includes(broader.replication_condition_name));
+  // F12: an unknown address does not leave another condition's section open under the message
+  await P.C.nav("#MONDO_9999999");
+  ok("an unknown address closes the section that was open", P.q("#cn-panel").hidden && !P.q("#cn-status").hidden);
+  await P.C.nav("#" + WITH_ASSOC.anchor);
+  P.C.close();
 }
 
 // ---------------------------------------------------------------- the four statements the page must carry
@@ -283,15 +329,16 @@ async function checkSection(p, c) {
   const testable = tested.reduce((a, c) => a + num(c.replication_claims_testable), 0);
   ok("statement 1: what the counts count, and how the labels were mapped",
      /names the condition as the sampled person's main condition/.test(full) &&
-     /mapped to EFO [\d.]+ and MONDO \(\d{4}-\d{2}-\d{2}\)/.test(full) && /archive records and the paper text/.test(full));
+     /mapped to EFO [\d.]+ and MONDO \(\d{4}-\d{2}-\d{2}\)/.test(full) &&
+     /archive records, supplementary tables, paper text and abstracts/.test(full));
   ok("statement 2: healthy controls are not matched controls",
      /Healthy controls are the samples labelled healthy in the projects that also hold cases of the condition; they are not matched controls/.test(full));
   ok("statement 3: the replication numbers are the registered result, with its date and its totals",
      /registered result of the test run on \d{4}-\d{2}-\d{2}/.test(full) && full.includes(`${fmt(repl)} of ${fmt(testable)}`) &&
      /tested as.{0,40}broader condition shows the result for that broader condition/.test(full), `${fmt(repl)} of ${fmt(testable)}`);
   ok("statement 4: a condition with no row is not necessarily absent",
-     /A condition with no row is not necessarily absent/.test(full) &&
-     /label strings name a condition for which no ontology term was found/.test(full) && /are unclear or unsettled/.test(full));
+     /A condition with no row is not necessarily absent/.test(full) && /Counted on this release/.test(full) &&
+     /label strings[^.]*name a condition for which no ontology term was found/.test(full) && /are unclear or unsettled/.test(full));
   ok("every statement stands in a collapsed disclosure at the foot, not above the table",
      P.qa("details.sp-more").length >= 3 && P.qa("details.sp-more").every((d) => !d.open) &&
      inDetails(/not matched controls/) && inDetails(/registered result of the test run/) &&

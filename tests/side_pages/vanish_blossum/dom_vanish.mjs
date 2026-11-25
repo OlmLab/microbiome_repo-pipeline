@@ -345,13 +345,27 @@ if (hasChecks) {
      /exploratory/i.test(text(sec.querySelector("summary"))) &&
      /no class/i.test(text(sec.querySelector("summary"))), text(sec.querySelector("summary")));
   const h3 = Array.from(sec.querySelectorAll("h3")).map((x) => text(x));
-  ok("it heads the three computed checks and the three that are not done",
-     h3.length === 4 && /lifestyle/i.test(h3[0]) && /cohort|project/i.test(h3[1]) && /depth/i.test(h3[2]) &&
-     /not yet done/i.test(h3[3]), h3.join(" | "));
+  // R2026.44 (owner, 2026-11-25): the three longer checks have been run. Where their section is on the page the
+  // "Not yet done" heading and its three items are replaced by one line pointing at it; without it they stay.
+  const longer = !!P.q("#critique-checks");
+  ok("it heads the three computed checks" + (longer ? "" : " and the three that are not done"),
+     longer ? (h3.length === 3 && /lifestyle/i.test(h3[0]) && /cohort|project/i.test(h3[1]) && /depth/i.test(h3[2]))
+            : (h3.length === 4 && /lifestyle/i.test(h3[0]) && /cohort|project/i.test(h3[1]) && /depth/i.test(h3[2]) && /not yet done/i.test(h3[3])),
+     h3.join(" | "));
   const items = Array.from(sec.querySelectorAll("ul li")).map((x) => text(x));
-  ok("the three long checks are listed as not done, one line each",
-     items.length === 3 && /threshold/i.test(items[0]) && /hunter-gatherer/i.test(items[1]) &&
-     /condition/i.test(items[2]), `${items.length} items`);
+  if (longer) {
+    const line = P.q("#vb-longer-checks");
+    ok("the three longer checks are reported as run, with a link to their section",
+       !!line && /have now been run/i.test(text(line)) && !!line.querySelector('a[href="#critique-checks"]') && items.length === 0,
+       text(line || sec).slice(0, 160));
+    ok("the two exploratory sections are not named alike",
+       text(sec.querySelector("summary")) !== text(P.q("#critique-checks summary")) &&
+       /exploratory/i.test(text(P.q("#critique-checks summary"))), text(P.q("#critique-checks summary")).slice(0, 120));
+  } else {
+    ok("the three long checks are listed as not done, one line each",
+       items.length === 3 && /threshold/i.test(items[0]) && /hunter-gatherer/i.test(items[1]) &&
+       /condition/i.test(items[2]), `${items.length} items`);
+  }
   const links = Array.from(sec.querySelectorAll('a[href*="data/vanish/"]')).map((a) => a.getAttribute("href"));
   ok("each check offers its CSV and every one of those files is there",
      R.csv_files.length === 3 && R.csv_files.every((f) => links.some((h) => h.endsWith(f)) && dataFile(f)),
@@ -422,8 +436,8 @@ if (ROOT2) {
   ok("state (ii): the Robustness section says the three quick checks are not computed",
      !!sec && /have not been computed/i.test(text(sec)) && sec.querySelectorAll("table").length === 0,
      text(sec).slice(0, 120));
-  ok("state (ii): it still lists the three long checks and links no check CSV",
-     !!sec && sec.querySelectorAll("ul li").length === 3 &&
+  ok("state (ii): built without the longer checks, it still lists them as not done and links no check CSV",
+     !!sec && !d.querySelector("#critique-checks") && sec.querySelectorAll("ul li").length === 3 &&
      sec.querySelectorAll('a[href*="robustness_"]').length === 0);
   ok("state (ii): nothing refers to a robustness table file that is not in the payload",
      !fs.existsSync(path.join(ROOT2, "data", "vanish", "robustness.json")) &&

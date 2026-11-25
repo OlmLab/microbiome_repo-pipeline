@@ -61,17 +61,23 @@
   }
 
   // ---------------------------------------------------------------- ids and links
-  function ontology(id) { var p = String(id).split(':')[0].toLowerCase(); return p === 'mondo' ? 'mondo' : p === 'efo' ? 'efo' : p === 'hp' ? 'hp' : p; }
-  function olsLink(id) {
+  // OLS ontology of an identifier's prefix. Orphanet is served as "ordo"; a prefix OLS does not serve gets no link.
+  var OLS = { mondo: 'mondo', efo: 'efo', hp: 'hp', orphanet: 'ordo', ordo: 'ordo', ncit: 'ncit', doid: 'doid' };
+  function ontology(id) { return OLS[String(id).split(':')[0].toLowerCase()] || null; }
+  function olsLink(id, tag) {
     if (!id) return '';
-    var base = CFG.olsBase || 'https://www.ebi.ac.uk/ols4/ontologies/';
-    return '<a class="mono" href="' + esc(base + ontology(id) + '/classes?obo_id=' + encodeURIComponent(id)) + '">' + esc(id) + '</a>';
+    var base = CFG.olsBase || 'https://www.ebi.ac.uk/ols4/ontologies/', o = ontology(id);
+    var label = (tag ? '<span class="cn-idtag">' + esc(tag) + '</span> ' : '') + '<span class="mono">' + esc(id) + '</span>';
+    if (!o) return '<span class="cn-noid" title="no page for this ontology at OLS">' + label + '</span>';
+    return '<a href="' + esc(base + o + '/classes?obo_id=' + encodeURIComponent(id)) + '">' + label + '</a>';
   }
-  function idsOf(r) {
-    var seen = {}, out = [];
-    [r.efo_id, r.mondo_id].forEach(function (v) { if (v && !seen[v]) { seen[v] = 1; out.push(v); } });
+  function idsOf(r) {   // [id, label] pairs, EFO first: the condition is identified by its EFO id, else by its MONDO id
+    var out = [];
+    if (r.efo_id) out.push([r.efo_id, 'EFO']);
+    if (r.mondo_id && r.mondo_id !== r.efo_id) out.push([r.mondo_id, 'MONDO']);
     return out;
   }
+  function idLinks(r) { return idsOf(r).map(function (x) { return olsLink(x[0], x[1]); }); }
   function anchorHref(a) { return '#' + encodeURIComponent(a); }
   function taxonHref(t, rank) {
     var g = (rank === 'species' ? 's__' : 'g__') + t;
@@ -126,11 +132,11 @@
     return '<td class="num cn-repl" data-scope="not tested"></td>';
   }
   function rowHtml(r) {
-    var ids = idsOf(r), legacy = r.efo_legacy_ids || '';
+    var legacy = r.efo_legacy_ids || '';
     return '<tr data-anchor="' + esc(r.anchor) + '" data-id="' + esc(r.condition_id) + '" data-cases="' + num(r.cases) + '">' +
       '<td><a class="cn-name" href="' + anchorHref(r.anchor) + '">' + esc(r.condition_name) + '</a></td>' +
       '<td class="small cn-ids"' + (legacy ? ' title="retired EFO id: ' + esc(legacy.replace(/;/g, ', ')) + '"' : '') + '>' +
-        ids.map(olsLink).join(' ') + (legacy ? ' <span class="cn-legacy" aria-hidden="true">†</span>' : '') + '</td>' +
+        idLinks(r).join(' ') + (legacy ? ' <span class="cn-legacy" title="this condition also has a retired EFO id">\u2020</span>' : '') + '</td>' +
       '<td class="num">' + fmtInt(num(r.projects)) + '</td>' +
       '<td class="num" title="' + esc(caseTitle(r)) + '">' + fmtInt(num(r.cases)) + '</td>' +
       '<td class="num" title="samples labelled healthy in the same projects">' + fmtInt(num(r.healthy_controls)) + '</td>' +
@@ -150,7 +156,10 @@
     if (c === 'condition_name') return String(r.condition_name || '').toLowerCase();
     if (c === 'ids') return String(r.condition_id || '');
     if (c === 'age') return ageMean(r);
-    if (c === 'replicated') return (r.replication_scope === 'not tested' ? -1 : num(r.replication_claims_replicated));
+    if (c === 'replicated') {   // a result for a broader condition is not this condition's: it sorts under every tested one
+      return r.replication_scope === 'this condition' ? num(r.replication_claims_replicated)
+        : (r.replication_scope === 'broader condition' ? -0.5 : -1);
+    }
     return num(r[c]);
   }
   function draw() {
@@ -160,8 +169,9 @@
       var ka = sortKey(a), kb = sortKey(b), s;
       if (typeof ka === 'string' || typeof kb === 'string') s = String(ka).localeCompare(String(kb));
       else s = ka - kb;
-      if (!s) s = String(a.condition_name).localeCompare(String(b.condition_name));
-      return state.sortDir === 'desc' ? -s : s;
+      if (state.sortDir === 'desc') s = -s;
+      if (!s) s = String(a.condition_id).localeCompare(String(b.condition_id));   // ties as the build script orders them
+      return s;
     });
     $('cn-table').querySelector('tbody').innerHTML = SHOWN.map(rowHtml).join('');
     var heads = $('cn-table').querySelectorAll('thead th');
@@ -203,8 +213,9 @@
   }
   function assocHtml(rows, r) {
     if (!rows.length) {
-      return '<p class="small muted">No published association for this condition replicated' +
-        ((r.replication_scope || '') === 'not tested' ? ', and none was tested: the catalog has too few independent projects for it.' : '.') + '</p>';
+      return '<p class="small muted">' + ((r.replication_scope || '') === 'not tested'
+        ? 'No published claim about this condition was tested here.'
+        : 'No published association for this condition replicated.') + '</p>';
     }
     return '<table class="tbl small cn-assoc" id="cn-assoc"><thead><tr><th>Taxon</th><th>Rank</th><th>Direction in cases</th>' +
       '<th class="num">Published claims</th><th class="num">Papers</th><th class="num">Pooled AUC</th><th class="num">Projects tested</th><th class="num">q</th></tr></thead><tbody>' +
@@ -239,12 +250,11 @@
         '">Replication of published findings</a>).</p>';
     }
     if (scope === 'broader condition') {
-      return '<p class="small">The published claims were tested as <b>' + esc(r.replication_condition_name) + '</b>, a broader condition: ' +
-        fmtInt(num(r.replication_claims_replicated)) + ' of ' + fmtInt(num(r.replication_claims_testable)) +
-        ' testable claims replicated there, which is not a result for this condition (<a href="' + esc(CFG.replicationHref || 'replication.html') +
-        '">Replication of published findings</a>).</p>';
+      return '<p class="small">Nothing was tested for this condition; the claims were tested as <b>' + esc(r.replication_condition_name) +
+        '</b>, a broader condition, where ' + fmtInt(num(r.replication_claims_replicated)) + ' of ' + fmtInt(num(r.replication_claims_testable)) +
+        ' testable claims replicated (<a href="' + esc(CFG.replicationHref || 'replication.html') + '">Replication of published findings</a>).</p>';
     }
-    return '<p class="small">No published claim was tested for this condition.</p>';
+    return '<p class="small">No published claim about this condition was tested here.</p>';
   }
   function renderSection(r, det) {
     var panel = $('cn-panel');
@@ -254,7 +264,7 @@
     panel.innerHTML =
       '<button type="button" class="cn-close" id="cn-close" aria-label="close this condition">×</button>' +
       '<h2 class="cn-h" id="' + esc(r.anchor) + '">' + esc(r.condition_name) + '</h2>' +
-      '<p class="small cn-idline">' + idsOf(r).map(olsLink).join(' · ') +
+      '<p class="small cn-idline">' + idLinks(r).join(' · ') +
         (r.efo_legacy_ids ? ' · <span class="muted">retired EFO id ' + esc(r.efo_legacy_ids.replace(/;/g, ', ')) + '</span>' : '') +
         (r.disease_areas ? ' · ' + esc(r.disease_areas.replace(/;/g, ' · ')) : '') + '</p>' +
       countsHtml(r) +
@@ -297,6 +307,7 @@
     var h = decodeURIComponent(String(location.hash || '').replace(/^#/, ''));
     if (!h) { close(); return Promise.resolve(null); }
     if (!BY_ANCHOR.has(h)) {
+      close();
       $('cn-status').hidden = false;
       $('cn-status').textContent = 'No condition with the address ' + h + ' is in this table. Every condition of the catalog is listed below.';
       return Promise.resolve(null);
