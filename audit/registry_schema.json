@@ -1393,6 +1393,21 @@
      "description": "Raw health / disease text"
     },
     {
+     "name": "health_condition_name",
+     "type": "string",
+     "description": "Disease or condition name for the sample's health_condition / health_condition_detail pair, from the Experimental Factor Ontology where the pair names one condition (R2026.44); empty for controls, exposures, cohort descriptions and pairs not mapped"
+    },
+    {
+     "name": "health_condition_efo_id",
+     "type": "string",
+     "description": "Identifier of that term in the Experimental Factor Ontology (EFO 3.96.0). EFO takes many disease terms from MONDO, HP and Orphanet and keeps their identifiers, so most values start with MONDO: (e.g. MONDO:0005052 irritable bowel syndrome) and some with EFO:, HP: or Orphanet:. A derived column: its evidence is that of health_condition and health_condition_detail"
+    },
+    {
+     "name": "health_condition_mondo_id",
+     "type": "string",
+     "description": "MONDO identifier of the same condition where EFO links one (MONDO 2026-11-03), e.g. MONDO:0005011"
+    },
+    {
      "name": "antibiotic_exposure",
      "type": "string",
      "description": "yes | no"
