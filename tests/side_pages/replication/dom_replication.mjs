@@ -98,7 +98,9 @@ const P = await openPage();
 const lead = P.q(".sp-lead").textContent.trim();
 const sentences = lead.split(/(?<=[.!?])\s+(?=[A-Z<])/).filter(Boolean);
 ok("at most two sentences above the graphic", sentences.length <= 2, `${sentences.length} sentences`);
-ok("the lead states the headline and the package", lead.includes(`${META.replicated.toLocaleString("en-US")} of the ${META.testable.toLocaleString("en-US")}`) && lead.includes(META.package), lead.slice(0, 120));
+ok("the lead states the headline", lead.includes(`${META.replicated.toLocaleString("en-US")} of the ${META.testable.toLocaleString("en-US")}`), lead.slice(0, 120));
+// R2026.43: the package moved from the lead to the stamp line under it (website review F275, F288)
+ok("the line under the lead names the package the test ran on", Array.from(P.qa(".sp-head p, main p")).some((x) => /Computed on data package/.test(x.textContent) && x.textContent.includes(META.package)));
 ok("nothing but the lead, the search box and one closed disclosure stands between the title and the graphic",
    !P.q("#rp-firm").open && P.qa(".sp-head p.sp-lead").length === 1);
 ok("no image anywhere in the page body", P.qa("main img, #main-chart img, .sp-details img, #rp-firm img").length === 0 && !/<img\b/.test(P.raw.split("</header>").pop().split("<footer")[0]));
@@ -315,7 +317,8 @@ async function search(p, text) {
   ok("a search with no match says so", P.qa("#rp-hits li.sp-hit-none").length === 1);
   click(P.window, P.q("#rp-crumbs .sp-crumb"));
   ok("the first breadcrumb returns to all conditions", P.q("#rp-plot").dataset.view === "all" && P.window.location.hash === "");
-  ok("the legend key for the shaded band shows only where a band is drawn", P.q("#rp-key-band").hidden === true);
+  // R2026.43: the band key left the colour legend; the caption explains the band (website review F277)
+  ok("the colour legend has no key for the shaded band", P.q("#rp-key-band") === null);
   click(P.window, P.q("#rp-untested a.rp-chip"));
   ok("an untested condition opens with its claims listed as not tested and no axis",
      P.q("#rp-plot").dataset.view === "condition" && P.qa("#rp-plot g.rp-row").length > 0 && P.qa("#rp-plot g.rp-row").every((g) => Number(g.dataset.st) >= 5) && !P.q("#rp-plot .rp-axis") && /None of the/.test(P.q("#rp-viewhead").textContent));
@@ -333,7 +336,7 @@ ok("no script error during the whole session", P.errors.length === 0, P.errors.s
   const B = await openPage("#taxon=" + encodeURIComponent(P.R.taxa().find((t) => t.name === "Roseburia").gtdb));
   ok("a taxon can be addressed by its GTDB name too", B.q("#rp-plot").dataset.view === "taxon" && B.R.state.taxon.name === "Roseburia");
   const C = await openPage("#condition=" + encodeURIComponent("Not a condition"));
-  ok("an unknown address shows all conditions and says the name is not among the claims", C.q("#rp-plot").dataset.view === "all" && !C.q("#rp-status").hidden && /not among the registered claims/.test(C.q("#rp-status").textContent));
+  ok("an unknown address shows all conditions and says the name is not among the claims", C.q("#rp-plot").dataset.view === "all" && !C.q("#rp-status").hidden && /No published claim about .* was tested here/.test(C.q("#rp-status").textContent));
   for (const h of ["#condition=__proto__", "#taxon=constructor", "#claim=__proto__", "#taxon=%E0%A4%A", "#condition=" + encodeURIComponent("<img src=x onerror=alert(1)>")]) {
     const X = await openPage(h);
     ok(`odd address ${h.slice(0, 28)}: all conditions, a plain message, no error, nothing injected`, X.q("#rp-plot").dataset.view === "all" && !X.q("#rp-status").hidden && X.errors.length === 0 && X.qa("#rp-status img, #rp-crumbs img").length === 0, X.errors.join(" | "));
