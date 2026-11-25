@@ -1,0 +1,16 @@
+study_accession,health_condition,health_condition_detail,string_class,role,state,condition_name,efo_id,mondo_id,condition_id,efo_legacy_ids
+PRJNA277905,allergy_or_atopy,Atopic Dermatitis,disease,case,current,atopic eczema,MONDO:0004980,MONDO:0004980,MONDO:0004980,EFO:0000274
+PRJEB11419,allergy_or_atopy,seasonal_allergies: Yes,disease,case,current,allergic disease,MONDO:0005271,MONDO:0005271,MONDO:0005271,EFO:0003785
+PRJEB25422,healthy_control,Normal histology,healthy,healthy_control,na,,,,,
+PRJEB44237,healthy_control,"eligible FMT donors were healthy Caucasian men (age, 18-65 years) with a BMI between 18.5 and 25 kg/m2",healthy,healthy_control,na,,,,,
+PRJNA521455,healthy_control,Schistosoma haematobium uninfected (Schisto status 0),healthy,healthy_control,na,,,,,
+PRJEB28097,intervention_cohort,probiotics after antibiotics group - post antibiotics,not_a_condition,not_condition,na,,,,,
+PRJEB47383,intervention_cohort,healthy adult,healthy,healthy_control,na,,,,,
+PRJNA594613,intervention_cohort,healthy subjects,healthy,healthy_control,na,,,,,
+PRJNA594620,intervention_cohort,Healthy volunteers in dietary intervention study,healthy,healthy_control,na,,,,,
+PRJNA751792,other_cancer,NSCLC patient; Group PD,disease,case,current,non-small cell lung carcinoma,MONDO:0005233,MONDO:0005233,MONDO:0005233,EFO:0003060
+PRJNA799247,preterm_nicu,preterm infant stool; gestational age 23 weeks; birth weight 560 g; noNEC,symptom_or_finding,case,current,premature birth,EFO:0003917,,EFO:0003917,
+PRJNA799247,preterm_nicu,preterm infant stool; gestational age 23 weeks; birth weight 604 g; noNEC,symptom_or_finding,case,current,premature birth,EFO:0003917,,EFO:0003917,
+PRJNA533528,transplant_or_immunocompromised,critically ill ICU patients,state_or_exposure,case,current,critical illness,,,,
+PRJNA1212222,other_disease,diverticulitis,disease,case,current,diverticulitis,MONDO:0004235,MONDO:0004235,MONDO:0004235,EFO:1001460
+PRJNA699976,other_infection,Pneumonia and acute respiratory infections,disease,case,current,respiratory tract infectious disorder,MONDO:0024355,MONDO:0024355,MONDO:0024355,
