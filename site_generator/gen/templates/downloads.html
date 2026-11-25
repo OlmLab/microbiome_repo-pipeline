@@ -11,7 +11,7 @@
 <table class="tbl small"><thead><tr><th>file</th><th class="num">rows (incl. retired)</th><th class="num">size</th><th>description</th></tr></thead><tbody>
 {% for f in files if f.group == gid %}<tr><td><a class="mono" href="../{{ f.href }}" download>{{ f.name }}</a></td><td class="num">{{ f.rows|fmt if f.rows is not none else '' }}</td><td class="num">{{ f.size }}</td><td class="small">{{ f.desc }}{% if doc_pages and doc_pages.get(f.name) %} <a href="../{{ doc_pages[f.name] }}">Read it as a page.</a>{% endif %}</td></tr>{% endfor %}
 </tbody></table>
-{% if gid == 'catalog' and cur %}<p class="small">Row counts include rows retired in earlier releases. This release has {{ cur.n_studies_included|fmt }} projects and {{ cur.n_samples|fmt }} samples: add <span class="mono">WHERE release_retired IS NULL</span> to a query to get them.</p>{% endif %}
+{% if gid == 'catalog' and cur %}<p class="small">Row counts include rows retired in earlier releases. This release has {{ cur.n_studies_included|int|fmt }} projects and {{ cur.n_samples|int|fmt }} samples: add <span class="mono">WHERE release_retired IS NULL</span> to a query to get them.</p>{% endif %}
 {% endfor %}
 {% if n_zip_only %}<p class="small">The package holds {{ n_zip_only }} further files ({{ zip_only_size }}): the tables of this resource's earlier birth-cohort curation, and records of the build. They are not listed here, because their content is also in the catalog tables; they are in the whole-package zip above{% if site.data_release_url %} (<a href="{{ site.data_release_url }}">GitHub release</a>){% endif %} and on Zenodo, and the package README describes them.</p>{% endif %}
 <h2>Release assets not on this site</h2>
