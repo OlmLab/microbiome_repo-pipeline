@@ -390,6 +390,59 @@ def _attr_key(src) -> str | None:
     return s[len("sample.attr."):] if s.startswith("sample.attr.") else None
 
 
+CONDITION_TERM_COLS = ["health_condition_name", "health_condition_efo_id", "health_condition_mondo_id"]
+
+
+def add_condition_terms(w: pd.DataFrame, path: str | None) -> tuple[pd.DataFrame, dict]:
+    """R2026.44: the name of the condition a label states and its EFO / MONDO ids, beside health_condition and its detail.
+
+    `path` is a CSV with one row per (study_accession, health_condition, health_condition_detail): study_accession empty = the row
+    holds in every project, filled = a reading made for that project (it wins); health_condition_detail "*" = any other detail of
+    that code. Columns used: condition_name, efo_id, mondo_id. A label that names no condition (healthy, not a condition, unclear)
+    or for which no ontology term was found has empty values. The three columns are derived, not determinations: their evidence is
+    that of the label itself. Without the file the columns exist and are empty."""
+    out = pd.DataFrame({c: pd.Series([None] * len(w), index=w.index, dtype=object) for c in CONDITION_TERM_COLS})
+    st = {"file": bool(path and os.path.exists(path)), "labelled": 0, "pair_found": 0, "named": 0, "pairs_not_in_table": 0}
+    if st["file"] and "health_condition" in w.columns:
+        t = pd.read_csv(path, dtype=str, keep_default_na=False)
+        for c in ("study_accession", "health_condition", "health_condition_detail", "condition_name", "efo_id", "mondo_id"):
+            if c not in t.columns:
+                t[c] = ""
+        t = t.rename(columns={"condition_name": CONDITION_TERM_COLS[0], "efo_id": CONDITION_TERM_COLS[1], "mondo_id": CONDITION_TERM_COLS[2]})
+        t["_hit"] = True
+        hd = w.health_condition_detail.astype("string").fillna("").astype(str).values if "health_condition_detail" in w.columns else [""] * len(w)
+        k = pd.DataFrame({"study_accession": w.study_accession.astype(str).values,
+                          "health_condition": w.health_condition.astype("string").fillna("").astype(str).values,
+                          "health_condition_detail": hd}, index=w.index)
+        has = k.health_condition != ""
+        st["labelled"] = int(has.sum())
+        keep = CONDITION_TERM_COLS + ["_hit"]
+        tiers = [(["study_accession", "health_condition", "health_condition_detail"], t[t.study_accession != ""]),
+                 (["health_condition", "health_condition_detail"], t[(t.study_accession == "") & (t.health_condition_detail != "*")]),
+                 (["health_condition"], t[(t.study_accession == "") & (t.health_condition_detail == "*")])]
+        got = pd.DataFrame({c: pd.Series([None] * len(w), index=w.index, dtype=object) for c in keep})
+        for on, tab in tiers:
+            if not len(tab):
+                continue
+            m = k.merge(tab.drop_duplicates(on)[on + keep], on=on, how="left")
+            m.index = k.index
+            todo = got._hit.isna() & has
+            for c in keep:
+                got.loc[todo, c] = m.loc[todo, c]
+        found = got._hit.notna() & has
+        st["pair_found"] = int(found.sum())
+        st["pairs_not_in_table"] = int(k[has & ~found].drop_duplicates().shape[0])
+        for c in CONDITION_TERM_COLS:
+            v = got[c].where(found)
+            out[c] = v.where(v.astype("string").fillna("") != "", None)
+        st["named"] = int(out[CONDITION_TERM_COLS[0]].notna().sum())
+    w = w.drop(columns=[c for c in CONDITION_TERM_COLS if c in w.columns])
+    pos = (list(w.columns).index("health_condition_detail") + 1) if "health_condition_detail" in w.columns else len(w.columns)
+    for i, c in enumerate(CONDITION_TERM_COLS):
+        w.insert(pos + i, c, out[c].values)
+    return w, st
+
+
 def apply_condition_maps(det: pd.DataFrame, cond_map: pd.DataFrame | None, abx_map: pd.DataFrame | None, release_id, pv) -> pd.DataFrame:
     """health_condition_detail rows (raw text) → health_condition code rows via the normalisation map (key + value); antibiotic raw
     rows without a normalised value → yes/no via the antibiotic map."""
@@ -1244,6 +1297,8 @@ def build(a):
     if "body_site_class" in w.columns:   # retired rows keep their site, under the R2026.31 classes
         w["body_site_class"] = w.body_site_class.replace({"excluded": "primary", "linked": "primary"})
     det_all.to_parquet(os.path.join(a.out, pack["tables"]["determinations"]), index=False)
+    w, _ct = add_condition_terms(w, getattr(a, "condition_terms", None))
+    print(f"condition terms: {_ct}", file=sys.stderr)
     w.to_parquet(os.path.join(a.out, pack["tables"]["samples_wide"]), index=False)
     gs.to_parquet(os.path.join(a.out, pack["tables"]["studies"]), index=False)
     rel_groups[rel_groups.study_accession.isin(set(gs.study_accession))].to_parquet(os.path.join(a.out, "catalog_relatedness.parquet"), index=False)
@@ -1293,6 +1348,7 @@ def main(argv=None) -> int:
     ap.add_argument("--r1-newfields-v2", help="R1 determinations of the 1.13.0 fields (diet, smoking_status, medication, stool_consistency_bristol) from catalog.scopes.newfields_r1_v2"),
     ap.add_argument("--registry-runs", help="registry_runs.parquet → catalog_runs.parquet + study sequencing summary columns"), ap.add_argument("--registry-sandpiper", help="registry_runs_sandpiper.parquet (sandpiper_profiled per run)"), ap.add_argument("--r2-glob"), ap.add_argument("--r3-glob", help="R3 full-text study_all determinations (glob)"), ap.add_argument("--r4-glob"), ap.add_argument("--condition-map"), ap.add_argument("--antibiotic-map")
     ap.add_argument("--out", required=True), ap.add_argument("--summary"), ap.add_argument("--release-id", default="R2026.7"), ap.add_argument("--package-version", default="1.8.0")
+    ap.add_argument("--condition-terms", help="CSV of condition names and EFO / MONDO ids per (project, health_condition, detail) (data/inputs/gut/condition_terms.csv; R2026.44)")
     ap.add_argument("--plausibility-corrections", help="CSV of checked value corrections (catalog.scopes.plausibility; R2026.36)")
     ap.add_argument("--person-invariant-exclusions", help="CSV study_accession,field,reason: projects where sex/country are not propagated within people (R2026.36)")
     ap.add_argument("--previous-dir", help="previous package dir: its catalog_* (gut_* before 1.26.0) tables provide release_added / retirements")

@@ -427,6 +427,8 @@ SP_REFRESH_PER_ACC ?= $(CACHE_DIR)/sandpiper_bulk/v2.1.0/sandpiper2.0.1.per_acc_
 SANDPIPER_CUTOFF ?= 2026-03-03
 # R2026.36: checked value corrections (study_accession,field,sample_keys,action,rule_id,reason,evidence_source,evidence_quote)
 PLAUSIBILITY_CORRECTIONS ?= $(GUT_DIR)/plausibility_corrections.csv
+# R2026.44: condition names and EFO / MONDO ids per (project, health_condition, detail) -> three derived columns of the wide table
+CONDITION_TERMS ?= $(GUT_DIR)/condition_terms.csv
 
 atlas-observations: ## recompute the Atlas observation cards (obs/*.png + obs/*.csv + observations.json) from the Sandpiper tables + the released wide table → $(ATLAS_DATA); HDI = site_generator/gen/data/undp_hdr2025_hdi_2023.csv
 	@test -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" || { echo "Sandpiper genus table missing: $(GUT_SANDPIPER_DIR)"; exit 1; }
@@ -441,7 +443,7 @@ gut-build:       ## curated scope gut_all — gut_studies / gut_sample_metadata_
 	  --registry-runs $(firstword $(wildcard $(CATALOG_RUNS)) $(REGISTRY_RUNS)) --registry-sandpiper $(REGISTRY_SANDPIPER) --read-checks "$(READ_CHECKS)" \
 	  $(if $(wildcard $(CATALOG_IN)/extra_studies.parquet),--extra-studies $(CATALOG_IN)/extra_studies.parquet --extra-biosamples $(CATALOG_IN)/extra_biosamples.parquet --extra-determinations $(CATALOG_IN)/extra_determinations.parquet --study-facts $(CATALOG_IN)/study_facts.parquet --study-papers $(CATALOG_IN)/study_papers.parquet --short-descriptions-extra $(CATALOG_IN)/short_descriptions_extra.parquet,) \
 	  --out $(GUT_OUT) --summary $(BUILD)/gut/gut_scope_summary.json --release-id $(RELEASE_ID) --package-version $(VERSION) --previous-dir $(PKG_SRC) \
-	  $(if $(wildcard $(PERSON_INVARIANT_EXCLUSIONS)),--person-invariant-exclusions $(PERSON_INVARIANT_EXCLUSIONS),) $(if $(wildcard $(PLAUSIBILITY_CORRECTIONS)),--plausibility-corrections $(PLAUSIBILITY_CORRECTIONS),)
+	  $(if $(wildcard $(PERSON_INVARIANT_EXCLUSIONS)),--person-invariant-exclusions $(PERSON_INVARIANT_EXCLUSIONS),) $(if $(wildcard $(PLAUSIBILITY_CORRECTIONS)),--plausibility-corrections $(PLAUSIBILITY_CORRECTIONS),) $(if $(wildcard $(CONDITION_TERMS)),--condition-terms $(CONDITION_TERMS),)
 	@if [ -f "$(CATALOG_IN)/exposure_items.parquet" ]; then cp $(CATALOG_IN)/exposure_items.parquet $(GUT_OUT)/catalog_exposure_items.parquet; fi
 	@if [ -f "$(CATALOG_IN)/study_papers.parquet" ]; then cp $(CATALOG_IN)/study_papers.parquet $(GUT_OUT)/catalog_study_papers.parquet; fi
 
