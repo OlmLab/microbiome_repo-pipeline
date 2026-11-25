@@ -129,6 +129,44 @@ the Makefile).
 * **Do not run two heavy jobs at once on the local machine.** Rendering very large pages (the project list, the scope
   page) while the catalog build runs slowed the build from about 40 minutes to almost 4 hours.
 
+## Added in R2026.44 (final data release of the grant)
+
+### Order of the steps after `make release`
+
+`make release BUILD_DATE=… PKG_ZIP=build/data_package_v<previous>.zip` (65 min), then, in this order:
+
+1. `make taxon-map`, `make measures` — as in R2026.43.
+2. `make vanish-page` — page payload of the frozen VANISH / BloSSUM run (package 1.34.0) plus the two tables of the three longer checks (`projects/side_pages/for_editor/vanish_blossum_checks/results/`). The section itself is `templates/_vanish_critique_checks.html`.
+3. `make conditions-page` — the three Condition explorer tables and `conditions_manifest.json`, from the built package and `config/condition_terms.csv`. It prints its own checks (unique ids; 24 tested conditions summing to 1,918 testable and 515 replicated claims).
+4. `make exports` — seven analysis-ready tables, `DATASET_CARD.md`, `export_manifest.csv` in `build/exports`, then 44 checks. `make publish-branch` copies them into the release-assets branch and stops if they are of another package version.
+5. Taxon explorer payload, `make site`, `make verify`, `make side-page-tests` (now five page tests: taxon explorer, VANISH, replication, replication exploratory, Condition explorer).
+
+The script used in R2026.44 is kept with the session files (`after_release.sh`).
+
+### Condition names and identifiers
+
+- `config/condition_terms.csv`: one row per (project, `health_condition`, `health_condition_detail`); an empty project means every project, a filled one wins; detail `*` means any other detail of that code. `build_gut_scope --condition-terms` writes `health_condition_name`, `health_condition_efo_id`, `health_condition_mondo_id` from it. A pair that is not in the table gets empty values; the build prints how many (`condition terms: … pairs_not_in_table`).
+- When labels change (a new corrections file, a new project), new pairs appear. List them (the query is in `scripts/condition_manifest.py`: class `not_in_table`) and add rows; do not guess an identifier, copy it from a row of the same condition.
+- The table was made by `scripts/finalize_condition_terms_r44.py` from the Conditions worker's table (`docs/audits/r44/condition_terms_r44.csv`): one MONDO id per condition, the one the Conditions hand-over publishes.
+
+### Corrections
+
+- `scripts/build_dq_corrections_r44.py --package <unpacked PREVIOUS package>` writes `data/inputs/gut/dq_corrections_r44.parquet` from the files in `docs/audits/r44/`. The pairs are looked up in the previous package: run it against the package the changes were decided on, never against the one just built.
+- The files in `GUT_CORRECTIONS` are rounds, oldest first. For one sample and field the latest round stands. A per-sample withdrawal (action `retire`, no `old_value`) also keeps a project-level statement from refilling the cell.
+- Body site and sample type are not determinations: `config/body_site_corrections.csv` (read by `--body-site-corrections`; each row has its source and quote) and rows appended to `config/sample_types.csv`.
+
+### MCP server
+
+Its own repository (`microbiome_repo-mcp`). At each release: set `microbiome_repo_mcp/release_pin.py` (release id, package version, release DOI once Zenodo has minted it), run `pytest` with `MICROBIOME_REPO_RELEASE_DIR=<unpacked package>` and `MICROBIOME_REPO_EXPORTS_DIR=build/exports`, push. The site links to it from the For LLMs & API page (`github.repos.mcp` in `config/site.yaml`).
+
+### Left open after R2026.44
+
+- Listed, not applied: `docs/audits/r44/conditions_left_out_r44.csv` (52 flagged pairs, 833 samples; PRJNA480674 needs a vocabulary code for a symptomatic non-IBD control) and `fixes_not_applied_r44.csv` (316 rows with a check flag, 107 audit rows where the cited source alone does not support the value, 7 Metalog patterns, 2 audit rows).
+- Ages given in years are converted to days with 362.9 to 365.8 days per year in PRJNA688274 and PRJNA491335 (five Metalog patterns, 322 samples): a defect of the conversion, not of the values.
+- PRJNA352475: 16 maternal samples carry age 0 from the infant's sampling-day column; remove.
+- The release-notes generator still prints section names from the infant phase ("Infant extension", "Universe", "Triage verdict flips"); the file is offered on Downloads.
+- The four bookkeeping defects of the build listed under R2026.43.
+
 ## Next run: carried over from R2026.43
 
 R2026.43 / 1.34.2 is a site release (website review applied; data tables unchanged). It was built in a chat workspace like
