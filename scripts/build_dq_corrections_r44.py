@@ -117,7 +117,7 @@ def main(argv=None):
 
     # 2. + 3. per-sample files
     other, sample_rows = [], []
-    for name in ("condition_sample_changes_r44.csv", "confirmed_fixes_r44.csv"):
+    for name in ("condition_sample_changes_r44.csv", "confirmed_fixes_r44.csv", "condition_detail_fixes_r44.csv"):
         f = os.path.join(a.dir, name)
         if not os.path.exists(f):
             stats[name] = "absent"

@@ -588,11 +588,19 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
     paths = [x for x in str(path or "").split() if os.path.exists(x)]
     if not paths:
         return det, {"n_rows": 0}
-    c = pd.concat([pd.read_parquet(x) for x in paths], ignore_index=True)
+    c = pd.concat([pd.read_parquet(x).assign(_file=i) for i, x in enumerate(paths)], ignore_index=True)
     c = c[c.action.isin(["retire", "recode"])].copy()
     if not len(c):
         return det, {"n_rows": 0}
     c["sample_key"] = c.get("sample_key", pd.Series([""] * len(c))).fillna("").astype(str)
+    # R2026.44: the files are rounds of checking, listed oldest first. Where two rounds decide the same sample and field, the
+    # later round stands: the earlier round's rows still drop what they name, but add no value. (Until R2026.43 both values were
+    # added and the higher confidence won, so a later correction of an earlier one could be lost.)
+    _per = c.sample_key != ""
+    _last = c[_per].groupby(["study_accession", "field_name", "sample_key"])._file.transform("max")
+    superseded = pd.Series(False, index=c.index)
+    superseded.loc[_last.index] = c.loc[_last.index, "_file"] < _last
+    n_superseded = int(superseded.sum())
     c["old_value"] = c.old_value.fillna("").astype(str)
     # R2026.38: optional old_route (R1..R4) restricts a row to the values that came by that route, so that a cohort-wide statement
     # from a paper can be withdrawn without touching per-sample values of the same project and field
@@ -638,7 +646,7 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
             drop.loc[sub.index[ix[m]]] = True
     n_dropped = int(drop.sum())
     out = det[~drop]
-    rec = c[(c.action == "recode") & c.new_value.notna() & (c.new_value.astype(str) != "")]
+    rec = c[(c.action == "recode") & c.new_value.notna() & (c.new_value.astype(str) != "") & ~superseded]
     new_rows = [_row(r.sample_key, r.field_name, r.study_accession, r.new_value, r.new_value, float(r.confidence) if pd.notna(r.confidence) else 0.7,
                      r.evidence_source or "dq_adjudication", r.evidence_locator or "", r.evidence_quote or "", _route_of(r.evidence_source, bool(r.sample_key)),
                      str(getattr(r, "determined_by", "") or "dq_adjudication_v1"), note=str(getattr(r, "rationale", "") or "")[:200],
@@ -652,7 +660,31 @@ def apply_corrections(det: pd.DataFrame, path: str | None, rid: str, pv: str) ->
                 row["parse_note"] = (f"was {r.old_value}; " + row["parse_note"])[:240]
     if new_rows:
         out = pd.concat([out, pd.DataFrame(new_rows, columns=DET_COLS)], ignore_index=True)
-    return out, {"n_rows": int(len(c)), "n_dropped": n_dropped, "n_recoded": len(new_rows)}
+    return out, {"n_rows": int(len(c)), "n_dropped": n_dropped, "n_recoded": len(new_rows), "n_superseded_by_later_round": n_superseded}
+
+
+def withdrawn_cells(path: str | None) -> set:
+    """(sample_key, field_name) cells that the latest round of corrections withdraws without naming a value, a route or a pass.
+
+    R2026.44: such a row drops the sample's own values in apply_corrections, but a project-level statement is expanded to the
+    samples only afterwards and used to refill the cell (PRJEB63360; PRJNA1045701 since R2026.41). The caller removes these
+    cells from the expanded rows."""
+    paths = [x for x in str(path or "").split() if os.path.exists(x)]
+    if not paths:
+        return set()
+    c = pd.concat([pd.read_parquet(x).assign(_file=i) for i, x in enumerate(paths)], ignore_index=True)
+    c = c[c.action.isin(["retire", "recode"])].copy()
+    c["sample_key"] = c.get("sample_key", pd.Series([""] * len(c))).fillna("").astype(str)
+    c = c[c.sample_key != ""]
+    if not len(c):
+        return set()
+    for col in ("old_value", "old_route", "old_determined_by"):
+        c[col] = (c[col] if col in c.columns else pd.Series([""] * len(c), index=c.index)).fillna("").astype(str)
+    c = c[c._file == c.groupby(["study_accession", "field_name", "sample_key"])._file.transform("max")]
+    plain = (c.action == "retire") & (c.old_value == "") & (c.old_route == "") & (c.old_determined_by == "")
+    keep_value = c[~plain]   # the same round also recodes the cell, or withdraws one named value only: not a plain withdrawal
+    cells = set(zip(c.loc[plain, "sample_key"], c.loc[plain, "field_name"]))
+    return cells - set(zip(keep_value.sample_key, keep_value.field_name))
 
 
 def resolve(det: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -923,6 +955,11 @@ def build(a):
                        ignore_index=True)
     if _ck and len(det_r4):   # a cohort-wide statement must not refill a withheld cell
         det_r4 = det_r4[~pd.Series([(s_, f_) in _ck for s_, f_ in zip(det_r4.sample_key, det_r4.field_name)], index=det_r4.index)]
+    _wd = withdrawn_cells(getattr(a, "corrections", None))
+    if _wd and len(det_r4):   # ... nor a cell that a check withdrew for this sample (R2026.44)
+        _m = pd.Series([(s_, f_) in _wd for s_, f_ in zip(det_r4.sample_key, det_r4.field_name)], index=det_r4.index)
+        n_corr["withdrawn_cells_not_refilled"] = int(_m.sum())
+        det_r4 = det_r4[~_m]
     det_all = pd.concat([det_sample, det_r4], ignore_index=True)
     det_all = det_all[det_all.field_name.isin(PACK_FIELDS + INFANT_ONLY)].copy()
     if stypes:   # controls carry no person-level values (inherited cohort statements included)
