@@ -144,6 +144,15 @@ R2026.42; the section "Next run: carried over from R2026.42" below still describ
   `site_generator/gen/issue_templates/*.yml`, run `make install-workflows`, commit and push `main` of the site repository
   before `make publish-branch`.
 
+- **Browser test in Actions.** `verify.yml` runs a Playwright test that looks for visible text on the built pages. A change of
+  wording on the sample explorer or the registry page can fail it after the tag is pushed (R2026.43: the first text matching
+  "evidence" had moved into a collapsed box). The fix then goes to `main` of the pipeline and of the site repository, and the
+  deployment is started by hand: Actions → deploy-pages → Run workflow on `main` with `ref` = the site tag (no tag is moved).
+  The CU server takes the tag by itself and does not wait for Actions.
+- **Form parsers.** `scripts/ingest_verifications.py` and `src/catalog/ingest_issues.py` match the labels and options of the
+  issue forms; `tests/test_ingest_verifications.py` and `tests/test_simple_form_labels.py` fail when a form is reworded
+  without them.
+
 Left for the next **data** release by the website review (each is a value or a rule in the data, not wording):
 
 | Item | What |

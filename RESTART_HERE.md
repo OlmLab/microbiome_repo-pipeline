@@ -1,9 +1,8 @@
-# RESTART_HERE — Microbiome Repo (v16, 2026-11-24, R2026.43 built)
+# RESTART_HERE — Microbiome Repo (v17, 2026-11-24, after R2026.43)
 
-**State**: R2026.43 / 1.34.2 is a site release that applies an external website review (one word per thing, shorter pages, stale
+**State**: R2026.43 / 1.34.2 is published (24 November 2026, 20:55 MST; DOI 10.5281/zenodo.24521153). It is a site release that applies an external website review (one word per thing, shorter pages, stale
 statements and dead links removed, the Taxon map recomputed on the current profiles); the data are those of 1.34.0 (813,356
-samples, 5,086 projects, 4,814,518 values). Whether it is published and its DOI: `config/releases.yaml`, entry R2026.43 (a `doi`
-line is added after publication). R2026.42 / 1.34.1 (DOI 10.5281/zenodo.24508002, published 24 November 2026) precedes it.
+samples, 5,086 projects, 4,814,518 values). R2026.42 / 1.34.1 (DOI 10.5281/zenodo.24508002, published 24 November 2026) precedes it.
 **`~/catalog` is read-only to chat code since 23 November 2026**: R2026.42 and R2026.43 were built in a chat workspace and pushed
 from there, so the local clones and `build/` in `~/catalog` are behind GitHub. Read `docs/MONTHLY_RUN.md`, sections "Next run:
 carried over from R2026.43" and "…R2026.42" (what is newer than `~/catalog`, where it is, and what the review left for the next
