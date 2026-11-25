@@ -520,6 +520,27 @@ def settle_checked_contradictions(contra: pd.DataFrame, det: pd.DataFrame) -> tu
     return contra[~settled].reset_index(drop=True), int(settled.sum())
 
 
+BODY_SITE_CODES = {"gut_stool", "oral", "skin", "nasal_nasopharyngeal", "respiratory_lower", "vaginal_urogenital", "milk", "blood_tissue",
+                   "eye_ear", "other_site", "multi_site"}
+
+
+def apply_body_site_corrections(samples: pd.DataFrame, corr: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Set body_site_code for the samples of a corrections table (sample_key, body_site_code, evidence_source, ...).
+
+    Returns the samples and {sample_key: basis}: `study_single_site` when the evidence is the project's own statement,
+    `sample_attribute` when it is the sample's record. A code outside the body-site vocabulary is an error; a sample that is
+    not in the catalog is skipped."""
+    bad = sorted(set(corr.body_site_code) - BODY_SITE_CODES)
+    if bad:
+        raise ValueError(f"body_site_corrections: codes not in the vocabulary: {bad}")
+    new = dict(zip(corr.sample_key, corr.body_site_code))
+    basis = {k: ("study_single_site" if str(src).startswith(("study.", "ena.", "paper.")) else "sample_attribute") for k, src in zip(corr.sample_key, corr.evidence_source)}
+    samples = samples.copy()
+    m = samples.sample_key.isin(new)
+    samples.loc[m, "body_site_code"] = samples.loc[m, "sample_key"].map(new)
+    return samples, {k: basis[k] for k in samples.loc[m, "sample_key"]}
+
+
 def _route_of(src, sample_level: bool) -> str:
     s = str(src or "")
     if s.startswith(("biosample.attribute", "sample.attr")):
@@ -797,6 +818,13 @@ def build(a):
     inf_bs = set(wide0.biosample_accession.dropna()) | set(wide0.secondary_sample.dropna())
     samples = samples[~((samples.curated_source == SRC) & samples.biosample_accession.isin(inf_bs))].reset_index(drop=True)
     samples, n_split = split_pooled_biosamples(samples, getattr(a, "registry_runs", None), SRC)
+    # R2026.44: body-site codes corrected after a check against the sample's own record or the project's statement
+    # (config/body_site_corrections.csv). Body site is not a determination, so it cannot go through the corrections files.
+    bs_corr_basis = {}
+    _bsc = getattr(a, "body_site_corrections", None)
+    if _bsc and os.path.exists(_bsc):
+        samples, bs_corr_basis = apply_body_site_corrections(samples, pd.read_csv(_bsc, dtype=str, keep_default_na=False))
+        print(f"body-site corrections: {len(bs_corr_basis)} samples ({_bsc})", file=sys.stderr)
     bio = bio[bio.sample_accession.isin(set(samples.loc[(samples.curated_source == SRC) & (samples.sample_unit == "biosample"), "sample_key"]))]
     samples["in_infant_catalog"] = samples.curated_source.eq("infant_catalog")
     # per-sample host/assay exclusions from the catalog host audit (non-human or isolate samples inside otherwise human studies)
@@ -968,6 +996,9 @@ def build(a):
     # R2026.31: every human body site is in scope, so a stated site is `primary`; `unknown` = no site stated
     w["body_site_class"] = w.body_site_code.map(lambda c: "primary" if isinstance(c, str) and c not in ("unknown_site",) else "unknown")
     w["body_site_basis"] = w.body_site_code.map(lambda c: "sample_attribute" if isinstance(c, str) and c not in ("unknown_site",) else "none")
+    if bs_corr_basis:   # corrected codes keep the basis of the source that was re-read
+        _cb = pd.Series(w.index.map(bs_corr_basis), index=w.index)
+        w.loc[_cb.notna(), "body_site_basis"] = _cb[_cb.notna()]
     # a sample without any site attribute in a study that sampled ONE body site takes that site by study design (basis recorded)
     st_sites = reg.set_index("study_accession").body_sites if "body_sites" in reg.columns else pd.Series(dtype=str)
     st_sites = st_sites[~st_sites.index.duplicated()]
@@ -1348,6 +1379,7 @@ def main(argv=None) -> int:
     ap.add_argument("--r1-newfields-v2", help="R1 determinations of the 1.13.0 fields (diet, smoking_status, medication, stool_consistency_bristol) from catalog.scopes.newfields_r1_v2"),
     ap.add_argument("--registry-runs", help="registry_runs.parquet → catalog_runs.parquet + study sequencing summary columns"), ap.add_argument("--registry-sandpiper", help="registry_runs_sandpiper.parquet (sandpiper_profiled per run)"), ap.add_argument("--r2-glob"), ap.add_argument("--r3-glob", help="R3 full-text study_all determinations (glob)"), ap.add_argument("--r4-glob"), ap.add_argument("--condition-map"), ap.add_argument("--antibiotic-map")
     ap.add_argument("--out", required=True), ap.add_argument("--summary"), ap.add_argument("--release-id", default="R2026.7"), ap.add_argument("--package-version", default="1.8.0")
+    ap.add_argument("--body-site-corrections", help="CSV of checked body-site codes per sample (config/body_site_corrections.csv; R2026.44)")
     ap.add_argument("--condition-terms", help="CSV of condition names and EFO / MONDO ids per (project, health_condition, detail) (data/inputs/gut/condition_terms.csv; R2026.44)")
     ap.add_argument("--plausibility-corrections", help="CSV of checked value corrections (catalog.scopes.plausibility; R2026.36)")
     ap.add_argument("--person-invariant-exclusions", help="CSV study_accession,field,reason: projects where sex/country are not propagated within people (R2026.36)")

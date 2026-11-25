@@ -16,7 +16,8 @@ Rules
   * the free-text source descriptions of the workers are mapped to the catalog's source labels (ena.study_description,
     biosample.attribute, paper.fulltext[.methods], paper.supp...), because the route of a value is derived from that label;
   * fields that are not determinations (body_site_code, sample_type) cannot be corrected through this file: they are written to
-    --other-out for the build's own override inputs and are NOT in the parquet;
+    config/body_site_corrections.csv (read by build_gut_scope --body-site-corrections) and appended to config/sample_types.csv
+    (action mark), and are NOT in the parquet;
   * a sample and field corrected twice keeps one row: a per-sample fix wins over a change made for its whole pair.
 """
 from __future__ import annotations
@@ -41,6 +42,12 @@ def source_label(text: str) -> str:
     low = s.lower()
     if low.startswith(("biosample.attribute", "paper.supp", "paper.fulltext", "paper.abstract", "ena.", "run.", "sample.attr")):
         return s.split(" (")[0].strip()
+    if low.startswith("sample.name_rule:"):   # a rule on a named attribute of the sample's own record
+        return "sample.attr." + s.split(":", 1)[1].strip()
+    if low.startswith("study."):
+        return "ena.study_title" if "title" in low else "ena.study_description"
+    if low.startswith("paper.body"):
+        return "paper.fulltext" + s[len("paper.body"):]
     if "supp" in low or "table s" in low or ".xlsx" in low or ".csv" in low or ".docx" in low:
         return "paper.supp"
     if "biosample" in low or "attribute" in low or "package determinations" in low or "sample name" in low or "sample title" in low:
@@ -68,7 +75,8 @@ def main(argv=None):
     ap.add_argument("--dir", default="docs/audits/r44")
     ap.add_argument("--package", required=True, help="unpacked package the pairs are looked up in (the release before R2026.44)")
     ap.add_argument("--out", default="data/inputs/gut/dq_corrections_r44.parquet")
-    ap.add_argument("--other-out", default="docs/audits/r44/non_determination_fixes_r44.csv")
+    ap.add_argument("--body-site-out", default="config/body_site_corrections.csv")
+    ap.add_argument("--sample-types", default="config/sample_types.csv")
     a = ap.parse_args(argv)
     rows, stats = [], {}
 
@@ -136,7 +144,20 @@ def main(argv=None):
     dup = out.duplicated(["sample_key", "field_name"], keep="first")
     out = out[~dup]
     out.to_parquet(a.out, index=False)
-    pd.DataFrame(other, columns=COLS).to_csv(a.other_out, index=False)
+    oth = pd.DataFrame(other, columns=COLS)
+    bs = oth[oth.field_name == "body_site_code"]
+    bs = bs.assign(body_site_code=bs.new_value, old_body_site_code=bs.old_value, release="R2026.44")
+    bs[["sample_key", "study_accession", "body_site_code", "old_body_site_code", "evidence_source", "evidence_locator", "evidence_quote", "confidence",
+        "rationale", "origin", "release"]].sort_values(["study_accession", "sample_key"]).to_csv(a.body_site_out, index=False)
+    st = oth[oth.field_name == "sample_type"]
+    cur = pd.read_csv(a.sample_types, dtype=str, keep_default_na=False)
+    add = st[~st.sample_key.isin(set(cur.sample_accession))]
+    if len(add):   # idempotent: a second run appends nothing
+        new = pd.DataFrame(dict(sample_accession=add.sample_key.values, study_accession=add.study_accession.values, sample_type=add.new_value.values, action="mark",
+                                evidence=[f"{q} | checked against the sample's record, R2026.44 ({o})" for q, o in zip(add.evidence_quote, add.origin)]))
+        pd.concat([cur, new[cur.columns]], ignore_index=True).to_csv(a.sample_types, index=False)
+    stats["body_site_rows"] = len(bs)
+    stats["sample_type_rows"] = {"in_fixes": len(st), "appended_now": len(add)}
     print(stats, {"dropped_second_row_for_same_sample_field": int(dup.sum()), "rows": len(out), "non_determination_rows": len(other)},
           out.field_name.value_counts().to_dict(), out.action.value_counts().to_dict(), out.evidence_source.value_counts().to_dict())
 

@@ -1,0 +1,433 @@
+origin,study_accession,field,n_samples,class,reason
+MP0041,PRJNA352475,age_at_collection_days,16,not_confirmed,"PMC8115609 Table S1 gives Maternal age only as a 5-year band (25-30 ... 45-50) for all 16 maternal samples; no integer-day value can be derived without inventing one. Catalog 0 (infant Sampling, day) is nonetheless wrong - flagged for removal in a later release."
+MP0012,PRJNA491335,age_at_collection_days,83,not_confirmed,BioSample host_age (years) equals the catalog determination (e.g. 50.37); only the years-to-days normalisation differs (364.4-365.1 d/y). No per-sample value error.
+MP0033,PRJNA491335,age_at_collection_days,26,not_confirmed,As MP0012: host_age matches the catalog determination; difference is in the normalisation only.
+MP0050,PRJNA491335,age_at_collection_days,9,not_confirmed,As MP0012: host_age matches the catalog determination; difference is in the normalisation only.
+MP0007,PRJNA688274,age_at_collection_days,136,not_confirmed,BioSample attribute Age (years) equals the value the catalog already holds as its age determination (field_value 52.91 = attribute); only the years-to-days normalisation differs (364.2-365.7 d/y). No per-sample value error.
+MP0014,PRJNA688274,age_at_collection_days,68,not_confirmed,As MP0007: the cited Age attribute matches the catalog determination; the wide-table day value differs only by the normalisation constant.
+MP0297,PRJNA624223,antibiotic_exposure,33,check_flag,check_flag=check: confidence medium
+MP0359,PRJEB23524,collection_date,73,check_flag,check_flag=check: confidence medium
+MP0372,PRJEB23524,collection_date,20,check_flag,check_flag=check: confidence medium
+MP0376,PRJEB6997,collection_date,11,check_flag,check_flag=check: confidence medium
+MP0395,PRJNA277905,country,20,check_flag,check_flag=check: confidence medium
+MP0397,PRJNA277905,country,8,check_flag,check_flag=check: confidence medium
+MP0390,PRJNA420817,country,48,check_flag,check_flag=check: confidence medium
+MP0560,PRJEB17632,health_condition,116,check_flag,check_flag=check: confidence medium
+MP0593,PRJEB25422,health_condition,26,check_flag,check_flag=check: confidence medium
+MP0565,PRJNA385949,health_condition,86,check_flag,check_flag=check: confidence medium; pattern not uniform
+MP0595,PRJNA765566,health_condition,24,check_flag,check_flag=check: confidence medium; pattern not uniform
+MP0655,PRJEB28097,intervention,68,check_flag,check_flag=check: confidence medium; pattern not uniform
+MP0654,PRJEB49383,intervention,84,check_flag,check_flag=check: confidence medium
+MP0769,PRJEB38221,subject_id,38,source_not_retrievable,"Patient column lives in the study github repository (mmpust/airway-metagenome-infants, metaData_table_NGS.xlsx); ENA carries only numeric sample aliases (02, 03 ...) and PMC7738502 supplements are PDF. Domain not reachable from this sandbox."
+MP0751,PRJEB6997,subject_id,414,check_flag,check_flag=check: confidence medium; pattern not uniform
+MP0754,PRJNA352475,subject_id,193,check_flag,check_flag=check: confidence medium; pattern not uniform
+MP0750,PRJNA832909,subject_id,556,check_flag,check_flag=check: confidence medium
+A0015,PRJNA1404625,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0049,PRJEB55714,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0052,PRJEB62690,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0053,PRJNA557731,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0054,PRJEB106892,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0073,PRJNA296814,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0075,PRJNA296814,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0074,PRJNA296814,age_at_collection_days,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0111,PRJEB64515,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0112,PRJEB64515,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0137,PRJNA643353,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0139,PRJNA643353,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0160,PRJNA1076083,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0163,PRJNA664544,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0164,PRJNA1000281,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0166,PRJEB73985,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0167,PRJEB60621,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0168,PRJNA1171107,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0184,PRJNA695070,antibiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0356,PRJNA784939,collection_date,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0365,PRJNA63661,collection_date,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0374,PRJEB76661,collection_date,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0381,PRJEB112862,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0382,PRJEB86785,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0391,PRJNA1145581,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0397,PRJNA1304731,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0402,PRJNA1167328,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0404,PRJNA422434,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0405,PRJNA1195614,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0406,PRJEB21528,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0408,PRJNA1308792,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0411,PRJNA1317556,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0413,PRJNA1061468,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0416,PRJEB12123,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0417,PRJNA1430192,comparison_group,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0472,PRJEB38742,country,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0474,PRJEB38742,country,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0473,PRJEB38742,country,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; third reader gave 
+A0475,PRJEB14383,country,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0476,PRJEB14383,country,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0477,PRJEB14383,country,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0478,PRJNA588627,country,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0623,PRJEB105465,diet_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0627,PRJNA895487,diet_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader gave no quote
+A0648,PRJNA876804,diet_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0657,PRJEB111647,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0658,PRJEB111647,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0659,PRJEB111647,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0660,PRJEB111647,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0662,PRJNA695570,family_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0663,PRJNA695570,family_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0664,PRJNA1249435,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0665,PRJNA695570,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0666,PRJNA843963,family_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0676,PRJEB52147,family_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0678,PRJNA698986,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0682,PRJNA695070,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0687,PRJNA916952,family_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0690,PRJNA608678,family_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0700,PRJEB110648,family_role,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0704,PRJEB84944,family_role,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0715,PRJNA608678,family_role,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0716,PRJNA770101,family_role,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0717,PRJNA770101,family_role,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0720,PRJEB108612,family_role,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0723,PRJEB108612,family_role,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0725,PRJNA1126668,family_role,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0732,PRJNA862629,family_role,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; no second blind re
+A0733,PRJNA862629,family_role,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; no second blind re
+A0747,PRJEB62690,feeding_mode,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0750,PRJEB62690,feeding_mode,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A0754,PRJNA812583,feeding_mode,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0770,PRJNA436562,feeding_mode,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0834,PRJNA1219227,health_condition,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; no second blind re
+A0869,PRJEB36461,health_condition,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0879,PRJNA1157583,health_condition,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; no second blind re
+A0897,PRJNA471187,health_condition,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A0965,PRJEB79896,health_condition,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1030,PRJEB47061,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1033,PRJNA1164832,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1035,PRJEB11419,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader gave no quote
+A1051,PRJEB102033,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1061,PRJEB102033,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1053,PRJNA1368374,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1055,PRJNA1047900,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1057,PRJNA380276,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1058,PRJNA1024678,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1062,PRJNA643353,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1063,PRJNA643353,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1064,PRJNA643353,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1065,PRJNA643353,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1096,PRJNA862629,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader gave no quote
+A1105,PRJNA1142935,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1125,PRJEB100670,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1134,PRJNA1329258,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1148,PRJNA1045701,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader gave no quote
+A1151,PRJDB40848,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader gave no quote
+A1171,PRJNA1086951,health_condition_detail,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1181,PRJEB54707,hmo_supplementation,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1210,PRJEB97976,hmo_supplementation,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1212,PRJEB97976,hmo_supplementation,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1216,PRJEB97976,hmo_supplementation,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1221,PRJNA1268178,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1225,PRJEB22863,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1226,PRJNA1356862,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1231,PRJEB36140,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1245,PRJEB36461,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1246,PRJNA1247491,intervention,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1247,PRJNA1425751,intervention,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1248,PRJEB15179,intervention,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1251,PRJNA643353,intervention,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1254,PRJEB102130,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1255,PRJEB102130,intervention,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1356,PRJNA699281,lifestyle,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1357,PRJNA699281,lifestyle,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1381,PRJEB6358,lifestyle,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1484,PRJEB44237,location_locality,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1495,PRJEB81697,location_locality,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1504,PRJEB110927,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1505,PRJNA1390888,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1513,PRJEB112862,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1518,PRJNA662107,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1520,PRJEB47383,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1536,PRJEB62473,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1557,PRJNA595749,location_region,1,check_flag,check_flag=check (cited source does not support a value): no second blind reading; third reader gave no quote
+A1559,PRJNA957107,location_region,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1588,PRJEB62678,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1590,PRJEB62678,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1589,PRJEB115441,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1592,PRJEB115441,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1602,PRJNA1001944,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1609,PRJNA1247984,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1615,PRJNA1247984,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1616,PRJNA1468137,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1624,PRJNA1468137,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1620,PRJEB26795,location_site,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1682,PRJNA858926,maternal_antibiotics,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1684,PRJNA835321,maternal_antibiotics,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1686,PRJNA835321,maternal_antibiotics,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1698,PRJEB32631,maternal_antibiotics,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1703,PRJEB32631,maternal_antibiotics,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; no second blind reading
+A1877,PRJNA345144,probiotic_exposure,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1915,PRJNA448876,sex,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1917,PRJNA448876,sex,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1916,PRJNA448876,sex,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1920,PRJNA948840,sex,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A1951,PRJEB13870,sex,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2019,PRJNA1356862,shared_setting_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2020,PRJNA1356862,shared_setting_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2039,PRJNA608678,shared_setting_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2040,PRJNA608678,shared_setting_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2041,PRJNA608678,shared_setting_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2057,PRJNA1356862,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2060,PRJNA1356862,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2061,PRJNA1356862,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2059,PRJNA699281,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2064,PRJNA843963,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2080,PRJNA1035800,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2081,PRJNA668607,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; third reader gave 
+A2082,PRJNA608678,shared_setting_type,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2147,PRJEB50408,stool_consistency_bristol,1,check_flag,check_flag=check (cited source does not support a value): third reader gave no quote
+A2195,PRJNA725020,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2210,PRJNA686821,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A2212,PRJEB14847,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A2229,PRJNA531921,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2232,PRJNA1347413,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2233,PRJNA1345159,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2236,PRJDB9649,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2238,PRJNA486009,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2242,PRJNA701961,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2245,PRJNA1425751,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2265,PRJEB55714,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2266,PRJNA1062586,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; third reader gave 
+A2267,PRJNA547591,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2268,PRJNA1460779,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2269,PRJNA588514,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2270,PRJNA1460779,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2271,PRJNA1460779,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2272,PRJNA1460779,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2273,PRJNA1460779,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2275,PRJEB76661,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2276,PRJNA1460779,subject_id,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2278,PRJEB75460,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2279,PRJEB75464,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2280,PRJEB75464,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2282,PRJEB75462,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2284,PRJNA1428291,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2286,PRJEB75460,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2290,PRJNA1177601,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2293,PRJNA1237248,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2294,PRJNA1177601,subject_id,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2323,PRJNA641975,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2332,PRJEB40903,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium
+A2342,PRJNA983093,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2343,PRJEB63587,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2344,PRJNA1503619,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2345,PRJEB63587,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2346,PRJNA398089,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; third reader gave 
+A2347,PRJEB108612,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; no second blind re
+A2348,PRJEB108612,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; no second blind re
+A2350,PRJEB23292,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2352,PRJNA1056456,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2353,PRJNA1501268,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2364,PRJNA763692,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2365,PRJNA745160,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2366,PRJNA812695,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2369,PRJNA706070,timepoint_label,1,check_flag,check_flag=check (cited source does not support a value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers; third reader gave 
+A0079,PRJNA1081952,age_at_collection_days,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0082,PRJNA1081952,age_at_collection_days,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0080,PRJEB48251,age_at_collection_days,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0081,PRJNA1081952,age_at_collection_days,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0113,PRJEB91718,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0115,PRJEB27799,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0171,PRJNA883179,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0182,PRJEB41102,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0183,PRJEB41102,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0186,PRJNA1090034,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0187,PRJNA1090034,antibiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0217,PRJNA762668,birth_weight_grams,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0218,PRJNA762668,birth_weight_grams,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0219,PRJNA776332,birth_weight_grams,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0343,PRJEB62678,collection_date,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0346,PRJEB49383,collection_date,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0358,PRJEB32631,collection_date,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0359,PRJNA497734,collection_date,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0361,PRJNA821542,collection_date,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0367,PRJNA821542,collection_date,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0514,PRJNA557731,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0515,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0516,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0517,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0518,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0519,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0520,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0522,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0523,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0524,PRJNA400115,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0536,PRJNA382011,country,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0591,PRJNA895487,diet,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0631,PRJNA895487,diet_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0635,PRJNA895487,diet_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0748,PRJNA1404625,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0751,PRJNA1106565,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0761,PRJEB52774,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0762,PRJEB52774,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0764,PRJNA1230889,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0765,PRJNA1230889,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0766,PRJNA1230889,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0771,PRJNA497734,feeding_mode,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0797,PRJNA762668,gestational_age_weeks,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0798,PRJNA870588,gestational_age_weeks,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0799,PRJNA870588,gestational_age_weeks,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0800,PRJNA61745,gestational_age_weeks,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0802,PRJNA61745,gestational_age_weeks,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0842,PRJEB62460,health_condition,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1004,PRJEB6997,health_condition,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1094,PRJNA943687,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1095,PRJNA943687,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1101,PRJNA943687,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1097,PRJNA400628,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1098,PRJNA1237248,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1119,PRJNA1181778,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1138,PRJEB29127,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1140,PRJNA1314234,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1146,PRJEB108450,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1147,PRJEB58441,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1150,PRJNA1027357,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1152,PRJNA514108,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1154,PRJEB115010,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1156,PRJNA1477909,health_condition_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1477,PRJNA916952,location_locality,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1481,PRJNA1096686,location_locality,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1488,PRJEB48269,location_locality,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1503,PRJNA1505569,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1507,PRJNA1269031,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1508,PRJNA533528,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1511,PRJEB34871,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1512,PRJNA764525,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1514,PRJEB100670,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1515,PRJEB12947,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1516,PRJNA657309,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1517,PRJEB5185,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1519,PRJEB50761,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1563,PRJEB87209,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1570,PRJEB63587,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1577,PRJEB63587,location_region,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1586,PRJNA674880,location_site,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1607,PRJEB41184,location_site,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1681,PRJNA1130109,maternal_antibiotics,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1685,PRJNA835321,maternal_antibiotics,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1717,PRJNA800792,medication,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1724,PRJNA1138771,medication,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1725,PRJNA1138771,medication,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1726,PRJNA1138771,medication,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1776,PRJEB36291,medication_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1778,PRJEB36291,medication_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1779,PRJNA767784,medication_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1780,PRJNA767784,medication_detail,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1793,PRJNA870588,nec_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1794,PRJNA870588,nec_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1795,PRJNA870588,nec_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1796,PRJNA870588,nec_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1849,PRJEB70237,preterm_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A1901,PRJEB41102,probiotic_exposure,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2097,PRJNA487636,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2098,PRJNA487636,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2122,PRJEB38989,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2125,PRJEB83572,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2126,PRJEB83572,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2127,PRJEB83572,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2128,PRJNA845806,smoking_status,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2384,PRJNA290380,timepoint_label,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2390,PRJNA562766,timepoint_label,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A2391,PRJNA850529,timepoint_label,1,audit_not_supported_listed_for_later,"ok row, class ""cited source does not support a value""; the owner withheld value removals from this release"
+A0058,PRJEB21612,age_at_collection_days,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0061,PRJEB32762,age_at_collection_days,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0066,PRJDB4176,age_at_collection_days,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0389,PRJNA929986,comparison_group,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0410,PRJNA680692,comparison_group,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0479,PRJNA396197,country,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results
+A0482,PRJNA396197,country,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results
+A0481,PRJNA429692,country,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results
+A0596,PRJNA1062322,diet,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0603,PRJNA876804,diet,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; no second blind reading
+A0611,PRJNA532310,diet,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0642,PRJEB52748,diet_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0643,PRJEB52748,diet_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0644,PRJEB52748,diet_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0645,PRJEB52748,diet_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0708,PRJNA1308818,family_role,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0829,PRJNA904651,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0836,PRJNA1192252,health_condition,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited so
+A0841,PRJNA874828,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0850,PRJNA384246,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0862,PRJNA786875,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0864,PRJNA1221657,health_condition,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0865,PRJNA1221657,health_condition,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0866,PRJNA1221657,health_condition,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0868,PRJNA1398904,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A0870,PRJNA665854,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping sou
+A0872,PRJEB102033,health_condition,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited so
+A0878,PRJNA1220341,health_condition,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0881,PRJDB16790,health_condition,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A0884,PRJNA817430,health_condition,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited so
+A0909,PRJNA688274,health_condition,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results
+A0926,PRJNA1085219,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; no second blind reading
+A0972,PRJNA1307073,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0979,PRJNA1304185,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0981,PRJNA1304185,health_condition,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A0992,PRJNA698986,health_condition,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results; no second blind reading
+A1019,PRJNA345144,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited so
+A1048,PRJNA1221657,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1049,PRJNA1221657,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1050,PRJNA1221657,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A1060,PRJNA1405914,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1139,PRJNA1280936,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results
+A1143,PRJNA725597,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; no second blind reading
+A1164,PRJNA615842,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1165,PRJNA890666,health_condition_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results
+A1271,PRJNA804384,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1282,PRJEB28097,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1285,SRP057027,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1287,PRJNA1220341,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1291,PRJNA1512161,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1301,PRJEB47383,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1305,PRJEB49383,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1306,PRJEB49383,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1307,PRJEB49383,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1310,PRJEB49383,intervention_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results
+A1358,PRJNA1477002,lifestyle,1,check_flag,check_flag=check (source gives a different value): blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited so
+A1364,PRJEB61656,lifestyle,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1365,PRJEB61656,lifestyle,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1366,PRJEB61656,lifestyle,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1378,PRJNA217052,lifestyle,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1379,PRJNA1049329,lifestyle,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1420,PRJNA945408,lifestyle_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1418,PRJNA305507,lifestyle_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1712,PRJEB42155,medication,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1719,PRJEB38352,medication,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1731,PRJEB36291,medication,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; no second blind reading
+A1743,PRJNA850529,medication,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A1752,PRJEB48814,medication_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1754,PRJEB48814,medication_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A1759,PRJNA770295,medication_detail,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium
+A2017,PRJNA630999,shared_setting_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2018,PRJNA630999,shared_setting_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2021,PRJNA1140720,shared_setting_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2022,PRJNA1140720,shared_setting_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2023,PRJNA1140720,shared_setting_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2062,PRJNA1140720,shared_setting_type,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2063,PRJNA1140720,shared_setting_type,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2230,PRJNA810575,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2234,PRJNA1465364,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2235,PRJNA1085219,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2261,PRJNA1481258,subject_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2277,PRJNA1134172,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping sou
+A2283,PRJNA523622,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping sou
+A2285,PRJNA861716,subject_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2287,PRJNA861716,subject_id,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2291,PRJDB37496,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2305,PRJNA786578,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2307,PRJNA786578,subject_id,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2349,PRJNA1138429,timepoint_label,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2356,PRJNA1505569,timepoint_label,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping sou
+A2367,PRJNA1157208,timepoint_label,1,check_flag,check_flag=check (source gives a different value): value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to the readers
+A2368,PRJNA1157208,timepoint_label,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; value comes from a decoded sample name or a design rule; the mapping source (paper) is not the cited source and was not shown to 
+A2370,PRJNA745160,timepoint_label,1,check_flag,check_flag=check (source gives a different value): third reader certainty medium; blind reader and third reader propose different results; value comes from a decoded sample name or a design rule; the mapping sou
+A0059,PRJDB4176,age_at_collection_days,1,source_not_retrievable,cited source is a Zenodo CSV (meta2db_metadata.csv) outside the reachable archives; the DDBJ/ENA record for SAMD00114730 carries no age attribute
+A0085,PRJEB54707,age_at_collection_days,1,not_confirmed,"PRJEB54707 description says ""infant stool at 3 months of age""; it gives no day count. Catalog 90 d and the proposed 91.3 d differ only by the month length assumed (30 vs 30.4375 d)"
