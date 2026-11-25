@@ -295,7 +295,7 @@ replication-page: ## R2026.42: Insights › Replication of published findings pa
 	$(PY) scripts/replication_page.py --replication $(REPLICATION) --out $(DATA)/site/replication
 	cd $(DATA)/site/replication && shasum -a 256 -c $(REPLICATION)/for_editor/replication_page/payload/SHA256SUMS.txt
 	# R2026.44: the exploratory checks the Replication chat added after the test (one more collapsed section; replication.json keeps its checksum)
-	$(PY) scripts/replication_exploratory.py --payload $(DATA)/site/replication
+	$(PY) scripts/replication_exploratory.py --payload $(DATA)/site/replication --tables $(REPLICATION)/exploratory/out
 	cd $(DATA)/site/replication && shasum -a 256 -c $(REPLICATION)/for_editor/replication_page/payload/SHA256SUMS_exploratory.txt
 
 side-page-tests: ## R2026.42: page tests of the three Insights pages on the built site (jsdom; node_modules in $(SIDE_PAGES)/work/node)
