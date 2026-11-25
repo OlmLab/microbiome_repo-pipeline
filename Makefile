@@ -303,6 +303,8 @@ side-page-tests: ## R2026.42: page tests of the three Insights pages on the buil
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/vanish_blossum/dom_vanish.mjs $(abspath $(SITE_OUT))
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication.mjs $(abspath $(SITE_OUT))
 	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/replication/dom_replication_x.mjs $(abspath $(SITE_OUT))
+	@# R2026.44: Insights > Condition explorer, checked against the three CSV tables shipped with the page
+	NODE_PATH=$(SIDE_PAGES)/work/node/node_modules node tests/side_pages/conditions/dom_conditions.mjs $(abspath $(SITE_OUT))
 	$(PY) tests/side_pages/vanish_blossum/check_vanish_urls.py --root $(abspath $(SITE_OUT))
 	$(PY) tests/side_pages/replication/check_urls.py --root $(abspath $(SITE_OUT))
 

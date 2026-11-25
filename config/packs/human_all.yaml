@@ -81,6 +81,9 @@ fields:
   condition_label: {type: text, max_len: 120, routes: [R1, R2, R3, R4], note: "the most specific condition the source states, verbatim"}
   condition_specificity: {type: enum, values: [specific, general, vague], routes: [R1, R2, R3, R4]}
   condition_mondo: {type: text, max_len: 40, routes: [R1, R2, R3, R4], note: "MONDO:nnnnnnn chosen among exact / synonym candidates; never the first search hit"}
+  # R2026.44: health_condition_name, health_condition_efo_id and health_condition_mondo_id are derived from the
+  # sample's health-condition label by the mapping of the condition curation (EFO + MONDO) and are declared in
+  # the gut pack's derived_fields, which this pack inherits: they carry no route and no evidence row of their own.
 
   # ---- access
   metadata_access: {type: enum, values: [open, controlled, partly], routes: [R1, R3],

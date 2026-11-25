@@ -38,7 +38,9 @@ ROUTE_LABELS = {'R1': 'archive record', 'R2': 'supplementary table', 'R3': 'pape
 ROUTE_WHAT = {'R1': "the sample's own archive attributes (BioSample, run, sample name)", 'R2': 'supplementary tables of the linked papers, and external resources',
               'R3': 'the body of open-access papers (Methods / Results)', 'R4': "the paper abstract or the archive's study description"}
 LABELS = {'body_site_code': 'Body site', 'age_category': 'Age (exact or life stage)', 'age_at_collection_days': 'Age at collection (days, exact)', 'intervention': 'Intervention (sample arm)', 'interventions': 'Interventions (project)', 'sex': 'Sex', 'bmi': 'BMI', 'country': 'Country', 'health_condition': 'Health condition',
-          'health_condition_detail': 'Health condition (detail)', 'antibiotic_exposure': 'Antibiotic exposure', 'subject_id': 'Subject id', 'timepoint_label': 'Timepoint label', 'comparison_group': 'Comparison group (study design)',
+          'health_condition_detail': 'Health condition (detail)',
+          'health_condition_name': 'Condition name', 'health_condition_efo_id': 'Condition EFO id', 'health_condition_mondo_id': 'Condition MONDO id',
+          'antibiotic_exposure': 'Antibiotic exposure', 'subject_id': 'Subject id', 'timepoint_label': 'Timepoint label', 'comparison_group': 'Comparison group (study design)',
           'delivery_mode': 'Delivery mode', 'feeding_mode': 'Feeding mode', 'preterm_status': 'Preterm status', 'gestational_age_weeks': 'Gestational age (weeks)',
           'birth_weight_grams': 'Birth weight (g)', 'maternal_antibiotics': 'Maternal antibiotics', 'probiotic_exposure': 'Probiotic exposure',
           'hmo_supplementation': 'HMO supplementation', 'nec_status': 'NEC status',
@@ -67,6 +69,10 @@ FIELD_CAVEATS = {
     'country': 'ISO-2 of the sampling / recruitment country from archive attributes, tables or paper text (not the laboratory or ethics-committee country).',
     'health_condition': 'Controlled vocabulary. Cohort-wide codes from the paper text or abstract are committed only when every sequenced person shares the condition; case–control cohorts stay unknown at sample level unless the table or attribute names the group.',
     'health_condition_detail': 'Free text behind the code (diagnosis, group label, criterion).',
+    # R2026.44: the ontology terms of the condition the sample's label names (Condition explorer, disease-name filter on Samples)
+    'health_condition_name': "Name of the condition this sample's health-condition label names, in the words of its ontology term; empty where the label names no condition or no term was found. Not a value of its own: it is the label mapped to a term, so it carries no source beside it.",
+    'health_condition_efo_id': 'EFO term of that condition. EFO has retired most of its disease ids in favour of MONDO, so most values carry a MONDO: prefix; empty where EFO has no term for it.',
+    'health_condition_mondo_id': 'MONDO term of that condition; empty where MONDO has no term for it.',
     'antibiotic_exposure': '"yes"/"no". "no" from a source that documents no exposure (attribute, table, or an exclusion window ≥ 1 month in the Methods), never from "no mention".',
     'subject_id': 'Submitter identifier of the individual (host_subject_id, participant, donor …); never a sample id. Not checked against an independent source.',
     'timepoint_label': 'Compact tokens (D6, M4, baseline) are labels, not ages, unless the project confirms the unit.',
@@ -160,7 +166,8 @@ NAV = [('home', 'Home', 'index.html', None),
        ('studies', 'Projects', 'studies/index.html', None),
        ('samples', 'Samples', 'samples/index.html', None),
        ('contribute', 'Contribute', 'contribute/index.html', None),
-       ('insights', 'Insights', None, [('atlas', 'Taxon explorer', 'atlas/taxa/index.html'), ('atlas', 'VANISH / BloSSUM', 'atlas/vanish.html'),
+       ('insights', 'Insights', None, [('atlas', 'Taxon explorer', 'atlas/taxa/index.html'), ('atlas', 'Condition explorer', 'atlas/conditions.html'),
+                                       ('atlas', 'VANISH / BloSSUM', 'atlas/vanish.html'),
                                        ('atlas', 'Replication of published findings', 'atlas/replication.html'), ('atlas', 'Taxon map', 'atlas/index.html'),
                                        ('atlas', 'PCA of community profiles', 'atlas/pca.html'), ('atlas', 'Profile coverage and quality', 'atlas/measures.html')]),
        ('about', 'About', None, [('about', 'About this resource', 'about/index.html'), ('llms', 'For LLMs & API', 'llms/index.html'),
@@ -2014,7 +2021,9 @@ def main():
     (out / 'data' / 'home_globe.json').write_text(json.dumps(_hg, sort_keys=True), encoding='utf-8')
     sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
     from pages import api as api_page   # R2026.16: static API + llms.txt + For-LLMs page
-    api_stats = api_page.build(render, out, dict(studies=studies, sidx_rows=sidx_rows, cw=cw, papers_by_study=papers_by_study, base_url=base_url,
+    # R2026.44: conditions_dir = the Condition explorer's payload, for api/by-condition/<anchor>.json (absent → no such file)
+    api_stats = api_page.build(render, out, dict(conditions_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'conditions'),
+                                                 studies=studies, sidx_rows=sidx_rows, cw=cw, papers_by_study=papers_by_study, base_url=base_url,
                                                  site_title=names['title'], version=version, release_id=release_id,
                                                  hc_labels=hc_labels, iv_voc=iv_voc, age_cats=age_cats, stats=stats, citation=env.globals['site'].get('citation', '')))
     print(f'[{time.time()-t0:.0f}s] api: {api_stats}', file=sys.stderr)
@@ -2204,10 +2213,12 @@ def main():
     # R2026.42: Insights › Taxon explorer, VANISH / BloSSUM, Replication of published findings. Payloads are precomputed
     # (scripts/taxon_explorer.py, scripts/vanish_blossum.py --stage page, scripts/replication_page.py) under data/inputs/site/;
     # without a payload each module renders its placeholder, so the menu link always resolves.
-    from pages import taxa as _taxa, vanish as _vanish, replication as _replication
+    # R2026.44: Insights › Condition explorer joins them (payload data/inputs/site/conditions, the three
+    # condition_explorer*.csv tables rebuilt per package); same contract — no payload, no broken menu link.
+    from pages import taxa as _taxa, vanish as _vanish, replication as _replication, conditions as _conditions
     _site_in = Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site'
-    for _nm, _mod in (('taxa', _taxa), ('vanish', _vanish), ('replication', _replication)):
-        _r = _mod.build(render, {_nm + '_dir': str(_site_in / _nm), 'stats': stats}, out)
+    for _nm, _mod in (('taxa', _taxa), ('vanish', _vanish), ('replication', _replication), ('conditions', _conditions)):
+        _r = _mod.build(render, {_nm + '_dir': str(_site_in / _nm), 'stats': stats, 'package': version, 'release_id': release_id}, out)
         print(f'[{time.time()-t0:.0f}s] atlas/{_nm}: {_r}', file=sys.stderr)
     if (pkg / 'catalog_sandpiper_pca_scores.parquet').exists():   # after the atlas copy (atlas.build replaces data/atlas/)
         pca_stats = _pca.build(env, render, dict(wide=cw, studies=cs, pkg=pkg), out)

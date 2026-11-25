@@ -158,14 +158,15 @@ def test_nav_order_and_about(site_new):
     # R2026.42 / R2026.43 (owner, 2026-11-23 and 2026-11-24): Insights holds exactly these six pages in this order; Registry, Cohorts, Collections and Authors
     # sit in the About menu under a "Browse" heading; profile measures and figures are built but not in the menu; no "Atlas" label
     ins = nav[nav.index('>Insights <span'):nav.index('>About <span')]
-    assert re.findall(r'role="menuitem" href="([^"]+)"', ins) == ['atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/index.html', 'atlas/pca.html', 'atlas/measures.html']
-    assert re.findall(r'role="menuitem" href="[^"]+"[^>]*>([^<]+)<', ins) == ['Taxon explorer', 'VANISH / BloSSUM', 'Replication of published findings', 'Taxon map', 'PCA of community profiles', 'Profile coverage and quality']
+    # R2026.44 (owner, 2026-11-24): the Condition explorer joins the menu directly after the Taxon explorer
+    assert re.findall(r'role="menuitem" href="([^"]+)"', ins) == ['atlas/taxa/index.html', 'atlas/conditions.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/index.html', 'atlas/pca.html', 'atlas/measures.html']
+    assert re.findall(r'role="menuitem" href="[^"]+"[^>]*>([^<]+)<', ins) == ['Taxon explorer', 'Condition explorer', 'VANISH / BloSSUM', 'Replication of published findings', 'Taxon map', 'PCA of community profiles', 'Profile coverage and quality']
     ab = nav[nav.index('>About <span'):]
     assert 'Browse' in ab and ab.index('Browse') < ab.index('registry/index.html') < ab.index('cohorts/index.html') < ab.index('collections/index.html') < ab.index('authors/index.html')
     assert 'atlas/figures.html' not in items and 'Explore' not in nav and 'Atlas' not in nav   # R2026.43: Figures removed, measures in the menu
-    for page in ('atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/measures.html', 'atlas/figures.html'):
+    for page in ('atlas/taxa/index.html', 'atlas/conditions.html', 'atlas/vanish.html', 'atlas/replication.html', 'atlas/measures.html', 'atlas/figures.html'):
         assert (site_new / page).exists(), page   # placeholders when a build has no payload
-    for page in ('atlas/index.html', 'atlas/taxa/index.html', 'atlas/vanish.html', 'atlas/replication.html'):
+    for page in ('atlas/index.html', 'atlas/taxa/index.html', 'atlas/conditions.html', 'atlas/vanish.html', 'atlas/replication.html'):
         h = _html(site_new, page)
         body = re.sub(r'<script[^>]*>.*?</script>', ' ', h, flags=re.S)
         assert 'Atlas' not in re.sub(r'<[^>]+>', ' ', body), page
@@ -180,6 +181,18 @@ def test_nav_order_and_about(site_new):
     assert 'fields/index.html' in about and 'id="cite"' in about
     # Collections / Atlas nav targets exist even though no track produced them (placeholders)
     assert (site_new / 'collections' / 'index.html').exists() and (site_new / 'atlas' / 'index.html').exists()
+
+
+def test_conditions_placeholder(site_new):
+    """R2026.44: the mock package ships no conditions payload, so pages/conditions.py renders the placeholder:
+    the menu link resolves, the page says the data files are not in this build, and nothing of the explorer —
+    its table, its script, its data directory, its per-condition API files — is written."""
+    html = _html(site_new, 'atlas/conditions.html')
+    assert 'Condition explorer' in html and 'does not include its data files' in html
+    assert 'cn-table' not in html and 'sp_conditions.js' not in html
+    assert not (site_new / 'data' / 'conditions').exists()
+    assert json.loads((site_new / 'api' / 'index.json').read_text())['endpoints']['by_condition_id'] == {}
+    assert 'Condition explorer' in _html(site_new, 'atlas/taxa/index.html')   # the Insights sub-navigation carries it
 
 
 def test_redirects_exist(site_new):
