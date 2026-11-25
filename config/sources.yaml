@@ -246,6 +246,17 @@ related_efforts:
   size: '106,828 human samples in 480 studies (download of 22 Nov 2026); further animal, ocean and environmental sets'
   offers: Per-sample curated age, sex, BMI, country and geocoded location, collection date, body site, disease status, medication, intervention, diet, subject identity and time series; mOTUs, MetaPhlAn 4 and SPIRE profiles; a mapping from each sample to archive sample, experiment and run accessions.
   join: Metalog's sequencing_db_mapping file (sample, experiment and run accessions) → catalog BioSample / registry runs. 94,488 human samples match one-to-one, in 450 catalog projects.
-  licence: 'Open Database License (ODbL 1.0), share-alike; contents under the Database Contents License. Files dated 22 Nov 2026, read 2026-11-24.'
-  ingestion: candidate_low
+  licence: 'Open Database License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/1-0/), share-alike; contents under the Database Contents License. Files dated 22 Nov 2026, read 2026-11-24.'
+  resource_id: metalog
+  # R2026.44 (review F40/F41/F42): Metalog is not a candidate for ingestion — it was used to CHECK this release.
+  ingestion: validation_only
+  use_in_release: >-
+    Used to check this release. A head-to-head comparison on data package 1.34.0 over the 94,488 shared samples pointed at 36
+    patterns in which Metalog and the catalog differed consistently; for each of them the catalog's own cited source was read
+    again for every sample of the pattern, and 5,145 values were corrected from those sources. No Metalog value was copied
+    into the catalog.
+  why_not_ingested: >-
+    Metalog is published under the Open Database License (ODbL 1.0), which is share-alike: taking its values into the catalog
+    would bind the catalog's own tables to that licence, a decision the owner has not taken. The catalog records only values it
+    has re-derived from the source each value cites.
   assessment: Used for validation only; no value is ingested, because the share-alike licence would need a separate decision. Head-to-head on data package 1.34.0 over the 94,488 shared samples, agreement where both have a value is 99.1 % for sex, 99.4 % for country, 96.2 % for body site, 94.6 % for collection date, 94.8 % for BMI, 93.1 % for which samples share a person, 91.2 % for age and 86.1 % for condition. Metalog has more ages, sexes, BMI values and collection dates for these samples; the catalog has more antibiotic, lifestyle and birth data and about 7.6 times as many human samples.

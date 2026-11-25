@@ -16,5 +16,18 @@
 {% if r.stats.studies %}<details class="pg-more"><summary>projects using {{ r.name }} ({{ r.stats.studies|length }})</summary><p class="small">{% for acc in r.stats.studies %}<a class="mono" href="../studies/{{ acc }}.html">{{ acc }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p></details>{% endif %}
 </section>
 {% endfor %}
+{% if checked %}<h2 id="checked">Used to check this release, not incorporated</h2>
+<p class="small">These resources were used to test the catalog’s own values. Where they and the catalog differed in a consistent way, the catalog’s own cited source was read again for every sample of that pattern and the value corrected from that source; no value of theirs is copied into the catalog.</p>
+{% for r in checked %}
+<section class="pg-sec" id="{{ r.resource_id|default(r.name|lower) }}">
+<div class="pg-label">{{ r.name }}</div>
+<p><a href="{{ r.url }}">{{ r.url }}</a>{% if r.scope %} — {{ r.scope }}{% endif %}{% if r.size %} <span class="muted">({{ r.size }})</span>{% endif %}</p>
+{% if r.offers %}<p class="small"><b>What it offers.</b> {{ r.offers }}</p>{% endif %}
+{% if r.join %}<p class="small"><b>How we join it.</b> {{ r.join }}</p>{% endif %}
+{% if r.use_in_release %}<p class="small"><b>In this release.</b> {{ r.use_in_release }}</p>{% endif %}
+{% if r.why_not_ingested %}<p class="small"><b>Why nothing is ingested.</b> {{ r.why_not_ingested }}</p>{% endif %}
+{% if r.reference or r.licence %}<p class="small muted">{{ r.reference }}{% if r.reference and r.licence %} · {% endif %}{{ r.licence }}</p>{% endif %}
+</section>
+{% endfor %}{% endif %}
 {% if others %}<p class="small muted">Also consulted, not incorporated (out of scope or no per-sample archive-linked metadata): {% for r in others %}<a href="{{ r.url }}">{{ r.name }}</a>{% if not loop.last %} · {% endif %}{% endfor %}.</p>{% endif %}
 {% endblock %}

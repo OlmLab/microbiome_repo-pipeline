@@ -70,9 +70,9 @@ FIELD_CAVEATS = {
     'health_condition': 'Controlled vocabulary. Cohort-wide codes from the paper text or abstract are committed only when every sequenced person shares the condition; case–control cohorts stay unknown at sample level unless the table or attribute names the group.',
     'health_condition_detail': 'Free text behind the code (diagnosis, group label, criterion).',
     # R2026.44: the ontology terms of the condition the sample's label names (Condition explorer, disease-name filter on Samples)
-    'health_condition_name': "Name of the condition this sample's health-condition label names, in the words of its ontology term; empty where the label names no condition or no term was found. Not a value of its own: it is the label mapped to a term, so it carries no source beside it.",
-    'health_condition_efo_id': 'EFO term of that condition. EFO has retired most of its disease ids in favour of MONDO, so most values carry a MONDO: prefix; empty where EFO has no term for it.',
-    'health_condition_mondo_id': 'MONDO term of that condition; empty where MONDO has no term for it.',
+    'health_condition_name': "Name of the condition this sample's health-condition label names, in the words of its ontology term. Empty where the label names no condition. A name can be present where no ontology term was found, and then both identifier columns are empty. Not a value of its own: it is the label mapped to a term, so it carries no source beside it.",
+    'health_condition_efo_id': 'Identifier of that condition in EFO. EFO takes many disease terms from MONDO, HP and Orphanet and keeps their identifiers, so most values start with MONDO: and some with HP: or Orphanet:. This is the identifier of the condition: two conditions never share it.',
+    'health_condition_mondo_id': 'MONDO term of that condition. Empty where EFO links no MONDO term, and where the nearest MONDO term is only a broader one; it is not an identifier of the condition, and two conditions may carry the same one.',
     'antibiotic_exposure': '"yes"/"no". "no" from a source that documents no exposure (attribute, table, or an exclusion window ≥ 1 month in the Methods), never from "no mention".',
     'subject_id': 'Submitter identifier of the individual (host_subject_id, participant, donor …); never a sample id. Not checked against an independent source.',
     'timepoint_label': 'Compact tokens (D6, M4, baseline) are labels, not ages, unless the project confirms the unit.',
@@ -139,7 +139,7 @@ FILE_DESC = {
 OFFSITE = [dict(name='registry_runs_v{v}.parquet', desc='Registry run tier: one row per sequencing run of every registry study (≈ 2 M rows, ≈ 80 MB) — GitHub Release asset data-v{v}.'),
            dict(name='microbiome_repo_v{v}.sqlite', desc='All package tables as one SQLite database — Release asset.'),
            dict(name='catalog_sandpiper_sample_genus_v{v}_part*.parquet', desc='Genus-level Sandpiper relative abundances for every profiled catalog sample (long table: sample_key, genus, relabund, coverage; ≈ 185 MB in < 90 MB parts, concatenate the parts) — Release asset.'),
-           dict(name='catalog_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (relabund ≥ 0.001; ≈ 200 MB in parts) — Release asset.'),
+           dict(name='catalog_sandpiper_sample_species_v{v}_part*.parquet', desc='Species-level Sandpiper relative abundances (species at 0.1 % relative abundance or more; ≈ 200 MB in parts) — Release asset.'),
            # R2026.44: analysis-ready exports (scripts/exports/build_exports.py; `make exports`), described in DATASET_CARD.md
            dict(name='DATASET_CARD.md', desc='Dataset card of the seven analysis-ready tables below: sample set, columns, splits, how to build the samples × genera matrix, limits — Release asset. export_manifest.csv beside it lists rows, bytes and sha256 of each table.'),
            dict(name='ml_samples_v{v}.parquet', desc='Analysis-ready sample table: one row per profiled specimen that passes every quality flag, with project, project group, person, twelve label columns, sequencing depth and fixed 5- and 10-fold splits by project group — Release asset.'),
@@ -1422,6 +1422,7 @@ def main():
                 has_registry=True, registry_page='registry/index.html', data_repo=read_github_repo(a.config, 'data'))
     _mcp = ((yaml.safe_load(Path(a.config).read_text(encoding='utf-8')).get('github') or {}).get('repos') or {}).get('mcp')
     site['mcp_repo_url'] = f"https://github.com/{site['data_repo'].split('/')[0]}/{_mcp}" if _mcp and '/' in str(site.get('data_repo') or '') else None   # R2026.44
+    site['mcp_repo_name'] = _mcp or ''   # F25: the repository's name and the Python package's name differ; pages print both
 
     env = Environment(loader=FileSystemLoader(HERE / 'templates'), autoescape=select_autoescape(['html']))
     def f_gbp(v):   # R2026.25: shallow runs are shown in Mbp instead of rounding to 0.00 Gbp
@@ -2032,8 +2033,11 @@ def main():
     (out / 'data' / 'home_globe.json').write_text(json.dumps(_hg, sort_keys=True), encoding='utf-8')
     sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
     from pages import api as api_page   # R2026.16: static API + llms.txt + For-LLMs page
-    # R2026.44: conditions_dir = the Condition explorer's payload, for api/by-condition/<anchor>.json (absent → no such file)
-    api_stats = api_page.build(render, out, dict(conditions_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'conditions'),
+    # R2026.44: conditions_dir = the Condition explorer's payload, for api/by-condition/<anchor>.json (absent → no such file);
+    # n_conditions = its row count, so llms.txt can say how many of the explorer's conditions have a file of their own.
+    _cond_csv = Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'conditions' / 'condition_explorer.csv'
+    _n_conditions = max(0, sum(1 for _ in _cond_csv.open(encoding='utf-8')) - 1) if _cond_csv.exists() else 0
+    api_stats = api_page.build(render, out, dict(n_conditions=_n_conditions, conditions_dir=str(Path(__file__).resolve().parents[2] / 'data' / 'inputs' / 'site' / 'conditions'),
                                                  studies=studies, sidx_rows=sidx_rows, cw=cw, papers_by_study=papers_by_study, base_url=base_url,
                                                  site_title=names['title'], version=version, release_id=release_id,
                                                  hc_labels=hc_labels, iv_voc=iv_voc, age_cats=age_cats, stats=stats, citation=env.globals['site'].get('citation', '')))
@@ -2291,7 +2295,10 @@ def main():
             exact = cw.age_category_basis == 'age_at_collection_days'
             by_cat = {c: (float(exact[cw.age_category == c].mean()) if (cw.age_category == c).any() and c != 'unknown' else None) for c in age_cats}
         tier = 'core' if f in CORE_FIELDS else 'key' if f in KEY_FIELDS else 'infant' if f in infant_fields else 'other'
-        fields.append(dict(name=f, label=LABELS.get(f, f), type=spec.get('type', 'derived' if spec.get('compose') or spec.get('from') else ''), infant=tier == 'infant', tier=tier,
+        # R2026.44 (review F38): the three condition-term columns are derived from the label and carry no evidence row,
+        # so the source bar would be four zeros; the page says where they come from instead.
+        derived_label = f in ('health_condition_name', 'health_condition_efo_id', 'health_condition_mondo_id')
+        fields.append(dict(name=f, label=LABELS.get(f, f), type=spec.get('type', 'derived' if spec.get('compose') or spec.get('from') else ''), infant=tier == 'infant', tier=tier, derived_from_label=derived_label,
                            routes_allowed=spec.get('routes', ROUTES if tier != 'infant' else []), vocab=vocab_txt, caveat=(FIELD_CAVEATS.get(f, spec.get('note', '')) + (' Per-category cells for this row: share of the category whose life stage comes from an exact age (the rest rests on a sample life-stage attribute or a cohort statement).' if f == 'age_category' else '')),
                            samples=int(has.sum()), frac=float(has.mean()), studies=int(cw.loc[has, 'study_accession'].nunique()), frac_studies=int(cw.loc[has, 'study_accession'].nunique()) / max(1, len(cs)),
                            route_segs=segs, nR=nR, by_cat=by_cat))
@@ -2362,6 +2369,7 @@ def main():
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Authors')])
 
     # ---------- releases ----------
+    _release_labels = {r.get('release_id'): r.get('label') for r in (rspec.get('releases') or []) if isinstance(r, dict)}
     releases = []
     for r in reg.itertuples(index=False):
         d = {k: (v if v != '' else None) for k, v in r._asdict().items()}
@@ -2373,6 +2381,7 @@ def main():
                            if d['has_notes'] and d['release_id'] == release_id else None)
         d['changes_href'] = rspec['site_pages']['changes_release'].format(release_id=d['release_id']).split('/')[-1]
         d['current'] = d['release_id'] == release_id
+        d['label'] = _release_labels.get(d['release_id'])   # F49: config/releases.yaml label — what the release is about
         releases.append(d)
     # public history (config/releases.yaml public_history_from): the site lists releases from that release on; the Changes
     # pages of earlier releases redirect to the Changes index (those packages stay archived as GitHub / Zenodo releases)
@@ -2409,11 +2418,13 @@ def main():
                     studies_added=[dict(acc=x.study_accession, title=(x.study_title or '')[:100], n=int(x.n_samples_curated or 0)) for x in st_added.sort_values('n_samples_curated', ascending=False).head(25).itertuples(index=False)],
                     nothing=(len(added) == 0 and len(st_added) == 0 and len(rg_added) == 0))
     changes = []
+    _changelog_href = next((x['href'] for x in doc_list if x['name'] == 'CHANGELOG.md'), None)   # F49: the package changelog as rendered on the site
     for d in releases_desc:
         c = changes_for(d['release_id'])
         c.update(release_date=d['release_date'], package_version=d['package_version'], current=d['current'], href=d['changes_href'])
         changes.append(c)
         render('changes_release.html', rspec['site_pages']['changes_release'].format(release_id=d['release_id']), '../', nav='downloads', c=c, rel=d,
+               changelog_href=('../' + _changelog_href) if _changelog_href else None,
                crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases', href='../downloads/index.html#releases'), dict(label='Changes', href='index.html'), dict(label=d['release_id'])])
     render('changes_index.html', rspec['site_pages']['changes_index'], '../', nav='downloads', changes=changes, public_from=(_pub_from if _pub_from in _ids else None),
            crumbs=[dict(label='Home', href='../index.html'), dict(label='Downloads & releases', href='../downloads/index.html#releases'), dict(label='Changes')])
@@ -2523,6 +2534,14 @@ def main():
     def dirstat(sub, pattern='*'):
         fs = [f for f in (out / sub).glob(pattern) if f.is_file()]
         return dict(n=len(fs), size=human(sum(f.stat().st_size for f in fs)), bytes=sum(f.stat().st_size for f in fs))
+    # F44: the Condition explorer's three tables carry their row counts and say they move with the release
+    def _cond_rows(name):
+        q = out / 'data' / 'conditions' / name
+        return max(0, sum(1 for _ in q.open(encoding='utf-8')) - 1) if q.exists() else 0
+    _cn = {n: _cond_rows(n) for n in ('condition_explorer.csv', 'condition_explorer_projects.csv', 'condition_explorer_associations.csv')}
+    _cond_desc = (('Tables of the Condition explorer, rebuilt with each release: %s conditions, %s condition × project rows, '
+                   '%s published associations that replicated') % tuple(f"{_cn[n]:,}" for n in _cn)) if _cn['condition_explorer.csv'] else \
+        'Tables of the Condition explorer, rebuilt with each release: conditions, condition × project rows, published associations'
     sitedata = [
         dict(path='data/catalog_sample_metadata_wide.parquet', desc='Sample table loaded by the explorer (one row per catalog sample)', **dirstat('data', 'catalog_sample_metadata_wide.parquet')),
         dict(path='data/catalog_studies.parquet', desc='Project table loaded by the explorer', **dirstat('data', 'catalog_studies.parquet')),
@@ -2535,7 +2554,7 @@ def main():
         dict(path='data/studies_index.json', desc='Project index used by the project table', **dirstat('data', 'studies_index.json')),
         dict(path='data/contribute_worklist.json', desc='Contribution worklist (one object per open project)', **dirstat('data', 'contribute_worklist.json')),
         dict(path='data/package/', desc='The catalog, registry and release files of the package, file by file', **dirstat('data/package')),
-        dict(path='data/conditions/condition_explorer*.csv', desc='Tables of the Condition explorer: conditions, condition × project rows, published associations', **dirstat('data/conditions', 'condition_explorer*.csv')),
+        dict(path='data/conditions/condition_explorer*.csv', desc=_cond_desc, **dirstat('data/conditions', 'condition_explorer*.csv')),
         dict(path='authors/idx/<letter>.json', desc='Author index shards', **dirstat('authors/idx')),
     ]
     offsite = [dict(o, name=o['name'].replace('{v}', version), desc=o['desc'].replace('{v}', version)) for o in OFFSITE]
@@ -2584,9 +2603,11 @@ def main():
     src = yaml.safe_load(Path(a.sources_config).read_text(encoding='utf-8'))
     for k in ('funding', 'data_sources', 'software', 'related_efforts'):
         assert k in src, f'config/sources.yaml lacks {k}'
-    _ing = {'used', 'candidate_high', 'candidate_medium', 'candidate_low', 'not_applicable'}
+    # R2026.44 (review F40): `validation_only` is a class of its own — the resource was used to check this release and
+    # no value of it is ingested; it gets its own heading on the External resources page.
+    _ing = {'used', 'validation_only', 'candidate_high', 'candidate_medium', 'candidate_low', 'not_applicable'}
     assert all(r.get('ingestion') in _ing for r in src['related_efforts']), 'sources.yaml: ingestion outside the vocabulary'
-    order = ['used', 'candidate_high', 'candidate_medium', 'candidate_low', 'not_applicable']
+    order = ['used', 'validation_only', 'candidate_high', 'candidate_medium', 'candidate_low', 'not_applicable']
     src['related_efforts'] = sorted(src['related_efforts'], key=lambda r: (order.index(r['ingestion']), r['name'].lower()))
     # External resources page (R2026.20): one section per incorporated resource with what it is, what we took, and the projects using it
     _ecols = [c for c in ('study_accession', 'sample_key', 'evidence_source', 'field_name', 'scope') if c in cd.columns]
@@ -2683,7 +2704,9 @@ def main():
                     n_pt_proj=int(cd.loc[cd.determined_by.astype(str).str.startswith('catalog_persontime_v1'), 'study_accession'].nunique()) if 'study_accession' in cd.columns else 0,
                     axes=_col('time_axis').value_counts().to_dict(), rel_kinds=pd.Series([k_ for v_ in _col('relatedness_designs').dropna() for k_ in str(v_).split(';') if k_]).value_counts().to_dict())
     render('value_sources.html', 'about/value_sources.html', '../', nav='about', rows=vs_rows, extra=vs_extra, fields=vs_fields, dz=dz_stats)
-    render('external.html', 'about/external.html', '../', nav='about', ext=ext_list, others=[r for r in src['related_efforts'] if r.get('ingestion') != 'used'],
+    render('external.html', 'about/external.html', '../', nav='about', ext=ext_list,
+           checked=[r for r in src['related_efforts'] if r.get('ingestion') == 'validation_only'],
+           others=[r for r in src['related_efforts'] if r.get('ingestion') not in ('used', 'validation_only')],
            crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='External resources')])
     render('sources.html', 'about/sources.html', '../', nav='about', src=src, crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Sources & acknowledgements')])
     render('accessibility.html', 'about/accessibility.html', '../', nav='about', crumbs=[dict(label='Home', href='../index.html'), dict(label='About', href='index.html'), dict(label='Accessibility, privacy & security')])

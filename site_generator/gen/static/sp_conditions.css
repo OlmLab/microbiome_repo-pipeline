@@ -21,7 +21,9 @@
 .cn-table tr.cn-row-on { background: var(--cu-pale-gold, #f3eedd); }
 .cn-table td.cn-age { width: 132px; }
 .cn-ids a { white-space: nowrap; }
-.cn-legacy { color: var(--muted, #565a5c); }
+.cn-legacy { color: var(--muted, #565a5c); cursor: help; }
+.cn-idtag { font-size: .75rem; letter-spacing: .02em; color: var(--muted, #565a5c); }
+.cn-noid { color: var(--muted, #565a5c); }
 .cn-nobar { color: var(--muted, #565a5c); }
 .cn-agebar { display: block; }
 .cn-agebar rect.cn-b0 { fill: var(--cn-b0); } .cn-agebar rect.cn-b1 { fill: var(--cn-b1); }

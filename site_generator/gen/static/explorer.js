@@ -152,30 +152,38 @@ const condKey = s => String(s || '').trim().toLowerCase().replace(/_/g, ':');
 function hideField(el) { el.disabled = true; el.style.display = 'none'; const l = document.querySelector(`label[for="${el.id}"]`); if (l) l.style.display = 'none'; }
 async function loadConditions() {
   const el = $('f-condition');
-  if (!el || el.disabled || !CFG.conditions) return;
+  if (!el || el.disabled) return;
+  if (!CFG.conditions) { hideField(el); return; }   // no condition table in this build → no filter
   try {
     const r = await fetch(CFG.conditions); if (!r.ok) throw new Error('HTTP ' + r.status);
     CONDITIONS = parseCsv(await r.text()).map(c => ({name: c.condition_name, anchor: c.anchor, id: c.condition_id, efo: c.efo_id, mondo: c.mondo_id, cases: Number(c.cases) || 0}));
+    if (!CONDITIONS.length) throw new Error('the condition table is empty');   // no list → no filter (the page says so)
     CONDITION_BY = new Map();
     for (const c of CONDITIONS) for (const k of [c.name, c.anchor, c.id, c.efo, c.mondo]) if (k && !CONDITION_BY.has(condKey(k))) CONDITION_BY.set(condKey(k), c);
     const dl = $('cond-list');
     if (dl) dl.innerHTML = CONDITIONS.slice().sort((a, b) => b.cases - a.cases).map(c => `<option value="${h(c.name)}">${h([c.efo, c.mondo].filter(Boolean).join(' '))} · ${c.cases.toLocaleString()} cases</option>`).join('');
   } catch (e) { CONDITIONS = null; CONDITION_BY = null; hideField(el); }
 }
+// One condition = one identifier. The sample's condition id is health_condition_efo_id; health_condition_mondo_id
+// carries the MONDO term of the same condition and is the identifier only for the conditions EFO has no term for
+// (their condition id is a MONDO id and the EFO column is empty). The two columns are therefore never ORed: 14 pairs
+// of conditions share a MONDO id, and matching on both returns the samples of the other condition as well.
 function conditionClause(v) {
   const c = CONDITION_BY ? CONDITION_BY.get(condKey(v)) : null;
   const parts = [];
   if (c) {
-    if (c.efo && COLS.has('health_condition_efo_id')) parts.push(`s."health_condition_efo_id" = '${esc(c.efo)}'`);
-    if (c.mondo && COLS.has('health_condition_mondo_id')) parts.push(`s."health_condition_mondo_id" = '${esc(c.mondo)}'`);
-    if (!parts.length && COLS.has('health_condition_name')) parts.push(`s."health_condition_name" = '${esc(c.name)}'`);
+    const col = c.efo ? 'health_condition_efo_id' : 'health_condition_mondo_id';
+    const id = c.efo || c.mondo;
+    if (id && COLS.has(col)) parts.push(`s."${col}" = '${esc(id)}'`);
+    else if (COLS.has('health_condition_name')) parts.push(`s."health_condition_name" = '${esc(c.name)}'`);
     return parts;
   }
-  if (/^[A-Za-z]+[:_]\d+$/.test(v.trim())) {          // an id the list does not know (or no list at all)
-    const id = v.trim().replace('_', ':').toUpperCase();
+  const t = v.trim();
+  if (/^[A-Za-z]+[:_]\d+$/.test(t)) {          // an identifier the list does not know (or no list at all)
+    const id = t.replace('_', ':');             // the identifier as written: Orphanet keeps its case
     for (const col of ['health_condition_efo_id', 'health_condition_mondo_id']) if (COLS.has(col)) parts.push(`s."${col}" = '${esc(id)}'`);
   } else if (COLS.has('health_condition_name')) {
-    parts.push(`s."health_condition_name" ILIKE '%${esc(v.trim())}%'`);
+    parts.push(`s."health_condition_name" ILIKE '%${esc(t)}%'`);
   }
   return parts;
 }
