@@ -2,8 +2,10 @@
 """ingest_verifications.py — GitHub Issues titled '[verified] …' or labelled `metadata-verified` (form issue_templates/verify-metadata.yml) →
 config/human_verified.csv, which sets the per-project "Human verified" source flag (catalog.scopes.study_sources).
 
-A verification counts when the issue body names a project accession, both checkboxes of the form are ticked, and the
-issue is not labelled `invalid` / `wontfix` (maintainers reject a check by adding one of those labels). One row per
+A verification counts when the issue body names a project accession, the form says the metadata are complete, and the
+issue is not labelled `invalid` / `wontfix` (maintainers reject a check by adding one of those labels). "Complete" is: both
+checkboxes ticked (form before R2026.43), or the one checkbox ticked and the answer "Nothing public is missing" (form since
+R2026.43, where the second checkbox became a required choice; the other answer, "I found something missing", never counts). One row per
 (project, GitHub user); re-running is idempotent.
 
     GITHUB_TOKEN=... python scripts/ingest_verifications.py --repo OlmLab/microbiome_repo [--out config/human_verified.csv]
@@ -18,6 +20,16 @@ import requests
 
 ACC = re.compile(r"\bPRJ(?:NA|EB|DB)\d+\b")
 TICK = re.compile(r"- \[[xX]\]")
+NOTHING_MISSING = re.compile(r"^\s*Nothing public is missing\s*$", re.M)
+FOUND_MISSING = re.compile(r"^\s*I found something missing", re.M)
+
+
+def is_complete(body: str) -> bool:
+    """True when the submitted form says the public metadata are complete (old two-checkbox form or the R2026.43 form)."""
+    ticks = len(TICK.findall(body))
+    if FOUND_MISSING.search(body):
+        return False
+    return ticks >= 2 or (ticks >= 1 and bool(NOTHING_MISSING.search(body)))
 
 
 def fetch(repo, token):
@@ -47,7 +59,7 @@ def rows_from_issues(issues):
             continue
         body = i.get("body") or ""
         m = ACC.search(body) or ACC.search(i.get("title") or "")
-        if not m or len(TICK.findall(body)) < 2:
+        if not m or not is_complete(body):
             continue
         user = (i.get("user") or {}).get("login", "")
         rows[(m.group(0), user)] = dict(study_accession=m.group(0), verified_by=user, date=(i.get("created_at") or "")[:10],
