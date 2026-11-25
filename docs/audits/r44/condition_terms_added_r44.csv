@@ -1,0 +1,2 @@
+study_accession,health_condition,health_condition_detail,string_class,role,state,condition_name,efo_id,mondo_id,condition_id,efo_legacy_ids
+PRJNA689961,other_infection,patient with COVID-19,disease,case,current,COVID-19,MONDO:0100096,MONDO:0100096,MONDO:0100096,

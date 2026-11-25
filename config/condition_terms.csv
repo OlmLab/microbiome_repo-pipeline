@@ -7,7 +7,7 @@ PRJEB62690,intervention_cohort,healthy full-term infants ≤14 days of age at en
 PRJEB62690,intervention_cohort,healthy full-term infants ≤14 days of age at enrolment; Control formula,not_a_condition,not_condition,na,,,,,
 PRJEB63222,healthy_control,"healthy, normal weight women; healthy women receiving dietary fiber intervention (oat bran or spelt bran)",healthy,healthy_control,na,,,,,
 PRJEB72531,intervention_cohort,Twins aged 60+ with previously reported low dietary protein intake; prebiotic vs placebo RCT with BCAA and exercise in o,not_a_condition,not_condition,na,,,,,
-PRJNA1086951,intervention_cohort,"cognitively unimpaired older adults with family history of AD, suboptimal diet, BMI >= 25; MIND",not_a_condition,not_condition,na,Overweight,HP:0025502,,HP:0025502,
+PRJNA1086951,intervention_cohort,"cognitively unimpaired older adults with family history of AD, suboptimal diet, BMI >= 25; MIND",not_a_condition,not_condition,na,,,,,
 PRJNA1086951,intervention_cohort,"cognitively unimpaired older adults with family history of AD, suboptimal diet, BMI >= 25; Contol",condition_not_named,other_control,at_risk_or_pre,,,,,
 PRJNA1179893,ibs,IBS patients (Rome IV criteria) with moderate to severe bloating,disease,case,current,irritable bowel syndrome,MONDO:0005052,MONDO:0005052,MONDO:0005052,EFO:0000555
 PRJNA1417478,intervention_cohort,Healthy adults undergoing a five-day round trip from China to Japan; healthy adults receiving probiotic or placebo inter,not_a_condition,not_condition,na,,,,,
@@ -4289,7 +4289,7 @@ PRJNA486009,gi_infection_or_diarrhoea,diarrhoea case with aEPEC diarrheagenic E.
 ,other_cancer,C412 | Malignant neoplasm of vertebral column,disease,case,current,cancer,MONDO:0004992,MONDO:0004992,MONDO:0004992,EFO:0000311
 ,other_cancer,"C4372 | Malignant melanoma of left lower limb, including hip",disease,case,current,melanoma,MONDO:0005105,MONDO:0005105,MONDO:0005105,EFO:0000756
 ,other_cancer,C7A1 | Malignant poorly differentiated neuroendocrine tumors,disease,case,current,neuroendocrine carcinoma,MONDO:0002120,MONDO:0002120,MONDO:0002120,
-,other_cancer,C7651 | Malignant neoplasm of right lower limb,disease,case,current,cancer,,MONDO:0004992,MONDO:0004992,
+,other_cancer,C7651 | Malignant neoplasm of right lower limb,disease,case,current,cancer,MONDO:0004992,MONDO:0004992,MONDO:0004992,
 ,other_cancer,C651 | Malignant neoplasm of right renal pelvis,disease,case,current,malignant renal pelvis neoplasm,MONDO:0044919,MONDO:0044919,MONDO:0044919,
 ,other_cancer,ALL.Survivor,disease,case,treated_or_remission,acute lymphoblastic leukemia,MONDO:0004967,MONDO:0004967,MONDO:0004967,EFO:0000219;EFO:0000220
 ,other_infection,COVIDPOS,disease,case,current,COVID-19,MONDO:0100096,MONDO:0100096,MONDO:0100096,

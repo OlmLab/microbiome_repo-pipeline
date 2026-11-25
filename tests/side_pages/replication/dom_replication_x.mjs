@@ -138,9 +138,9 @@ bad = 0;
   if (td[1] !== fmt(g.length) || !td[4].startsWith(`${fmt(u)} of ${fmt(g.length)}`) || !td[5].startsWith(`${fmt(o)} of ${fmt(g.length)}`) || !td[7].startsWith(`${fmt(b)} of ${fmt(g.length)}`) ||
       !td[3].startsWith(`${cohorts.size} (the largest carries ${fmt(Math.max(...cohorts.values()))} claims)`)) bad++;
 });
-ok("item 3 table: one-cohort and two-cohort rows equal the per-claim table, kept apart", tr3.length === 2 && bad === 0 && /one cohort/i.test(tr3[0].textContent) && /two cohorts/i.test(tr3[1].textContent));
+ok("item 3 table: one-cohort and two-cohort rows equal the per-claim table, kept apart", tr3.length === 2 && bad === 0 && /one project/i.test(tr3[0].textContent) && /two projects/i.test(tr3[1].textContent));
 ok("item 3 says one cohort is not a replication, that the results are not independent, and what the own cohort has to do with it",
-   /not a replication across studies/.test(P.q("#rpx-few").textContent) && /not independent/.test(P.q("#rpx-few").textContent) && /claim’s own cohort was set aside/.test(P.q("#rpx-few").textContent));
+   /not a replication across studies/.test(P.q("#rpx-few").textContent) && /not independent/.test(P.q("#rpx-few").textContent) && /claim’s own project was set aside/.test(P.q("#rpx-few").textContent));
 const few1 = few.filter((r) => r.cohorts === "1");
 ok("item 3 gives the opposite-direction share of the one-cohort group beside its shuffled-label level",
    P.q("#rpx-few-note").textContent.includes((100 * few1.filter((r) => Number(r.p_opp) < 0.05).length / few1.length).toFixed(1) + " %") && /with shuffled labels/.test(P.q("#rpx-few-note").textContent));
@@ -172,7 +172,7 @@ for (const c of [one, two]) {
   await show(P, c.id); await show(P0, c.id);
   const r = FEW.get(c.id), txt = P.q("#rpx-note")?.textContent || "";
   ok(`untested claim ${c.id}: exploratory paragraph says "${r.cohorts === "1" ? "one cohort" : "two cohorts"}", ${r.n_case} cases, ${r.n_control} controls`,
-     (r.cohorts === "1" ? /tested in one cohort/i : /tested in two cohorts/i).test(txt) && txt.includes(`${fmt(r.n_case)} cases, ${fmt(r.n_control)} controls`), txt.slice(0, 200));
+     (r.cohorts === "1" ? /tested in one project/i : /tested in two projects/i).test(txt) && txt.includes(`${fmt(r.n_case)} cases, ${fmt(r.n_control)} controls`), txt.slice(0, 200));
   ok(`  estimate ${Number(r.auc_pooled).toFixed(3)} and interval as in the table; the label stays "not tested"`,
      txt.includes(Number(r.auc_pooled).toFixed(3)) && txt.includes(`${Number(r.ci95_low).toFixed(3)}–${Number(r.ci95_high).toFixed(3)}`) && /stays “not tested”/.test(txt) &&
      /Not tested/.test(P.q("#rp-panel .rp-badge").textContent) && strip(P) === P0.q("#rp-panel").innerHTML);
@@ -197,7 +197,7 @@ for (const c of claims) {
     const txt = P.q("#rpx-note").textContent;
     const tested = new Set(), own = new Set();
     for (const m of txt.matchAll(/For the claim of PubMed ([0-9, ]+): tested in/g)) m[1].split(", ").forEach((x) => tested.add(x));
-    for (const m of txt.matchAll(/For the claim of PubMed ([0-9, ]+) the only cohort is the paper’s own/g)) m[1].split(", ").forEach((x) => own.add(x));
+    for (const m of txt.matchAll(/For the claim of PubMed ([0-9, ]+) the only project is the paper’s own/g)) m[1].split(", ").forEach((x) => own.add(x));
     const wantTested = new Set(c.test.claims.filter((q) => FEW.has(q.id)).map((q) => String(PMID[q.p])));
     const wantOwn = new Set(c.test.claims.filter((q) => !FEW.has(q.id)).map((q) => String(PMID[q.p])));
     const results = new Set(c.test.claims.filter((q) => FEW.has(q.id)).map((q) => { const r = FEW.get(q.id); return [r.cohorts, r.auc_pooled, r.p_rep, r.n_case, r.n_control].join("|"); }));

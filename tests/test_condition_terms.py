@@ -45,3 +45,14 @@ def test_shipped_terms_table_is_well_formed():
     efo = named.efo_id[named.efo_id != ""]   # a few conditions have a MONDO id only
     assert efo.str.match(r"^(EFO|MONDO|HP|Orphanet):[A-Za-z0-9_]+$").all()
     assert (t.mondo_id[t.mondo_id != ""].str.match(r"^MONDO:\d{7}$")).all()
+
+
+def test_shipped_terms_one_efo_id_per_condition_and_names_only_for_cases():
+    import os
+    import pandas as pd
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    t = pd.read_csv(os.path.join(root, "config", "condition_terms.csv"), dtype=str, keep_default_na=False)
+    named = t[t.condition_id != ""]
+    assert (named.groupby("condition_id").efo_id.nunique() == 1).all()
+    assert named.role.isin(["case", "other_control"]).all()
+    assert (t[~t.role.isin(["case", "other_control"])].condition_name == "").all()
