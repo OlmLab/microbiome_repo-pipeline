@@ -31,3 +31,17 @@ def test_without_a_file_the_columns_exist_and_are_empty():
     w = pd.DataFrame(dict(sample_key=["a"], study_accession=["P"], health_condition=["ibs"], health_condition_detail=["x"]))
     out, st = bgs.add_condition_terms(w, None)
     assert all(c in out.columns and out[c].isna().all() for c in bgs.CONDITION_TERM_COLS) and st["file"] is False
+
+
+def test_shipped_terms_table_is_well_formed():
+    """R2026.44: config/condition_terms.csv — one row per key, one name and one MONDO id per condition, ids shaped like ids."""
+    import os
+    import pandas as pd
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    t = pd.read_csv(os.path.join(root, "config", "condition_terms.csv"), dtype=str, keep_default_na=False)
+    assert not t.duplicated(["study_accession", "health_condition", "health_condition_detail"]).any()
+    named = t[t.condition_id != ""]
+    assert (named.groupby("condition_id").mondo_id.nunique() == 1).all()
+    efo = named.efo_id[named.efo_id != ""]   # a few conditions have a MONDO id only
+    assert efo.str.match(r"^(EFO|MONDO|HP|Orphanet):[A-Za-z0-9_]+$").all()
+    assert (t.mondo_id[t.mondo_id != ""].str.match(r"^MONDO:\d{7}$")).all()

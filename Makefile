@@ -447,7 +447,7 @@ SANDPIPER_CUTOFF ?= 2026-03-03
 # R2026.36: checked value corrections (study_accession,field,sample_keys,action,rule_id,reason,evidence_source,evidence_quote)
 PLAUSIBILITY_CORRECTIONS ?= $(GUT_DIR)/plausibility_corrections.csv
 # R2026.44: condition names and EFO / MONDO ids per (project, health_condition, detail) -> three derived columns of the wide table
-CONDITION_TERMS ?= $(GUT_DIR)/condition_terms.csv
+CONDITION_TERMS ?= config/condition_terms.csv
 
 atlas-observations: ## recompute the Atlas observation cards (obs/*.png + obs/*.csv + observations.json) from the Sandpiper tables + the released wide table → $(ATLAS_DATA); HDI = site_generator/gen/data/undp_hdr2025_hdi_2023.csv
 	@test -f "$(GUT_SANDPIPER_DIR)/gut_sandpiper_sample_genus.parquet" || { echo "Sandpiper genus table missing: $(GUT_SANDPIPER_DIR)"; exit 1; }
