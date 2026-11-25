@@ -96,6 +96,7 @@
 </tbody></table>
 <p class="small">A comparison with too few samples to test at any level is left out of this table.</p>
 </details>
+{% if critique_checks_base %}{% include "_vanish_critique_checks.html" %}{% endif %}
 <details class="sp-more"><summary>Limits</summary>
 <p class="small">The non-industrialized group rests on few independent projects, and one project contributes much of it; leaving one project out at a time is the guard. Sandpiper assigns reads to GTDB genomes, so a taxon with no reference genome is invisible, and non-industrialized communities are the less well sequenced ones. About half the catalog has no profile at all. Lifestyle labels are read from project records and are incomplete; the external labels come from one paper's table. This page shows no result by health condition.</p>
 {% if S %}<p class="small" id="vb-read-taxonomy">All results are statements about taxa that {{ S.s6.taxonomy_db or 'GTDB' }} {{ S.s6.taxonomy_version or 'R232' }} contains and that SingleM's marker genes can see{% if S.s6.n_species_profiled %}: {{ "{:,}".format(S.s6.n_species_profiled) }} species appear in these gut profiles at all, and {{ "{:,}".format(S.s6.n_species_tested_model) }} of them met the testing rule of the model-based analysis for adults against high-HDI countries{% endif %}. They are not statements about strains, about functions, or about lineages that no reference catalogue holds.</p>{% endif %}
