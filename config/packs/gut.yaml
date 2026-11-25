@@ -68,9 +68,9 @@ derived_fields:
   # health_condition / health_condition_detail by the mapping of the condition curation (EFO + MONDO), so no
   # evidence row and no route of their own; empty where the label names no condition or no term was found. They
   # drive the Condition explorer (atlas/conditions.html) and the disease-name filter on Samples.
-  health_condition_name: {type: text, from: health_condition, note: "Name of the condition this sample's health-condition label names, in the words of its ontology term."}
-  health_condition_efo_id: {type: text, from: health_condition, note: "EFO term of that condition; EFO has retired most disease ids in favour of MONDO, so most values carry a MONDO: prefix."}
-  health_condition_mondo_id: {type: text, from: health_condition, note: "MONDO term of that condition."}
+  health_condition_name: {type: text, derived_from: health_condition, note: "Name of the condition this sample's health-condition label names, in the words of its ontology term."}
+  health_condition_efo_id: {type: text, derived_from: health_condition, note: "EFO term of that condition; EFO has retired most disease ids in favour of MONDO, so most values carry a MONDO: prefix."}
+  health_condition_mondo_id: {type: text, derived_from: health_condition, note: "MONDO term of that condition."}
   # infant-only fields carried verbatim from the curated infant tables (never minted for non-infant samples):
   delivery_mode: {type: enum, infant_only: true}
   feeding_mode: {type: enum, infant_only: true}
