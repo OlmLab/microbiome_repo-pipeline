@@ -173,7 +173,9 @@ jobs:
               expect(txt).toMatch(/\d/);
               const row = page.locator('table tbody tr').first();
               await row.click();
-              await expect(page.getByText(/evidence/i).first()).toBeVisible({ timeout: 30000 });
+              // R2026.43: the first text matching /evidence/ on the page is now inside the collapsed "About this page" box;
+              // look for the heading of the row's detail panel instead
+              await expect(page.locator('h3', { hasText: /^Evidence$/ }).first()).toBeVisible({ timeout: 30000 });
             });
           });
           test('registry explorer loads registry_studies.parquet and shows a row count', async ({ page }) => {
