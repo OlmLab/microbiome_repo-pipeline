@@ -89,6 +89,14 @@ def main():
                   OR s.country IS DISTINCT FROM w.country OR s.age_category IS DISTINCT FROM w.age_category)""") == 0,
        "labels equal the release's sample table")
 
+    ok(one(f"SELECT count(*) FROM {S} WHERE person_id IS DISTINCT FROM study_accession || '|' || person_key") == 0,
+       "person_id is project accession | person_key")
+    persons = one(f"""SELECT count(*) FROM (SELECT DISTINCT w.study_accession, coalesce(nullif(w.person_key, ''), w.sample_key)
+                        FROM {wide} w SEMI JOIN keep k ON k.sample_key = w.sample_key
+                        WHERE w.release_retired IS NULL AND w.sample_type = 'specimen')""")
+    ok(one(f"SELECT count(DISTINCT person_id) FROM {S}") == persons, "persons counted per project (%d)" % persons)
+    with open(os.path.join(a.out, "DATASET_CARD.md"), encoding="utf-8") as fh:
+        ok(("%s persons" % f"{persons:,}") in fh.read(), "the dataset card states the person count %d" % persons)
     # 3. folds
     groups = con.execute(f"SELECT project_group, min(fold_5), max(fold_5), min(fold_10), max(fold_10) FROM {S} GROUP BY 1").fetchall()
     bad = 0

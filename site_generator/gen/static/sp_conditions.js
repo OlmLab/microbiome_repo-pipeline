@@ -230,7 +230,7 @@
     var li = [];
     li.push('<li><b>' + fmtInt(num(r.cases)) + '</b> case samples in <b>' + fmtInt(num(r.projects)) + '</b> projects (' +
       STATES.map(function (s) { return fmtInt(num(r[s[0]])) + ' ' + s[1]; }).join(' · ') + ')</li>');
-    li.push('<li><b>' + fmtInt(num(r.case_people)) + '</b> people, where the projects say which samples come from the same person</li>');
+    li.push('<li><b>' + fmtInt(num(r.case_people)) + '</b> people, counted within each project, where the project says which samples come from the same person (a person sampled in two projects counts twice)</li>');
     if (num(r.cases_incl_narrower) !== num(r.cases)) {
       li.push('<li><b>' + fmtInt(num(r.cases_incl_narrower)) + '</b> case samples in <b>' + fmtInt(num(r.projects_incl_narrower)) +
         '</b> projects including the narrower conditions below</li>');

@@ -106,6 +106,7 @@ def main():
         SELECT m.sample_key, m.study_accession,
                coalesce(nullif(s.study_group_id, ''), m.study_accession) AS project_group,
                coalesce(nullif(m.person_key, ''), m.sample_key) AS person_key,
+               m.study_accession || '|' || coalesce(nullif(m.person_key, ''), m.sample_key) AS person_id,
                {labels},
                q.root_coverage_sum, q.richness_genus, q.shannon_genus
         FROM {md} m
@@ -249,7 +250,7 @@ def main():
     one = lambda sql: con.execute(sql).fetchone()[0]
     n_projects = one("SELECT count(DISTINCT study_accession) FROM samples")
     n_groups = one("SELECT count(DISTINCT project_group) FROM samples")
-    n_persons = one("SELECT count(DISTINCT person_key) FROM samples")
+    n_persons = one("SELECT count(DISTINCT person_id) FROM samples")
     sites = con.execute("""SELECT coalesce(body_site_code, '(not recorded)'), count(*), count(DISTINCT study_accession)
                            FROM samples GROUP BY 1 ORDER BY 2 DESC""").fetchall()
     cover = [(c, one('SELECT count("%s") FROM samples' % c)) for c in LABELS]
@@ -297,7 +298,7 @@ def main():
     for c, n in cover:
         L.append("| `%s` | %s | %.1f %% |" % (c, f"{n:,}", 100.0 * n / max(n_samples, 1)))
     L.append("")
-    L.append("Other columns: `sample_key`, `study_accession`, `project_group`, `person_key`, `root_coverage_sum` (profile depth), "
+    L.append("Other columns: `sample_key`, `study_accession`, `project_group`, `person_key`, `person_id`, `root_coverage_sum` (profile depth), "
              "`richness_genus`, `shannon_genus`, `n_genera_detected`.")
     L.append("")
     L.append("## Fixed leave-project-out splits")
@@ -306,7 +307,8 @@ def main():
              "Use it as the group for leave-one-project-out validation.")
     L.append("- `fold_5` and `fold_10` put every project group into one fold: the first 8 hex digits of `md5(project_group)`, as an integer, modulo 5 or 10. "
              "A project group keeps its fold in every later release. Folds are not balanced in size.")
-    L.append("- A person can have several samples. For one sample per person, keep the first row per `person_key`.")
+    L.append("- A person can have several samples. `person_key` is the project's own subject label and is unique only within a project; "
+             "`person_id` (project accession, `|`, `person_key`) identifies a person across the release. For one sample per person, keep the first row per `person_id`.")
     L.append("")
     L.append("| fold_5 | Samples | Project groups | Projects |")
     L.append("|---|---|---|---|")
