@@ -129,7 +129,9 @@ def counts(con) -> pd.DataFrame:
     age = ", ".join(f"SUM(CASE WHEN age_category='{b}' THEN 1 ELSE 0 END) AS cases_age_{b}" for b in AGE_BANDS)
     main = con.execute(f"""
         SELECT cid AS condition_id, COUNT(*) AS cases, COUNT(DISTINCT study_accession) AS projects,
-               COUNT(DISTINCT person_key) AS case_people,
+               -- a person is a (project, person_key) pair: person_key is unique only within a project (R2026.44; the
+               -- hand-over table counted the key alone, which merges people of different projects who share a subject number)
+               COUNT(DISTINCT study_accession || chr(31) || person_key) AS case_people,
                SUM(CASE WHEN state='current' THEN 1 ELSE 0 END) AS cases_current,
                SUM(CASE WHEN state='treated_or_remission' THEN 1 ELSE 0 END) AS cases_treated_or_remission,
                SUM(CASE WHEN state='at_risk_or_pre' THEN 1 ELSE 0 END) AS cases_at_risk_or_pre,
