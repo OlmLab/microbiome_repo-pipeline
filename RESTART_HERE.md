@@ -1,4 +1,14 @@
-# RESTART_HERE — Microbiome Repo (v17, 2026-11-24, after R2026.43)
+# RESTART_HERE — Microbiome Repo (v18, 2026-11-25, after R2026.44)
+
+**State**: R2026.44 / 1.35.0 is published (25 November 2026 MST; DOI 10.5281/zenodo.24550631). It is the final data release of the grant: disease
+names with EFO and MONDO identifiers beside every condition label, condition labels revised, values corrected after a comparison with Metalog
+and a blind audit, a Condition explorer page, analysis-ready exports as release downloads, an MCP server (`OlmLab/microbiome_repo-mcp`).
+813,356 samples, 5,086 projects. Read `docs/MONTHLY_RUN.md`, section "Added in R2026.44" (order of the steps, condition terms, corrections,
+publication, what is left open), then the sections for R2026.43 and R2026.42. A small follow-up release is expected: corrected
+VANISH / BloSSUM lists once the Side pages chat has rerun the classes with persons identified by project and person key.
+`~/catalog` is read-only to chat code; the clones there are behind GitHub (`git fetch origin && git reset --hard origin/main`).
+
+# RESTART_HERE — Microbiome Repo (v17, 2026-11-24, after R2026.43) — previous state
 
 **State**: R2026.43 / 1.34.2 is published (24 November 2026, 20:55 MST; DOI 10.5281/zenodo.24521153). It is a site release that applies an external website review (one word per thing, shorter pages, stale
 statements and dead links removed, the Taxon map recomputed on the current profiles); the data are those of 1.34.0 (813,356

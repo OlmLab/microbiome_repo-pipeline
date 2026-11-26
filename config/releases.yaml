@@ -462,6 +462,7 @@ releases:
     notes_file: RELEASE_NOTES_R2026.44.md
     data_tag: data-v1.35.0
     site_tag: site-v1.35.0
+    doi: 10.5281/zenodo.24550631
     label: "data release: disease name with EFO and MONDO identifiers beside every condition label; condition labels revised after a check of unclear and free-text strings; values corrected after a comparison with Metalog and a blind audit, each confirmed against its source; new Condition explorer page"
 
 # Bitemporal columns appended (in this order) at the END of every fact table.

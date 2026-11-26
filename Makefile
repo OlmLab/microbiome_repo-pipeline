@@ -356,6 +356,8 @@ publish-branch:  ## stage 7 — copy site + package into the clones, commit on r
 	@n=$$(rsync -rcn --delete --exclude .git --exclude '.github/workflows/*' --exclude '.github/ISSUE_TEMPLATE/*' --exclude .DS_Store $(SITE_OUT)/ $(SITE_CLONE)/ 2>&1 | grep -v '^rsync(' | grep -vc '^$$' || true); test "$$n" = "0" || { echo "site clone differs from build in $$n paths"; exit 1; }
 	cd $(SITE_CLONE) && git add -A && git commit -q -m "site $(VERSION) ($(BUILD_DATE))" && git tag -f site-v$(VERSION)
 	cd $(DATA_CLONE) && git fetch -q origin && git checkout -q --no-track -B release/$(VERSION) origin/main
+	@# R2026.44: the release workflow that runs on the data tag is the copy inside the tagged commit — take it from the pipeline (data-v1.35.0 was tagged with a stale copy and its release run failed; it was then dispatched from main)
+	mkdir -p $(DATA_CLONE)/.github/workflows && cp .github/workflows/release.yml $(DATA_CLONE)/.github/workflows/release.yml
 	(rsync -a --delete $(PKG_OUT)/ $(DATA_CLONE)/package/ || [ $$? -eq 23 ]) && mkdir -p $(DATA_CLONE)/audit && (rsync -a audit/ $(DATA_CLONE)/audit/ || [ $$? -eq 23 ])
 	@n=$$(rsync -rcn --delete $(PKG_OUT)/ $(DATA_CLONE)/package/ 2>&1 | grep -v '^rsync(' | grep -vc '^$$' || true); test "$$n" = "0" || { echo "data clone package/ differs from build in $$n paths"; exit 1; }
 	# Large release assets (Sandpiper long tables in < 90 MB parts, registry_runs) are NOT committed on the release branch (owner

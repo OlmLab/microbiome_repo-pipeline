@@ -159,6 +159,13 @@ The script used in R2026.44 is kept with the session files (`after_release.sh`).
 
 Its own repository (`microbiome_repo-mcp`). At each release: set `microbiome_repo_mcp/release_pin.py` (release id, package version, release DOI once Zenodo has minted it), run `pytest` with `MICROBIOME_REPO_RELEASE_DIR=<unpacked package>` and `MICROBIOME_REPO_EXPORTS_DIR=build/exports`, push. The site links to it from the For LLMs & API page (`github.repos.mcp` in `config/site.yaml`).
 
+### Publication of R2026.44 (25 November 2026, MST)
+
+- Order used: pipeline `main`; site branch `release/1.35.0` alone; wait for `verify` on the branch (unit tests, site checks, browser test); only then the site tag; release-assets branch; data branch and tag. Keep this order: the browser test is the only real-browser check of the Samples page.
+- The data tag's release run failed: the tagged commit carried the data repository's old `release.yml` (in R2026.43 the pipeline's copy had been put in by hand). Tags cannot be moved. Fix: `release.yml` now accepts a dispatch with the tag as input (`POST …/actions/workflows/release.yml/dispatches`, `ref: main`, `inputs.tag: data-v1.35.0`); it was installed on `main` of the data repository and dispatched; the release has its 24 assets. `make publish-branch` now copies `release.yml` into the data clone before the commit.
+- DOI 10.5281/zenodo.24550631. CU server and GitHub Pages serve R2026.44.
+- MCP server repository `OlmLab/microbiome_repo-mcp` was created through the API, but the token may not push to it (it is limited to the three older repositories): the owner adds the repository to the token or pushes the folder himself.
+
 ### Left open after R2026.44
 
 - Listed, not applied: `docs/audits/r44/conditions_left_out_r44.csv` (52 flagged pairs, 833 samples; PRJNA480674 needs a vocabulary code for a symptomatic non-IBD control) and `fixes_not_applied_r44.csv` (316 rows with a check flag, 107 audit rows where the cited source alone does not support the value, 7 Metalog patterns, 2 audit rows).
