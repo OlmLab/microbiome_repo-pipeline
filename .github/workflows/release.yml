@@ -7,6 +7,14 @@ name: release
 on:
   push:
     tags: ["data-v*"]
+  # R2026.44: the workflow that runs on a tag is the copy INSIDE the tagged commit. When that copy is stale (the data clone was
+  # tagged without `release.yml` from the pipeline) the run fails and the tag cannot be moved. Dispatching this workflow from
+  # `main` with the tag as input builds and attaches the assets of that tag with the current workflow.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "data tag to build the release for, e.g. data-v1.35.0"
+        required: true
 
 permissions:
   contents: write
@@ -16,15 +24,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { lfs: false }
+        with: { lfs: false, ref: "${{ inputs.tag || github.ref }}" }
       - uses: actions/setup-python@v5
         with: { python-version: "3.13" }
       - run: pip install pandas pyarrow duckdb
       - name: Check tag == VERSION.json
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           python - <<'EOF'
           import json, os, sys
-          tag = os.environ["GITHUB_REF_NAME"]
+          tag = os.environ.get("RELEASE_TAG") or os.environ["GITHUB_REF_NAME"]
           v = json.load(open("package/VERSION.json"))
           if v["release_tag"] != tag:
               print(f"tag {tag} != VERSION.json release_tag {v['release_tag']}"); sys.exit(1)
@@ -85,8 +95,8 @@ jobs:
       - name: Attach assets to the GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "Data package ${{ github.ref_name }}"
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          name: "Data package ${{ inputs.tag || github.ref_name }}"
           body_path: package/README.md
           files: |
             data_package_v*.zip
